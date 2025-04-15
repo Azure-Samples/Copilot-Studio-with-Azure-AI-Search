@@ -1,3 +1,3 @@
-Write commit messages that conform to the Convention Commits 1.0.0 specification
+# Commit Message instructions
 
-#fetch https://www.conventionalcommits.org/en/v1.0.0/
+Write commit messages that conform to the [Convention Commits 1.0.0 specification](https://www.conventionalcommits.org/en/v1.0.0/)
