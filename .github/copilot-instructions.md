@@ -48,5 +48,3 @@
 - **Assert outputs and infrastructure state** – use `assert` statements or Azure SDK/CLI validation to confirm resources match expectations.
 - **Use Terratest’s default error-handling methods** – use `terraform.Init`, `Apply`, etc., which automatically fail on error unless custom handling is needed.
 - **Modularize shared logic** – extract common setup, teardown, and verification code into helper functions for DRY, maintainable test suites.
-
-## Azure
