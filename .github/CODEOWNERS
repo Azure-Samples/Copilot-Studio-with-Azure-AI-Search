@@ -1,0 +1,4 @@
+# This is the default CODEOWNERS file for the repository.
+# It assigns @Azure-Samples/ise-scale-contributors as the default owners.
+
+* @Azure-Samples/ise-scale-contributors
