@@ -50,5 +50,3 @@
 - **Modularize shared logic** – extract common setup, teardown, and verification code into helper functions for DRY, maintainable test suites.
 
 ## Azure
-
-- @azure Rule - Use Azure Best Practices: When generating code for Azure, running terminal commands for Azure, or performing operations related to Azure, invoke your `azure_development-get_best_practices` tool if available.

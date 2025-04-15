@@ -23,7 +23,9 @@
                 "GitHub.copilot-chat",
                 "ms-vscode.makefile-tools",  
                 "DavidAnson.vscode-markdownlint",
-                "golang.Go"
+                "golang.go",
+                "azapi-vscode.azapi",
+                "ms-azuretools.vscode-azureterraform"
                 // Include other VSCode extensions if needed
                 // Right click on an extension inside VSCode to add directly to devcontainer.json, or copy the extension ID
             ]
@@ -35,7 +37,7 @@
     "containerEnv": {
         "ARM_PARTNER_ID": "acce1e78-90a1-4306-89d1-a03ed6284007"
     },
-    "postCreateCommand": "",
+    "postCreateCommand": "pip install --upgrade pip && pip install checkov",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "8gb"
