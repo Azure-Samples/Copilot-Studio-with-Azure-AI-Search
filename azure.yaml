@@ -1,0 +1,6 @@
+# Name of the application.
+name: Copilot-Studio-with-Azure-AI-Search
+metadata:
+  template: Copilot-Studio-with-Azure-AI-Search@0.0.1-beta
+infra:
+  provider: terraform
