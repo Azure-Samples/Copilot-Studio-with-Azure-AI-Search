@@ -1,6 +1,6 @@
 # Project Name
 
-(short, 1-3 sentenced, description of the project)
+(short, 1-3 sentences, description of the project)
 
 ## Features
 
