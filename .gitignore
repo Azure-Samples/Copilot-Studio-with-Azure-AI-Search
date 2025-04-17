@@ -436,4 +436,13 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# Plan files, review if this will be reqiured
+# Plan files
+*.tfplan
+
+# Test binaries and temporary files
+*.test
+*.out
+/test-logs/
+
+# Checkov reports
+checkov_report.*
