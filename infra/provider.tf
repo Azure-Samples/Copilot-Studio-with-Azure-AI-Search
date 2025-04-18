@@ -2,9 +2,33 @@
 terraform {
   required_version = ">= 1.1.7, < 2.0.0"
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.0"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = ">= 2.53"
+    }
     azurerm = {
-      version = "~>3.97.1"
       source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+    modtm = {
+      source  = "Azure/modtm"
+      version = "~> 0.3"
+    }
+    powerplatform = {
+      source  = "microsoft/power-platform"
+      version = ">= 3.3.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.5"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "0.12.1"
     }
     azurecaf = {
       source  = "aztfmod/azurecaf"
