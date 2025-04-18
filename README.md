@@ -1,24 +1,27 @@
 # Project Name
 
-(short, 1-3 sentenced, description of the project)
+This repository provides a baseline architecture for integrating Copilot Studio and Power Platform with Azure AI resources. It addresses challenges in initializing and managing these connections while prioritizing enterprise readiness. Key features include robust network configuration, observability tools, and secure, scalable authentication.
 
 ## Features
 
-This project framework provides the following features:
-
-* Feature 1
-* Feature 2
-* ...
+* Seamless integration of Copilot Studio with Azure AI resources.
+* Enterprise-grade network configuration for secure and scalable deployments.
+* Observability tools for monitoring and troubleshooting.
+* Secure authentication mechanisms aligned with enterprise standards.
+* Modular Terraform code structure for easy customization and reuse.
+* Support for remote state management using Azure Storage.
+* Automated resource tagging for better organization and cost tracking.
+* Validation of input variables to ensure robust deployments.
+* Pre-configured backend setup for remote state storage.
+* Documentation and examples for quick onboarding and usage.
 
 ## Getting Started
 
 ### Prerequisites
 
-(ideally very short, if any)
-
-- OS
-- Library version
-- ...
+To use this example, you must complete the following prerequisites:
+- Set up a service principal with the permissions outlined in the [Power Platform Terraform Provider's documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/)
+- Set up an interactive user with sufficient Power Platform licensing to interact with the resources managed by this module.
 
 ### Installation
 
