@@ -20,7 +20,7 @@ resource "azurerm_resource_group" "this" {
 }
 
 module "copilot_studio" {
-  source = "./core/copilot_studio"
+  source = "./modules/copilot_studio"
 
   # Basic properties
   name                = "Copilot + Azure AI"
