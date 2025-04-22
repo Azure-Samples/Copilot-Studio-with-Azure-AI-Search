@@ -1,0 +1,34 @@
+name: Task
+description: Define a task
+title: "[Task] <title>"
+type: Task
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the task in detail.
+      placeholder: |
+        A clear and concise description of what the task is.
+    validation:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of Done
+      description: Describe what "done" looks like for this task.
+      placeholder: |
+        - Acceptance criteria
+        - Tests
+        - Documentation
+      render: markdown
+    validation:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Values Provided
+      description: |
+        Value provided by this task.
+    validation:
+      required: false

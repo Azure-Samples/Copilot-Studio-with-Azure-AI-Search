@@ -1,0 +1,51 @@
+name: Bug
+description: Report a bug
+title: "[Bug] <title>"
+type: Bug
+body:
+  - type: checkboxes
+    id: existing
+    attributes:
+      label: Is there an existing issue?
+      description: Please search to see if the issue has already been reported.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the bug in detail.
+      placeholder: |
+        A clear and concise description of what the bug is.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. In this environment
+        2. With this configuration
+        3. Run this command
+        4. See error
+      render: markdown
+    validation:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: |
+        A clear and concise description of what you expected to happen.
+    validation:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else?
+      description: |
+        Add any other context about the problem here.
+        If applicable, add screenshots to help explain your problem.
+    validation:
+      required: false
