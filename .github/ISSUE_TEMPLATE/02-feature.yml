@@ -10,7 +10,7 @@ body:
       description: Describe the feature in detail.
       placeholder: |
         A clear and concise description of what the feature is.
-    validation:
+    validations:
       required: true
   - type: textarea
     id: story
@@ -19,7 +19,7 @@ body:
       description: Describe the user story.
       placeholder: |
         As a <type of user>, I want <some goal> so that <some reason>.
-    validation:
+    validations:
       required: false
   - type: textarea
     id: done
@@ -31,7 +31,7 @@ body:
         - Tests
         - Documentation
       render: markdown
-    validation:
+    validations:
       required: true
   - type: textarea
     id: value
@@ -39,15 +39,7 @@ body:
       label: Values Provided
       description: |
         Value provided by this feature.
-    validation:
-      required: false
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional Information
-      description: |
-        Any additional information that is relevant to this feature.
-    validation:
+    validations:
       required: false
   - type: markdown
     id: subtasks
@@ -58,3 +50,11 @@ body:
         This will create a new issue that is linked to this feature.
         You can also use the "Linked issues" feature to link existing issues to this feature.
         This will help us track the progress of the feature and ensure that all tasks are completed.
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: |
+        Any additional information that is relevant to this feature.
+    validations:
+      required: false
