@@ -1,0 +1,60 @@
+name: Feature
+type: Feature
+description: Define a feature
+title: "[Feature] <title>"
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the feature in detail.
+      placeholder: |
+        A clear and concise description of what the feature is.
+    validation:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: User Story
+      description: Describe the user story.
+      placeholder: |
+        As a <type of user>, I want <some goal> so that <some reason>.
+    validation:
+      required: false
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of Done
+      description: Describe what "done" looks like for this feature.
+      placeholder: |
+        - Acceptance criteria
+        - Tests
+        - Documentation
+      render: markdown
+    validation:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Values Provided
+      description: |
+        Value provided by this feature.
+    validation:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: |
+        Any additional information that is relevant to this feature.
+    validation:
+      required: false
+  - type: markdown
+    id: subtasks
+    attributes:
+      value: |
+        **Please use the "sub-issues" feature to create tasks for this feature.**
+        You can create sub-issues by clicking on the "Create sub-issue" button in the sidebar.
+        This will create a new issue that is linked to this feature.
+        You can also use the "Linked issues" feature to link existing issues to this feature.
+        This will help us track the progress of the feature and ensure that all tasks are completed.
