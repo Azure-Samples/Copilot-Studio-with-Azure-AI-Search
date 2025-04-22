@@ -29,7 +29,7 @@ body:
         3. Run this command
         4. See error
       render: markdown
-    validation:
+    validations:
       required: false
   - type: textarea
     id: expected
@@ -47,5 +47,5 @@ body:
       description: |
         Add any other context about the problem here.
         If applicable, add screenshots to help explain your problem.
-    validation:
+    validations:
       required: false
