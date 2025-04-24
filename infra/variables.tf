@@ -2,12 +2,20 @@
 
 variable "principal_secret" {
   type        = string
+  default     = ""
   description = "Secret to be used in the Service Principal connection from Power Platform to the Azure AI Search resource"
+  sensitive   = true
 }
 
 variable "resource_share_user" {
   type        = string
+  default     = ""
   description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
+}
+
+variable "environment_name" {
+  description = "The name of the azd environment to be deployed"
+  type        = string
 }
 
 variable "app_insights_sections" {
