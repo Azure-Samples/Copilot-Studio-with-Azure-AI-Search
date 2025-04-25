@@ -35,7 +35,8 @@
         // Forward ports if needed for local development
     ],
     "containerEnv": {
-        "ARM_PARTNER_ID": "acce1e78-90a1-4306-89d1-a03ed6284007"
+        "ARM_PARTNER_ID": "acce1e78-90a1-4306-89d1-a03ed6284007",
+        "POWER_PLATFORM_USE_CLI": "true"
     },
     "postCreateCommand": "pip install --upgrade pip && pip install checkov",
     "remoteUser": "vscode",
