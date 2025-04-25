@@ -21,8 +21,11 @@ This repository provides a baseline architecture for integrating Copilot Studio 
 
 To use this example, you must complete the following prerequisites:
 - Set up a service principal with the permissions outlined in the [Power Platform Terraform Provider's documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/)
+- Ensure that 'Grant Admin Consent' has been performed on all delegated permissions for the Service Principal.
 - Assign the Service Principal a 'Contributor' role in the Azure subscription where the resources will be created.
 - Set up an interactive user to interact with the resources managed by this module.
+- Both the Service Principal and the interactive user must have the Power Platform Admin role assigned to them in the M365 Admin Center.
+- The interactive user needs licenses assigned for Microsoft Power Apps, Power Automate, and Copilot Studio in the M365 Admin Center.
 - Ensure that the shell you use to access the example has azd installed, and if not, follow the [instructions to install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows). 
 
 ### Quickstart
