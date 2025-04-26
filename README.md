@@ -31,6 +31,10 @@ To use this example, you must complete the following prerequisites:
 ### Quickstart
 
 1. Clone this repository and open the root directory in your terminal.
+1. Run the az login command below and sign in with your interactive user account.
+    ```bash
+    az login
+    ```
 1. Run the azd init command below. Pick a meaningful name for your azd environment as you will be working with it for this example.
     ```bash
     azd init
@@ -59,6 +63,10 @@ To use this example, you must complete the following prerequisites:
     export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
     export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
     export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
+    ```
+1. Run the azd up command below to deploy the example. This will create a new resource group in your Azure subscription and deploy the resources defined throughout the infra directory. Note that region constraints may apply to the resources you are deploying. The example is set to deploy in the East US region by default due to these constraints, but you can experiment with other regions by changing the value of the `location` variable in [variables.tf](infra\variables.tf).
+    ```bash
+    azd up
     ```
 
 ## Demo (TBD)
