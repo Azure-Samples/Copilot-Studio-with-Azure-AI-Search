@@ -23,6 +23,6 @@ terraform {
     }
   }
 }
-provider "powerplatform" {
-  use_cli = true
-}
+# provider "powerplatform" {
+#   use_cli = true
+# }
