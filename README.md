@@ -15,6 +15,47 @@ This repository provides a baseline architecture for integrating Copilot Studio 
 * Pre-configured backend setup for remote state storage.
 * Documentation and examples for quick onboarding and usage.
 
+## Architecture
+
+This architecture deploys the 40+ Azure and Power Platform resources required to set up a basic AI Search endpoint and query the resource through a Copilot Studio agent. The most novel parts of this architecture are included in the diagram below.
+
+```mermaid
+---
+config:
+  theme: dark
+  look: handDrawn
+  width: 1000
+  height: 600
+---
+graph
+  subgraph CopilotStudio["Copilot Studio"]
+      H[Copilot Studio agent]
+  end
+
+  subgraph PowerPlatform["Power Platform"]
+    B[Environment]
+    D[OpenAI Connection]
+    W[AI Search Connection]
+  end
+
+  subgraph Azure["Azure"]
+    L[Enterprise Policy: Network Injection]
+    subgraph VirtualNetwork["Virtual Network"]
+        direction TB
+        U[OpenAI Resource]
+        T[AI Search Resource]
+    end
+  end
+
+  H --> B
+  H --> D
+  H --> W
+  D --> U
+  W --> T
+  B --> L
+  L --> VirtualNetwork
+```
+
 ## Getting Started
 
 ### Prerequisites
