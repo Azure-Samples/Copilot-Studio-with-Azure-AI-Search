@@ -15,11 +15,14 @@ terraform {
     }
     powerplatform = {
       source  = "microsoft/power-platform"
-      version = ">= 3.3.0"
+      version = ">= 3.6.0"
     }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
     }
   }
+}
+provider "powerplatform" {
+  use_cli = true
 }

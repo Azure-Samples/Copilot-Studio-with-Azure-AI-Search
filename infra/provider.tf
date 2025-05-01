@@ -20,7 +20,7 @@ terraform {
     }
     powerplatform = {
       source  = "microsoft/power-platform"
-      version = ">= 3.3.0"
+      version = ">= 3.6.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -47,6 +47,10 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+}
+
+provider "powerplatform" {
+  use_cli = true
 }
 
 # Access client_id, tenant_id, subscription_id and object_id configuration values

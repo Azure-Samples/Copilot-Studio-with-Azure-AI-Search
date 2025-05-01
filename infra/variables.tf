@@ -1,12 +1,5 @@
 # APP INSIGHTS VARIABLES
 
-variable "principal_secret" {
-  type        = string
-  default     = ""
-  description = "Secret to be used in the Service Principal connection from Power Platform to the Azure AI Search resource"
-  sensitive   = true
-}
-
 variable "resource_share_user" {
   type        = string
   default     = ""
@@ -214,6 +207,10 @@ variable "location" {
   default     = "eastus"
   description = "Region where the resources should be deployed."
   nullable    = false
+  validation {
+    condition     = contains(["eastus", "eastus2"], var.location)
+    error_message = "The location must be one of: eastus, eastus2."
+  }
 }
 
 variable "power_platform_environment" {
@@ -332,9 +329,7 @@ variable "search_indexer_name" {
 variable "tags" {
   type = map(string)
   default = {
-    environment = "test - copilot + azure AI"
-    cicd        = "terraform"
-    name        = "PTN-CPS-AZAI"
+    name = "PTN-CPS-AZAI"
   }
   description = "The location for the resources."
 }
