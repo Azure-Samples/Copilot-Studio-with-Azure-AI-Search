@@ -30,12 +30,12 @@ To use this example, you must complete the following prerequisites:
 
 ### Quickstart
 
+This solution can be executed using a service principal or a user account. Guidance for both options is provided below.
+
+#### Service Principal
+
 1. Clone this repository and open the root directory in your terminal.
-1. Run the az login command below and sign in with your interactive user account.
-    ```bash
-    az login
-    ```
-1. Run the azd init command below. Pick a meaningful name for your azd environment as you will be working with it for this example.
+1. Run the azd init command below. Pick a meaningful name for your azd environment as you will be working with it throughout this example.
     ```bash
     azd init
     ```
@@ -44,11 +44,7 @@ To use this example, you must complete the following prerequisites:
     azd env set TF_VAR_principal_secret "<your service principal secret here>"
     azd env set TF_VAR_resource_share_user "<your interactive user's object ID here>"
     ```
-1. Set the azd environment to enable CLI authentication pass-through for the Azure CLI. This is required for Terraform to be able to read configured environment variables.
-    ```bash
-    azd config set auth.useAzCliAuth "true"
-    ```
-1. Run the azd login command below. Note that the solution does not currently use the azd auth context, but an auth context is required by azd.
+1. Run the azd login command below. Note that an auth context is required by azd, but is not used in the default solution configuration. If prompted to select an azure region, consider using East US, as other regions may have compatibility issues.
     ```bash
     azd auth login
     ```
@@ -63,6 +59,39 @@ To use this example, you must complete the following prerequisites:
     export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
     export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
     export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
+    ```
+1. Disable CLI authentication for the Power Platform provider in the dev container.
+    ```bash
+    export "POWER_PLATFORM_USE_CLI"="false"
+    ```
+1. Run the azd up command below to deploy the example. This will create a new resource group in your Azure subscription and deploy the resources defined throughout the infra directory. Note that region constraints may apply to the resources you are deploying. The example is set to deploy in the East US region by default due to these constraints, but you can experiment with other regions by changing the value of the `location` variable in [variables.tf](infra\variables.tf).
+    ```bash
+    azd up
+    ```
+
+#### User Account
+
+1. Clone this repository and open the root directory in your terminal.
+1. Run the az login command below and sign in with your user account.
+    ```bash
+    az login
+    ```
+1. Run the azd init command below. Pick a meaningful name for your azd environment as you will be working with it throughout this example.
+    ```bash
+    azd init
+    ```
+1. Set the terraform variable values needed to run the example. You can do this by editing [variables.tf](infra\variables.tf) directly, or by setting azd environment variables. Below is an example of how to set the environment variables in bash. Note that these lines are setting values in the azd .env configuration rather than the local environment variables. This is due to how Terraform searches for Terraform variables versus environment variables from within an azd container.
+    ```bash
+    azd env set TF_VAR_principal_secret "<your service principal secret here>"
+    azd env set TF_VAR_resource_share_user "<your interactive user's object ID here>"
+    ```
+1. Set the azd environment to enable CLI authentication pass-through for the Azure CLI. This is required for Terraform to be able to read configured environment variables.
+    ```bash
+    azd config set auth.useAzCliAuth "true"
+    ```
+1. Run the azd login command below. Note that the solution does not currently use the azd auth context, but an auth context is required by azd. If prompted to select an azure region, consider using East US, as other regions may have compatibility issues.
+    ```bash
+    azd auth login
     ```
 1. Run the azd up command below to deploy the example. This will create a new resource group in your Azure subscription and deploy the resources defined throughout the infra directory. Note that region constraints may apply to the resources you are deploying. The example is set to deploy in the East US region by default due to these constraints, but you can experiment with other regions by changing the value of the `location` variable in [variables.tf](infra\variables.tf).
     ```bash
