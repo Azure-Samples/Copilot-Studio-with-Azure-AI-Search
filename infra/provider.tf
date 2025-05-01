@@ -47,6 +47,16 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+
+  # partner_id enables anonymous telemetry that helps us justify ongoing investment in maintaining and improving this template.
+  # Keeping this line supports the project and future feature development. To opt out of telemetry, simply remove the line below.
+  partner_id = "acce1e78-90a1-4306-89d1-a03ed6284007"
+}
+
+provider "azapi" {
+  # partner_id enables anonymous telemetry that helps us justify ongoing investment in maintaining and improving this template.
+  # Keeping this line supports the project and future feature development. To opt out of telemetry, simply remove the line below.
+  partner_id = "acce1e78-90a1-4306-89d1-a03ed6284007"
 }
 
 # Access client_id, tenant_id, subscription_id and object_id configuration values
