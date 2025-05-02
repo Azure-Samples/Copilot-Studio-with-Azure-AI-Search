@@ -1,6 +1,6 @@
 # Copilot Studio with Azure AI Search
 
-This repository provides a baseline architecture for integrating Copilot Studio and Power Platform with Azure AI resources. It addresses challenges in initializing and managing these connections while prioritizing enterprise readiness.
+This repository provides a baseline architecture for integrating Copilot Studio and Power Platform with Azure AI resources. The solution has been built with an emphasis on enterprise readiness and network security.
 
 ## Features
 
@@ -28,32 +28,28 @@ config:
   height: 600
 ---
 graph
-  subgraph CopilotStudio["Copilot Studio"]
-      H[Copilot Studio agent]
-  end
-
-  subgraph PowerPlatform["Power Platform"]
-    B[Environment]
-    D[OpenAI Connection]
-    W[AI Search Connection]
+  subgraph PowerPlatform["Power Platform Environment"]
+    direction TB
+    A[AI Search Connection]
+    B[Copilot Studio agent]
+    C[OpenAI Connection]
   end
 
   subgraph Azure["Azure"]
-    L[Enterprise Policy: Network Injection]
+    D[Enterprise Policy: Network Injection]
     subgraph VirtualNetwork["Virtual Network"]
         direction TB
-        U[OpenAI Resource]
-        T[AI Search Resource]
+        E[AI Search Resource]
+        F[OpenAI Resource]
     end
   end
 
-  H --> B
-  H --> D
-  H --> W
-  D --> U
-  W --> T
-  B --> L
-  L --> VirtualNetwork
+  PowerPlatform --> D
+  B --> C
+  B --> A
+  C --> F
+  A --> E
+  D --> VirtualNetwork
 ```
 
 ## Getting Started
@@ -96,10 +92,10 @@ This solution can be executed using a service principal or a user account. Guida
     export ARM_CLIENT_SECRET="<your service principal's client secret here>"
     export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
     
-    
+    export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
     export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
     export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
-    export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
+
     ```
 1. Disable CLI authentication for the Power Platform provider in the dev container.
     ```bash
