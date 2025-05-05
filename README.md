@@ -27,13 +27,14 @@ config:
   width: 1000
   height: 600
 ---
-subgraph PowerPlatform["Power Platform Environment"]
-  direction TB
-  %% Invisible block for spacing
-  ""
-  A[AI Search Connection]
-  B[Copilot Studio agent]
-  C[OpenAI Connection]
+graph TD
+  subgraph PowerPlatform["Power Platform Environment"]
+    direction TB
+    %% Invisible block for spacing
+    ""
+    A[AI Search Connection]
+    B[Copilot Studio agent]
+    C[OpenAI Connection]
   end
 
   subgraph Azure["Azure"]
