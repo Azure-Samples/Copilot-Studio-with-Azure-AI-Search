@@ -82,6 +82,10 @@ This solution can be executed using either a **Service Principal** or a **User A
     ```bash
     azd env set resource_share_user "<your interactive user's object ID here>"
     ```
+    Note: if needed, you can verify the azd values you have set by running the following command:
+    ```bash
+    azd env get-values
+    ```
 1. Authentication:
    - **Service Principal**: Run the following commands to log in using a service principal:
      ```bash
