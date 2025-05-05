@@ -224,13 +224,6 @@ variable "power_platform_connections" {
   description = "List of Power Platform connections to manage using the module."
 }
 
-variable "principal_secret" {
-  type        = string
-  default     = ""
-  description = "Secret to be used in the Service Principal connection from Power Platform to the Azure AI Search resource"
-  sensitive   = true
-}
-
 # required for AVM interface
 # tflint-ignore: terraform_unused_declarations
 variable "private_endpoints" {

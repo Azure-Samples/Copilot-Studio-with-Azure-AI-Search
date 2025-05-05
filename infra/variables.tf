@@ -1,10 +1,3 @@
-# APP INSIGHTS VARIABLES
-
-variable "principal_secret" {
-  type        = string
-  description = "Secret to be used in the Service Principal connection from Power Platform to the Azure AI Search resource"
-}
-
 variable "resource_share_user" {
   type        = string
   description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."

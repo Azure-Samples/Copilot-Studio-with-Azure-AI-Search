@@ -29,7 +29,6 @@ module "copilot_studio" {
 
   # Authentication inputs
   resource_share_user = var.resource_share_user
-  principal_secret    = var.principal_secret
 
   # Network inputs
   primary_vnet_name    = module.primary_virtual_network.name
