@@ -1,0 +1,11 @@
+name: Terraform Validation
+run-name: ${{ github.event_name }} - ${{ github.actor }} - ${{ github.workflow }}
+on:
+  push:
+    branches:
+      - main
+      - 'refs/tags/*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
