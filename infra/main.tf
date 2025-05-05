@@ -2,7 +2,7 @@
 
 locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
-  env_tags            = { azd-env-name : var.environment_name }
+  env_tags            = { azd-env-name : var.azd_environment_name }
 }
 
 # The unique ID that will be included in most resources managed by this module

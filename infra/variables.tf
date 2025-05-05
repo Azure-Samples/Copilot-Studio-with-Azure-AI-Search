@@ -6,7 +6,7 @@ variable "resource_share_user" {
   description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
 }
 
-variable "environment_name" {
+variable "azd_environment_name" {
   description = "The name of the azd environment to be deployed"
   type        = string
 }
@@ -207,10 +207,6 @@ variable "location" {
   default     = "eastus"
   description = "Region where the resources should be deployed."
   nullable    = false
-  validation {
-    condition     = contains(["eastus", "eastus2"], var.location)
-    error_message = "The location must be one of: eastus, eastus2."
-  }
 }
 
 variable "power_platform_environment" {
