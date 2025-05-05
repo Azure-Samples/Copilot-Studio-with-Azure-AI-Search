@@ -325,7 +325,7 @@ variable "search_indexer_name" {
 variable "tags" {
   type = map(string)
   default = {
-    name = "PTN-CPS-AZAI"
+    name = "AZD-MCS-AZAI"
   }
-  description = "The location for the resources."
+  description = "The tags for the resources."
 }
