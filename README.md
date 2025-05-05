@@ -27,7 +27,7 @@ config:
   width: 1000
   height: 600
 ---
-graph
+graph TD
   subgraph PowerPlatform["Power Platform Environment"]
     direction TB
     A[AI Search Connection]
@@ -36,9 +36,10 @@ graph
   end
 
   subgraph Azure["Azure"]
+    direction TB
     D[Enterprise Policy: Network Injection]
     subgraph VirtualNetwork["Virtual Network"]
-        direction TB
+        direction LR
         E[AI Search Resource]
         F[OpenAI Resource]
     end
