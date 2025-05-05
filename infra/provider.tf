@@ -59,9 +59,5 @@ provider "azapi" {
   partner_id = "acce1e78-90a1-4306-89d1-a03ed6284007"
 }
 
-# provider "powerplatform" {
-#   use_cli = true
-# }
-
 # Access client_id, tenant_id, subscription_id and object_id configuration values
 data "azurerm_client_config" "current" {}
