@@ -27,8 +27,7 @@ config:
   width: 1000
   height: 600
 ---
-graph TD
-  subgraph PowerPlatform["Power Platform Environment"]
+subgraph PowerPlatform["Power Platform<br>Environment"]
     direction TB
     A[AI Search Connection]
     B[Copilot Studio agent]
