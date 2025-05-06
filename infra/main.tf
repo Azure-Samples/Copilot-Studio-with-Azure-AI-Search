@@ -30,7 +30,7 @@ module "copilot_studio" {
 
   tags = merge(var.tags, local.env_tags)
   # Authentication inputs
-  resource_share_user = var.resource_share_user != "" ? var.resource_share_user : data.azurerm_client_config.current.object_id
+  resource_share_user = var.resource_share_user
 
   # Network inputs
   primary_vnet_name    = module.primary_virtual_network.name
