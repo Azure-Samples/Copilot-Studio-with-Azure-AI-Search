@@ -28,11 +28,14 @@ config:
   height: 600
 ---
 graph TD
-  subgraph PowerPlatform["Power Platform Environment"]
+  subgraph PowerPlatform["Power Platform"]
     direction TB
-    A[AI Search Connection]
-    B[Copilot Studio agent]
-    C[OpenAI Connection]
+    subgraph Environment["Environment"]
+      direction TB
+      A[AI Search Connection]
+      B[Copilot Studio agent]
+      C[OpenAI Connection]
+    end
   end
 
   subgraph Azure["Azure"]
@@ -45,7 +48,7 @@ graph TD
     end
   end
 
-  PowerPlatform --> D
+  Environment --> D
   B --> C
   B --> A
   C --> F
@@ -61,7 +64,7 @@ To use this example, you must complete the following prerequisites:
 - Set up a service principal with the permissions outlined in the [Power Platform Terraform Provider's documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/), and register the App Registration with the Power Platform. The Service Principal registration could be performed using [the provider itself](https://registry.terraform.io/resources/admin_management_application) or [PowerShell](https://learn.microsoft.com/power-platform/admin/powershell-create-service-principal).
 - Ensure that 'Grant Admin Consent' has been performed on all delegated permissions for the Service Principal.
 - Assign the Service Principal the 'Contributor' role in the Azure subscription where the resources will be created.
-- Assign the service principal the 'Role Base Access Control Administrator' role in the Azure subscription where the resources will be created.
+- Assign the service principal the 'Role Based Access Control Administrator' role in the Azure subscription where the resources will be created.
 - Set up an interactive user to interact with the resources managed by this module.
 - Both the Service Principal and the interactive user must have the Power Platform Admin role assigned to them in the M365 Admin Center.
 - The interactive user needs licenses assigned for Microsoft Power Apps, Power Automate, and Copilot Studio in the M365 Admin Center.
