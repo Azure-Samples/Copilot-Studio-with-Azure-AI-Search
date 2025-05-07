@@ -68,7 +68,8 @@ To use this example, you must complete the following prerequisites:
 - Set up an interactive user to interact with the resources managed by this module.
 - Both the Service Principal and the interactive user must have the Power Platform Admin role assigned to them in the M365 Admin Center.
 - The interactive user needs licenses assigned for Microsoft Power Apps, Power Automate, and Copilot Studio in the M365 Admin Center.
-- Ensure that the shell you use to access the example has azd installed, and if not, follow the [instructions to install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows). 
+- Ensure that the shell you use to access the example has azd installed, and if not, follow the [instructions to install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows).
+- Update the following Power Platform tenant settings to enable Copilot features: Copilot in Power Apps; Publish Copilots with AI features.
 
 ### Quickstart
 
