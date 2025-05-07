@@ -82,33 +82,30 @@ This solution can be executed using either a **Service Principal** or a **User A
     ```bash
     azd init
     ```
-   Pick a meaningful name for your azd environment as you will be working with it throughout this example. 
-1. Set a value for the interactive user who should be able to access the solution resources.
+   Pick a meaningful name for your azd environment as you will be working with it throughout this example.
+1. Set a value for the interactive user who should be able to access the solution resources. Note that this step is optional when running with a user account, but it is strongly encouraged when running with a service principal, as it exposes resource visibility to the specified interactive user.
     ```bash
-    azd env set resource_share_user "<your interactive user's object ID here>"
-    ```
-    Note: if needed, you can verify the azd values you have set by running the following command:
-    ```bash
-    azd env get-values
+    export TF_VAR_resource_share_user="<target interactive user's object ID here>"
     ```
 1. Authentication:
-   - **Service Principal**: Run the following commands to log in using a service principal:
-     ```bash
-     export ARM_TENANT_ID="<your tenant ID here>"
-     export ARM_CLIENT_ID="<your service principal's client ID here>"
-     export ARM_CLIENT_SECRET="<your service principal's client secret here>"
-     export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
+    - **User Account**: Run the following commands to log in using your user account:
+      ```bash
+      az login
+      azd config set auth.useAzCliAuth "true"
+      azd env set POWER_PLATFORM_USE_CLI "true"
+      ```
+    - **Service Principal**: Run the following commands to log in using a service principal:
+      ```bash
+      export ARM_TENANT_ID="<your tenant ID here>"
+      export ARM_CLIENT_ID="<your service principal's client ID here>"
+      export ARM_CLIENT_SECRET="<your service principal's client secret here>"
+      export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
 
-     export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
-     export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
-     export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
-     export "POWER_PLATFORM_USE_CLI"="false"
-     ```
-   - **User Account**: Run the following commands to log in using your user account:
-     ```bash
-     az login
-     azd config set auth.useAzCliAuth "true"
-     ```
+      export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
+      export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
+      export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
+      export "POWER_PLATFORM_USE_CLI"="false"
+      ```
 
 1. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not used in the default solution configuration. If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
     ```bash

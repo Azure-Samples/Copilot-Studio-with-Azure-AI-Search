@@ -1,6 +1,7 @@
 variable "resource_share_user" {
   type        = string
   description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
+  default = ""
 }
 
 variable "app_insights_sections" {
