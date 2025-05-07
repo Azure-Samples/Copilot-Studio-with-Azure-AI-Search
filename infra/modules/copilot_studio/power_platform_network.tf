@@ -40,6 +40,7 @@ resource "azapi_resource" "network_injection_policy" {
     kind = "NetworkInjection"
   }
   location                  = local.power_platform_environment_location
+  tags                      = var.tags
   name                      = "PowerPlatformPrimaryPolicy-${var.unique_id}"
   parent_id                 = data.azurerm_resource_group.this.id
   schema_validation_enabled = false
@@ -61,4 +62,6 @@ resource "powerplatform_enterprise_policy" "environment_policy" {
   environment_id = local.power_platform_environment_id
   system_id      = azapi_resource.network_injection_policy.output.properties.systemId
   policy_type    = "NetworkInjection"
+
+  depends_on = [powerplatform_managed_environment.this]
 }

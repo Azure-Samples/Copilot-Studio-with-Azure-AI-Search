@@ -15,7 +15,7 @@ terraform {
     }
     powerplatform = {
       source  = "microsoft/power-platform"
-      version = ">= 3.3.0"
+      version = "~>3.6"
     }
     random = {
       source  = "hashicorp/random"
