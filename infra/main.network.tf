@@ -1,6 +1,6 @@
 module "primary_virtual_network" {
   source              = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version             = "0.8.0"
+  version             = "0.8.1"
   resource_group_name = azurerm_resource_group.this.name
   subnets = merge(
     {
@@ -39,7 +39,7 @@ module "primary_virtual_network" {
 
 module "failover_virtual_network" {
   source              = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version             = "0.8.0"
+  version             = "0.8.1"
   resource_group_name = azurerm_resource_group.this.name
   subnets = merge(
     {
