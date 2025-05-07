@@ -1,15 +1,15 @@
 on:
   workflow_dispatch:
+    inputs:
+      azd_environment_name:
+        description: "Name of the AZD Environment"
+        required: true
+        default: "dev"
   push:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
     branches:
       - main
-  inputs:
-      azd_environment_name:
-        description: "Name of the AZD Environment"
-        required: true
-        default: "dev"
 
 # GitHub Actions workflow to deploy to Azure using azd
 # To configure required secrets for connecting to Azure, simply run `azd pipeline config --auth-type client-credentials`
