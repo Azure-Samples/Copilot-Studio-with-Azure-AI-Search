@@ -17,7 +17,7 @@ module "primary_virtual_network" {
           }
         ]
         nat_gateway = {
-          id = azurerm_nat_gateway.primary_nat_gateway.id
+          id = azurerm_nat_gateway.nat_gateways["primary"].id
         }
       }
     },
@@ -26,7 +26,7 @@ module "primary_virtual_network" {
         name             = "ai-search-primary-subnet"
         address_prefixes = var.primary_ai_search_subnet_address_spaces
         nat_gateway = {
-          id = azurerm_nat_gateway.primary_nat_gateway.id
+          id = azurerm_nat_gateway.nat_gateways["primary"].id
         }
       }
     }
@@ -56,7 +56,7 @@ module "failover_virtual_network" {
           }
         ]
         nat_gateway = {
-          id = azurerm_nat_gateway.failover_nat_gateway.id
+          id = azurerm_nat_gateway.nat_gateways["failover"].id
         }
       }
     },
@@ -65,7 +65,7 @@ module "failover_virtual_network" {
         name             = "ai-search-failover-subnet"
         address_prefixes = var.failover_ai_search_subnet_address_spaces
         nat_gateway = {
-          id = azurerm_nat_gateway.failover_nat_gateway.id
+          id = azurerm_nat_gateway.nat_gateways["failover"].id
         }
       }
     }
@@ -78,19 +78,14 @@ module "failover_virtual_network" {
 
 #---- Set up NAT gateways, which are not initialized by the AVM ----
 
-# Primary VNet NAT gateway
-resource "azurerm_nat_gateway" "primary_nat_gateway" {
-  location            = var.primary_location
-  name                = "primary-nat-gateway"
-  resource_group_name = azurerm_resource_group.this.name
-  sku_name            = "Standard"
-}
+resource "azurerm_nat_gateway" "nat_gateways" {
+  for_each = {
+    primary  = var.primary_location
+    failover = var.failover_location
+  }
 
-# Secondary VNet NAT gateway
-
-resource "azurerm_nat_gateway" "failover_nat_gateway" {
-  location            = var.failover_location
-  name                = "failover-nat-gateway"
+  location            = each.value
+  name                = "${each.key}-nat-gateway"
   resource_group_name = azurerm_resource_group.this.name
   sku_name            = "Standard"
 }

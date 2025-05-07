@@ -1,13 +1,14 @@
 # APP INSIGHTS VARIABLES
 
-variable "principal_secret" {
-  type        = string
-  description = "Secret to be used in the Service Principal connection from Power Platform to the Azure AI Search resource"
-}
-
 variable "resource_share_user" {
   type        = string
+  default     = ""
   description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
+}
+
+variable "azd_environment_name" {
+  description = "The name of the azd environment to be deployed"
+  type        = string
 }
 
 variable "app_insights_sections" {
@@ -324,9 +325,7 @@ variable "search_indexer_name" {
 variable "tags" {
   type = map(string)
   default = {
-    environment = "test - copilot + azure AI"
-    cicd        = "terraform"
-    name        = "PTN-CPS-AZAI"
+    name = "AZD-MCS-AZAI"
   }
-  description = "The location for the resources."
+  description = "The tags for the resources."
 }
