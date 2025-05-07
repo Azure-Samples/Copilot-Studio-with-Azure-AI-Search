@@ -85,7 +85,7 @@ This solution can be executed using either a **Service Principal** or a **User A
    Pick a meaningful name for your azd environment as you will be working with it throughout this example.
 1. Set a value for the interactive user who should be able to access the solution resources. Note that this step is optional when running with a user account, but it is strongly encouraged when running with a service principal, as it exposes resource visibility to the specified interactive user.
     ```bash
-    export TF_VAR_resource_share_user="<target interactive user's object ID here>"
+    AZD env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
     ```
 1. Authentication:
     - **User Account**: Run the following commands to log in using your user account:
