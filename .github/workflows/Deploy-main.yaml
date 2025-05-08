@@ -55,8 +55,11 @@ jobs:
                 "resource_group_name": "\${RS_RESOURCE_GROUP}",  
               }
           }
-          EOF  
-          
+          EOF
+        shell: bash
+
+      - name: Switch to Remote backend- Create remote backend file
+        run: |
           FILE="provider.backend.tf"
           echo "Creating ${{ github.workspace }}/infra/$FILE file"
           # Create the file and write the backend configuration
@@ -64,10 +67,9 @@ jobs:
           terraform {
             backend "azurerm" {}
           }
-          EOF
-
-          
+          EOF    
         shell: bash
+
       # - name: Login az
       #   uses: azure/login@v2
       #   with:
