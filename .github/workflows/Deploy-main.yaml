@@ -38,75 +38,111 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      - name: Login az
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Log in with Azure dev
-        run: |
-          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          Write-Host "::add-mask::$($info.clientSecret)"
-
-          az account set --subscription "$($info.subscriptionId)"
-
-          azd auth login `
-            --client-id "$($info.clientId)" `
-            --client-secret "$($info.clientSecret)" `
-            --tenant-id "$($info.tenantId)"
-          
-          azd config set auth.useAzCliAuth "true"
-         
-        shell: pwsh
+      - name: Switch to Remote backend- Create provider.conf.json file
         env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Provision Infrastructure
-        env:
-          # AZURE_ENV_NAME: test${{ github.event.inputs.azd_environment_name }}
-          # AZURE_LOCATION: eastus${{ github.event.inputs.azure_location  }}  
+          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
           #tmp for testing on branch
           AZURE_ENV_NAME: test
-          AZURE_LOCATION: eastus         
-          POWER_PLATFORM_USE_CLI: true
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-        shell: pwsh
         run: |
-          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          Write-Host "::add-mask::$($info.clientSecret)"
+          echo "Switching to remote backend"
+          echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
+          cat <<EOF > ${{ github.workspace }}/infra/provider.conf.json
+          {
+              {
+                "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
+                "container_name": "\${RS_CONTAINER_NAME}",
+                "key": "azd/ci/azdremotetest.tfstate",
+                "resource_group_name": "\${RS_RESOURCE_GROUP}",  
+              }
+          }
+          EOF  
           
-          $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-          $env:ARM_TENANT_ID="$($info.tenantId)"
-          $env:ARM_CLIENT_ID="$($info.clientId)"
-          $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
+          FILE="provider.backend.tf"
+          echo "Creating ${{ github.workspace }}/infra/$FILE file"
+          # Create the file and write the backend configuration
+          cat <<EOF > "${{ github.workspace }}/infra/$FILE"
+          terraform {
+            backend "azurerm" {}
+          }
+          EOF
 
-          $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-          $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-          $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
+          
+        shell: bash
+      # - name: Login az
+      #   uses: azure/login@v2
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-          azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
-          azd env set POWER_PLATFORM_USE_CLI "true"
-          azd provision --no-prompt
+      # - name: Log in with Azure dev
+      #   run: |
+      #     $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+      #     Write-Host "::add-mask::$($info.clientSecret)"
+
+      #     az account set --subscription "$($info.subscriptionId)"
+
+      #     azd auth login `
+      #       --client-id "$($info.clientId)" `
+      #       --client-secret "$($info.clientSecret)" `
+      #       --tenant-id "$($info.tenantId)"
+          
+      #     azd config set auth.useAzCliAuth "true"
+         
+      #   shell: pwsh
+      #   env:
+      #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # - name: Provision Infrastructure
+      #   env:
+      #     # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+      #     # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}  
+      #     #tmp for testing on branch
+      #     AZURE_ENV_NAME: test
+      #     AZURE_LOCATION: eastus         
+      #     POWER_PLATFORM_USE_CLI: true
+      #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+            # RS_ACCOUNT_NAME: ${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}
+            # RS_CONTAINER_NAME: ${{ vars.AZURE_STORAGE_CONTAINER_NAME }}
+            # RS_RESOURCE_GROUP: ${{ vars.AZURE_STORAGE_RESOURCE_GROUP }}
+      #   shell: pwsh
+      #   run: |
+      #     $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+      #     Write-Host "::add-mask::$($info.clientSecret)"
+          
+      #     $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+      #     $env:ARM_TENANT_ID="$($info.tenantId)"
+      #     $env:ARM_CLIENT_ID="$($info.clientId)"
+      #     $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
+
+      #     $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+      #     $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+      #     $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
+
+      #     azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
+      #     azd env set POWER_PLATFORM_USE_CLI "true"
+            # azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+            # azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
+            # azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+      #     azd provision --no-prompt
 
         
-      - name: Azd down
-        env:
-            AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-            AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
-            AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-        shell: pwsh
-        run: |
-          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          Write-Host "::add-mask::$($info.clientSecret)"
+      # - name: Azd down
+      #   env:
+      #       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+      #       AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+      #       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      #   shell: pwsh
+      #   run: |
+      #     $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+      #     Write-Host "::add-mask::$($info.clientSecret)"
           
-          $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-          $env:ARM_TENANT_ID="$($info.tenantId)"
-          $env:ARM_CLIENT_ID="$($info.clientId)"
-          $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
+      #     $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+      #     $env:ARM_TENANT_ID="$($info.tenantId)"
+      #     $env:ARM_CLIENT_ID="$($info.clientId)"
+      #     $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
 
-          $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-          $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-          $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"  
+      #     $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+      #     $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+      #     $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"  
           
-          azd env select $env:AZURE_ENV_NAME
-          azd down --no-prompt --force --purge
+      #     azd env select $env:AZURE_ENV_NAME
+      #     azd down --no-prompt --force --purge
