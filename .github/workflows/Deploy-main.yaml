@@ -52,7 +52,7 @@ jobs:
             --tenant-id "$($info.tenantId)"
           
           azd config set auth.useAzCliAuth "true"
-          azd env set POWER_PLATFORM_USE_CLI "true"
+         
         shell: pwsh
         env:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
@@ -75,6 +75,8 @@ jobs:
           export POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
           export POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
+          azd env new --name $AZURE_ENV_NAME --location $AZURE_LOCATION --no-prompt
+          azd env set POWER_PLATFORM_USE_CLI "true"
           azd provision --no-prompt
 
         
