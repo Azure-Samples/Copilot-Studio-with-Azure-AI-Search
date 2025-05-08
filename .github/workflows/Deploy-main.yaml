@@ -13,9 +13,8 @@ on:
   push:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
-    branches:
+    branches: #Tmp testing: set to current pr banch
       - basic_wf
-
 # GitHub Actions workflow to deploy to Azure using azd
 # To configure required secrets for connecting to Azure, simply run `azd pipeline config --auth-type client-credentials`
 
@@ -59,8 +58,11 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}          
+          # AZURE_ENV_NAME: test${{ github.event.inputs.azd_environment_name }}
+          # AZURE_LOCATION: eastus${{ github.event.inputs.azure_location  }}  
+          #tmp for testing on branch
+          AZURE_ENV_NAME: test
+          AZURE_LOCATION: eastus         
           POWER_PLATFORM_USE_CLI: true
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
         shell: pwsh
