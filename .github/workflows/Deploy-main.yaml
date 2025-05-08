@@ -62,12 +62,12 @@ jobs:
         run: |
           FILE="provider.backend.tf"
           echo "Creating ${{ github.workspace }}/infra/$FILE file"
-          # Create the file and write the backend configuration
+          
           cat <<EOF > "${{ github.workspace }}/infra/$FILE"
           terraform {
             backend "azurerm" {}
           }
-          EOF    
+          EOF
         shell: bash
 
       # - name: Login az
