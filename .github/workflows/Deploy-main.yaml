@@ -77,7 +77,7 @@ jobs:
           $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
           $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
-          azd env new --name $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
+          azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
           azd env set POWER_PLATFORM_USE_CLI "true"
           azd provision --no-prompt
 
