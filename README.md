@@ -1,6 +1,6 @@
 # Copilot Studio with Azure AI Search
 
-This repository provides a baseline architecture for integrating Copilot Studio and Power Platform with Azure AI resources. It addresses challenges in initializing and managing these connections while prioritizing enterprise readiness. Key features include robust network configuration, observability tools, and secure, scalable authentication.
+This repository provides a baseline architecture for integrating Copilot Studio and Power Platform with Azure AI resources. The solution has been built with an emphasis on enterprise readiness and network security.
 
 ## Features
 
@@ -15,31 +15,110 @@ This repository provides a baseline architecture for integrating Copilot Studio 
 * Pre-configured backend setup for remote state storage.
 * Documentation and examples for quick onboarding and usage.
 
+## Architecture
+
+This architecture deploys the 40+ Azure and Power Platform resources required to set up a basic AI Search endpoint and query the resource through a Copilot Studio agent. The most novel parts of this architecture are included in the diagram below.
+
+```mermaid
+---
+config:
+  theme: dark
+  look: handDrawn
+  width: 1000
+  height: 600
+---
+graph TD
+  subgraph PowerPlatform["Power Platform"]
+    direction TB
+    subgraph Environment["Environment"]
+      direction TB
+      A[AI Search Connection]
+      B[Copilot Studio agent]
+      C[OpenAI Connection]
+    end
+  end
+
+  subgraph Azure["Azure"]
+    direction TB
+    D[Enterprise Policy: Network Injection]
+    subgraph VirtualNetwork["Virtual Network"]
+        direction LR
+        E[AI Search Resource]
+        F[OpenAI Resource]
+    end
+  end
+
+  Environment --> D
+  B --> C
+  B --> A
+  C --> F
+  A --> E
+  D --> VirtualNetwork
+```
+
 ## Getting Started
 
 ### Prerequisites
 
 To use this example, you must complete the following prerequisites:
-- Set up a service principal with the permissions outlined in the [Power Platform Terraform Provider's documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/)
-- Set up an interactive user with sufficient Power Platform licensing to interact with the resources managed by this module.
-
-### Installation
-
-(ideally very short)
-
-- npm install [package name]
-- mvn install
-- ...
+- Set up a service principal with the permissions outlined in the [Power Platform Terraform Provider's documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/), and register the App Registration with the Power Platform. The Service Principal registration could be performed using [the provider itself](https://registry.terraform.io/resources/admin_management_application) or [PowerShell](https://learn.microsoft.com/power-platform/admin/powershell-create-service-principal).
+- Ensure that 'Grant Admin Consent' has been performed on all delegated permissions for the Service Principal.
+- Assign the Service Principal the 'Contributor' role in the Azure subscription where the resources will be created.
+- Assign the service principal the 'Role Based Access Control Administrator' role in the Azure subscription where the resources will be created.
+- Set up an interactive user to interact with the resources managed by this module.
+- Both the Service Principal and the interactive user must have the Power Platform Admin role assigned to them in the M365 Admin Center.
+- The interactive user needs licenses assigned for Microsoft Power Apps, Power Automate, and Copilot Studio in the M365 Admin Center.
+- Ensure that the shell you use to access the example has azd installed, and if not, follow the [instructions to install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows).
+- Update the following Power Platform tenant settings to enable Copilot features: Copilot in Power Apps; Publish Copilots with AI features.
 
 ### Quickstart
-(Add steps to get up and running quickly)
 
-1. git clone [repository clone url]
-2. cd [repository name]
-3. ...
+### Deployment Instructions
 
+This solution can be executed using either a **Service Principal** or a **User Account**. Follow the steps below, switching between the appropriate authentication options where indicated. _Note: there are currently [known issues](https://github.com/microsoft/terraform-provider-power-platform/issues/283) initializing Power Platform connections with user-based authentication._
 
-## Demo
+1. Clone this repository and open the root directory in your terminal.
+
+1. Initialize the Azure Developer CLI (azd) environment:
+    ```bash
+    azd init
+    ```
+   Pick a meaningful name for your azd environment as you will be working with it throughout this example.
+1. Set a value for the interactive user who should be able to access the solution resources. Note that this step is optional when running with a user account, but it is strongly encouraged when running with a service principal, as it exposes resource visibility to the specified interactive user.
+    ```bash
+    azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
+    ```
+1. Authentication:
+    - **User Account**: Run the following commands to log in using your user account:
+      ```bash
+      az login
+      azd config set auth.useAzCliAuth "true"
+      azd env set POWER_PLATFORM_USE_CLI "true"
+      ```
+    - **Service Principal**: Run the following commands to log in using a service principal:
+      ```bash
+      export ARM_TENANT_ID="<your tenant ID here>"
+      export ARM_CLIENT_ID="<your service principal's client ID here>"
+      export ARM_CLIENT_SECRET="<your service principal's client secret here>"
+      export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
+
+      export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
+      export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
+      export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
+      export "POWER_PLATFORM_USE_CLI"="false"
+      ```
+
+1. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not used in the default solution configuration. If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
+    ```bash
+    azd auth login
+    ```
+
+1. Deploy the solution using the command below. This will create a new resource group in your Azure subscription and deploy the resources defined in the `infra` directory.
+    ```bash
+    azd up
+    ```
+
+## Demo (TBD)
 
 A demo app is included to show how to use the project.
 
@@ -53,11 +132,9 @@ To run the demo, follow these steps:
 
 ## Resources
 
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+- [Power Platform environment basics](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview)
+- [Copilot Studio getting started](https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-get-started?tabs=web)
+- [Azure AI Search resources](https://learn.microsoft.com/en-us/azure/search/)
 
 ## Data Collection
 
