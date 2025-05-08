@@ -36,8 +36,8 @@ jobs:
       - name: Install Terrform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.5.0
-          
+          terraform_version: 1.9.0
+
       - name: Login az
         uses: azure/login@v2
         with:
