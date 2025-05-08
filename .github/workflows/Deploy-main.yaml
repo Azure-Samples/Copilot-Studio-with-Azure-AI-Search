@@ -98,7 +98,7 @@ jobs:
           #tmp for testing on branch
           AZURE_ENV_NAME: test
           AZURE_LOCATION: eastus         
-          POWER_PLATFORM_USE_CLI: true
+          POWER_PLATFORM_USE_CLI: false
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
@@ -118,7 +118,7 @@ jobs:
           $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
-          azd env set POWER_PLATFORM_USE_CLI "true"
+          azd env set POWER_PLATFORM_USE_CLI "false"
 
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
@@ -134,7 +134,7 @@ jobs:
             AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
             AZURE_ENV_NAME: test
             AZURE_LOCATION: eastus
-            POWER_PLATFORM_USE_CLI: true
+            POWER_PLATFORM_USE_CLI: false
         shell: pwsh
         run: |
           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
