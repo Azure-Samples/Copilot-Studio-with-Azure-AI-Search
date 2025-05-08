@@ -48,12 +48,10 @@ jobs:
           echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
           cat <<EOF > ${{ github.workspace }}/infra/provider.conf.json
           {
-              {
-                "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
-                "container_name": "\${RS_CONTAINER_NAME}",
-                "key": "azd/ci/azdremotetest.tfstate",
-                "resource_group_name": "\${RS_RESOURCE_GROUP}",  
-              }
+            "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
+            "container_name": "\${RS_CONTAINER_NAME}",
+            "key": "azd/ci/azdremotetest.tfstate",
+            "resource_group_name": "\${RS_RESOURCE_GROUP}"
           }
           EOF
         shell: bash
