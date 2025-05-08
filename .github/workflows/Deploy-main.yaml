@@ -6,6 +6,10 @@ on:
         description: "Name of the AZD Environment"
         required: true
         default: "dev"
+      azure_location:
+        description: "Azure location for the environment"
+        required: true
+        default: "eastus"
   push:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
@@ -35,16 +39,12 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Set az account
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az account set --subscription ${{vars.AZURE_SUBSCRIPTION_ID}}
-
-      - name: Log in with Azure
+      - name: Log in with Azure dev
         run: |
           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
           Write-Host "::add-mask::$($info.clientSecret)"
+
+          az account set --subscription "$($info.subscriptionId)"
 
           azd auth login `
             --client-id "$($info.clientId)" `
@@ -58,21 +58,41 @@ jobs:
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Provision Infrastructure
-        run: azd provision --no-prompt
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.environmentName }}
-          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ vars.ARM_TENANT_ID }}
-          ARM_CLIENT_ID: ${{ vars.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-
-          POWER_PLATFORM_TENANT_ID: ${{ vars.ARM_TENANT_ID }}
-          POWER_PLATFORM_CLIENT_ID: ${{ vars.ARM_CLIENT_ID }}
-          POWER_PLATFORM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}          
           POWER_PLATFORM_USE_CLI: false
+        run: |
+          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+          Write-Host "::add-mask::$($info.clientSecret)"
+          
+          export AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+          export ARM_TENANT_ID="$($info.tenantId)"
+          export ARM_CLIENT_ID="$($info.clientId)"
+          export ARM_CLIENT_SECRET="$($info.clientSecret)"
 
-          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
-          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
-          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
-          # AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
+          export POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+          export POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+          export POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
+
+          azd provision --no-prompt
+
+        
+      - name: Azd down
+        env:
+            AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+            AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+        run: |
+           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+            Write-Host "::add-mask::$($info.clientSecret)"
+            
+            export AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+            export ARM_TENANT_ID="$($info.tenantId)"
+            export ARM_CLIENT_ID="$($info.clientId)"
+            export ARM_CLIENT_SECRET="$($info.clientSecret)"
+
+            export POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+            export POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+            export POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"  
+            
+            azd down --no-prompt --force --purge
