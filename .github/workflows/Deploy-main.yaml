@@ -62,18 +62,19 @@ jobs:
           AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
           AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}          
           POWER_PLATFORM_USE_CLI: false
+        shell: pwsh
         run: |
           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
           Write-Host "::add-mask::$($info.clientSecret)"
           
-          export AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-          export ARM_TENANT_ID="$($info.tenantId)"
-          export ARM_CLIENT_ID="$($info.clientId)"
-          export ARM_CLIENT_SECRET="$($info.clientSecret)"
+          $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+          $env:ARM_TENANT_ID="$($info.tenantId)"
+          $env:ARM_CLIENT_ID="$($info.clientId)"
+          $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
 
-          export POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-          export POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-          export POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
+          $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+          $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+          $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
           azd env new --name $AZURE_ENV_NAME --location $AZURE_LOCATION --no-prompt
           azd env set POWER_PLATFORM_USE_CLI "true"
@@ -84,17 +85,18 @@ jobs:
         env:
             AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
             AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+        shell: pwsh
         run: |
            $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
             Write-Host "::add-mask::$($info.clientSecret)"
             
-            export AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-            export ARM_TENANT_ID="$($info.tenantId)"
-            export ARM_CLIENT_ID="$($info.clientId)"
-            export ARM_CLIENT_SECRET="$($info.clientSecret)"
+            $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+            $env:ARM_TENANT_ID="$($info.tenantId)"
+            $env:ARM_CLIENT_ID="$($info.clientId)"
+            $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
 
-            export POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-            export POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-            export POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"  
+            $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+            $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+            $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"  
             
             azd down --no-prompt --force --purge
