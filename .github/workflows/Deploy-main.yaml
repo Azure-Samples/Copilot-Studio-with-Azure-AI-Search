@@ -119,7 +119,7 @@ jobs:
           $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
-          azd env set RESOURCE_SHARE_USER: $env:RESOURCE_SHARE_USER
+          azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
           azd env set POWER_PLATFORM_USE_CLI "false"
 
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
