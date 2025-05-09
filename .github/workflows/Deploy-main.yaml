@@ -103,6 +103,7 @@ jobs:
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
         shell: pwsh
         run: |
           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
@@ -118,6 +119,7 @@ jobs:
           $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
+          azd env set RESOURCE_SHARE_USER: $env:RESOURCE_SHARE_USER
           azd env set POWER_PLATFORM_USE_CLI "false"
 
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
