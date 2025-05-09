@@ -88,6 +88,9 @@ resource "azurerm_nat_gateway" "nat_gateways" {
   name                = "${each.key}-nat-gateway"
   resource_group_name = azurerm_resource_group.this.name
   sku_name            = "Standard"
+
+  depends_on = [module.primary_virtual_network, module.failover_virtual_network]
+
 }
 
 # TODO add a proper polling mechanism instead of wait
