@@ -39,14 +39,14 @@ def create_or_update_index(
     )
 
     with open(index_file) as index_def:
-        defenition = index_def.read()
+        definition= index_def.read()
   
     # modify placeholders in the index definition
-    defenition = defenition.replace("<search_index_name>", index_name)
-    defenition = defenition.replace("<open_ai_uri>", open_ai_uri)
+    definition = definition.replace("<search_index_name>", index_name)
+    definition= definition.replace("<open_ai_uri>", open_ai_uri)
 
     # create an object of the index and initiate index creation process
-    index = SearchIndex.deserialize(defenition, APPLICATION_JSON_CONTENT_TYPE)
+    index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
     index_client.create_or_update_index(index=index)
 
 
