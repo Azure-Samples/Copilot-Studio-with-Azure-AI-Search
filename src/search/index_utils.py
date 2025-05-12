@@ -213,14 +213,34 @@ def main():
         help="name of the AI Search service",
     )
     parser.add_argument(
-        "--index_name",
+        "--base_index_name",
         required=True,
-        help="name of the index to create or delete",
+        help="base name to form the index, data source, skillset and indexer names",
     )
     parser.add_argument(
         "--openai_api_base",
         required=True,
         help="base URL of the OpenAI API",
+    )
+    parser.add_argument(
+        "--subscription_id",
+        required=True,
+        help="Azure subscription ID",
+    )
+    parser.add_argument(
+        "--resource_group_name",
+        required=True,
+        help="Azure resource group name",
+    )
+    parser.add_argument(
+        "--storage_name",
+        required=True,
+        help="Azure storage account name",
+    )
+    parser.add_argument(
+        "--container_name",
+        required=True,
+        help="Azure storage container name",
     )
     args = parser.parse_args()
     
@@ -229,14 +249,15 @@ def main():
 
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 
-    # Create the Index
-    index_client = SearchIndexClient(
-        ai_search_uri, credential=credential, api_version=AI_SEARCH_API_VERSION
-    )
+    # forming entity names based on the base name
+    index_name = f"{args.base_index_name}-index"
+    datasource_name = f"{args.base_index_name}-ds"
+    skillset_name = f"{args.base_index_name}-skills"
+    indexer_name = f"{args.base_index_name}-indexer"
 
     # Create the full document index
     create_or_update_index(
-        args.index_name,
+        index_name,
         INDEX_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
