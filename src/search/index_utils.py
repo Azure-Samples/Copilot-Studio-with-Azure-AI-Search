@@ -1,14 +1,13 @@
 """
-This module contains functions to create index, indexer, and datasource.
+This module contains functions to create index, indexer, skillset and datasource.
 
 This module is the primary endpoint for experiments with AI Search service
 """
 import argparse
 import os
-
 from azure.identity import DefaultAzureCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
-from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer
+from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer, SearchIndexerSkillset
 
 
 APPLICATION_JSON_CONTENT_TYPE = "application/json"
@@ -17,6 +16,43 @@ INDEX_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/docume
 DATASOURCE_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentDataSource.json")
 SKILLSET_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentSkillSet.json")
 INDEXER_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndexer.json")
+
+
+def create_or_update_skillset(
+        skillset_name: str,
+        index_name: str,
+        skillset_file: str,
+        ai_search_uri: str,
+        credentials: DefaultAzureCredential,
+):    
+    """
+    Create or update the skillset in the AI Search service.
+
+    Args:
+        skillset_name: The name of the skillset to create or update.
+        index_name: The name of the index to use in the skillset.
+        skillset_file: The path to the skillset definition file.
+        ai_search_uri: The URI of the AI Search service.
+        credentials: The Azure credentials to use for authentication.
+
+    Returns:
+        None
+    """
+    # Create a search indexer client
+    indexer_client = SearchIndexerClient(
+        ai_search_uri, credential=credentials, api_version=AI_SEARCH_API_VERSION
+    )
+
+    # read definition from the file and replace placeholders with actual values
+    with open(skillset_file) as skillset_def:
+        definition= skillset_def.read()
+  
+    definition = definition.replace("<search_index_name>", index_name)
+    definition = definition.replace("<skillset_name>", skillset_name)
+
+    # create an object of the skillset and initiate index creation process
+    indexer = SearchIndexerSkillset.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
+    indexer_client.create_or_update_skillset(indexer=indexer)
 
 
 def create_or_update_indexer(
@@ -33,9 +69,9 @@ def create_or_update_indexer(
 
     Args:
         indexer_name: The name of the indexer to create or update.
-        index_name: The name of the index to create or update.
-        skillset_name: The name of the skillset to use.
-        datasource_name: The name of the data source to use.
+        index_name: The name of the index to use in the indexer.
+        skillset_name: The name of the skillset to use in the indexer.
+        datasource_name: The name of the data source to use in the indexer.
         indexer_file: The path to the indexer definition file.
         ai_search_uri: The URI of the AI Search service.
         credential: The Azure credentials to use for authentication.

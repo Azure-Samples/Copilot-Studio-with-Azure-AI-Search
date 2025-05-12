@@ -1,5 +1,5 @@
 {
-    "name": "{name}",
+    "name": "<skillset_name>",
     "description": "Skillset to chunk documents and generate embeddings",
     "skills": [
         {
@@ -46,7 +46,7 @@
     "indexProjections": {
       "selectors": [
         {
-          "targetIndexName": "<index_name>",
+          "targetIndexName": "<search_index_name>",
           "parentKeyFieldName": "parent_id",
           "sourceContext": "/document/chunks/*",
           "mappings": [
