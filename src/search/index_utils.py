@@ -7,8 +7,8 @@ import argparse
 import os
 
 from azure.identity import DefaultAzureCredential
-from azure.search.documents.indexes import SearchIndexClient
-from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection
+from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
+from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer
 
 
 APPLICATION_JSON_CONTENT_TYPE = "application/json"
@@ -17,6 +17,50 @@ INDEX_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/docume
 DATASOURCE_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentDataSource.json")
 SKILLSET_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentSkillSet.json")
 INDEXER_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndexer.json")
+
+
+def create_or_update_indexer(
+        indexer_name: str,
+        index_name: str,
+        skillset_name: str,
+        datasource_name: str,
+        indexer_file: str,
+        ai_search_uri: str,
+        credential: DefaultAzureCredential,
+):
+    """
+    Create or update the indexer in the AI Search service.
+
+    Args:
+        indexer_name: The name of the indexer to create or update.
+        index_name: The name of the index to create or update.
+        skillset_name: The name of the skillset to use.
+        datasource_name: The name of the data source to use.
+        indexer_file: The path to the indexer definition file.
+        ai_search_uri: The URI of the AI Search service.
+        credential: The Azure credentials to use for authentication.
+
+    Returns:
+        None
+    """
+    # Create a search indexer client
+    indexer_client = SearchIndexerClient(
+        ai_search_uri, credential=credential, api_version=AI_SEARCH_API_VERSION
+    )
+
+    # read definition from the file and replace placeholders with actual values
+    with open(indexer_file) as indexer_def:
+        definition= indexer_def.read()
+  
+    definition = definition.replace("<search_indexer_name>", indexer_name)
+    definition = definition.replace("<search_index_name>", index_name)
+    definition = definition.replace("<skillset_name>", skillset_name)
+    definition = definition.replace("<data_source_name>", datasource_name)
+
+    # create an object of the indexer and initiate index creation process
+    indexer = SearchIndexer.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
+    indexer_client.create_or_update_indexer(indexer=indexer)
+
 
 
 def create_or_update_datasource(
@@ -50,8 +94,8 @@ def create_or_update_datasource(
     conn_string = _get_storage_conn_string(
         subscription_id, storage_account_name, resource_group_name)
 
-    # Create a search index client
-    index_client = SearchIndexClient(
+    # Create a search indexer client
+    indexer_client = SearchIndexerClient(
         ai_search_uri, credential=credential, api_version=AI_SEARCH_API_VERSION
     )
 
@@ -72,7 +116,7 @@ def create_or_update_datasource(
     data_source_connection.connection_string = conn_string
 
     # Create or update the data source
-    index_client.create_or_update_data_source_connection(data_source_connection)
+    indexer_client.create_or_update_data_source_connection(data_source_connection)
 
 
 def _get_storage_conn_string(
