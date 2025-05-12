@@ -1,0 +1,1 @@
+Initial data to upload into a blob storage to make this template working.

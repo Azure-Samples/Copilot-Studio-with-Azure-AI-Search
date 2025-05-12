@@ -2,6 +2,7 @@
     "name": "<search_indexer_name>",
     "description": null,
     "dataSourceName": "<data_source_name>",
+    "skillsetName": "<skillset_name>",
     "targetIndexName": "<search_index_name>",
     "disabled": null,
     "schedule": null,

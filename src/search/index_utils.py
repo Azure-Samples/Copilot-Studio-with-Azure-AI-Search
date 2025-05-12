@@ -8,12 +8,83 @@ import os
 
 from azure.identity import DefaultAzureCredential
 from azure.search.documents.indexes import SearchIndexClient
-from azure.search.documents.indexes.models import SearchIndex
+from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection
 
 
 APPLICATION_JSON_CONTENT_TYPE = "application/json"
 AI_SEARCH_API_VERSION = "2024-07-01"
 INDEX_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndex.json")
+DATASOURCE_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentDataSource.json")
+SKILLSET_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentSkillSet.json")
+INDEXER_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndexer.json")
+
+
+def create_or_update_datasource(
+        datasource_name: str,
+        datasource_file: str,
+        ai_search_uri: str,
+        subscription_id: str,
+        resource_group_name: str,
+        storage_account_name: str,
+        container_name: str,
+        credential: DefaultAzureCredential,
+):
+    """
+    Create or update the data source in the AI Search service.
+
+    Args:
+        datasource_name: The name of the data source to create or update.
+        datasource_file: The path to the data source definition file.
+        subscription_id: The Azure subscription ID.
+        resource_group_name: The name of the Azure resource group.
+        storage_account_name: The name of the Azure storage account.
+        container_name: The name of the Azure storage container.
+        ai_search_uri: The URI of the AI Search service.
+        credential: The Azure credentials to use for authentication.
+
+    Returns:
+        None
+    """
+    # Create the connection string for the storage account applying Entra ID approach
+    # The connection string is in the format: "ResourceId=/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Storage/storageAccounts/{storage_account_name};"
+    conn_string = _get_storage_conn_string(
+        subscription_id, storage_account_name, resource_group_name)
+
+    # Create a search index client
+    index_client = SearchIndexClient(
+        ai_search_uri, credential=credential, api_version=AI_SEARCH_API_VERSION
+    )
+
+    # read definition from the file and replace placeholders with actual values
+    with open(datasource_file) as datasource_def:
+        definition= datasource_def.read()
+  
+    definition = definition.replace("<connection_string>", conn_string)
+    definition = definition.replace("<container_name>", container_name)
+    definition = definition.replace("<data_source_name>", datasource_name)
+
+    # create an object of the data source connection and initiate data source creation process
+    data_source_connection = SearchIndexerDataSourceConnection.deserialize(
+        definition, APPLICATION_JSON_CONTENT_TYPE
+    )
+
+    # Don't know why this is necessary, the connection string is in the credentials, it's not happy without it
+    data_source_connection.connection_string = conn_string
+
+    # Create or update the data source
+    index_client.create_or_update_data_source_connection(data_source_connection)
+
+
+def _get_storage_conn_string(
+    subscription_id: str,
+    storage_account_name: str,
+    resource_group_name: str,
+) -> str:
+    conn_string = f"ResourceId=/subscriptions/{subscription_id}" \
+        f"/resourceGroups/{resource_group_name}/providers/Microsoft.Storage" \
+        f"/storageAccounts/{storage_account_name};"
+
+    return conn_string
 
 
 def create_or_update_index(

@@ -1,0 +1,85 @@
+{
+    "name": "{name}",
+    "description": "Skillset to chunk documents and generate embeddings",
+    "skills": [
+        {
+            "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+            "name": "chunker",
+            "description": null,
+            "context": "/document/content",
+            "inputs": [
+                {
+                    "name": "text",
+                    "source": "/document/content"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "text",
+                    "targetName": "chunks"
+                }
+            ],
+            "maxChunkSize": 512,
+            "maxChunkCount": 1000
+        },
+        {
+            "@odata.type": "#Microsoft.Skills.Vision.ImageAnalysisSkill",
+            "name": "imageAnalysis",
+            "description": null,
+            "context": "/document/chunks/*/page_content",
+            "inputs": [
+                {
+                    "name": "image",
+                    "source": "/document/chunks/*/page_content"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "imageAnalysisResult",
+                    "targetName": "embedding"
+                }
+            ]
+        }
+    ],
+    "cognitiveServices": null,
+    "knowledgeStore": null,
+    "indexProjections": {
+      "selectors": [
+        {
+          "targetIndexName": "<index_name>",
+          "parentKeyFieldName": "parent_id",
+          "sourceContext": "/document/chunks/*",
+          "mappings": [
+            {
+              "name": "content",
+              "source": "/document/chunks/*/page_content",
+              "sourceContext": null,
+              "inputs": []
+            },
+            {
+              "name": "content_vector",
+              "source": "/document/chunks/*/embedding",
+              "sourceContext": null,
+              "inputs": []
+            },
+            {
+              "name": "filename",
+              "source": "/document/metadata_storage_name",
+              "sourceContext": null,
+              "inputs": []
+            },
+            {
+              "name": "page_number",
+              "source": "/document/chunks/*/page",
+              "sourceContext": null,
+              "inputs": []
+            }
+          ]
+        }
+      ],
+      "parameters": {
+        "projectionMode": "skipIndexingParentDocuments"
+      }
+    },
+    "encryptionKey": null
+  }
