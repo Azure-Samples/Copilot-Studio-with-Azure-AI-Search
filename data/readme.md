@@ -16,7 +16,7 @@ Replace <your_storage_account_name> and <your_container_name> with your Azure St
 
 ## How to upload data using the Linux Shell Script
 
-Execute the script:
+Authenticate to Azure using `az login` or environment variables for service principal credentials. Execute the script:
 
 ```bash
 ./upload_data.sh <storage_account_name> <container_name>
