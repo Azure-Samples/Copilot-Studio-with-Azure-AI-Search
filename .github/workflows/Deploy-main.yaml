@@ -1,11 +1,11 @@
-name: "CI-Deploy"
+name: "CI-Deploy-main"
 on:
   workflow_dispatch:
     inputs:
       azd_environment_name:
         description: "Name of the AZD Environment"
         required: true
-        default: "dev"
+        default: "CICD"
       azure_location:
         description: "Azure location for the environment"
         required: true
@@ -14,7 +14,7 @@ on:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
     branches: #Tmp testing: set to current pr banch
-      - basic_wf
+      - main
 # GitHub Actions workflow to deploy to Azure using azd
 # To configure required secrets for connecting to Azure, simply run `azd pipeline config --auth-type client-credentials`
 
@@ -40,9 +40,7 @@ jobs:
 
       - name: Switch to Remote backend- Create provider.conf.json file
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          #tmp for testing on branch
-          AZURE_ENV_NAME: test
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
         run: |
           echo "Switching to remote backend"
           echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
@@ -93,11 +91,8 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}  
-          #tmp for testing on branch
-          AZURE_ENV_NAME: test
-          AZURE_LOCATION: eastus         
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -131,11 +126,13 @@ jobs:
         
       - name: Azd down
         env:
-            # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-            # AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+            AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+            AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
             AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-            AZURE_ENV_NAME: test
-            AZURE_LOCATION: eastus
+            RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
+            RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
+            RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
+            RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
             POWER_PLATFORM_USE_CLI: false
         shell: pwsh
         run: |
@@ -149,7 +146,11 @@ jobs:
 
           $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
           $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-          $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"  
+          $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
+
+          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
+          azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           
           azd env select $env:AZURE_ENV_NAME
           azd down --no-prompt --force --purge
