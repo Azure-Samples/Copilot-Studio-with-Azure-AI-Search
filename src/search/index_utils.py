@@ -260,8 +260,6 @@ def main():
     The function uses these parameters to construct the necessary components and logs the progress 
     of each operation.
     """
-    """Create an indexer and related entities based on the configuration parameters."""
-
     logger.info("Read and check parameters.")
     # Extract the configuration parameters from the environment variables
     parser = argparse.ArgumentParser(description="Parameter parser")
