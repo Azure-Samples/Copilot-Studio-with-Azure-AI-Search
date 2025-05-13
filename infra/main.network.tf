@@ -89,7 +89,7 @@ resource "azurerm_nat_gateway" "nat_gateways" {
   resource_group_name = azurerm_resource_group.this.name
   sku_name            = "Standard"
 
-  depends_on = [module.primary_virtual_network, module.failover_virtual_network]
+#  depends_on = [module.primary_virtual_network, module.failover_virtual_network]
 
 }
 

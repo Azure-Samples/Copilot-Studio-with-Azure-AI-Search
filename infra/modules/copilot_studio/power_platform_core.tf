@@ -63,7 +63,7 @@ resource "powerplatform_connection_share" "share_connections_with_user" {
 }
 
 #---- 3 - Set up Dataverse record for the Copilot ----
-
+/*
 resource "powerplatform_data_record" "this" {
   environment_id     = local.power_platform_environment_id
   table_logical_name = "bot"
@@ -71,6 +71,6 @@ resource "powerplatform_data_record" "this" {
     name          = "Copilot Studio + Azure AI - ${var.unique_id}"
     configuration = "{\n  \"$kind\" : \"BotConfiguration\",\n  \"publishOnCreate\" : true,\n  \"settings\" : {\n  \"GenerativeActionsEnabled\" : false,\n  },\n  \"isLightweightBot\" : true\n}"
   }
-}
+}*/
 
 #---- 4 - Future state: base bot configuration needs model knowledge source ----
