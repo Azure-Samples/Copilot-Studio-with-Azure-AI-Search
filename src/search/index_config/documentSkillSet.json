@@ -5,8 +5,9 @@
         {
             "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
             "name": "chunker",
+            "textSplitMode": "pages",
             "description": null,
-            "context": "/document/content",
+            "context": "/document",
             "inputs": [
                 {
                     "name": "text",
@@ -15,7 +16,7 @@
             ],
             "outputs": [
                 {
-                    "name": "text",
+                    "name": "textItems",
                     "targetName": "chunks"
                 }
             ],
@@ -23,21 +24,24 @@
             "maxChunkCount": 1000
         },
         {
-            "@odata.type": "#Microsoft.Skills.Vision.ImageAnalysisSkill",
-            "name": "imageAnalysis",
-            "description": null,
-            "context": "/document/chunks/*/page_content",
+            "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+            "name": "openAIEmbedding",
+            "description": "Generate embeddings using OpenAI",
+            "resourceUri": "<open_ai_uri>",
+            "modelName": "text-embedding-3-large",
+            "deploymentId": "text-embedding-3-large",
+            "context": "/document/chunks/*",
             "inputs": [
-                {
-                    "name": "image",
-                    "source": "/document/chunks/*/page_content"
-                }
+            {
+              "name": "text",
+              "source": "/document/chunks/*"
+            }
             ],
             "outputs": [
-                {
-                    "name": "imageAnalysisResult",
-                    "targetName": "embedding"
-                }
+            {
+              "name": "embedding",
+              "targetName": "embedding"
+            }
             ]
         }
     ],
@@ -51,26 +55,20 @@
           "sourceContext": "/document/chunks/*",
           "mappings": [
             {
-              "name": "content",
-              "source": "/document/chunks/*/page_content",
+              "name": "chunk",
+              "source": "/document/chunks/*",
               "sourceContext": null,
               "inputs": []
             },
             {
-              "name": "content_vector",
+              "name": "text_vector",
               "source": "/document/chunks/*/embedding",
               "sourceContext": null,
               "inputs": []
             },
             {
-              "name": "filename",
+              "name": "title",
               "source": "/document/metadata_storage_name",
-              "sourceContext": null,
-              "inputs": []
-            },
-            {
-              "name": "page_number",
-              "source": "/document/chunks/*/page",
               "sourceContext": null,
               "inputs": []
             }

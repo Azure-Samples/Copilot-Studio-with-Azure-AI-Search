@@ -40,6 +40,7 @@ def create_or_update_skillset(
         index_name: str,
         skillset_file: str,
         ai_search_uri: str,
+        open_ai_uri: str,
         credentials: DefaultAzureCredential,
 ):    
     """
@@ -50,6 +51,7 @@ def create_or_update_skillset(
         index_name: The name of the index to use in the skillset.
         skillset_file: The path to the skillset definition file.
         ai_search_uri: The URI of the AI Search service.
+        open_ai_uri: The base URI of the OpenAI API.
         credentials: The Azure credentials to use for authentication.
 
     Returns:
@@ -67,10 +69,11 @@ def create_or_update_skillset(
 
         definition = definition.replace("<search_index_name>", index_name)
         definition = definition.replace("<skillset_name>", skillset_name)
+        definition = definition.replace("<open_ai_uri>", open_ai_uri)
 
         # create an object of the skillset and initiate index creation process
-        indexer = SearchIndexerSkillset.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
-        indexer_client.create_or_update_skillset(indexer=indexer)
+        skillset = SearchIndexerSkillset.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
+        indexer_client.create_or_update_skillset(skillset=skillset)
     except Exception as e:
         logger.error(f"Failed to create or update the skillset '{skillset_name}': {e}")
         raise
@@ -208,6 +211,8 @@ def create_or_update_index(
 
     Args:
         index_name: The name of the index to create or update.
+        index_file: The path to the index definition file.
+        open_ai_uri: The base URI of the OpenAI API.
         ai_search_uri: The URI of the AI Search service.
         credential: The Azure credentials to use for authentication.
 
@@ -336,6 +341,28 @@ def main():
     )
     logger.info("Data source creation completed.")
 
+    logger.info("Initiate skillset creation method.")
+    create_or_update_skillset(
+        skillset_name,
+        index_name,
+        SKILLSET_SCHEMA_PATH,
+        ai_search_uri,
+        args.openai_api_base,
+        credential,
+    )
+    logger.info("Skillset creation completed.")
+
+    logger.info("Initiate indexer creation method.")
+    create_or_update_indexer(
+        indexer_name,
+        index_name,
+        skillset_name,
+        datasource_name,
+        INDEXER_SCHEMA_PATH,
+        ai_search_uri,
+        credential,
+    )
+    logger.info("Indexer creation completed.")
 
 # This block ensures that the script runs the main function only when executed directly,
 # and not when imported as a module in another script.
