@@ -4,3 +4,48 @@ metadata:
   template: Copilot-Studio-with-Azure-AI-Search@0.0.1-beta
 infra:
   provider: terraform
+hooks:
+  preprovision:
+    posix:
+      shell: sh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/preprovision.sh
+    windows:
+      shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/preprovision.ps1
+  postprovision:
+    posix:
+      shell: sh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/postprovision.sh
+    windows:
+      shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/postprovision.ps1
+  predeploy:
+    posix:
+      shell: sh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/predeploy.sh
+    windows:
+      shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/predeploy.ps1
+  postdeploy:
+    posix:
+      shell: sh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/postdeploy.sh
+    windows:
+      shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/postdeploy.ps1
