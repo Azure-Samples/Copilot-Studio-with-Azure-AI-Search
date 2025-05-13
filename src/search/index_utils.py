@@ -323,6 +323,19 @@ def main():
     )
     logger.info("Index creation completed.")
 
+    logger.info("Initiate data source creation method.")
+    create_or_update_datasource(
+        datasource_name,
+        DATASOURCE_SCHEMA_PATH,
+        ai_search_uri,
+        args.subscription_id,
+        args.resource_group_name,
+        args.storage_name,
+        args.container_name,
+        credential,
+    )
+    logger.info("Data source creation completed.")
+
 
 # This block ensures that the script runs the main function only when executed directly,
 # and not when imported as a module in another script.
