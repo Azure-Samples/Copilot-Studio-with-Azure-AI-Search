@@ -13,7 +13,7 @@ on:
   push:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
-    branches: #Tmp testing: set to current pr banch
+    branches:
       - main
 # GitHub Actions workflow to deploy to Azure using azd
 # To configure required secrets for connecting to Azure, simply run `azd pipeline config --auth-type client-credentials`
@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 18
       
-      - name: Install Terrform
+      - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
