@@ -113,7 +113,7 @@ jobs:
           # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
           AZURE_ENV_NAME: "tmp-ci"
           # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
-          AZURE_LOCATION: "estus"
+          AZURE_LOCATION: "eastus"
           POWER_PLATFORM_USE_CLI: false
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -153,7 +153,7 @@ jobs:
             # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
             AZURE_ENV_NAME: "tmp-ci"
             # AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
-            AZURE_LOCATION: "estus"
+            AZURE_LOCATION: "eastus"
             AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
             RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
             RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
