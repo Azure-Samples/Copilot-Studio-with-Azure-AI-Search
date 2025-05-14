@@ -10,6 +10,7 @@ import logging
 from azure.identity import DefaultAzureCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer, SearchIndexerSkillset
+from .common_utils import absolute_url, valid_name
 
 logger = logging.getLogger(__name__)
 
@@ -271,35 +272,42 @@ def main():
     parser.add_argument(
         "--aisearch_name",
         required=True,
+        type=valid_name,
         help="name of the AI Search service",
     )
     parser.add_argument(
         "--base_index_name",
         required=True,
+        type=valid_name,
         help="base name to form the index, data source, skillset and indexer names",
     )
     parser.add_argument(
         "--openai_api_base",
+        type=absolute_url,
         required=True,
         help="base URL of the OpenAI API",
     )
     parser.add_argument(
         "--subscription_id",
+        type=valid_name,
         required=True,
         help="Azure subscription ID",
     )
     parser.add_argument(
         "--resource_group_name",
+        type=valid_name,
         required=True,
         help="Azure resource group name",
     )
     parser.add_argument(
         "--storage_name",
+        type=valid_name,
         required=True,
         help="Azure storage account name",
     )
     parser.add_argument(
         "--container_name",
+        type=valid_name,
         required=True,
         help="Azure storage container name",
     )
