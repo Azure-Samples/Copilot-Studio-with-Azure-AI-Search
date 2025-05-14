@@ -1,5 +1,5 @@
 module "azure_open_ai" {
-  source = "git::https://github.com/Azure/terraform-azurerm-avm-res-cognitiveservices-account.git?ref=a73f04df4725afeea3ef0e60ef0eb7f3330f560a"
+  source = "git::https://github.com/Azure/terraform-azurerm-avm-res-cognitiveservices-account.git?ref=4387767bea92ac50e5b40b0b30d90608e64a40df"
 
   kind                  = "OpenAI"
   location              = var.location
