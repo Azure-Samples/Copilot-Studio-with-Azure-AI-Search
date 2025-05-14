@@ -110,8 +110,10 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_ENV_NAME: "tmp-ci"
+          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          AZURE_LOCATION: "estus"
           POWER_PLATFORM_USE_CLI: false
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -132,6 +134,9 @@ jobs:
           $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
           $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
+          ##
+          azd config set auth.useAzCliAuth "true"
+          ##
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
           azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
           azd env set POWER_PLATFORM_USE_CLI "false"
@@ -145,8 +150,10 @@ jobs:
         
       - name: Azd down
         env:
-            AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-            AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+            # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+            AZURE_ENV_NAME: "tmp-ci"
+            # AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+            AZURE_LOCATION: "estus"
             AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
             RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
             RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
