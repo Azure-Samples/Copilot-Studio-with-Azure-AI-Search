@@ -14,9 +14,14 @@ on:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
     branches:
-      - main
+      - hadwa/tmp
 # GitHub Actions workflow to deploy to Azure using azd
 # To configure required secrets for connecting to Azure, simply run `azd pipeline config --auth-type client-credentials`
+
+permissions:
+  id-token: write
+  contents: read
+
 
 jobs:
   build:
@@ -40,7 +45,8 @@ jobs:
 
       - name: Switch to Remote backend- Create provider.conf.json file
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_ENV_NAME: "tmp-ci"
         run: |
           echo "Switching to remote backend"
           echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
@@ -66,28 +72,41 @@ jobs:
           EOF
         shell: bash
 
-      - name: Login az
-        uses: azure/login@v2
+      # - name: Login az
+      #   uses: azure/login@v2
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Login to Azure with Federated Identity
+        uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Log in with Azure dev
+      - name: Authenticate with Azure Developer CLI
         run: |
-          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          Write-Host "::add-mask::$($info.clientSecret)"
+          azd auth login --client-id ${{ secrets.AZURE_CLIENT_ID }} --tenant-id ${{ secrets.AZURE_TENANT_ID }} --federated-credential-provider "github"
 
-          az account set --subscription "$($info.subscriptionId)"
+  
+     
+            
+      # - name: Log in with Azure dev
+      #   run: |
+      #     $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+      #     Write-Host "::add-mask::$($info.clientSecret)"
 
-          azd auth login `
-            --client-id "$($info.clientId)" `
-            --client-secret "$($info.clientSecret)" `
-            --tenant-id "$($info.tenantId)"
+      #     az account set --subscription "$($info.subscriptionId)"
+
+      #     azd auth login `
+      #       --client-id "$($info.clientId)" `
+      #       --client-secret "$($info.clientSecret)" `
+      #       --tenant-id "$($info.tenantId)"
           
-          azd config set auth.useAzCliAuth "true"
+      #     azd config set auth.useAzCliAuth "true"
          
-        shell: pwsh
-        env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      #   shell: pwsh
+      #   env:
+      #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Provision Infrastructure
         env:
