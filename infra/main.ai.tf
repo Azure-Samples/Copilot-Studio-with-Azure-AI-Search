@@ -1,6 +1,6 @@
 module "azure_open_ai" {
   source                = "Azure/avm-res-cognitiveservices-account/azurerm"
-  version               = "0.7.0"
+  version               = "0.7.1"
   kind                  = "OpenAI"
   location              = var.location
   name                  = "aoai${random_string.name.id}"
