@@ -18,7 +18,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
       {
         "type" : 1,
         "content" : {
-          "json" : "${var.app_insights_workbook_description}",
+          "json" : var.app_insights_workbook_description,
           "style" : "info"
         },
         "name" : "Notebook description"
@@ -27,7 +27,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
         "type" : 3,
         "content" : {
           "version" : "KqlItem/1.0",
-          "query" : "${var.app_insights_sections["section_1"].query}",
+          "query" : var.app_insights_sections["section_1"].query,
           "size" : 0,
           "timeContext" : {
             "durationMs" : 1800000
@@ -37,7 +37,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "crossComponentResources" : [
             "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
-          "visualization" : "${var.app_insights_sections["section_1"].chart}"
+          "visualization" : var.app_insights_sections["section_1"].chart
         },
         "name" : "${var.app_insights_sections["section_1"].name}"
       },
