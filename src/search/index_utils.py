@@ -36,6 +36,29 @@ SKILLSET_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/doc
 INDEXER_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndexer.json")
 
 
+def _prepare_json_schema(
+    file_name: str,
+    values_to_assign: dict
+) -> str:
+    """
+    Create a string object that represent a json with replaced values based on the dictionary.
+
+    Args:
+        file: The path to the json file
+        values_to_assign: a dictionary with key/value pair to change in the json file
+
+    Returns:
+        str: The json string with replaced values
+    """
+    with open(file_name) as indexer_file:
+        indexer_def = indexer_file.read()
+
+    for key in values_to_assign.keys():
+        indexer_def = indexer_def.replace(f"{key}", values_to_assign[key])
+
+    return indexer_def
+
+
 def create_or_update_skillset(
         skillset_name: str,
         index_name: str,
@@ -65,12 +88,13 @@ def create_or_update_skillset(
         )
 
         # read definition from the file and replace placeholders with actual values
-        with open(skillset_file) as skillset_def:
-            definition = skillset_def.read()
-
-        definition = definition.replace("<search_index_name>", index_name)
-        definition = definition.replace("<skillset_name>", skillset_name)
-        definition = definition.replace("<open_ai_uri>", open_ai_uri)
+        definition = _prepare_json_schema(
+            skillset_file, 
+            {
+                "<search_index_name>": index_name,
+                "<skillset_name>": skillset_name,
+                "<open_ai_uri>": open_ai_uri
+            })
 
         # create an object of the skillset and initiate index creation process
         skillset = SearchIndexerSkillset.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
@@ -111,13 +135,15 @@ def create_or_update_indexer(
         )
 
         # read definition from the file and replace placeholders with actual values
-        with open(indexer_file) as indexer_def:
-            definition = indexer_def.read()
-
-        definition = definition.replace("<search_indexer_name>", indexer_name)
-        definition = definition.replace("<search_index_name>", index_name)
-        definition = definition.replace("<skillset_name>", skillset_name)
-        definition = definition.replace("<data_source_name>", datasource_name)
+        definition = _prepare_json_schema(
+            indexer_file,
+            {
+            "<search_indexer_name>": indexer_name,
+            "<search_index_name>": index_name,
+            "<skillset_name>": skillset_name,
+            "<data_source_name>": datasource_name,
+            }
+        )
 
         # create an object of the indexer and initiate index creation process
         indexer = SearchIndexer.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
@@ -165,12 +191,14 @@ def create_or_update_datasource(
         )
 
         # read definition from the file and replace placeholders with actual values
-        with open(datasource_file) as datasource_def:
-            definition = datasource_def.read()
-
-        definition = definition.replace("<connection_string>", conn_string)
-        definition = definition.replace("<container_name>", container_name)
-        definition = definition.replace("<data_source_name>", datasource_name)
+        definition = _prepare_json_schema(
+            datasource_file,
+            {
+            "<connection_string>": conn_string,
+            "<container_name>": container_name,
+            "<data_source_name>": datasource_name,
+            }
+        )
 
         # create an object of the data source connection and initiate data source creation process
         data_source_connection = SearchIndexerDataSourceConnection.deserialize(
@@ -225,12 +253,13 @@ def create_or_update_index(
             ai_search_uri, credential=credential, api_version=AI_SEARCH_API_VERSION
         )
 
-        with open(index_file) as index_def:
-            definition = index_def.read()
-
-        # modify placeholders in the index definition
-        definition = definition.replace("<search_index_name>", index_name)
-        definition = definition.replace("<open_ai_uri>", open_ai_uri)
+        definition = _prepare_json_schema(
+            index_file,
+            {
+            "<search_index_name>": index_name,
+            "<open_ai_uri>": open_ai_uri,
+            }
+        )
 
         # create an object of the index and initiate index creation process
         index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
