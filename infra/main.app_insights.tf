@@ -39,13 +39,13 @@ resource "azurerm_application_insights_workbook" "workbook" {
           ],
           "visualization" : var.app_insights_sections["section_1"].chart
         },
-        "name" : "${var.app_insights_sections["section_1"].name}"
+        "name" : var.app_insights_sections["section_1"].name
       },
       {
         "type" : 3,
         "content" : {
           "version" : "KqlItem/1.0",
-          "query" : "${var.app_insights_sections["section_2"].query}",
+          "query" : var.app_insights_sections["section_2"].query,
           "size" : 0,
           "timeContext" : {
             "durationMs" : 1800000
@@ -55,15 +55,15 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "crossComponentResources" : [
             "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
-          "visualization" : "${var.app_insights_sections["section_2"].chart}"
+          "visualization" : var.app_insights_sections["section_2"].chart
         },
-        "name" : "${var.app_insights_sections["section_2"].name}"
+        "name" : var.app_insights_sections["section_2"].name
       },
       {
         "type" : 3,
         "content" : {
           "version" : "KqlItem/1.0",
-          "query" : "${var.app_insights_sections["section_3"].query}",
+          "query" : var.app_insights_sections["section_3"].query,
           "size" : 0,
           "timeContext" : {
             "durationMs" : 1800000
@@ -73,15 +73,15 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "crossComponentResources" : [
             "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
-          "visualization" : "${var.app_insights_sections["section_3"].chart}"
+          "visualization" : var.app_insights_sections["section_3"].chart
         },
-        "name" : "${var.app_insights_sections["section_3"].name}"
+        "name" : var.app_insights_sections["section_3"].name
       },
       {
         "type" : 3,
         "content" : {
           "version" : "KqlItem/1.0",
-          "query" : "${var.app_insights_sections["section_4"].query}",
+          "query" : var.app_insights_sections["section_4"].query,
           "size" : 0,
           "timeContext" : {
             "durationMs" : 1800000
@@ -91,15 +91,15 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "crossComponentResources" : [
             "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
-          "visualization" : "${var.app_insights_sections["section_4"].chart}"
+          "visualization" : var.app_insights_sections["section_4"].chart
         },
-        "name" : "${var.app_insights_sections["section_4"].name}"
+        "name" : var.app_insights_sections["section_4"].name
       },
       {
         "type" : 3,
         "content" : {
           "version" : "KqlItem/1.0",
-          "query" : "${var.app_insights_sections["section_5"].query}",
+          "query" : var.app_insights_sections["section_5"].query,
           "size" : 0,
           "timeContext" : {
             "durationMs" : 1800000
@@ -109,15 +109,15 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "crossComponentResources" : [
             "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
-          "visualization" : "${var.app_insights_sections["section_5"].chart}"
+          "visualization" : var.app_insights_sections["section_5"].chart
         },
-        "name" : "${var.app_insights_sections["section_5"].name}"
+        "name" : var.app_insights_sections["section_5"].name
       },
       {
         "type" : 3,
         "content" : {
           "version" : "KqlItem/1.0",
-          "query" : "${var.app_insights_sections["section_6"].query}",
+          "query" : var.app_insights_sections["section_6"].query,
           "size" : 0,
           "timeContext" : {
             "durationMs" : 1800000
@@ -127,9 +127,9 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "crossComponentResources" : [
             "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
-          "visualization" : "${var.app_insights_sections["section_6"].chart}"
+          "visualization" : var.app_insights_sections["section_6"].chart
         },
-        "name" : "${var.app_insights_sections["section_6"].name}"
+        "name" : var.app_insights_sections["section_6"].name
       }
     ],
     "fallbackResourceIds" : [

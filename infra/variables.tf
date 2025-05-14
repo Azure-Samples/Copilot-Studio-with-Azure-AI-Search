@@ -138,12 +138,6 @@ variable "cps_storage_replication_type" {
   description = "The replication type to use for the storage account the CPS bot's AI Search resource's datasource will connect to"
 }
 
-variable "currency_code" {
-  type        = string
-  default     = "USD"
-  description = "Currency code for the Power Platform environment"
-}
-
 variable "enable_telemetry" {
   type        = bool
   default     = true
@@ -152,12 +146,6 @@ This variable controls whether or not telemetry is enabled for the module.
 For more information see <https://aka.ms/avm/telemetryinfo>.
 If it is set to false, then no telemetry will be collected.
 DESCRIPTION
-}
-
-variable "environment_type" {
-  type        = string
-  default     = "Sandbox"
-  description = "The type of the Power Platform environment to be deployed."
 }
 
 variable "failover_ai_search_subnet_address_spaces" {
@@ -194,12 +182,6 @@ variable "include_app_insights" {
   type        = bool
   default     = false
   description = "Include Application Insights in the deployment."
-}
-
-variable "language_code" {
-  type        = number
-  default     = 1033 # English
-  description = "Language code for the Power Platform environment"
 }
 
 variable "location" {
@@ -264,12 +246,6 @@ variable "power_platform_managed_environment" {
   description = "Configuration for the Power Platform managed environment"
 }
 
-variable "power_platform_oai_connection_display_name" {
-  type        = string
-  default     = "Copilot OpenAI Connection"
-  description = "The display name of the connection between the Power Platform environment and the OpenAI model in Azure."
-}
-
 variable "primary_ai_search_subnet_address_spaces" {
   type        = list(string)
   default     = ["10.1.7.0/24"]
@@ -308,18 +284,6 @@ variable "resource_prefix" {
 variable "resource_suffix" {
   default     = "001"
   description = "Suffix for all resource names"
-}
-
-variable "search_index_name" {
-  type        = string
-  default     = "default_index"
-  description = "The name of the AI Search index"
-}
-
-variable "search_indexer_name" {
-  type        = string
-  default     = "default-cps-indexer"
-  description = "The name of the indexer"
 }
 
 variable "tags" {
