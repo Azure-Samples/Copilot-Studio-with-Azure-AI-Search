@@ -1,7 +1,5 @@
 module "storage_account_and_container" {
-
-  source  = "Azure/avm-res-storage-storageaccount/azurerm"
-  version = "~> 0.5"
+  source = "git::https://github.com/Azure/terraform-azurerm-avm-res-storage-storageaccount.git?ref=2e29730888e8e168427851e1df1c0108a17e3e9a"
 
   account_replication_type        = var.cps_storage_replication_type
   account_tier                    = "Standard"

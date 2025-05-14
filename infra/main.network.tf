@@ -1,6 +1,6 @@
 module "primary_virtual_network" {
-  source              = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version             = "0.8.1"
+  source = "git::https://github.com/Azure/terraform-azurerm-avm-res-network-virtualnetwork.git?ref=f72c7f0d88132c41659a00cc124d9236b124ed79"
+
   resource_group_name = azurerm_resource_group.this.name
   subnets = merge(
     {
@@ -14,8 +14,7 @@ module "primary_virtual_network" {
             name    = "Microsoft.PowerPlatform/enterprisePolicies"
             actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
           }
-          }
-        ]
+        }]
         nat_gateway = {
           id = azurerm_nat_gateway.nat_gateways["primary"].id
         }
@@ -38,8 +37,7 @@ module "primary_virtual_network" {
 }
 
 module "failover_virtual_network" {
-  source              = "Azure/avm-res-network-virtualnetwork/azurerm"
-  version             = "0.8.1"
+  source              = "git::https://github.com/Azure/terraform-azurerm-avm-res-network-virtualnetwork.git?ref=f72c7f0d88132c41659a00cc124d9236b124ed79"
   resource_group_name = azurerm_resource_group.this.name
   subnets = merge(
     {
