@@ -1,0 +1,57 @@
+name: Terraform Lint and Security Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-check:
+    name: Lint and Security Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infra
+
+      - name: Terraform Fmt
+        run: terraform fmt -check
+        working-directory: ./infra
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./infra
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: checkov -d ./infra --quiet
+
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Run TFLint
+        run: tflint --config=./infra/.tflint.hcl
+        working-directory: ./infra
+
+      - name: Install GitLeaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run GitLeaks
+        run: gitleaks detect --source . --report-format json --report-path gitleaks-report.json
+        continue-on-error: false
+        working-directory: ./infra

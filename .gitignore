@@ -444,3 +444,16 @@ terraform.rc
 
 # Checkov reports
 checkov_report.*
+
+# Archive and compressed files
+*.tar.gz
+*.tar
+*.zip
+*.gz
+
+# Installation and executable files
+*.msi
+*.exe
+*.dll
+*.so
+*.dylib
