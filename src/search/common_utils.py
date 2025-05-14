@@ -34,7 +34,7 @@ def valid_name(value):
     """
     if not value or not value.strip():
         raise argparse.ArgumentTypeError(f"'{value}' is not a valid name")
-    value = value.replace("-", "").replace("_", "")
-    if not value.isalnum():
+    parsed_value = value.replace("-", "").replace("_", "")
+    if not parsed_value.isalnum():
         raise argparse.ArgumentTypeError(f"'{value}' contains invalid characters. Look at the documentation for naming conventions.")
     return value
