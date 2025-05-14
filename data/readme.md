@@ -23,3 +23,13 @@ Authenticate to Azure using `az login` or environment variables for service prin
 ```
 
 Replace <storage_account_name> and <container_name> with your Azure Storage account and container names.
+
+## How to upload data using the PowerShell Script
+
+Authenticate to Azure using `az login` or environment variables for service principal credentials. Execute the PowerShell script:
+
+```bash
+./upload_data.ps1 -StorageAccountName <storage_account_name> -ContainerName <container_name>
+```
+
+Replace <storage_account_name> and <container_name> with your Azure Storage account and container names.
