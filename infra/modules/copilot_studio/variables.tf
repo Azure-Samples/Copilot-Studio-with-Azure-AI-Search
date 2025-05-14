@@ -8,6 +8,12 @@ variable "failover_vnet_name" {
   description = "The name of the failover Virtual Network to be used in connecting Power Platform to Azure. Note that failover networks are required for Power Platform's enterprise policy connection."
 }
 
+/* declared but not used
+variable "name" {
+  type        = string
+  description = "The name of this resource."
+}*/
+
 variable "power_platform_environment" {
   type = object({
     name              = string
