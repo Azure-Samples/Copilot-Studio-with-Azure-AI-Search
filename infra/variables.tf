@@ -53,6 +53,7 @@ variable "app_insights_sections" {
 }
 
 variable "app_insights_workbook_description" {
+  type        = string
   default     = "# Description of Workbook\n\nThis workbook is designed as a starting point to monitor your Copilot and template for further workbooks.\n\n## Queries\n\nThe default queries include:\n\n1. Number of incoming requests over time overall\n2. Number of Requests split into topics\n3. List of last n requests (default: n = 20)\n4. Response time by timestamp (scatter chart or timechart to see outliers)\n5. Avg time per response overall \n6. Avg time per response per topic"
   description = "The description at the top of the workbook, in markdown format"
 }
@@ -277,11 +278,13 @@ variable "primary_vnet_address_spaces" {
 }
 
 variable "resource_prefix" {
+  type        = string
   default     = "cpmonitor"
   description = "Prefix for all resource names"
 }
 
 variable "resource_suffix" {
+  type        = string
   default     = "001"
   description = "Suffix for all resource names"
 }
