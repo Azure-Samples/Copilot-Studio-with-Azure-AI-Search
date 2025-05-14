@@ -4,14 +4,14 @@ These scripts are designed to assist in creating and managing Azure AI Search co
 
 ## How to test the scripts locally
 
-To test the scripts locally, follow these steps to create and activate a new Conda environment:
+To test the scripts locally, follow these steps to create and activate a new virtual environment:
 
 ```bash
-# Create a new Conda environment with Python 3.12
-conda create -n copilot python=3.12
+# Create a new virtual environment with Python 3.12
+python -m venv copilot
 
 # Activate the newly created environment
-conda activate copilot
+source copilot/bin/activate  # On Windows, use: copilot\Scripts\activate
 ```
 
 Next, install the required dependencies (find requirements.txt in the src folder):
