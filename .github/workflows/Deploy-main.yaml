@@ -135,8 +135,8 @@ jobs:
           # $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
           # $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
-          export ARM_USE_AZUREAD=true
-          export ARM_STORAGE_USE_AZUREAD=true
+          $env:ARM_USE_AZUREAD="true"
+          $env:ARM_STORAGE_USE_AZUREAD="true"
 
           ##
           azd config set auth.useAzCliAuth "true"
