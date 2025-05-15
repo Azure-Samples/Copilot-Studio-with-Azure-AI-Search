@@ -115,7 +115,8 @@ jobs:
           # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           AZURE_LOCATION: "eastus"
           POWER_PLATFORM_USE_CLI: true
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          # AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
