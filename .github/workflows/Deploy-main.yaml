@@ -114,7 +114,7 @@ jobs:
           AZURE_ENV_NAME: "tmp-ci"
           # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           AZURE_LOCATION: "eastus"
-          POWER_PLATFORM_USE_CLI: true
+          POWER_PLATFORM_USE_CLI: false
           # AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
