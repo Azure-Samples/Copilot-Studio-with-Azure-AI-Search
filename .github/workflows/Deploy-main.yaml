@@ -121,6 +121,12 @@ jobs:
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
+          # introduce the ARM variables
+          ARM_USE_AZUREAD: "true"
+          ARM_STORAGE_USE_AZUREAD: "true"
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         shell: pwsh
         run: |
           # $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
@@ -152,6 +158,8 @@ jobs:
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+          
+          az account get-access-token --resource https://graph.microsoft.com
 
           azd provision --no-prompt --debug
 
