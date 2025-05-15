@@ -88,6 +88,8 @@ resource "azurerm_nat_gateway" "nat_gateways" {
   name                = "${each.key}-nat-gateway"
   resource_group_name = azurerm_resource_group.this.name
   sku_name            = "Standard"
+
+
 }
 
 # TODO add a proper polling mechanism instead of wait
