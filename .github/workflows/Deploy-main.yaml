@@ -159,9 +159,15 @@ jobs:
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           
-          az account get-access-token --resource https://graph.microsoft.com
-
-          azd provision --no-prompt --debug
+           ############# Test with TF####################
+          terraform init `
+          -backend-config="storage_account_name=$env:RS_ACCOUNT_NAME" `
+          -backend-config="container_name=$env:RS_CONTAINER_NAME" `
+          -backend-config="key=azd/ci/$env:AZURE_ENV_NAME/azdremotetest.tfstate" `
+          -backend-config="resource_group_name=$env:RS_RESOURCE_GROUP" `
+          -reconfigure
+          ##############################################
+          # azd provision --no-prompt --debug
 
         
       - name: Azd down
