@@ -1,0 +1,74 @@
+name: Terraform Lint and Security Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+      - '.github/workflows/validate_terraform.yml'
+
+jobs:
+  lint-and-check:
+    name: Lint and Security Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Required for proper GitLeaks scanning
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.7"  # Pin to specific version for consistency
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: ./infra
+
+      - name: Terraform Fmt
+        run: terraform fmt -check -recursive
+        working-directory: ./infra
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./infra
+
+      - name: Install Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./infra
+          quiet: true
+          framework: terraform
+          output_format: cli,sarif
+          output_file_path: checkov-results.sarif
+
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+      - name: Run TFLint
+        run: tflint --config=.tflint.hcl --format=compact
+        working-directory: ./infra
+
+      - name: Install GitLeaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.17.0/gitleaks_8.17.0_linux_x64.tar.gz -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          rm gitleaks.tar.gz
+
+      - name: Run GitLeaks
+        run: gitleaks detect --source . --verbose --report-format=json --report-path=gitleaks-report.json
+        continue-on-error: true  # Allow workflow to continue even if secrets are found
+
+      - name: Check for GitLeaks findings
+        if: success() || failure()
+        run: |
+          if [ -f gitleaks-report.json ] && [ "$(cat gitleaks-report.json | jq '. | length')" -gt 0 ]; then
+            echo "::error::GitLeaks found potential secrets in your code. See gitleaks-report.json for details."
+            exit 1
+          fi
