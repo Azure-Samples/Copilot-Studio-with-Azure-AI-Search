@@ -123,8 +123,8 @@ jobs:
           RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
         shell: pwsh
         run: |
-          $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          Write-Host "::add-mask::$($info.clientSecret)"
+          # $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
+          # Write-Host "::add-mask::$($info.clientSecret)"
           
           # $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
           # $env:ARM_TENANT_ID="$($info.tenantId)"
