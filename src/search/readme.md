@@ -14,7 +14,7 @@ python -m venv copilot
 source copilot/bin/activate  # On Windows, use: copilot\Scripts\activate
 ```
 
-Next, install the required dependencies (find requirements.txt in the src folder):
+Next, install the required dependencies (find requirements.txt in the src/search folder):
 
 ```bash
 pip install -r requirements.txt
@@ -30,7 +30,7 @@ Finally, run the script using the following command:
 
 ```bash
 # Modify the path according to your current folder
-python -m search.index_utils --aisearch_name <ai_search_name> --base_index_name <base_index_name> --openai_api_base <open_ai_endpoint> --subscription_id <subscription_id> --resource_group_name <resource_group_name> --storage_name <storage_name> --container_name <container_name>
+python -m src.search.index_utils --aisearch_name <ai_search_name> --base_index_name <base_index_name> --openai_api_base <open_ai_endpoint> --subscription_id <subscription_id> --resource_group_name <resource_group_name> --storage_name <storage_name> --container_name <container_name>
 ```
 
 The `base_index_name` parameter simplifies the script configuration by reducing the number of required parameters. The script automatically generates names for the index, skillset, indexer, and data source by appending the suffixes `-index`, `-skills`, `-indexer`, and `-ds` to the provided base name.
