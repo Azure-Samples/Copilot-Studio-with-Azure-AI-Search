@@ -114,7 +114,7 @@ jobs:
           AZURE_ENV_NAME: "tmp-ci"
           # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           AZURE_LOCATION: "eastus"
-          POWER_PLATFORM_USE_CLI: false
+          POWER_PLATFORM_USE_CLI: true
           AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
@@ -125,14 +125,14 @@ jobs:
           $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
           Write-Host "::add-mask::$($info.clientSecret)"
           
-          $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-          $env:ARM_TENANT_ID="$($info.tenantId)"
-          $env:ARM_CLIENT_ID="$($info.clientId)"
-          $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
+          # $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
+          # $env:ARM_TENANT_ID="$($info.tenantId)"
+          # $env:ARM_CLIENT_ID="$($info.clientId)"
+          # $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
 
-          $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-          $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-          $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
+          # $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
+          # $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
+          # $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
 
           ##
           azd config set auth.useAzCliAuth "true"
