@@ -160,6 +160,7 @@ jobs:
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           
           ############# Test with TF####################
+          az accout show
           cd infra
           terraform init `
           -backend-config="storage_account_name=$env:RS_ACCOUNT_NAME" `
