@@ -14,9 +14,8 @@ on:
     # Run when commits are pushed to mainline branch (main or master)
     # Set this to the mainline branch you are using
     branches:
-      - hadwa/tmp
+      - main
 # GitHub Actions workflow to deploy to Azure using azd
-# To configure required secrets for connecting to Azure, simply run `azd pipeline config --auth-type client-credentials`
 
 permissions:
   id-token: write
@@ -45,8 +44,7 @@ jobs:
 
       - name: Switch to Remote backend- Create provider.conf.json file
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_ENV_NAME: "tmp-ci"
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
         run: |
           echo "Switching to remote backend"
           echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
@@ -54,7 +52,7 @@ jobs:
           {
             "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
             "container_name": "\${RS_CONTAINER_NAME}",
-            "key": "azd/ci/${AZURE_ENV_NAME}/tmp/azdremotetest.tfstate",
+            "key": "azd/ci/${AZURE_ENV_NAME}/terraform.tfstate",
             "resource_group_name": "\${RS_RESOURCE_GROUP}"
           }
           EOF
@@ -83,22 +81,16 @@ jobs:
         run: |
           azd auth login --client-id ${{ secrets.AZURE_CLIENT_ID }} --tenant-id ${{ secrets.AZURE_TENANT_ID }} --federated-credential-provider "github"
 
-  
-     
-
       - name: Provision Infrastructure
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_ENV_NAME: "tmp-ci"
-          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
-          AZURE_LOCATION: "eastus"
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
-          # introduce the ARM variables
           ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
           ARM_USE_OIDC: "true"
@@ -112,12 +104,8 @@ jobs:
         shell: pwsh
         run: |
 
-          # $env:ARM_USE_AZUREAD="true"
-          # $env:ARM_STORAGE_USE_AZUREAD="true"
 
-          ##
           azd config set auth.useAzCliAuth "true"
-          ##
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
           azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
           azd env set POWER_PLATFORM_USE_CLI "false"
@@ -130,17 +118,14 @@ jobs:
         
       - name: Azd down
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_ENV_NAME: "tmp-ci"
-          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
-          AZURE_LOCATION: "eastus"
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
-          # introduce the ARM variables
           ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
           ARM_USE_OIDC: "true"
@@ -152,7 +137,6 @@ jobs:
           POWER_PLATFORM_USE_OIDC: "true"
         shell: pwsh
         run: |
-        
 
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
