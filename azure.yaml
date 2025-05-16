@@ -6,46 +6,32 @@ infra:
   provider: terraform
 hooks:
   preprovision:
-    posix:
-      shell: sh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/preprovision.sh
-    windows:
-      shell: pwsh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/preprovision.ps1
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/preprovision.ps1
   postprovision:
-    posix:
-      shell: sh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/postprovision.sh
-    windows:
-      shell: pwsh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/postprovision.ps1
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/postprovision.ps1
   predeploy:
-    posix:
-      shell: sh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/predeploy.sh
-    windows:
-      shell: pwsh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/predeploy.ps1
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/predeploy.ps1
   postdeploy:
-    posix:
-      shell: sh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/postdeploy.sh
-    windows:
-      shell: pwsh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/postdeploy.ps1
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/postdeploy.ps1
+  prepackage:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/prepackage.ps1
+  postpackage:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/postpackage.ps1
