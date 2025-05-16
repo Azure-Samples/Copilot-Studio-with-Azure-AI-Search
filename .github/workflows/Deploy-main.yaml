@@ -130,6 +130,7 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          POWER_PLATFORM_USE_OIDC: "true"
 
         shell: pwsh
         run: |
