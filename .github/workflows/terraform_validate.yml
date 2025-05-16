@@ -36,9 +36,12 @@ jobs:
 
       - name: Run Checkov action
         id: checkov
-        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b # master
+        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b #  v12.1347.0.
         with: 
           framework: terraform
+          download_external_modules: true
+          directory: ./infra
+          
 
     # Upload results to GitHub Advanced Security
       - name: Upload SARIF file
