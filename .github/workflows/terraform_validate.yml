@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'infra/**'
-      - '.github/workflows/validate_terraform.yml'
+      - '.github/workflows/terraform_validate.yml'
 
 jobs:
   lint-and-check:
