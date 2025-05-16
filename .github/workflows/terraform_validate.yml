@@ -15,15 +15,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0  # Required for proper GitLeaks scanning
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: "1.5.7"  # Pin to specific version for consistency
-
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        
       - name: Terraform Init
         run: terraform init -backend=false
         working-directory: ./infra
@@ -36,14 +34,19 @@ jobs:
         run: terraform validate
         working-directory: ./infra
 
-      - name: Install Checkov
-        uses: bridgecrewio/checkov-action@v12.1347.0
-        with:
-          directory: ./infra
-          quiet: true
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b # master
+        with: 
           framework: terraform
-          output_format: cli,sarif
-          output_file_path: checkov-results.sarif
+
+    # Upload results to GitHub Advanced Security
+      - name: Upload SARIF file
+        if: success() || failure()
+        uses: github/codeql-action/upload-sarif@60168efe1c415ce0f5521ea06d5c2062adbeed1b # v3.28.17
+        with:
+          sarif_file: results.sarif
+          category: checkov
 
       - name: Install TFLint
         run: |
@@ -63,8 +66,8 @@ jobs:
 
       - name: Run GitLeaks
         run: gitleaks detect --source . --verbose --report-format=json --report-path=gitleaks-report.json
-        continue-on-error: true  # Allow workflow to continue even if secrets are found
-
+        continue-on-error: false
+      
       - name: Check for GitLeaks findings
         if: success() || failure()
         run: |
