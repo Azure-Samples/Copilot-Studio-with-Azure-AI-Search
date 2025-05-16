@@ -8,6 +8,10 @@ on:
       - 'infra/**'
       - '.github/workflows/terraform_validate.yml'
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   lint-and-check:
     name: Lint and Security Checks
