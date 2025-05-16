@@ -109,9 +109,14 @@ This solution can be executed using either a **Service Principal** or a **User A
       ```
 
 1. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not used in the default solution configuration. If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
-    ```bash
-    azd auth login
-    ```
+    - **User Account**: Run the following command to log in with interactive authentication:
+      ```bash
+      azd auth login
+      ```
+    - **Service Principal**: Run the following command to log in using a service principal:
+      ```bash
+      azd auth login --client-id "<your client id>" --client-secret "<your client secret>" --tenant-id "<your tenant id>"
+      ```
 
 1. Deploy the solution using the command below. This will create a new resource group in your Azure subscription and deploy the resources defined in the `infra` directory.
     ```bash
