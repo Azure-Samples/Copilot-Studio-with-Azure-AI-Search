@@ -72,10 +72,6 @@ jobs:
           EOF
         shell: bash
 
-      # - name: Login az
-      #   uses: azure/login@v2
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
@@ -89,24 +85,6 @@ jobs:
 
   
      
-            
-      # - name: Log in with Azure dev
-      #   run: |
-      #     $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-      #     Write-Host "::add-mask::$($info.clientSecret)"
-
-      #     az account set --subscription "$($info.subscriptionId)"
-
-      #     azd auth login `
-      #       --client-id "$($info.clientId)" `
-      #       --client-secret "$($info.clientSecret)" `
-      #       --tenant-id "$($info.tenantId)"
-          
-      #     azd config set auth.useAzCliAuth "true"
-         
-      #   shell: pwsh
-      #   env:
-      #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Provision Infrastructure
         env:
@@ -115,7 +93,6 @@ jobs:
           # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           AZURE_LOCATION: "eastus"
           POWER_PLATFORM_USE_CLI: false
-          # AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
           RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
@@ -134,24 +111,9 @@ jobs:
 
         shell: pwsh
         run: |
-          # $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-          # Write-Host "::add-mask::$($info.clientSecret)"
-          
-          # $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-          # $env:ARM_TENANT_ID="$($info.tenantId)"
-          # $env:ARM_CLIENT_ID="$($info.clientId)"
-          # $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
 
-          # $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-          # $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-          # $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
-
-         
-          # $env:ARM_CLIENT_ID = $null
-          # $env:ARM_CLIENT_SECRET = $null
-
-          $env:ARM_USE_AZUREAD="true"
-          $env:ARM_STORAGE_USE_AZUREAD="true"
+          # $env:ARM_USE_AZUREAD="true"
+          # $env:ARM_STORAGE_USE_AZUREAD="true"
 
           ##
           azd config set auth.useAzCliAuth "true"
@@ -163,49 +125,38 @@ jobs:
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
-          
-          # ############# Test with TF####################
-          # az account show
-          # cd infra
-          # terraform init `
-          # -backend-config="storage_account_name=$env:RS_ACCOUNT_NAME" `
-          # -backend-config="container_name=$env:RS_CONTAINER_NAME" `
-          # -backend-config="key=azd/ci/$env:AZURE_ENV_NAME/azdremotetest.tfstate" `
-          # -backend-config="resource_group_name=$env:RS_RESOURCE_GROUP" `
-          # -reconfigure
-          # ##############################################
           azd provision --no-prompt --debug
 
         
-      # - name: Azd down
-      #   env:
-      #       # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-      #       AZURE_ENV_NAME: "tmp-ci"
-      #       # AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
-      #       AZURE_LOCATION: "eastus"
-      #       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      #       RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
-      #       RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
-      #       RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
-      #       RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
-      #       POWER_PLATFORM_USE_CLI: false
-      #   shell: pwsh
-      #   run: |
-      #     $info = $Env:AZURE_CREDENTIALS | ConvertFrom-Json -AsHashtable;
-      #     Write-Host "::add-mask::$($info.clientSecret)"
-          
-      #     $env:AZURE_SUBSCRIPTION_ID="$($info.subscriptionId)"
-      #     $env:ARM_TENANT_ID="$($info.tenantId)"
-      #     $env:ARM_CLIENT_ID="$($info.clientId)"
-      #     $env:ARM_CLIENT_SECRET="$($info.clientSecret)"
+      - name: Azd down
+        env:
+          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_ENV_NAME: "tmp-ci"
+          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          AZURE_LOCATION: "eastus"
+          POWER_PLATFORM_USE_CLI: false
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
+          RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
+          # introduce the ARM variables
+          ARM_USE_AZUREAD: "true"
+          ARM_STORAGE_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          POWER_PLATFORM_USE_OIDC: "true"
+        shell: pwsh
+        run: |
+        
 
-      #     $env:POWER_PLATFORM_TENANT_ID="$($info.tenantId)"
-      #     $env:POWER_PLATFORM_CLIENT_ID="$($info.clientId)"
-      #     $env:POWER_PLATFORM_CLIENT_SECRET="$($info.clientSecret)"
-
-      #     azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
-      #     azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
-      #     azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
+          azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           
-      #     azd env select $env:AZURE_ENV_NAME
-      #     azd down --no-prompt --force --purge
+          azd env select $env:AZURE_ENV_NAME
+          azd down --no-prompt --force --purge
