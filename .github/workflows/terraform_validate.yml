@@ -45,15 +45,6 @@ jobs:
           framework: terraform
           download_external_modules: true
           directory: ./infra
-          
-
-    # Upload results to GitHub Advanced Security
-      - name: Upload SARIF file
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@60168efe1c415ce0f5521ea06d5c2062adbeed1b # v3.28.17
-        with:
-          sarif_file: results.sarif
-          category: checkov
 
       - name: Install TFLint
         run: |
