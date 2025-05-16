@@ -37,7 +37,7 @@ jobs:
         working-directory: ./infra
 
       - name: Install Checkov
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v12.1347.0
         with:
           directory: ./infra
           quiet: true
