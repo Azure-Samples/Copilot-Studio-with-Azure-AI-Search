@@ -8,11 +8,7 @@ variable "failover_vnet_name" {
   description = "The name of the failover Virtual Network to be used in connecting Power Platform to Azure. Note that failover networks are required for Power Platform's enterprise policy connection."
 }
 
-/* declared but not used
-variable "name" {
-  type        = string
-  description = "The name of this resource."
-}*/
+
 
 variable "power_platform_environment" {
   type = object({
@@ -100,23 +96,6 @@ A map describing customer-managed keys to associate with the resource. This incl
   - `resource_id` - The resource ID of the user-assigned identity.
 DESCRIPTION  
 }
-
-/* declared but not used
-variable "disable_copilot_with_bing" {
-  type        = bool
-  default     = false
-  description = <<DESCRIPTION
-TODO
-DESCRIPTION
-}*/
-
-
-/* declared but not used
-variable "power_platform_api_version" {
-  type        = string
-  default     = "2023-11-01"
-  description = "The version of the Power Platform API to use"
-}*/
 
 # List of connections to manage using the module.
 variable "power_platform_connections" {
