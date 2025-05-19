@@ -6,10 +6,17 @@ infra:
   provider: terraform
 hooks:
   preprovision:
+    # Single shell
     shell: pwsh
     continueOnError: false
     interactive: false
     run: azd-hooks/preprovision.ps1
+     
+  # preprovision:
+  #   - shell: pwsh
+  #     run: azd-hooks/scripts/hooks/run_gitleaks.ps1
+  #   - shell: pwsh
+  #     run: azd-hooks/scripts/hooks/run_tf_lint.ps1  
   postprovision:
     shell: pwsh
     continueOnError: false
