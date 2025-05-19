@@ -70,6 +70,7 @@ To use this example, you must complete the following prerequisites:
 - The interactive user needs licenses assigned for Microsoft Power Apps, Power Automate, and Copilot Studio in the M365 Admin Center.
 - Ensure that the shell you use to access the example has azd installed, and if not, follow the [instructions to install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows).
 - Update the following Power Platform tenant settings to enable Copilot features: Copilot in Power Apps; Publish Copilots with AI features.
+- This template leverages [Azure Developer CLI hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility) to enhance AZD commands by enabling additional configurations through PowerShell. For non-Windows operating systems, ensure that PowerShell 7 (pwsh) is installed to support these extensions effectively.
 
 ### Quickstart
 
@@ -140,6 +141,7 @@ To run the demo, follow these steps:
 - [Power Platform environment basics](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview)
 - [Copilot Studio getting started](https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-get-started?tabs=web)
 - [Azure AI Search resources](https://learn.microsoft.com/en-us/azure/search/)
+- [Azure Developer CLI Hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility)
 
 ## Data Collection
 
