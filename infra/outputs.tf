@@ -18,11 +18,6 @@ output "power_platform_environment_id" {
   value       = module.copilot_studio.power_platform_environment_id
 }
 
-output "power_platform_connections" {
-  description = "The Power Platform connections created by Terraform"
-  value       = module.copilot_studio.power_platform_connections
-}
-
 output "aisearch_connection_id" {
   description = "The ID of the AI Search connector in Power Platform"
   value       = try(module.copilot_studio.power_platform_connections["shared_azureaisearch_0"].id, null)

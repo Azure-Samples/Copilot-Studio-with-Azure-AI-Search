@@ -365,7 +365,7 @@ function Import-PowerPlatformSolution {
         $publishOutput = & pac solution publish --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
         
         # Check if the output contains failure indicators
-        if ($publishOutput -not $publishOutput -match "success") {
+        if (-not ($publishOutput -match "success")) {
             Write-Log "Solution publish appears to have failed with output: $publishOutput" -Level "ERROR"
             return $false
         }
@@ -458,6 +458,15 @@ function Invoke-SolutionChecker {
 #endregion
 
 #region Main Execution
+
+Write-Log "***DEBUG*** checking input values:"
+Write-Log "Solution path: $SolutionPath"
+Write-Log "Environment ID: $PowerPlatformEnvironmentId"
+Write-Log "Log directory: $LogDirectory"
+Write-Log "Run solution checker: $RunSolutionChecker"
+Write-Log "AI Search connection ID: $AISearchConnectionId"
+Write-Log "Use GitHub federated: $UseGithubFederated"
+
 Write-Log "Starting Power Platform solution deployment process"
 Write-Log "Solution path: $SolutionPath"
 Write-Log "Environment ID: $PowerPlatformEnvironmentId"
