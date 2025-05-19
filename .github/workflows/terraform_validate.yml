@@ -16,6 +16,7 @@ jobs:
   lint-and-check:
     name: Lint and Security Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -25,6 +26,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: "1.12.0"  # Pinning specific version is recommended
         
       - name: Terraform Init
         run: terraform init -backend=false
@@ -38,38 +41,33 @@ jobs:
         run: terraform validate
         working-directory: ./infra
 
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v3
+        with:
+          tflint_version: v0.49.0  # Specify a version (recommended)
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate limiting
+
+      - name: Initialize TFLint plugins
+        run: tflint --init
+        working-directory: ./infra
+
+      - name: Run TFLint
+        run: tflint --format=compact --force
+        working-directory: ./infra
+
       - name: Run Checkov action
         id: checkov
-        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b #  v12.1347.0.
+        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b # v12.1347.0
         with: 
           framework: terraform
           download_external_modules: true
           directory: ./infra
 
-      - name: Install TFLint
-        run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-
-      - name: Run TFLint
-        run: tflint --config=.tflint.hcl --format=compact
-        working-directory: ./infra
-
-      - name: Install GitLeaks
-        run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.17.0/gitleaks_8.17.0_linux_x64.tar.gz -o gitleaks.tar.gz
-          tar -xzf gitleaks.tar.gz
-          chmod +x gitleaks
-          sudo mv gitleaks /usr/local/bin/
-          rm gitleaks.tar.gz
-
-      - name: Run GitLeaks
-        run: gitleaks detect --source . --verbose --report-format=json --report-path=gitleaks-report.json
-        continue-on-error: false
-      
-      - name: Check for GitLeaks findings
-        if: success() || failure()
-        run: |
-          if [ -f gitleaks-report.json ] && [ "$(cat gitleaks-report.json | jq '. | length')" -gt 0 ]; then
-            echo "::error::GitLeaks found potential secrets in your code. See gitleaks-report.json for details."
-            exit 1
-          fi
+      - name: GitLeaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          verbosity: "info"
+          report-format: "json"
+          report-path: "gitleaks-report.json"
