@@ -457,3 +457,9 @@ checkov_report.*
 *.dll
 *.so
 *.dylib
+
+# Local and sensitive files
+*.log
+*.tfstate
+*.vscode
+*.env
