@@ -30,7 +30,16 @@ function Run-Gitleaks {
     gitleaks @cmdOptions
     $exitCode = $LASTEXITCODE
 
-    return $exitCode
+    # return $exitCode
+    if ($exitCode -ne 0) {
+        Write-Error "gitleaks failed`n"
+        exit 1
+    }
+    else {
+        Write-Host "gitleaks passed`n"
+        exit 0
+    }
+
 }
 
 Run-Gitleaks -ReportFormat "sarif" -LogLevel "info" -Redact -Verbose

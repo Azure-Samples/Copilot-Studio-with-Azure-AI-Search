@@ -5,40 +5,43 @@ metadata:
 infra:
   provider: terraform
 hooks:
-  preprovision:
-    # Single shell
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/preprovision.ps1
-     
   # preprovision:
-  #   - shell: pwsh
-  #     run: azd-hooks/scripts/hooks/run_gitleaks.ps1
-  #   - shell: pwsh
-  #     run: azd-hooks/scripts/hooks/run_tf_lint.ps1  
+    # Single shell
+    # shell: pwsh
+    # continueOnError: false
+    # interactive: false
+    # run: azd-hooks/preprovision.ps1
+  preprovision:
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_gitleaks.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_tf_lint.ps1
   postprovision:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/postprovision.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/postprovision/postprovision.ps1
   predeploy:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/predeploy.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/predeploy/predeploy.ps1
   postdeploy:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/postdeploy.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/postdeploy/postdeploy.ps1
   prepackage:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/prepackage.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/prepackage/prepackage.ps1
   postpackage:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/postpackage.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/postpackage/postpackage.ps1
