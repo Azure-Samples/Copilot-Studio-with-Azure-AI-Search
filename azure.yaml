@@ -4,3 +4,5 @@ metadata:
   template: Copilot-Studio-with-Azure-AI-Search@0.0.1-beta
 infra:
   provider: terraform
+  outputs:
+    AZURE_OPENAI_CONNECTION_ID: azure_openai_connection_id
