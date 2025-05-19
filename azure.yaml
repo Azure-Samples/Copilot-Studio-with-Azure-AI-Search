@@ -4,5 +4,34 @@ metadata:
   template: Copilot-Studio-with-Azure-AI-Search@0.0.1-beta
 infra:
   provider: terraform
-  outputs:
-    AZURE_OPENAI_CONNECTION_ID: azure_openai_connection_id
+hooks:
+  preprovision:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/preprovision.ps1
+  postprovision:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/postprovision.ps1
+  predeploy:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/predeploy.ps1
+  postdeploy:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/postdeploy.ps1
+  prepackage:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/prepackage.ps1
+  postpackage:
+    shell: pwsh
+    continueOnError: false
+    interactive: false
+    run: azd-hooks/postpackage.ps1

@@ -1,0 +1,1 @@
+Write-Host "Execute Pre-Package Hook"
