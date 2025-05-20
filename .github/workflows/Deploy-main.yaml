@@ -11,10 +11,11 @@ on:
         required: true
         default: "eastus"
   push:
-    # Run when commits are pushed to mainline branch (main or master)
+    # Run when commits are pushed to mainline branch
     # Set this to the mainline branch you are using
     branches:
-      - main
+      - basic_wf
+      # - main #Tmp set to basic_wf to test
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
@@ -26,8 +27,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout the branch ${{ github.ref_name }}
+
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Install azd
         uses: Azure/setup-azd@v2
@@ -42,33 +46,33 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      - name: Switch to Remote backend- Create provider.conf.json file
-        env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-        run: |
-          echo "Switching to remote backend"
-          echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
-          cat <<EOF > ${{ github.workspace }}/infra/provider.conf.json
-          {
-            "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
-            "container_name": "\${RS_CONTAINER_NAME}",
-            "key": "azd/ci/${AZURE_ENV_NAME}/terraform.tfstate",
-            "resource_group_name": "\${RS_RESOURCE_GROUP}"
-          }
-          EOF
-        shell: bash
+      # - name: Switch to Remote backend- Create provider.conf.json file
+      #   env:
+      #     AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+      #   run: |
+      #     echo "Switching to remote backend"
+      #     echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
+      #     cat <<EOF > ${{ github.workspace }}/infra/provider.conf.json
+      #     {
+      #       "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
+      #       "container_name": "\${RS_CONTAINER_NAME}",
+      #       "key": "azd/ci/${AZURE_ENV_NAME}/terraform.tfstate",
+      #       "resource_group_name": "\${RS_RESOURCE_GROUP}"
+      #     }
+      #     EOF
+      #   shell: bash
 
-      - name: Switch to Remote backend- Create remote backend file
-        run: |
-          FILE="provider.backend.tf"
-          echo "Creating ${{ github.workspace }}/infra/$FILE file"
+      # - name: Switch to Remote backend- Create remote backend file
+      #   run: |
+      #     FILE="provider.backend.tf"
+      #     echo "Creating ${{ github.workspace }}/infra/$FILE file"
           
-          cat <<EOF > "${{ github.workspace }}/infra/$FILE"
-          terraform {
-            backend "azurerm" {}
-          }
-          EOF
-        shell: bash
+      #     cat <<EOF > "${{ github.workspace }}/infra/$FILE"
+      #     terraform {
+      #       backend "azurerm" {}
+      #     }
+      #     EOF
+      #   shell: bash
 
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
@@ -83,8 +87,10 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          AZURE_ENV_NAME: "Test-CI"
+          AZURE_LOCATION: "eastus"
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -118,8 +124,10 @@ jobs:
         
       - name: Azd down
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          AZURE_ENV_NAME: "Test-CI"
+          AZURE_LOCATION: "eastus"
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
