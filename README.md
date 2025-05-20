@@ -116,6 +116,9 @@ This solution can be executed using either a **Service Principal** or a **User A
       ```
     - **Service Principal**: Run the following command to log in using a service principal:
       ```bash
+      # Set auth.useAzCliAuth to false to allow direct service principal authentication
+      azd config set auth.useAzCliAuth "false"
+      # Use azd auth login with service principal credentials
       azd auth login --client-id "<your client id>" --client-secret "<your client secret>" --tenant-id "<your tenant id>"
       ```
 
@@ -151,11 +154,11 @@ The `partner_id` configuration in [infra/providers.tf](./infra/provider.tf) enab
 
 ## Infrastructure Security Note
 
-This project uses versioned Terraform modules from the official Azure registry rather than Git URLs with commit hashes. This decision follows these considerations:
+This solution uses versioned Terraform modules from the official Azure registry rather than Git URLs with commit hashes. This decision follows these considerations:
 
 1. **Maintainability**: Version constraints allow for compatible updates
 2. **Official Sources**: All modules are from verified Azure official repositories
 3. **CI/CD Integration**: Version references work better with the Azure Developer CLI (azd)
 
-The CKV_TF_1 security check is intentionally bypassed in our AI, Network, and Storage modules using the comment: # checkov:skip=CKV_TF_1: Using published module version for maintainability.
+The CKV_TF_1 security check  (a Checkov policy that enforces the use of commit hashes in module sources to prevent supply chain attacks) is intentionally bypassed in our AI, Network, and Storage modules using the comment: # checkov:skip=CKV_TF_1: Using published module version for maintainability.
 This documented exception supports our architectural design decision while maintaining awareness of security considerations.

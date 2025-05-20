@@ -49,8 +49,6 @@ provider "azurerm" {
 
   }
 
-  use_msi = false
-
   # Keep Azure AD authentication for storage
   storage_use_azuread = true
 

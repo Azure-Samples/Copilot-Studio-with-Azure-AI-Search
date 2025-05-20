@@ -1,5 +1,5 @@
 module "azure_open_ai" {
-# checkov:skip=CKV_TF_1: Using published module version for maintainability
+  # checkov:skip=CKV_TF_1: Using published module version for maintainability
   source                = "Azure/avm-res-cognitiveservices-account/azurerm"
   version               = "0.7.1"
   kind                  = "OpenAI"

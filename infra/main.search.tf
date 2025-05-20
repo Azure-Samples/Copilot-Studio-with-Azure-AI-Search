@@ -3,13 +3,13 @@ locals {
 }
 
 resource "azurerm_search_service" "ai_search" {
-  location                      = var.primary_location
   name                          = local.search_name
+  location                      = var.primary_location
   resource_group_name           = azurerm_resource_group.this.name
-  sku                           = "standard" # Using standard tier
-  partition_count               = 3          # Increased from 1 to 3 partitions to meet SLA requirements for index updates
-  public_network_access_enabled = false
-  replica_count                 = 3 # Maintaining 3 replicas for query SLA requirements
+  sku                           = var.ai_search_config.sku
+  partition_count               = var.ai_search_config.partition_count
+  public_network_access_enabled = var.ai_search_config.public_network_access_enabled
+  replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
 
   identity {
