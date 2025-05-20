@@ -1,6 +1,7 @@
 module "azure_open_ai" {
-  source = "git::https://github.com/Azure/terraform-azurerm-avm-res-cognitiveservices-account.git?ref=4387767bea92ac50e5b40b0b30d90608e64a40df"
-
+# checkov:skip=CKV_TF_1: Using published module version for maintainability
+  source                = "Azure/avm-res-cognitiveservices-account/azurerm"
+  version               = "0.7.1"
   kind                  = "OpenAI"
   location              = var.location
   name                  = "aoai${random_string.name.id}"

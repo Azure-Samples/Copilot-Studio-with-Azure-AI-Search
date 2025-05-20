@@ -148,3 +148,14 @@ To run the demo, follow these steps:
 The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described below. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
 
 The `partner_id` configuration in [infra/providers.tf](./infra/provider.tf) enables anonymous telemetry that helps us justify ongoing investment in maintaining and improving this template.  Keeping this enabled supports the project and future feature development. To opt out of this telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appended to the `User-Agent` on requests made by the configured terraform providers.
+
+## Infrastructure Security Note
+
+This project uses versioned Terraform modules from the official Azure registry rather than Git URLs with commit hashes. This decision follows these considerations:
+
+1. **Maintainability**: Version constraints allow for compatible updates
+2. **Official Sources**: All modules are from verified Azure official repositories
+3. **CI/CD Integration**: Version references work better with the Azure Developer CLI (azd)
+
+The CKV_TF_1 security check is intentionally bypassed in our AI, Network, and Storage modules using the comment: # checkov:skip=CKV_TF_1: Using published module version for maintainability.
+This documented exception supports our architectural design decision while maintaining awareness of security considerations.
