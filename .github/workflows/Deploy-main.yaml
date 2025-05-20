@@ -1,4 +1,4 @@
-name: "CI-Deploy-main"
+name: "CI-Deploy"
 on:
   workflow_dispatch:
     inputs:
@@ -10,6 +10,11 @@ on:
         description: "Azure location for the environment"
         required: true
         default: "eastus"
+      run_azd_down:
+        description: "Run AZD Down to destroy the deployed resources."
+        type: boolean
+        required: true
+        default: false
   push:
     # Run when commits are pushed to mainline branch
     # Set this to the mainline branch you are using
@@ -45,34 +50,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
-
-      # - name: Switch to Remote backend- Create provider.conf.json file
-      #   env:
-      #     AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-      #   run: |
-      #     echo "Switching to remote backend"
-      #     echo "Creating ${{ github.workspace }}/infra/provider.conf.json file"
-      #     cat <<EOF > ${{ github.workspace }}/infra/provider.conf.json
-      #     {
-      #       "storage_account_name": "\${RS_STORAGE_ACCOUNT}",
-      #       "container_name": "\${RS_CONTAINER_NAME}",
-      #       "key": "azd/ci/${AZURE_ENV_NAME}/terraform.tfstate",
-      #       "resource_group_name": "\${RS_RESOURCE_GROUP}"
-      #     }
-      #     EOF
-      #   shell: bash
-
-      # - name: Switch to Remote backend- Create remote backend file
-      #   run: |
-      #     FILE="provider.backend.tf"
-      #     echo "Creating ${{ github.workspace }}/infra/$FILE file"
-          
-      #     cat <<EOF > "${{ github.workspace }}/infra/$FILE"
-      #     terraform {
-      #       backend "azurerm" {}
-      #     }
-      #     EOF
-      #   shell: bash
 
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
@@ -110,7 +87,6 @@ jobs:
         shell: pwsh
         run: |
 
-
           azd config set auth.useAzCliAuth "true"
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
           azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
@@ -119,10 +95,11 @@ jobs:
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
-          azd provision --no-prompt --debug
+          azd provision --no-prompt
 
         
       - name: Azd down
+        if: ${{ github.event.inputs.run_azd_down == true }}
         env:
           # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
           # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
