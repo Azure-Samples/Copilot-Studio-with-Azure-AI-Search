@@ -1,7 +1,5 @@
 locals {
-  private_endpoint_failover_name = "private-endpoint-failover-${local.search_name}"
-  private_endpoint_primary_name  = "private-endpoint-primary-${local.search_name}"
-  search_name                    = replace("ais${random_string.name.id}", "/[^a-z0-9-]/", "")
+  search_name = replace("ais${random_string.name.id}", "/[^a-z0-9-]/", "")
 }
 
 resource "azurerm_search_service" "ai_search" {

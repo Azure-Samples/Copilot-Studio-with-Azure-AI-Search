@@ -4,7 +4,7 @@ module "primary_virtual_network" {
   resource_group_name = azurerm_resource_group.this.name
   subnets = merge(
     {
-      "${var.primary_subnet_name}" = {
+      (var.primary_subnet_name) = {
         name              = var.primary_subnet_name
         address_prefixes  = var.primary_subnet_address_spaces
         service_endpoints = ["Microsoft.Storage"]
@@ -41,7 +41,7 @@ module "failover_virtual_network" {
   resource_group_name = azurerm_resource_group.this.name
   subnets = merge(
     {
-      "${var.failover_subnet_name}" = {
+      (var.failover_subnet_name) = {
         name              = var.failover_subnet_name
         address_prefixes  = var.failover_subnet_address_spaces
         service_endpoints = ["Microsoft.Storage"]

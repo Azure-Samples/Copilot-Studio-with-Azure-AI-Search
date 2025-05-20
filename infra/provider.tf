@@ -46,7 +46,13 @@ provider "azurerm" {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
+
   }
+
+  use_msi = false
+
+  # Keep Azure AD authentication for storage
+  storage_use_azuread = true
 
   # partner_id enables anonymous telemetry that helps us justify ongoing investment in maintaining and improving this template.
   # Keeping this line supports the project and future feature development. To opt out of telemetry, simply remove the line below.
