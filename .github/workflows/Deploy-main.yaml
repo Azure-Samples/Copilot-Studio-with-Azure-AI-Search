@@ -19,8 +19,7 @@ on:
     # Run when commits are pushed to mainline branch
     # Set this to the mainline branch you are using
     branches:
-      - basic_wf
-      # - main #Tmp set to basic_wf to test
+      - main
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
@@ -64,10 +63,8 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
-          AZURE_ENV_NAME: "Test-CI"
-          AZURE_LOCATION: "eastus"
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -101,10 +98,8 @@ jobs:
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
-          # AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          # AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
-          AZURE_ENV_NAME: "Test-CI"
-          AZURE_LOCATION: "eastus"
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
