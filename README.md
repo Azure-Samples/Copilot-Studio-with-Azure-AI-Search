@@ -34,7 +34,6 @@ graph TD
       direction TB
       A[AI Search Connection]
       B[Copilot Studio agent]
-      C[OpenAI Connection]
     end
   end
 
@@ -44,14 +43,11 @@ graph TD
     subgraph VirtualNetwork["Virtual Network"]
         direction LR
         E[AI Search Resource]
-        F[OpenAI Resource]
     end
   end
 
   Environment --> D
-  B --> C
   B --> A
-  C --> F
   A --> E
   D --> VirtualNetwork
 ```

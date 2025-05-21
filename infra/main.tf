@@ -49,17 +49,6 @@ module "copilot_studio" {
   # and AI Search connection, but this list could take any supported connectors.
   power_platform_connections = [
     {
-      name         = "shared_azureopenai"
-      display_name = "Azure OpenAI Connection"
-      connection_parameters = {
-        azureOpenAIResourceName = module.azure_open_ai.name
-        azureOpenAIApiKey       = module.azure_open_ai.primary_access_key
-        azureSearchEndpointUrl  = local.search_endpoint_url
-        azureSearchApiKey       = azurerm_search_service.ai_search.primary_key
-      }
-      connector_name = "azureopenai"
-    },
-    {
       name         = "shared_azureaisearch"
       display_name = "Azure AI Search Connection"
       connection_parameters = {

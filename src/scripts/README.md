@@ -56,8 +56,7 @@ pwsh ./deploy_power_platform_solution.ps1 \
 
 ## Prerequisites
 
-- PowerShell Core (pwsh) 7.0 or higher
-- npm (for installing PAC CLI if not present)
+- PowerShell Core (pwsh) 8.0 or higher
 - Valid Azure and Power Platform credentials
 - [Optional] Terraform for infrastructure provisioning
 

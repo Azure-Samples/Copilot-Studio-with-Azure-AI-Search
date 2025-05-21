@@ -14,13 +14,8 @@ hooks:
     shell: pwsh
     continueOnError: false
     interactive: false
-    secrets: 
-      "openai_resource_id" : "openai_resource_id"
-      "power_platform_environment_id" : "power_platform_environment_id"
     run: 
-      
-      src/scripts/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/GoldAgent.zip" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id #This works 
-      # src/scripts/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/GoldAgent.zip" -AISearchConnectionId "aisearch_connection_id" -PowerPlatformEnvironmentId "power_platform_environment_id" #TODO this doesn't work, figure out how to actually connect env vars
+      src/scripts/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/GoldAgent.zip" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id
   predeploy:
     shell: pwsh
     continueOnError: false

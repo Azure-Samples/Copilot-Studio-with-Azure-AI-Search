@@ -264,12 +264,6 @@ variable "power_platform_managed_environment" {
   description = "Configuration for the Power Platform managed environment"
 }
 
-variable "power_platform_oai_connection_display_name" {
-  type        = string
-  default     = "Copilot OpenAI Connection"
-  description = "The display name of the connection between the Power Platform environment and the OpenAI model in Azure."
-}
-
 variable "primary_ai_search_subnet_address_spaces" {
   type        = list(string)
   default     = ["10.1.7.0/24"]
