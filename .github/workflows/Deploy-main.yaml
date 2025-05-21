@@ -1,0 +1,126 @@
+name: "CI-Deploy"
+on:
+  workflow_dispatch:
+    inputs:
+      azd_environment_name:
+        description: "Name of the AZD Environment"
+        required: true
+        default: "CICD"
+      azure_location:
+        description: "Azure location for the environment"
+        required: true
+        default: "eastus"
+      run_azd_down:
+        description: "Run AZD Down to destroy the deployed resources."
+        type: boolean
+        required: true
+        default: false
+  push:
+    # Run when commits are pushed to mainline branch
+    # Set this to the mainline branch you are using
+    branches:
+      - main
+# GitHub Actions workflow to deploy to Azure using azd
+
+permissions:
+  id-token: write
+  contents: read
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the branch ${{ github.ref_name }}
+
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Install azd
+        uses: Azure/setup-azd@v2
+
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.0
+
+      - name: Login to Azure with Federated Identity
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Authenticate with Azure Developer CLI
+        run: |
+          azd auth login --client-id ${{ secrets.AZURE_CLIENT_ID }} --tenant-id ${{ secrets.AZURE_TENANT_ID }} --federated-credential-provider "github"
+
+      - name: Provision Infrastructure
+        env:
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          POWER_PLATFORM_USE_CLI: false
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
+          RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
+          ARM_USE_AZUREAD: "true"
+          ARM_STORAGE_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          POWER_PLATFORM_USE_OIDC: "true"
+
+        shell: pwsh
+        run: |
+
+          azd config set auth.useAzCliAuth "true"
+          azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
+          azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
+          azd env set POWER_PLATFORM_USE_CLI "false"
+
+          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
+          azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+          azd provision --no-prompt
+
+        
+      - name: Azd down
+        if: ${{ github.event.inputs.run_azd_down == true }}
+        env:
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          POWER_PLATFORM_USE_CLI: false
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
+          RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
+          ARM_USE_AZUREAD: "true"
+          ARM_STORAGE_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          POWER_PLATFORM_USE_OIDC: "true"
+        shell: pwsh
+        run: |
+
+          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
+          azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+          
+          azd env select $env:AZURE_ENV_NAME
+          azd down --no-prompt --force --purge
