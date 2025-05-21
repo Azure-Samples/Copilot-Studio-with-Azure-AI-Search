@@ -3,7 +3,9 @@
 Initial data to upload into a blob storage to make this template working are located in this folder in pdf format.
 
 To upload initial data into the blob storage you can pick one of the options from below.
+
 _Note: By default, this solution deploys all Azure resources to a VNet. To successfully execute any of the commands outlined in this README, they must be run from within the network._
+
 ## How to upload data into the storage using the Python script
 
 To execute the upload_data.py script, ensure you have Python 3.8+ installed and the required dependencies (azure-identity and azure-storage-blob) by running `pip install azure-identity azure-storage-blob`. Authenticate to Azure using `az login` or environment variables for service principal credentials.
