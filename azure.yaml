@@ -15,7 +15,7 @@ hooks:
     continueOnError: false
     interactive: false
     run: 
-      src/scripts/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/GoldAgent.zip" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id
+      src/scripts/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/Copilot_Studio_Gold_Agent" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id
   predeploy:
     shell: pwsh
     continueOnError: false

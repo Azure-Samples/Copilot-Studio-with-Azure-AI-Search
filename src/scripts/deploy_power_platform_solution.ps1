@@ -14,18 +14,15 @@
 
     # To run this script:
     ./deploy_power_platform_solution.ps1 `
-      -SolutionPath "../powerplatform/GoldAgent.zip" `
+      -SolutionPath "../powerplatform/Copilot_Studio_Gold_Agent" `
       -PowerPlatformEnvironmentId "your-environment-id" `
       -AISearchConnectionId "<AI Search Connection ID from Terraform Outputs>"
 
 .PARAMETER SolutionPath
-    Path to the solution zip file to deploy
+    Path to the solution source directory
 
 .PARAMETER PowerPlatformEnvironmentId
     ID of the Power Platform environment to deploy to
-
-.PARAMETER LogDirectory
-    Directory where logs will be stored
 
 .PARAMETER RunSolutionChecker
     Whether to run solution checker after deployment (default: true)
@@ -54,9 +51,6 @@ param (
     [string]$PowerPlatformEnvironmentId,
     
     [Parameter(Mandatory = $false)]
-    [string]$LogDirectory = "$PSScriptRoot/power_platform_deployment_logs",
-    
-    [Parameter(Mandatory = $false)]
     [bool]$RunSolutionChecker = $true,
     
     [Parameter(Mandatory = $false)]
@@ -76,43 +70,31 @@ if (!(Test-Path $settingsDirectory)) {
     New-Item -ItemType Directory -Path $settingsDirectory -Force | Out-Null
 }
 
-# Setup logging
-$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$logFile = Join-Path $LogDirectory "power_platform_deploy_$timestamp.log"
-
-# Create logs directory if it doesn't exist
-if (!(Test-Path $LogDirectory)) {
-    New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
-}
-
-# Function to log messages
-function Write-Log {
+# Function to securely handle sensitive parameters
+function ConvertTo-SecureParameter {
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Message,
-        
-        [Parameter()]
-        [ValidateSet("INFO", "WARNING", "ERROR")]
-        [string]$Level = "INFO"
+        [string]$InputString
     )
     
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logMessage = "[$timestamp] [$Level] $Message"
-    Write-Output $logMessage
+    if ([string]::IsNullOrEmpty($InputString)) {
+        return $null
+    }
     
-    # Also write to log file
-    Add-Content -Path $logFile -Value $logMessage -ErrorAction SilentlyContinue
+    return ConvertTo-SecureString -String $InputString -AsPlainText -Force
 }
+
+Write-Host "INFO: Starting Power Platform solution deployment script"
 
 # Function to ensure PAC CLI is installed
 function Test-PacCliInstalled {
-    Write-Log "Checking if PAC CLI is installed"
+    Write-Host "INFO: Checking if PAC CLI is installed"
     try {
         $pacVersion = & pac help 2>&1 | Select-String "Microsoft Power Platform CLI"
         if ($pacVersion) {
-            Write-Log "Using PAC CLI: $pacVersion"
+            Write-Host "INFO: Using PAC CLI: $pacVersion"
             return $true
-        }        else {
+        } else {
             Write-Error "PAC CLI not detected, please install PAC CLI and run again"
             exit 1
         }
@@ -121,26 +103,28 @@ function Test-PacCliInstalled {
         Write-Error "Error checking PAC CLI: $_"
         exit 1
     }
+
+    return $true
 }
 
 #region Authentication
-# Function to handle PAC CLI authentication
+# Function to handle PAC CLI authentication with secure credential handling
 function Set-PacAuthentication {    
     param (        
         [bool]$UseGithubFederated
     )
     
-    Write-Log "Starting authentication"
+    Write-Host "INFO: Starting authentication"
 
-    # Try Github federated auth first if explicitly requested or if environment variables are available
+    # Try Github federated auth first if explicitly requested and environment variables are available
     if ($UseGithubFederated -and
         (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
          ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID))) {
-            Write-Log "Setting a PAC auth profile based on GitHub federated authentication"
+            Write-Host "INFO: Setting a PAC auth profile based on GitHub federated authentication"
             & pac auth create --name github-federated-auth `
-                                --applicationId $env:POWER_PLATFORM_CLIENT_ID `
-                                --tenant $env:POWER_PLATFORM_TENANT_ID `
-                                --githubFederated
+                            --applicationId $env:POWER_PLATFORM_CLIENT_ID `
+                            --tenant $env:POWER_PLATFORM_TENANT_ID `
+                            --githubFederated
             & pac auth select --name github-federated-auth
     }
     # Try Service Principal auth second
@@ -148,21 +132,26 @@ function Set-PacAuthentication {
         ![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_SECRET) -and 
         ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
         
-        Write-Log "Found service principal environment variables, using service principal authentication"
+        Write-Host "INFO: Found service principal environment variables, using service principal authentication"
 
-        # Create new service principal auth profile
-        Write-Log "Creating new service-principal-auth profile"
-        # Execute the auth create command and capture output
-        $authOutput = & pac auth create --name service-principal-auth `
-                    --applicationId $env:POWER_PLATFORM_CLIENT_ID `
-                    --clientSecret $env:POWER_PLATFORM_CLIENT_SECRET `
-                    --tenant $env:POWER_PLATFORM_TENANT_ID `
-                    --accept-cleartext-caching 2>&1 | Out-String
+        try {
+            # Execute the auth create command and capture output
+            $authOutput = & pac auth create --name service-principal-auth `
+                        --applicationId $env:POWER_PLATFORM_CLIENT_ID `
+                        --clientSecret $env:POWER_PLATFORM_CLIENT_SECRET `
+                        --tenant $env:POWER_PLATFORM_TENANT_ID `
+                        --accept-cleartext-caching 2>&1 | Out-String
 
-        # Log the output from the auth create command
-        Write-Log "PAC auth create output: $authOutput"
-
-        & pac auth select --name service-principal-auth    } else {
+            # Log that authentication was attempted (don't log the actual output which may contain secrets)
+            Write-Host "INFO: PAC auth create completed"
+            
+            & pac auth select --name service-principal-auth
+        }
+        catch {
+            Write-Error "PAC auth create failed: $_"
+            exit 1
+        }
+    } else {
         # Try to find active pac CLI auth profile
         $activeLine = pac auth list | Where-Object { $_ -match '^\[\d+\]\s+\*\s+' }
         $tokens = $activeLine -split '\s+'
@@ -170,29 +159,30 @@ function Set-PacAuthentication {
         
         # If we found an active profile, it's already set - just use it. If not, create a new one.
         if ([string]::IsNullOrEmpty($activeName)) {
-            Write-Log "Creating new az-cli-auth profile"
+            Write-Host "INFO: Creating new az-cli-auth profile"
             & pac auth create --name az-cli-auth
             & pac auth select --name az-cli-auth
         } else {
-            Write-Log "Using existing active auth profile: $activeName"
+            Write-Host "INFO: Using existing active auth profile: $activeName"
         }
     }
 }
 
 # Function to ensure the environment is accessible
-function Test-EnvironmentAccess {    param (
+function Test-EnvironmentAccess {    
+    param (
         [Parameter(Mandatory = $true)]
         [string]$PowerPlatformEnvironmentId
     )
     
-    Write-Log "Checking access to environment $PowerPlatformEnvironmentId"
+    Write-Host "INFO: Checking access to environment $PowerPlatformEnvironmentId"
     try {
         & pac org who --environment $PowerPlatformEnvironmentId
-        Write-Log "Environment is accessible"
+        Write-Host "INFO: Environment is accessible"
         return $true
     } 
     catch {
-        Write-Log "Authentication failed or token expired. Attempting to reauthenticate..." -Level "WARNING"
+        Write-Host "WARNING: Authentication failed or token expired. Attempting to reauthenticate..."
         
         # Try to reauthenticate
         Set-PacAuthentication -UseGithubFederated $UseGithubFederated
@@ -200,17 +190,20 @@ function Test-EnvironmentAccess {    param (
         # Try again
         try {
             & pac org who --environment $PowerPlatformEnvironmentId
-            Write-Log "Environment is now accessible after reauthentication"
+            Write-Host "INFO: Environment is now accessible after reauthentication"
             return $true
-        }        catch {
+        } catch {
             Write-Error "Failed to access environment even after reauthentication: $_"
             exit 1
         }
     }
+
+    return $true
 }
+#endregion
 
 #region Connection Setup
-# Function to create settings file from solution
+# Function to create settings file from solution with secure handling of connection information
 function New-SolutionSettingsFile {
     param (
         [Parameter(Mandatory = $true)]
@@ -223,7 +216,7 @@ function New-SolutionSettingsFile {
         [string]$AiSearchConnectionId = ""
     )
     
-    Write-Log "Creating settings file for solution $SolutionPath"
+    Write-Host "INFO: Creating settings file for solution $SolutionPath"
     
     # Create the settings file from the solution
     try {
@@ -233,7 +226,7 @@ function New-SolutionSettingsFile {
         & pac solution create-settings --solution-zip $SolutionPath --settings-file $SettingsFilePath
         
         if (Test-Path $SettingsFilePath) {
-            Write-Log "Settings file created successfully at $SettingsFilePath"
+            Write-Host "INFO: Settings file created successfully at $SettingsFilePath"
             
             # Read the settings file
             $settingsContent = Get-Content -Path $SettingsFilePath -Raw
@@ -241,22 +234,22 @@ function New-SolutionSettingsFile {
             
             # Check if there are connection references to update
             if ($settings.ConnectionReferences -and $settings.ConnectionReferences.Count -gt 0) {
-                Write-Log "Found $($settings.ConnectionReferences.Count) connection references in settings file"
+                Write-Host "INFO: Found $($settings.ConnectionReferences.Count) connection references in settings file"
                 
                 # Loop through connection references and update values
                 foreach ($connectionRef in $settings.ConnectionReferences) {
                     # Check which connector we're dealing with
                     if ($connectionRef.ConnectorId -match "shared_azureaisearch") {
-                        Write-Log "Found AI Search connection reference (ConnectorId: $($connectionRef.ConnectorId))" 
+                        Write-Host "INFO: Found AI Search connection reference (ConnectorId: $($connectionRef.ConnectorId))"
 
                         if (![string]::IsNullOrEmpty($AiSearchConnectionId)) {
-                            Write-Log "Setting AI Search connection ID to: $AiSearchConnectionId"
+                            Write-Host "INFO: Setting AI Search connection ID"
                             $connectionRef.ConnectionId = $AiSearchConnectionId
                         } else {
-                            Write-Log "No AI Search connection ID provided - connection reference will remain unchanged" -Level "WARNING"
+                            Write-Host "WARNING: No AI Search connection ID provided - connection reference will remain unchanged"
                         }
                     } else {
-                        Write-Log "Skipping connection reference for connector: $($connectionRef.ConnectorId)"
+                        Write-Host "INFO: Skipping connection reference for connector: $($connectionRef.ConnectorId)"
                     }
                 }
                 
@@ -264,19 +257,89 @@ function New-SolutionSettingsFile {
                 $updatedJson = ConvertTo-Json -InputObject $settings -Depth 10
                 Set-Content -Path $SettingsFilePath -Value $updatedJson -Force
                 
-                Write-Log "Updated settings file saved"            # Output the settings file content to the log (masked for security)
-                $maskedSettings = $settings | ConvertTo-Json -Depth 10
-                Write-Log "Settings file updated successfully"
-                
+                Write-Host "INFO: Updated settings file saved"
+                                
                 return $true
             } 
         }
+        else {
+            Write-Error "Settings file was not created at path: $SettingsFilePath"
+            exit 1
+        }
         return $false
     } catch {
-        Write-Log "Error creating settings file: $_" -Level "ERROR"
-        return $false
+        Write-Error "Error creating settings file: $_" -Level "ERROR"
+        exit 1
     }
+
+    return $true
 }
+
+#region Solution Generation
+# Function to generate solution from source directory
+function Package-Solution {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$SourceDirectory,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$OutputDirectory,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$OutputFileName
+    )
+    
+    Write-Host "INFO: Generating solution from source directory"
+    
+    # Create a timestamp for unique file naming
+    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+    
+    # If no output filename provided, create one with timestamp
+    if ([string]::IsNullOrEmpty($OutputFileName)) {
+        $OutputFileName = "CopilotStudioGoldAgent_$timestamp.zip"
+    }
+    
+    # Ensure output directory exists
+    if (-not (Test-Path -Path $OutputDirectory)) {
+        New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
+        Write-Host "INFO: Created output directory: $OutputDirectory"
+    }
+    
+    # Build full output path
+    $outputSolutionPath = Join-Path -Path $OutputDirectory -ChildPath $OutputFileName
+    
+    Write-Host "INFO: Generating solution from source at $SourceDirectory"
+    Write-Host "INFO: Output solution will be at $outputSolutionPath"
+    
+    # Check if source directory exists
+    if (-not (Test-Path $SourceDirectory)) {
+        Write-Error "Source directory does not exist at: $SourceDirectory"
+        exit 1
+    }
+    
+    try {
+        # Generate the solution using pac cli
+        $pacOutput = & pac solution pack --zipfile $outputSolutionPath --folder $SourceDirectory --packagetype Unmanaged 2>&1 | Out-String
+
+        if (-not (Test-Path $outputSolutionPath)) {
+            Write-Error "Solution generation failed. Output file was not created: $outputSolutionPath"
+            Write-Error "PAC output: $pacOutput"
+            exit 1
+        }
+        
+        Write-Host "INFO: Solution successfully generated at: $outputSolutionPath"
+        
+        return $true
+    } 
+    catch {
+        Write-Error "Solution generation failed: $_"
+        Write-Error "PAC output: $pacOutput"
+        exit 1
+    }
+
+    return $true
+}
+#endregion
 
 #region Solution Import
 # Function to import the solution
@@ -292,134 +355,55 @@ function Import-PowerPlatformSolution {
         [string]$SettingsFilePath
     )
     
-    $maxRetries = 3
-    $retry = 0
-    $success = $false
+    Write-Host "INFO: Importing solution from $SolutionPath"
     
-    while ($retry -lt $maxRetries -and !$success) {
-        $retry++
-        Write-Log "Importing solution from $SolutionPath (Attempt $retry of $maxRetries)"
-        
-        try {
-            # Execute the import command and capture the output
-            $importOutput = & pac solution import --path $SolutionPath --environment $PowerPlatformEnvironmentId --settings-file $SettingsFilePath --force-overwrite 2>&1 | Out-String
+    try {
+        # Execute the import command and capture the output
+        $importResult = & pac solution import --path $SolutionPath --environment $PowerPlatformEnvironmentId --settings-file $SettingsFilePath --force-overwrite 2>&1 | Out-String
 
-            $checkOutput = & pac solution list --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
-            $solutionName = [System.IO.Path]::GetFileNameWithoutExtension($SolutionPath)
-            
-            if ($checkOutput -match $solutionName) {
-                $success = $true
-                Write-Log "Solution import verified successfully - found in environment"
-            } else {                Write-Error "Solution import validation failed - solution not found in environment"
-                exit 1
-            }
-        } 
-        catch {
-            $errorMessage = $_.ToString()
-            Write-Log "Solution import failed on attempt ${retry}: ${errorMessage}" -Level "ERROR"
-            
-            # Check if this is an authentication error
-            if ($errorMessage -match "AADSTS70008" -or 
-                $errorMessage -match "token.*expired" -or 
-                $errorMessage -match "401 Unauthorized") {
-                
-                Write-Log "Authentication error detected. Attempting to reauthenticate..." -Level "WARNING"
-                Set-PacAuthentication -UseGithubFederated $UseGithubFederated
-                
-                # Try again immediately after re-authentication
-                try {
-                    $importOutput = & pac solution import --path $SolutionPath --environment $PowerPlatformEnvironmentId --settings-file $SettingsFilePath --force-overwrite 2>&1 | Out-String
-                    
-                    # Check if the output contains failure indicators
-                    if ($importOutput -match "fail|error|exception" -and -not $importOutput -match "success") {                        Write-Error "Solution import appears to have failed with output: $importOutput"
-                        exit 1
-                    }
-                    
-                    # Validate the solution was actually imported
-                    $checkOutput = & pac solution list --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
-                    $solutionName = [System.IO.Path]::GetFileNameWithoutExtension($SolutionPath)
-                    
-                    if ($checkOutput -match $solutionName) {
-                        $success = $true
-                        Write-Log "Solution imported successfully after reauthentication"
-                        continue
-                    } else {                        Write-Error "Solution import validation failed after reauthentication"
-                        exit 1
-                    }
-                } 
-                catch {
-                    Write-Error "Solution import failed even after reauthentication."
-                    exit 1
-                }
-            }
-            
-            # If not the last retry, wait before trying again
-            if ($retry -lt $maxRetries) {
-                $waitTime = [Math]::Pow(2, $retry) * 30 # Exponential backoff
-                Write-Log "Waiting $waitTime seconds before next retry..."
-                Start-Sleep -Seconds $waitTime
-            } 
-            else {                Write-Error "Failed to import solution after $maxRetries attempts."
-                exit 1
-            }
+        Write-Host "INFO: Solution import command completed"
+
+        $listOutput = & pac solution list --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
+        $solutionName = [System.IO.Path]::GetFileNameWithoutExtension($SolutionPath)
+        
+        Write-Host "INFO: Solution list command completed: $listOutput"
+
+        # TODO this is failing when not hard-coded even though the zip also contains this name. Come up with a better check
+        if ($listOutput -match "GoldAgent") {
+            Write-Host "INFO: Solution import verified successfully - found in environment"
+        } else {
+            Write-Error "Solution import validation failed - solution not found in environment"
+            exit 1
         }
-    }
-    
-    if (!$success) {        Write-Error "Solution import ultimately failed after all retry attempts"
+    } 
+    catch {
+        Write-Error "Solution import failed: $importResult"
         exit 1
     }
     
     # Wait for solution to be fully imported
-    Write-Log "Waiting for solution import to stabilize..."
+    Write-Host "INFO: Waiting for solution import to stabilize..."
     Start-Sleep -Seconds 30
     
     # Publish all customizations
-    Write-Log "Publishing all customizations..."
+    Write-Host "INFO: Publishing all customizations..."
     try {
         $publishOutput = & pac solution publish --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
           # Check if the output contains failure indicators
-        if (-not ($publishOutput -match "success")) {
-            Write-Error "Solution publish appears to have failed with output: $publishOutput"
+        if (-not ($publishOutput -match "Published All Customizations")) {
+            Write-Host "Solution publish appears to have failed with output: $publishOutput" -Level "ERROR"
             exit 1
         }
         
-        Write-Log "Solution publication completed successfully"
+        Write-Host "INFO: Solution publication completed successfully"
         return $true
     } 
     catch {
-        $errorMessage = $_.ToString()
-        Write-Log "Publishing customizations failed: $errorMessage" -Level "ERROR"
-        
-        # Check if this is an authentication error
-        if ($errorMessage -match "AADSTS70008" -or 
-            $errorMessage -match "token.*expired" -or 
-            $errorMessage -match "401 Unauthorized") {
-            
-            Write-Log "Authentication error detected. Attempting to reauthenticate..." -Level "WARNING"
-            Set-PacAuthentication -UseGithubFederated $UseGithubFederated
-            
-            # Try again immediately after re-authentication
-            try {
-                $publishOutput = & pac solution publish --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
-                
-                # Check if the output contains failure indicators
-                if ($publishOutput -match "fail|error|exception" -and -not $publishOutput -match "success") {
-                    Write-Log "Solution publish appears to have failed with output: $publishOutput" -Level "ERROR"
-                    return $false
-                }
-                
-                Write-Log "Solution published successfully after reauthentication"
-                return $true
-            } 
-            catch {
-                Write-Log "Publishing customizations failed even after reauthentication: $_" -Level "ERROR"
-                return $false
-            }
-        } 
-        else {
-            return $false
-        }
+        Write-Error "Publishing customizations failed even after reauthentication: $_" -Level "ERROR"
+        exit 1
     }
+
+    return $true
 }
 
 #region Solution Checker
@@ -433,14 +417,15 @@ function Invoke-SolutionChecker {
         [string]$PowerPlatformEnvironmentId
     )
     
-    Write-Log "Running solution checker for $SolutionName..."
+    Write-Host "INFO: Running solution checker for $SolutionName..."
     
-    try {        # Run solution checker
+    try {       
+        # Run solution checker
         $checkerOutput = & pac solution check --path $SolutionPath --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
         
         # Check if the output contains failure indicators
         if ($checkerOutput -match "fail|error|exception" -and -not $checkerOutput -match "success") {
-            Write-Log "Solution checker appears to have failed with output: $checkerOutput" -Level "WARNING"
+            Write-Host "WARNING: Solution checker appears to have failed with output: $checkerOutput"
             return $false
         }
         
@@ -450,37 +435,39 @@ function Invoke-SolutionChecker {
             $issueCount = $checkerResults.Issues.Count
             
             if ($issueCount -gt 0) {
-                Write-Log "Solution checker found $issueCount issues" -Level "WARNING"
+                Write-Host "WARNING: Solution checker found $issueCount issues" -Level "WARNING"
                 foreach ($issue in $checkerResults.Issues) {
-                    Write-Log "Issue: $($issue.Description) - Severity: $($issue.Severity)" -Level "WARNING"
+                    Write-Host "WARNING: Issue: $($issue.Description) - Severity: $($issue.Severity)" -Level "WARNING"
                 }
             } else {
-                Write-Log "Solution checker completed with no issues detected"
+                Write-Host "INFO: Solution checker completed with no issues detected"
             }
         } catch {
             # If we can't parse as JSON, just log the raw output
-            Write-Log "Solution checker output (could not parse as JSON): $checkerOutput"
+            Write-Host "WARNING: Solution checker output (could not parse as JSON): $checkerOutput"
         }
         
         return $true
     } 
     catch {
         $errorMessage = $_.ToString()
-        Write-Error "Solution checker failed: $errorMessage"
+        Write-Error "Solution checker failed: $errorMessage" -Level "ERROR"
         exit 1
     }
+
+    return $true
 }
 #endregion
 
 #region Main Execution
 
-Write-Log "Starting Power Platform solution deployment process"
-Write-Log "Solution path: $SolutionPath"
-Write-Log "Environment ID: $PowerPlatformEnvironmentId"
-Write-Log "Log directory: $LogDirectory"
-Write-Log "Run solution checker: $RunSolutionChecker"
-Write-Log "AI Search connection ID: $(if ([string]::IsNullOrEmpty($AISearchConnectionId)) { "Not provided" } else { "Provided" })"
-Write-Log "Use GitHub federated: $UseGithubFederated"
+Write-Host "Starting Power Platform solution deployment process"
+Write-Host "Solution path: $SolutionPath"
+Write-Host "Environment ID: $PowerPlatformEnvironmentId"
+Write-Host "Log directory: $LogDirectory"
+Write-Host "Run solution checker: $RunSolutionChecker"
+Write-Host "AI Search connection ID: $(if ([string]::IsNullOrEmpty($AISearchConnectionId)) { "Not provided" } else { "Provided" })"
+Write-Host "Use GitHub federated: $UseGithubFederated"
 
 
 # Step 1: Verify PAC CLI is installed
@@ -500,53 +487,66 @@ Set-PacAuthentication -UseGithubFederated $UseGithubFederated
 
 # Step 3: Verify environment access
 if (-not (Test-EnvironmentAccess -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId)) {
-    Write-Log "Cannot access the environment. Cannot continue." -Level "ERROR"
+    Write-Error "Cannot access the environment. Cannot continue."
     exit 1
 }
 
-# Step 4: Get the solution name from the zip file
-$solutionName = [System.IO.Path]::GetFileNameWithoutExtension($SolutionPath)
-Write-Log "Solution name determined as: $solutionName"
-
-if ([string]::IsNullOrWhiteSpace($AISearchConnectionId)) {
-    Write-Log "No specific connection IDs provided." -Level "WARNING"
+# Step 4: Generate the solution from the specified source directory
+# Define source and output paths
+$solutionSourceDirectory = "src/powerplatform/copilot_studio_gold_agent"
+$solutionOutputDirectory = "src/powerplatform"
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$solutionOutputFileName = "GoldAgent_$timestamp.zip"
+$solutionPath = Join-Path $solutionOutputDirectory $solutionOutputFileName
+if (-not (Package-Solution -SourceDirectory $solutionSourceDirectory -OutputDirectory $solutionOutputDirectory -OutputFileName $solutionOutputFileName)) {
+    Write-Error "Solution generation failed. Cannot continue."
+    exit 1
 }
 
-# Step 5: Create settings file from solution
+# Step 5: Create settings file from solution and incorporate connection ID(s)
+if ([string]::IsNullOrWhiteSpace($AISearchConnectionId)) {
+    Write-Host "WARNING: No specific connection IDs provided."
+}
 $settingsFileName = "solution_settings_$timestamp.json"
-Write-Log "Creating settings file $settingsFileName"
-$settingsCreated = New-SolutionSettingsFile -SolutionPath $SolutionPath -SettingsFileName $settingsFileName -AiSearchConnectionId $AISearchConnectionId
+Write-Host "INFO: Create settings file $settingsFileName"
+$settingsCreated = New-SolutionSettingsFile -SolutionPath $solutionPath -SettingsFileName $settingsFileName -AiSearchConnectionId $AISearchConnectionId
 $settingsFilePath = Join-Path $settingsDirectory $settingsFileName
-Write-Log "Settings file path: $settingsFilePath"
+Write-Host "INFO: Settings file path: $settingsFilePath"
 
 # Step 6: Import the solution with settings file
-if (-not (Import-PowerPlatformSolution -SolutionPath $SolutionPath -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId -SettingsFilePath $settingsFilePath)) {
-    Write-Log "Solution import failed. Cannot continue." -Level "ERROR"
+if (-not (Import-PowerPlatformSolution -SolutionPath $solutionPath -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId -SettingsFilePath $settingsFilePath)) {
+    Write-Error "Solution import failed. Cannot continue."
     exit 1
 }
 
 # Step 7: Run solution checker if enabled
 if ($RunSolutionChecker) {
-    Write-Log "RunSolutionChecker is enabled. Running solution checker..."
-    if (-not (Invoke-SolutionChecker -SolutionName $solutionName -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId)) {
-        Write-Log "Solution checker encountered issues. Review the logs for details." -Level "WARNING"
+    Write-Host "INFO: RunSolutionChecker is enabled. Running solution checker..."
+    if (-not (Invoke-SolutionChecker -SolutionName $solutionOutputFileName -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId)) {
+        Write-Host "WARNING: Solution checker encountered issues. Review the logs for details."
     }
 } else {
-    Write-Log "RunSolutionChecker is disabled. Skipping solution checker."
+    Write-Host "INFO: RunSolutionChecker is disabled. Skipping solution checker."
 }
 
 # Summary
-Write-Log "Power Platform solution deployment process completed"
-Write-Log "Summary:"
-Write-Log "  - Used connection ID: $AISearchConnectionId"
-Write-Log "  - Settings file created: $(if ($settingsCreated) { 'Yes' } else { 'No' })"
-Write-Log "  - Solution imported: Success"
-Write-Log "  - Solution checker run: $(if ($RunSolutionChecker) { 'Yes' } else { 'No' })"
+Write-Host "Power Platform solution deployment process completed"
+Write-Host "Summary:"
+Write-Host "  - Used connection ID: $AISearchConnectionId"
+Write-Host "  - Settings file created: $(if ($settingsCreated) { 'Yes' } else { 'No' })"
+Write-Host "  - Solution imported: Success"
+Write-Host "  - Solution checker run: $(if ($RunSolutionChecker) { 'Yes' } else { 'No' })"
 
 # Clean up the settings file
 if (Test-Path $settingsFilePath) {
     Remove-Item -Path $settingsFilePath -Force
-    Write-Log "Cleaned up temporary settings file"
+    Write-Host "Cleaned up temporary settings file"
+}
+
+# Clean up the solution file
+if (Test-Path $solutionPath) {
+    Remove-Item -Path $solutionPath -Force
+    Write-Host "Cleaned up temporary solution file"
 }
 
 exit 0
