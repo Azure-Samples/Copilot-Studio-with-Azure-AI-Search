@@ -19,7 +19,7 @@ on:
     # Run when commits are pushed to mainline branch
     # Set this to the mainline branch you are using
     branches:
-      - hadwa/set_wf_push_values
+      - main
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
