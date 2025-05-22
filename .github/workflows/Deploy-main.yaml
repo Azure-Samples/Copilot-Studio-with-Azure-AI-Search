@@ -62,22 +62,26 @@ jobs:
           $destination = "$env:USERPROFILE\gitleaks.zip"
           $latestVersion = "8.26.0"  # Replace with the latest version from GitHub
           $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/download/v$latestVersion/gitleaks_${latestVersion}_windows_x64.zip"
-          Invoke-WebRequest -Uri $gitleaksUrl -OutFile "$env:USERPROFILE\gitleaks.zip" -UseBasicParsing
+          
+          # Define installation paths
+          $destination = "$env:USERPROFILE\gitleaks.zip"
+          $extractPath = "$env:USERPROFILE\gitleaks"
+          # Invoke-WebRequest -Uri $gitleaksUrl -OutFile "$env:USERPROFILE\gitleaks.zip" -UseBasicParsing
+          
 
           # Extract the ZIP file
-          Expand-Archive -Path $destination -DestinationPath "$env:USERPROFILE\gitleaks"
+          
+          Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination -UseBasicParsing
+          Expand-Archive -Path $destination -DestinationPath $extractPath -Force
 
-          # Move the executable to Program Files for global access
-          Move-Item -Path "$env:USERPROFILE\gitleaks\gitleaks.exe" -Destination "C:\Program Files\gitleaks.exe"
+          # Add the extracted path to system-wide PATH
+          [System.Environment]::SetEnvironmentVariable("Path", "$env:Path;$extractPath", [System.EnvironmentVariableTarget]::Machine)
 
-          # Add Gitleaks to system PATH
-          [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files", [System.EnvironmentVariableTarget]::Machine)
-
+          # Confirm installation
           Write-Output "Gitleaks installed successfully and added to PATH."
-          Get-Command gitleaks
-          & "C:\Program Files\gitleaks.exe" version
+          gitleaks version
 
-  
+          
       - name: Verify Gitleaks Installation
         shell: pwsh
         run: |
