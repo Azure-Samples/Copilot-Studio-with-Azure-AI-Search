@@ -19,7 +19,7 @@ on:
     # Run when commits are pushed to mainline branch
     # Set this to the mainline branch you are using
     branches:
-      - main
+      - hadwa/set_wf_push_values
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
@@ -30,6 +30,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'fallback-env-name' }}
+      AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'fallback-location' }}
+    
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
 
@@ -63,8 +67,8 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          AZURE_ENV_NAME: "${{ github.event.inputs.azd_environment_name || 'CICD' }}"
-          AZURE_LOCATION: "${{ github.event.inputs.azure_location || 'eastus' }}"
+          # AZURE_ENV_NAME: "${{ github.event.inputs.azd_environment_name || 'CICD' }}"
+          # AZURE_LOCATION: "${{ github.event.inputs.azure_location || 'eastus' }}"
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -98,8 +102,8 @@ jobs:
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
-          AZURE_ENV_NAME: "${{ github.event.inputs.azd_environment_name || 'CICD' }}"
-          AZURE_LOCATION: "${{ github.event.inputs.azure_location || 'eastus' }}"
+          # AZURE_ENV_NAME: "${{ github.event.inputs.azd_environment_name || 'CICD' }}"
+          # AZURE_LOCATION: "${{ github.event.inputs.azure_location || 'eastus' }}"
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
