@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
 
@@ -40,10 +40,6 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@v2
 
-      # - name: Install Nodejs
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 18
       
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
@@ -56,42 +52,15 @@ jobs:
           tflint_version: v0.49.0
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate 
       
-      - name: Install Gitleaks using PowerShell
-        shell: pwsh
+      - name: Install GitLeaks
         run: |
-          $destination = "$env:USERPROFILE\gitleaks.zip"
-          $latestVersion = "8.26.0"  # Replace with the latest version from GitHub
-          $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/download/v$latestVersion/gitleaks_${latestVersion}_windows_x64.zip"
-          
-          # Define installation paths
-          $destination = "$env:USERPROFILE\gitleaks.zip"
-          $extractPath = "$env:USERPROFILE\gitleaks"
-          
-
-          # Extract the ZIP file
-          
-          Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination -UseBasicParsing
-          Expand-Archive -Path $destination -DestinationPath $extractPath -Force
-
-          # Add the extracted path to system-wide PATH
-          [System.Environment]::SetEnvironmentVariable("Path", "$env:Path;$extractPath", [System.EnvironmentVariableTarget]::Machine)
-
-          # Confirm installation
-          Write-Output "Gitleaks installed successfully and added to PATH."
-          if (Get-Command gitleaks -ErrorAction SilentlyContinue) {
-          Write-Output "Gitleaks installed successfully and accessible."
-          } else {
-              Write-Error "Gitleaks installation failed or is not in PATH."
-              exit 1
-          }
-
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.17.0/gitleaks_8.17.0_linux_x64.tar.gz -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          rm gitleaks.tar.gz
           gitleaks version
 
-          
-      - name: Verify Gitleaks Installation
-        shell: pwsh
-        run: |
-          gitleaks version
   
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
@@ -106,8 +75,8 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  || 'eastus' }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -152,8 +121,8 @@ jobs:
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  }}
+          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
+          AZURE_LOCATION: ${{ github.event.inputs.azure_location  || 'eastus' }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
