@@ -40,16 +40,31 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@v2
 
-      - name: Install Nodejs
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      # - name: Install Nodejs
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 18
       
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
+      
+      - name: Install TFLint
+        uses: terraform-linters/setup-tflint@v3
+        with:
+          tflint_version: v0.49.0
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate 
+      
+      - name: Install Gitleaks CLI
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
 
+      - name: Tmp- Verify gitleaks Installation
+        run: gitleaks version
+  
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
@@ -94,7 +109,18 @@ jobs:
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           azd provision --no-prompt
 
-        
+      
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: gitleaks-report
+          path: scripts/orchestrators/gitleaks-report.*
+
+      - name: Upload Gitleaks SARIF report to code scanning service
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ./gitleaks-report.sarif
+
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
