@@ -63,7 +63,12 @@ jobs:
           sudo mv gitleaks /usr/local/bin/
 
       - name: Tmp- Verify gitleaks Installation
-        run: gitleaks version
+        run:
+          ls -l /usr/local/bin/gitleaks
+          echo "Checking Gitleaks version"
+          /usr/local/bin/gitleaks version
+          # gitleaks version
+
   
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
