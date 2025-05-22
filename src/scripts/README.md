@@ -1,89 +1,104 @@
 # Power Platform Solution Deployment Script
 
-This script handles the complete deployment workflow for Power Platform solutions, with a focus on initializing connection references and supporting direct integration with Terraform outputs and GitHub federated authentication.
+This script provides a comprehensive workflow for deploying Copilot Studio solutions to a Power Platform environment, with special focus on configuring connection references for Azure AI Search.
 
 ## Overview
 
-The script performs the following steps:
+The script automates the following steps:
 
-1. **Create Settings File** - Generates a settings file based on the solution using `pac solution create-settings`.
-2. **Update Settings File** - Updates the settings file with connection IDs provided as parameters (from Terraform outputs or manual input).
-3. **Import Solution** - Imports the solution with the settings file to initialize connection references.
-4. **Publish Customizations** - Publishes all customizations to activate imported components.
-5. **Run Solution Checker** *(optional)* - Validates the imported solution for any issues.
+1. **Authentication** - Sets up PAC CLI authentication with support for GitHub federated identity
+2. **Solution Connection Setup** - Generates a settings file based on the solution package, then updates the settings file with provided connection IDs 
+3. **Solution Import** - Imports the solution with properly configured connection references
+4. **Publish Customizations** - Activates all components after importing
+5. **Run Solution Checker** - Validates the solution against best practices (optional)
 
 ## Usage
 
 ```powershell
-./deploy_power_platform_solution.ps1 \
-  -SolutionPath "./GoldAgent_1_0_0_1.zip" \
-  -EnvironmentId "your-environment-id" \
-  -AISearchConnectionId "<AI Search Connection ID>" \
+./deploy_power_platform_solution.ps1 `
+  -SolutionPath "path/to/GoldAgent.zip" `
+  -PowerPlatformEnvironmentId "<Power Platform Environment ID>" `
+  -AISearchConnectionId "<AI Search Connection ID>" `
   -UseGithubFederated $true
 ```
 
 ## Parameters
 
-| Parameter              | Required | Default   | Description                                                                 |
-|-----------------------|----------|-----------|-----------------------------------------------------------------------------|
-| SolutionPath          | Yes      |           | Path to the solution zip file to deploy                                     |
-| EnvironmentId         | Yes      |           | ID of the Power Platform environment                                        |
-| AISearchConnectionId  | No       |           | Direct connection ID for the Azure AI Search connector                      |
-| LogDirectory          | No       | ../logs    | Directory where logs will be stored                                         |
-| RunSolutionChecker    | No       | $true     | Whether to run solution checker after deployment                            |
-| UseGithubFederated    | No       | $false    | Use GitHub federated authentication (for GitHub Actions/Workload Identity)  |
+| Parameter | Required | Default | Description |
+|-----------|----------|---------|-------------|
+| SolutionPath | Yes | | Path to the solution zip file to deploy |
+| PowerPlatformEnvironmentId | Yes | | ID of the Power Platform environment |
+| RunSolutionChecker | No | $true | Whether to run solution checker after deployment |
+| AISearchConnectionId | No | "" | Direct connection ID for the Azure AI Search connector |
+| UseGithubFederated | No | $false | Use GitHub federated auth for CI/CD workflows |
 
-## Direct Connection ID Usage
+## Authentication Methods
 
-- **Recommended:** Pass connection ID directly from Terraform outputs using the `-AISearchConnectionId` parameter.
-- This avoids the need to parse connection IDs from state files or perform connection discovery.
-- Example with Terraform outputs:
+The script supports multiple authentication approaches in order of priority:
+
+1. **GitHub Federated Authentication**
+   - Used when `UseGithubFederated` is true and required environment variables are present
+   - Requires environment variables `POWER_PLATFORM_CLIENT_ID` and `POWER_PLATFORM_TENANT_ID`
+   - Ideal for CI/CD pipelines with GitHub Actions workload identity federation
+
+2. **Service Principal Authentication**
+   - Automatically used when these environment variables are set:
+     - `POWER_PLATFORM_CLIENT_ID`
+     - `POWER_PLATFORM_CLIENT_SECRET`
+     - `POWER_PLATFORM_TENANT_ID`
+
+3. **Azure CLI/Interactive Authentication**
+   - Uses existing authenticated PAC CLI profile if available
+   - Creates a new az-cli-auth profile if no active profile exists
+
+## Integration with Terraform
+
+For seamless integration with Terraform-provisioned resources:
 
 ```powershell
 $terraformOutputs = terraform output -json | ConvertFrom-Json
 
-pwsh ./deploy_power_platform_solution.ps1 \
-  -SolutionPath $terraformOutputs.solution_paths.value.original \
-  -EnvironmentId $terraformOutputs.power_platform_environment_id.value \
-  -AISearchConnectionId $terraformOutputs.aisearch_connection_id.value \
-  -UseGithubFederated $true
+./deploy_power_platform_solution.ps1 `
+  -SolutionPath "src/powerplatform/copilot_studio_gold_agent" `
+  -PowerPlatformEnvironmentId $terraformOutputs.power_platform_environment_id.value `
+  -AISearchConnectionId $terraformOutputs.ai_search_connection_id.value
 ```
-
-## GitHub Federated Authentication
-
-- Use the `-UseGithubFederated $true` parameter when running in GitHub Actions with workload identity federation.
-- The script will use the `POWER_PLATFORM_CLIENT_ID` and `POWER_PLATFORM_TENANT_ID` environment variables for authentication.
 
 ## Prerequisites
 
 - PowerShell Core (pwsh) 8.0 or higher
-- Valid Azure and Power Platform credentials
-- [Optional] Terraform for infrastructure provisioning
+- Power Platform CLI (PAC CLI) installed
+- Appropriate permissions:
+  - Power Platform Environment Administrator role or equivalent
+  - Access to create/update connections in the target environment
 
-## Logging
+## Solution Generation Process
 
-- The script creates detailed logs in the specified LogDirectory:
-  ```
-  ../logs/power_platform_deploy_YYYYMMDD_HHMMSS.log
-  ```
+The script automatically:
+
+1. Packages the solution from source directory using `pac solution pack`
+2. Creates a temporary ZIP file in the output directory
+3. Updates connection references in a settings file
+4. Imports and publishes the solution
+5. Cleans up temporary files
 
 ## Troubleshooting
 
-- **Authentication Failures:**
-  - Ensure correct authentication parameters are set.
-  - For GitHub Actions, set `-UseGithubFederated $true` and required environment variables.
-- **Connection Reference Errors:**
-  - Ensure the provided connection IDs are valid and exist in the target environment.
-- **Log Files:**
-  - Review logs for detailed error messages and troubleshooting steps.
+### Common Issues
 
-## Best Practices
+- **Authentication Errors**
+  - Verify your credentials have sufficient permissions
+  - For service principal auth, ensure secret is correct and not expired
+  - For GitHub federated auth, verify workflow permissions are correctly configured
 
-1. Always check the logs after deployment for any warnings or errors.
-2. Use direct connection IDs from Terraform outputs for reliability.
-3. Use solution checker to validate deployments in non-production environments.
-4. When using with Terraform, save outputs to files for easier debugging.
+- **Connection Reference Errors**
+  - Ensure the connection already exists in the target environment
+  - Verify the connection ID is in the correct format
+
+- **Solution Import Failures**
+  - Check that the source directory contains valid solution files
+  - Verify there are no conflicting solutions in the target environment
 
 ---
 
-For more details, see `DIRECT_CONNECTORS.md` and `TERRAFORM_INTEGRATION.md` in this directory.
+For more information on Power Platform solutions deployment, refer to the [Microsoft Power Platform CLI documentation](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction).
