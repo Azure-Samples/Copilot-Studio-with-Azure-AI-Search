@@ -59,15 +59,21 @@ jobs:
       - name: Install Gitleaks using PowerShell
         shell: pwsh
         run: |
-          $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-windows-amd64.exe"
-          $destination = "C:\Program Files\gitleaks.exe"
+          $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_windows_x64.zip"
+          $destination = "$env:USERPROFILE\gitleaks.zip"
           Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination -UseBasicParsing
 
-          
+          # Extract the ZIP file
+          Expand-Archive -Path $destination -DestinationPath "$env:USERPROFILE\gitleaks"
+
+          # Move the executable to Program Files for global access
+          Move-Item -Path "$env:USERPROFILE\gitleaks\gitleaks.exe" -Destination "C:\Program Files\gitleaks.exe"
+
           # Add Gitleaks to system PATH
           [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files", [System.EnvironmentVariableTarget]::Machine)
 
           Write-Output "Gitleaks installed successfully and added to PATH."
+
 
   
       - name: Verify Gitleaks Installation
