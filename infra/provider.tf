@@ -1,5 +1,9 @@
 # Configure desired versions of terraform, azurerm provider
 terraform {
+  backend "azurerm" {
+  }
+}
+terraform {
   required_version = ">= 1.1.7, < 2.0.0"
   required_providers {
     azapi = {
@@ -8,7 +12,7 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.53.1"
+      version = "3.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -16,7 +20,7 @@ terraform {
     }
     modtm = {
       source  = "Azure/modtm"
-      version = "0.3.2"
+      version = "0.3.5"
     }
     powerplatform = {
       source  = "microsoft/power-platform"
@@ -24,7 +28,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.5.1"
+      version = "3.7.2"
     }
     time = {
       source  = "hashicorp/time"
@@ -32,7 +36,7 @@ terraform {
     }
     azurecaf = {
       source  = "aztfmod/azurecaf"
-      version = "1.2.24"
+      version = "1.2.28"
     }
   }
 }
@@ -46,7 +50,13 @@ provider "azurerm" {
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
+
   }
+
+  use_msi = false
+
+  # Keep Azure AD authentication for storage
+  storage_use_azuread = true
 
   # partner_id enables anonymous telemetry that helps us justify ongoing investment in maintaining and improving this template.
   # Keeping this line supports the project and future feature development. To opt out of telemetry, simply remove the line below.
