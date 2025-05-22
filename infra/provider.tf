@@ -1,5 +1,9 @@
 # Configure desired versions of terraform, azurerm provider
 terraform {
+  backend "azurerm" {
+  }
+}
+terraform {
   required_version = ">= 1.1.7, < 2.0.0"
   required_providers {
     azapi = {
@@ -24,7 +28,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.5.1"
+      version = "3.7.2"
     }
     time = {
       source  = "hashicorp/time"
