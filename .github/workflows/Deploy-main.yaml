@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
 
@@ -56,19 +56,23 @@ jobs:
           tflint_version: v0.49.0
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate 
       
-      - name: Install Gitleaks CLI
+      - name: Install Gitleaks using PowerShell
+        shell: pwsh
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
-          chmod +x gitleaks
-          sudo mv gitleaks /usr/local/bin/
+          $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-windows-amd64.exe"
+          $destination = "C:\Program Files\gitleaks.exe"
+          Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination
+          
+          # Add Gitleaks to system PATH
+          [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files", [System.EnvironmentVariableTarget]::Machine)
 
-      - name: Tmp- Verify gitleaks Installation
+          Write-Output "Gitleaks installed successfully and added to PATH."
+
+  
+      - name: Verify Gitleaks Installation
+        shell: pwsh
         run: |
-          ls -l /usr/local/bin/gitleaks
-          echo "Checking Gitleaks version"
-          /usr/local/bin/gitleaks version
-          # gitleaks version
-
+          gitleaks version
   
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
