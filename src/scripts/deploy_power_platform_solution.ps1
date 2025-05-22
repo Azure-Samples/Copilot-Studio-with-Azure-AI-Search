@@ -65,9 +65,9 @@ param (
 $ErrorActionPreference = "Stop"
 
 # Create settings directory for storing solution settings
-$settingsDirectory = "$PSScriptRoot/power_platform_deployment_settings"
-if (!(Test-Path $settingsDirectory)) {
-    New-Item -ItemType Directory -Path $settingsDirectory -Force | Out-Null
+$SettingsDirectory = "$PSScriptRoot/power_platform_deployment_settings"
+if (!(Test-Path $SettingsDirectory)) {
+    New-Item -ItemType Directory -Path $SettingsDirectory -Force | Out-Null
 }
 
 Write-Host "INFO: Starting Power Platform solution deployment"
@@ -76,9 +76,9 @@ Write-Host "INFO: Starting Power Platform solution deployment"
 function Test-PacCliInstalled {
     Write-Host "INFO: Checking if PAC CLI is installed"
     try {
-        $pacVersion = & pac help 2>&1 | Select-String "Microsoft Power Platform CLI"
-        if ($pacVersion) {
-            Write-Host "INFO: Using PAC CLI: $pacVersion"
+        $PacVersion = & pac help 2>&1 | Select-String "Microsoft Power Platform CLI"
+        if ($PacVersion) {
+            Write-Host "INFO: Using PAC CLI: $PacVersion"
             return $true
         } else {
             Write-Error "PAC CLI not detected, please install PAC CLI and run again"
@@ -100,8 +100,7 @@ function Set-PacAuthentication {
     
     Write-Host "INFO: Starting authentication"
 
-    try {
-        # Try Github federated auth first if explicitly requested and environment variables are available
+    try {        # Try GitHub federated auth first if explicitly requested and environment variables are available
         if ($UseGithubFederated -and
             (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
             ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID))) {
@@ -133,22 +132,22 @@ function Set-PacAuthentication {
             & pac auth select --name service-principal-auth
         } else {
             # Try to find active pac CLI auth profile
-            $activeLine = pac auth list | Where-Object { $_ -match '^\[\d+\]\s+\*\s+' }
-            $tokens = $activeLine -split '\s+'
-            $activeName = $tokens[3]
+            $ActiveLine = pac auth list | Where-Object { $_ -match '^\[\d+\]\s+\*\s+' }
+            $Tokens = $ActiveLine -split '\s+'
+            $ActiveName = $Tokens[3]
             
             # If we found an active profile, it's already set - just use it. If not, create a new one.
-            if ([string]::IsNullOrEmpty($activeName)) {
+            if ([string]::IsNullOrEmpty($ActiveName)) {
                 Write-Host "INFO: Creating new az-cli-auth profile"
                 $authOutput = & pac auth create --name az-cli-auth
                 & pac auth select --name az-cli-auth
             } else {
-                Write-Host "INFO: Using existing active auth profile: $activeName"
+                Write-Host "INFO: Using existing active auth profile: $ActiveName"
             }
         }
     }
     catch {
-        Write-Error "PAC authentication failed. PAC auth output: $authOutput"
+        Write-Error "PAC authentication failed. PAC auth output: $AuthOutput"
         exit 1
     }
 }
@@ -225,8 +224,8 @@ function New-SolutionSettingsFile {
                 }
                 
                 # Save the updated settings file
-                $updatedJson = ConvertTo-Json -InputObject $settings -Depth 10
-                Set-Content -Path $SettingsFilePath -Value $updatedJson -Force
+                $UpdatedJson = ConvertTo-Json -InputObject $settings -Depth 10
+                Set-Content -Path $SettingsFilePath -Value $UpdatedJson -Force
                 
                 Write-Host "INFO: Updated settings file saved"
                 return $true
@@ -245,7 +244,7 @@ function New-SolutionSettingsFile {
 
 #region Solution Generation
 # Function to generate solution from source directory
-function Package-Solution {
+function New-PackageSolution {
     param (
         [Parameter(Mandatory = $true)]
         [string]$SourceDirectory,
@@ -269,7 +268,7 @@ function Package-Solution {
     $outputSolutionPath = Join-Path -Path $OutputDirectory -ChildPath $OutputFileName
     
     Write-Host "INFO: Generating solution from source at $SourceDirectory"
-    Write-Host "INFO: Output solution will be at $outputSolutionPath"
+    Write-Host "INFO: Output solution will be at $OutputSolutionPath"
     
     # Check if source directory exists
     if (-not (Test-Path $SourceDirectory)) {
@@ -279,21 +278,21 @@ function Package-Solution {
     
     try {
         # Generate the solution using pac cli
-        $pacOutput = & pac solution pack --zipfile $outputSolutionPath --folder $SourceDirectory --packagetype Unmanaged --clobber 2>&1 | Out-String
+        $PacOutput = & pac solution pack --zipfile $OutputSolutionPath --folder $SourceDirectory --packagetype Unmanaged --clobber 2>&1 | Out-String
 
-        if (-not (Test-Path $outputSolutionPath)) {
-            Write-Error "Solution generation failed. Output file was not created: $outputSolutionPath"
-            Write-Error "PAC output: $pacOutput"
+        if (-not (Test-Path $OutputSolutionPath)) {
+            Write-Error "Solution generation failed. Output file was not created: $OutputSolutionPath"
+            Write-Error "PAC output: $PacOutput"
             exit 1
         }
         
-        Write-Host "INFO: Solution successfully generated at: $outputSolutionPath"
+        Write-Host "INFO: Solution successfully generated at: $OutputSolutionPath"
         
         return $true
     } 
     catch {
         Write-Error "Solution generation failed: $_"
-        Write-Error "PAC output: $pacOutput"
+        Write-Error "PAC output: $PacOutput"
         exit 1
     }
 }
@@ -317,16 +316,16 @@ function Import-PowerPlatformSolution {
     
     try {
         # Execute the import command and capture the output
-        $importResult = & pac solution import --path $SolutionPath --environment $PowerPlatformEnvironmentId --settings-file $SettingsFilePath --force-overwrite 2>&1 | Out-String
+        $ImportResult = & pac solution import --path $SolutionPath --environment $PowerPlatformEnvironmentId --settings-file $SettingsFilePath --force-overwrite 2>&1 | Out-String
 
         Write-Host "INFO: Solution import command completed"
 
-        $listOutput = & pac solution list --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
-        $solutionName = [System.IO.Path]::GetFileNameWithoutExtension($SolutionPath)
+        $ListOutput = & pac solution list --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
+        $SolutionName = [System.IO.Path]::GetFileNameWithoutExtension($SolutionPath)
         
-        Write-Host "INFO: Solution list command completed: $listOutput"
+        Write-Host "INFO: Solution list command completed: $ListOutput"
 
-        if ($listOutput -match $solutionName) {
+        if ($ListOutput -match $solutionName) {
             Write-Host "INFO: Solution import verified successfully - found in environment"
         } else {
             Write-Error "Solution import validation failed - solution not found in environment"
@@ -334,7 +333,7 @@ function Import-PowerPlatformSolution {
         }
     } 
     catch {
-        Write-Error "Solution import failed: $importResult"
+        Write-Error "Solution import failed: $ImportResult"
         exit 1
     }
     
@@ -345,10 +344,10 @@ function Import-PowerPlatformSolution {
     # Publish all customizations
     Write-Host "INFO: Publishing all customizations..."
     try {
-        $publishOutput = & pac solution publish --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
+        $PublishOutput = & pac solution publish --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
           # Check if the output contains failure indicators
-        if (-not ($publishOutput -match "Published All Customizations")) {
-            Write-Error "Solution publish appears to have failed with output: $publishOutput"
+        if (-not ($PublishOutput -match "Published All Customizations")) {
+            Write-Error "Solution publish appears to have failed with output: $PublishOutput"
             exit 1
         }
         
@@ -379,37 +378,37 @@ function Invoke-SolutionChecker {
     
     try {       
         # Run solution checker
-        $checkerOutput = & pac solution check --path $SolutionPath --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
+        $CheckerOutput = & pac solution check --path $SolutionPath --environment $PowerPlatformEnvironmentId 2>&1 | Out-String
         
         # Check if the output contains failure indicators
-        if ($checkerOutput -match "fail|error|exception" -and -not $checkerOutput -match "success") {
-            Write-Host "WARNING: Solution checker appears to have failed with output: $checkerOutput"
+        if ($CheckerOutput -match "fail|error|exception" -and -not $CheckerOutput -match "success") {
+            Write-Host "WARNING: Solution checker appears to have failed with output: $CheckerOutput"
             return $false
         }
         
         # Try to parse the JSON output for more detailed information
         try {
-            $checkerResults = $checkerOutput | ConvertFrom-Json
-            $issueCount = $checkerResults.Issues.Count
+            $CheckerResults = $CheckerOutput | ConvertFrom-Json
+            $IssueCount = $CheckerResults.Issues.Count
             
-            if ($issueCount -gt 0) {
-                Write-Host "WARNING: Solution checker found $issueCount issues"
-                foreach ($issue in $checkerResults.Issues) {
-                    Write-Host "WARNING: Issue: $($issue.Description) - Severity: $($issue.Severity)"
+            if ($IssueCount -gt 0) {
+                Write-Host "WARNING: Solution checker found $IssueCount issues"
+                foreach ($issue in $CheckerResults.Issues) {
+                    Write-Host "WARNING: Issue: $($Issue.Description) - Severity: $($Issue.Severity)"
                 }
             } else {
                 Write-Host "INFO: Solution checker completed with no issues detected"
             }
         } catch {
             # If we can't parse as JSON, just log the raw output
-            Write-Host "WARNING: Solution checker output (could not parse as JSON): $checkerOutput"
+            Write-Host "WARNING: Solution checker output (could not parse as JSON): $CheckerOutput"
         }
         
         return $true
     } 
     catch {
-        $errorMessage = $_.ToString()
-        Write-Error "Solution checker failed: $errorMessage"
+        $ErrorMessage = $_.ToString()
+        Write-Error "Solution checker failed: $ErrorMessage"
         exit 1
     }
 
@@ -449,12 +448,12 @@ if (-not (Test-EnvironmentAccess -PowerPlatformEnvironmentId $PowerPlatformEnvir
 
 # Step 4: Generate the solution from the specified source directory
 # Define source and output paths
-$solutionSourceDirectory = $solutionPath
-$solutionOutputDirectory = "src/powerplatform" # This could eventually be parameterized, but the file is currently transient
-$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$solutionOutputFileName = "GoldAgent.zip" # This could eventually be parameterized, but the file is currently transient
-$OutputSolutionPath = Join-Path $solutionOutputDirectory $solutionOutputFileName
-if (-not (Package-Solution -SourceDirectory $solutionSourceDirectory -OutputDirectory $solutionOutputDirectory -OutputFileName $solutionOutputFileName)) {
+$SolutionSourceDirectory = $SolutionPath
+$SolutionOutputDirectory = "src/powerplatform" # This could eventually be parameterized, but the file is currently transient
+$Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$SolutionOutputFileName = "GoldAgent.zip" # This could eventually be parameterized, but the file is currently transient
+$OutputSolutionPath = Join-Path $SolutionOutputDirectory $SolutionOutputFileName
+if (-not (New-PackageSolution -SourceDirectory $SolutionSourceDirectory -OutputDirectory $SolutionOutputDirectory -OutputFileName $SolutionOutputFileName)) {
     Write-Error "Solution generation failed. Cannot continue."
     exit 1
 }
@@ -463,19 +462,19 @@ if (-not (Package-Solution -SourceDirectory $solutionSourceDirectory -OutputDire
 if ([string]::IsNullOrWhiteSpace($AISearchConnectionId)) {
     Write-Host "WARNING: No specific connection IDs provided."
 }
-$settingsFileName = "solution_settings_$timestamp.json"
-Write-Host "INFO: Create settings file $settingsFileName"
-if (-not (New-SolutionSettingsFile -SolutionPath $OutputSolutionPath -SettingsFileName $settingsFileName -AiSearchConnectionId $AISearchConnectionId)) {
+$SettingsFileName = "solution_settings_$Timestamp.json"
+Write-Host "INFO: Create settings file $SettingsFileName"
+if (-not (New-SolutionSettingsFile -SolutionPath $OutputSolutionPath -SettingsFileName $SettingsFileName -AiSearchConnectionId $AISearchConnectionId)) {
     Write-Error "Solution settings file initialization failed. Cannot continue."
     exit 1
 }
-$settingsFilePath = Join-Path $settingsDirectory $settingsFileName
-Write-Host "INFO: Settings file path: $settingsFilePath"
+$SettingsFilePath = Join-Path $SettingsDirectory $SettingsFileName
+Write-Host "INFO: Settings file path: $SettingsFilePath"
 
 # Step 6: Run solution checker if enabled
 if ($RunSolutionChecker) {
     Write-Host "INFO: RunSolutionChecker is enabled. Running solution checker..."
-    if (-not (Invoke-SolutionChecker -SolutionName $solutionOutputFileName -SolutionPath $OutputSolutionPath -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId)) {
+    if (-not (Invoke-SolutionChecker -SolutionName $SolutionOutputFileName -SolutionPath $OutputSolutionPath -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId)) {
         Write-Host "WARNING: Solution checker encountered issues. Review the logs for details."
     }
 } else {
@@ -483,17 +482,16 @@ if ($RunSolutionChecker) {
 }
 
 # Step 7: Import the solution with settings file
-if (-not (Import-PowerPlatformSolution -SolutionPath $OutputSolutionPath -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId -SettingsFilePath $settingsFilePath)) {
+if (-not (Import-PowerPlatformSolution -SolutionPath $OutputSolutionPath -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId -SettingsFilePath $SettingsFilePath)) {
     Write-Error "Solution import failed. Cannot continue."
     exit 1
 }
 
-
 Write-Host "INFO: Power Platform solution deployment process completed"
 
 # Clean up the settings file
-if (Test-Path $settingsFilePath) {
-    Remove-Item -Path $settingsFilePath -Force
+if (Test-Path $SettingsFilePath) {
+    Remove-Item -Path $SettingsFilePath -Force
     Write-Host "INFO: Cleaned up temporary settings file"
 }
 
