@@ -61,7 +61,8 @@ jobs:
         run: |
           $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-windows-amd64.exe"
           $destination = "C:\Program Files\gitleaks.exe"
-          Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination
+          Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination -UseBasicParsing
+
           
           # Add Gitleaks to system PATH
           [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files", [System.EnvironmentVariableTarget]::Machine)
