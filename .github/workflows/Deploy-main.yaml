@@ -74,7 +74,8 @@ jobs:
           [System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files", [System.EnvironmentVariableTarget]::Machine)
 
           Write-Output "Gitleaks installed successfully and added to PATH."
-
+          Get-Command gitleaks
+          & "C:\Program Files\gitleaks.exe" version
 
   
       - name: Verify Gitleaks Installation
