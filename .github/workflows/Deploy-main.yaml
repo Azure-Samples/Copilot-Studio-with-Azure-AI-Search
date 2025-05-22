@@ -59,9 +59,10 @@ jobs:
       - name: Install Gitleaks using PowerShell
         shell: pwsh
         run: |
-          $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_windows_x64.zip"
           $destination = "$env:USERPROFILE\gitleaks.zip"
-          Invoke-WebRequest -Uri $gitleaksUrl -OutFile $destination -UseBasicParsing
+          $latestVersion = "8.26.0"  # Replace with the latest version from GitHub
+          $gitleaksUrl = "https://github.com/gitleaks/gitleaks/releases/download/v$latestVersion/gitleaks_${latestVersion}_windows_x64.zip"
+          Invoke-WebRequest -Uri $gitleaksUrl -OutFile "$env:USERPROFILE\gitleaks.zip" -UseBasicParsing
 
           # Extract the ZIP file
           Expand-Archive -Path $destination -DestinationPath "$env:USERPROFILE\gitleaks"
