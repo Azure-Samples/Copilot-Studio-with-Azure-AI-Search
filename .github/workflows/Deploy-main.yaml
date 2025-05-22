@@ -66,7 +66,6 @@ jobs:
           # Define installation paths
           $destination = "$env:USERPROFILE\gitleaks.zip"
           $extractPath = "$env:USERPROFILE\gitleaks"
-          # Invoke-WebRequest -Uri $gitleaksUrl -OutFile "$env:USERPROFILE\gitleaks.zip" -UseBasicParsing
           
 
           # Extract the ZIP file
@@ -79,6 +78,13 @@ jobs:
 
           # Confirm installation
           Write-Output "Gitleaks installed successfully and added to PATH."
+          if (Get-Command gitleaks -ErrorAction SilentlyContinue) {
+          Write-Output "Gitleaks installed successfully and accessible."
+          } else {
+              Write-Error "Gitleaks installation failed or is not in PATH."
+              exit 1
+          }
+
           gitleaks version
 
           
