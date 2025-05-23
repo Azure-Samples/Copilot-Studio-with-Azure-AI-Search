@@ -1,0 +1,83 @@
+{
+    "name": "<skillset_name>",
+    "description": "Skillset to chunk documents and generate embeddings",
+    "skills": [
+        {
+            "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+            "name": "chunker",
+            "textSplitMode": "pages",
+            "description": null,
+            "context": "/document",
+            "inputs": [
+                {
+                    "name": "text",
+                    "source": "/document/content"
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "textItems",
+                    "targetName": "chunks"
+                }
+            ],
+            "maxChunkSize": 512,
+            "maxChunkCount": 1000
+        },
+        {
+            "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
+            "name": "openAIEmbedding",
+            "description": "Generate embeddings using OpenAI",
+            "resourceUri": "<open_ai_uri>",
+            "modelName": "text-embedding-3-large",
+            "deploymentId": "text-embedding-3-large",
+            "context": "/document/chunks/*",
+            "inputs": [
+            {
+              "name": "text",
+              "source": "/document/chunks/*"
+            }
+            ],
+            "outputs": [
+            {
+              "name": "embedding",
+              "targetName": "embedding"
+            }
+            ]
+        }
+    ],
+    "cognitiveServices": null,
+    "knowledgeStore": null,
+    "indexProjections": {
+      "selectors": [
+        {
+          "targetIndexName": "<search_index_name>",
+          "parentKeyFieldName": "parent_id",
+          "sourceContext": "/document/chunks/*",
+          "mappings": [
+            {
+              "name": "chunk",
+              "source": "/document/chunks/*",
+              "sourceContext": null,
+              "inputs": []
+            },
+            {
+              "name": "text_vector",
+              "source": "/document/chunks/*/embedding",
+              "sourceContext": null,
+              "inputs": []
+            },
+            {
+              "name": "title",
+              "source": "/document/metadata_storage_name",
+              "sourceContext": null,
+              "inputs": []
+            }
+          ]
+        }
+      ],
+      "parameters": {
+        "projectionMode": "skipIndexingParentDocuments"
+      }
+    },
+    "encryptionKey": null
+  }
