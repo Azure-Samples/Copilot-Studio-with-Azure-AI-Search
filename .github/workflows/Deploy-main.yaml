@@ -30,6 +30,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
+      AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
+    
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
 
@@ -83,8 +87,6 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  || 'eastus' }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
@@ -136,8 +138,6 @@ jobs:
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
-          AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
-          AZURE_LOCATION: ${{ github.event.inputs.azure_location  || 'eastus' }}
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
