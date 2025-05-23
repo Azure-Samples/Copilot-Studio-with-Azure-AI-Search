@@ -1,0 +1,2 @@
+azure-identity>=1.16.1
+azure-search-documents==11.6.0b5
