@@ -5,17 +5,15 @@ metadata:
 infra:
   provider: terraform
 hooks:
-  # preprovision:
-    # Single shell
-    # shell: pwsh
-    # continueOnError: false
-    # interactive: false
-    # run: azd-hooks/preprovision.ps1
   preprovision:
     - shell: pwsh
       continueOnError: false
       interactive: false
       run: azd-hooks/scripts/hooks/preprovision/run_gitleaks.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_checkov.ps1
     - shell: pwsh
       continueOnError: false
       interactive: false

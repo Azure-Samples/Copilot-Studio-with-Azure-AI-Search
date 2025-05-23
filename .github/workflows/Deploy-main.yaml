@@ -61,7 +61,15 @@ jobs:
           rm gitleaks.tar.gz
           gitleaks version
 
-  
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install Checkov
+        run: pip install checkov
+
+          
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
@@ -110,14 +118,21 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: gitleaks-report
-          path: scripts/orchestrators/gitleaks-report.*
+          name: sarif-reports
+          path: |
+            ./gitleaks-report.sarif
+            ./checkov-results.sarif/results_sarif.sarif
 
-      - name: Upload Gitleaks SARIF report to code scanning service
+      - name: Upload Gitleaks SARIF report to Github
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ./gitleaks-report.sarif
-
+      
+      - name: Upload Checkov SARIF Report to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ./checkov-results.sarif/results_sarif.sarif
+  
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
