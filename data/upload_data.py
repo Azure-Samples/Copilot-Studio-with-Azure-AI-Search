@@ -92,7 +92,7 @@ def main():
 
     # Validate storage account name
     if not args.storage_name.islower() or not args.storage_name.isalnum():
-        raise ValueError("Storage account name must be a lowercase string with letters only.")
+        raise ValueError("Storage account name must be a lowercase alphanumeric string (letters and digits).")
 
     # Using default Azure credentials assuming that it has all needed permissions
     logger.info("Authenticate code into Azure using default credentials.")
