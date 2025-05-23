@@ -91,7 +91,7 @@ def main():
     args = parser.parse_args()
 
     # Validate storage account name
-    if not args.storage_name.islower() or not args.storage_name.isalpha():
+    if not args.storage_name.islower() or not args.storage_name.isalnum():
         raise ValueError("Storage account name must be a lowercase string with letters only.")
 
     # Using default Azure credentials assuming that it has all needed permissions
