@@ -100,7 +100,7 @@ def main():
 
 
     # Create the full document index
-    logger.info("Uploading process has been stated.")
+    logger.info("Uploading process has been started.")
     upload_data_files(
         credential=credential,
         storage_account_name=args.storage_name,
