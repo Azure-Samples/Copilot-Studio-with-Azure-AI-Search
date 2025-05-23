@@ -1,0 +1,28 @@
+{
+    "name": "<search_indexer_name>",
+    "description": null,
+    "dataSourceName": "<data_source_name>",
+    "skillsetName": "<skillset_name>",
+    "targetIndexName": "<search_index_name>",
+    "disabled": null,
+    "schedule": null,
+    "parameters": {
+        "batchSize": null,
+        "maxFailedItems": null,
+        "maxFailedItemsPerBatch": null,
+        "base64EncodeKeys": null,
+        "configuration": {
+            "dataToExtract": "contentAndMetadata",
+            "parsingMode": "default"
+        }
+    },
+    "fieldMappings": [
+        {
+            "sourceFieldName": "metadata_storage_name",
+            "targetFieldName": "title",
+            "mappingFunction": null
+        }
+    ],
+    "outputFieldMappings": [],
+    "encryptionKey": null
+}
