@@ -30,10 +30,16 @@
                 "golang.go",
                 "azapi-vscode.azapi",
                 "ms-azuretools.vscode-azureterraform",
+                "terraform-linters.tflint-vscode",
                 "microsoft-IsvExpTools.powerplatform-vscode"
                 // Include other VSCode extensions if needed
                 // Right click on an extension inside VSCode to add directly to devcontainer.json, or copy the extension ID
-            ]
+            ],
+            "settings": {
+                "terraform.languageServer.enable":true,
+                "tflint.enable": true,
+                "tflint.validateOnSave": true
+            }
         }
     },
     "forwardPorts": [
@@ -41,7 +47,15 @@
     ],
     "containerEnv": {
         "POWER_PLATFORM_USE_CLI": "true",
-    },    "postCreateCommand": "pip install --upgrade pip && pip install checkov && dotnet tool install --global Microsoft.PowerApps.CLI.Tool",// && sudo apt-get update && sudo apt-get install -y libsecret-1-0 libsecret-1-dev",
+    },    
+    "postCreateCommand": [
+        "pip install --upgrade pip",
+        "pip install checkov",
+        "dotnet tool install --global Microsoft.PowerApps.CLI.Tool",
+        "bash -c 'curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash'",
+        "bash -c 'mkdir -p ~/.tflint.d/plugins'",
+        "tflint --init"    
+    ],
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "8gb"
