@@ -31,7 +31,8 @@
                 "azapi-vscode.azapi",
                 "ms-azuretools.vscode-azureterraform",
                 "terraform-linters.tflint-vscode",
-                "microsoft-IsvExpTools.powerplatform-vscode"
+                "microsoft-IsvExpTools.powerplatform-vscode",
+                "ms-vscode.azurecli"
                 // Include other VSCode extensions if needed
                 // Right click on an extension inside VSCode to add directly to devcontainer.json, or copy the extension ID
             ],
