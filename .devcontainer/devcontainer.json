@@ -49,7 +49,7 @@
     "containerEnv": {
         "POWER_PLATFORM_USE_CLI": "true",
     },    
-    "postCreateCommand": "pip install --upgrade pip && pip install checkov && dotnet tool install --global Microsoft.PowerApps.CLI.Tool && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash && mkdir -p ~/.tflint.d/plugins && tflint --init",
+    "postCreateCommand": "pip install --upgrade pip && pip install checkov && dotnet tool install --global Microsoft.PowerApps.CLI.Tool && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash && mkdir -p ~/.tflint.d/plugins && tflint --init && curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh -s -- -b /usr/local/bin",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "8gb"
