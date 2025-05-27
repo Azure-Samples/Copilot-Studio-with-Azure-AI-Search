@@ -1,5 +1,9 @@
 # Configure desired versions of terraform, azurerm provider
 terraform {
+  backend "azurerm" {
+  }
+}
+terraform {
   required_version = ">= 1.1.7, < 2.0.0"
   required_providers {
     azapi = {
@@ -8,7 +12,7 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "2.53.1"
+      version = "3.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -16,7 +20,7 @@ terraform {
     }
     modtm = {
       source  = "Azure/modtm"
-      version = "0.3.2"
+      version = "~> 0.3.2"
     }
     powerplatform = {
       source  = "microsoft/power-platform"
@@ -24,7 +28,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.5.1"
+      version = "~> 3.5.1"
     }
     time = {
       source  = "hashicorp/time"
@@ -32,7 +36,7 @@ terraform {
     }
     azurecaf = {
       source  = "aztfmod/azurecaf"
-      version = "1.2.24"
+      version = "1.2.28"
     }
   }
 }
