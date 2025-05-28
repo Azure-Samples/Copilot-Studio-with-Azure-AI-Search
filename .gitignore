@@ -444,3 +444,9 @@ terraform.rc
 
 # Checkov reports
 checkov_report.*
+
+# Gitleaks
+gitleaks-detect-*.json
+gitleaks
+gitleaks.tar.gz
+LICENSE
