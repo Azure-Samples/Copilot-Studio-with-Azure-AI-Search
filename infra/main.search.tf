@@ -3,13 +3,13 @@ locals {
 }
 
 resource "azurerm_search_service" "ai_search" {
-  location                      = var.primary_location
   name                          = local.search_name
+  location                      = var.primary_location
   resource_group_name           = azurerm_resource_group.this.name
-  sku                           = "basic"
-  partition_count               = 1
-  public_network_access_enabled = false
-  replica_count                 = 1
+  sku                           = var.ai_search_config.sku
+  partition_count               = var.ai_search_config.partition_count
+  public_network_access_enabled = var.ai_search_config.public_network_access_enabled
+  replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
 
   identity {
