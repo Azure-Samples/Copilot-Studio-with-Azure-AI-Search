@@ -14,6 +14,9 @@ The script automates the following steps:
 
 ## Usage
 
+**This script is automatically executed when the end-to-end solution is deployed using azd.** The details below are intended for use in troubleshooting and investigating functionality.
+
+
 ```powershell
 ./deploy_power_platform_solution.ps1 `
   -SolutionPath "path/to/GoldAgent.zip" `
