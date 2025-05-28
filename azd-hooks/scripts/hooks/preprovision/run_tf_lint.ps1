@@ -55,7 +55,7 @@ function Run-TFLint {
         exit $code
     }
 }
-# First, check if Gitleaks is installed
+# First, check if TFLint is installed
 Check-TFLint
 
 # Then, run Gitleaks scan

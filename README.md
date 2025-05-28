@@ -135,6 +135,14 @@ This solution can be executed using either a **Service Principal** or a **User A
 
     # Create blob container
     az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+
+    # Assign Data Contributor role for the container
+    az role assignment create \
+    --role "Storage Blob Data Contributor" \
+    --assignee-object-id $OBJECT_ID \
+    --assignee-principal-type $PRINCIPAL_TYPE \
+    --scope "/subscriptions/$SUBSCRIPTION_ID$/resourceGroups/$RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/$CONTAINER_NAME$/blobServices/default/containers/$CONTAINER_NAME"
+
     ```
 
 6. Set the remote state configurations
