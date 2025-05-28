@@ -114,6 +114,9 @@ This solution can be executed using either a **Service Principal** or a **User A
       ```
     - **Service Principal**: Run the following command to log in using a service principal:
       ```bash
+      # Set auth.useAzCliAuth to false to allow direct service principal authentication
+      azd config set auth.useAzCliAuth "false"
+      # Use azd auth login with service principal credentials
       azd auth login --client-id "<your client id>" --client-secret "<your client secret>" --tenant-id "<your tenant id>"
       ```
 
