@@ -54,6 +54,11 @@ jobs:
         with:
           terraform_version: 1.9.0
 
+      - name: Install PAC CLI
+        run: |
+          curl -sL https://aka.ms/pac-cli-install | bash
+          pac --version
+
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
