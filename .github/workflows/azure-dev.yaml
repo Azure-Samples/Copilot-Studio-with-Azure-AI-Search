@@ -44,16 +44,36 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@v2
 
-      - name: Install Nodejs
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
       
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
+      
+      - name: Install TFLint
+        uses: terraform-linters/setup-tflint@v3
+        with:
+          tflint_version: v0.49.0
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate 
+      
+      - name: Install GitLeaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.17.0/gitleaks_8.17.0_linux_x64.tar.gz -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          rm gitleaks.tar.gz
+          gitleaks version
 
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install Checkov
+        run: pip install checkov
+
+          
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
@@ -96,7 +116,25 @@ jobs:
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           azd provision --no-prompt
 
-        
+      
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: sarif-reports
+          path: |
+            ./gitleaks-report.sarif
+            ./checkov-results.sarif/results_sarif.sarif
+
+      - name: Upload Gitleaks SARIF report to Github
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ./gitleaks-report.sarif
+      
+      - name: Upload Checkov SARIF Report to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ./checkov-results.sarif/results_sarif.sarif
+  
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
