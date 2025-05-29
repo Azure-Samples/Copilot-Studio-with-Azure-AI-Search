@@ -43,6 +43,7 @@ function Run-Gitleaks {
         "--report-path", "./gitleaks-report.$ReportFormat"
         "--report-format", "$ReportFormat"
         "--log-level", "$LogLevel"
+        "--log-opts", "main..${CI_COMMIT_BRANCH}"
     )
 
     if ($Redact) { $cmdOptions += "--redact" }
