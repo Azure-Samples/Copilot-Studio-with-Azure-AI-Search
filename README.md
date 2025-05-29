@@ -66,7 +66,7 @@ To use this example, you must complete the following prerequisites:
 - The interactive user needs licenses assigned for Microsoft Power Apps, Power Automate, and Copilot Studio in the M365 Admin Center.
 - Ensure that the shell you use to access the example has azd installed, and if not, follow the [instructions to install azd](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows).
 - Update the following Power Platform tenant settings to enable Copilot features: Copilot in Power Apps; Publish Copilots with AI features.
-- This template leverages [Azure Developer CLI hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility) to enhance AZD commands by enabling additional configurations through PowerShell. For non-Windows operating systems, ensure that PowerShell 7 (pwsh) is installed to support these extensions effectively.
+- This template leverages [Azure Developer CLI hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility) to enhance AZD commands by enabling additional configurations through PowerShell. For non-Windows operating systems, ensure that PowerShell 7 is installed to support these extensions effectively.
 
 ### Quickstart
 
@@ -74,18 +74,16 @@ To use this example, you must complete the following prerequisites:
 
 This solution can be executed using either a **Service Principal** or a **User Account**. Follow the steps below, switching between the appropriate authentication options where indicated. _Note: there are currently [known issues](https://github.com/microsoft/terraform-provider-power-platform/issues/283) initializing Power Platform connections with user-based authentication._
 
-1. Clone this repository and open the root directory in your terminal.
-
-1. Initialize the Azure Developer CLI (azd) environment:
+1. To set up a local clone of this template, run the following command. Follow the steps to configure an Azure Developer CLI (azd) environment. Choose a descriptive name for your azd environment, as it will be used throughout this example.
     ```bash
-    azd env new "ENV_NAME"
+    azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
     ```
-   Pick a meaningful name for your azd environment as you will be working with it throughout this example.
-1. Set a value for the interactive user who should be able to access the solution resources. Note that this step is optional when running with a user account, but it is strongly encouraged when running with a service principal, as it exposes resource visibility to the specified interactive user.
+   
+2. Set a value for the interactive user who should be able to access the solution resources. Note that this step is optional when running with a user account, but it is strongly encouraged when running with a service principal, as it exposes resource visibility to the specified interactive user.
     ```bash
-    azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
+      azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
     ```
-1. Authentication:
+3. Authentication:
     - **User Account**: Run the following commands to log in using your user account:
       ```bash
       az login
@@ -105,17 +103,54 @@ This solution can be executed using either a **Service Principal** or a **User A
       export "POWER_PLATFORM_USE_CLI"="false"
       ```
 
-1. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not used in the default solution configuration. If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
+4. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not used in the default solution configuration. If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
     - **User Account**: Run the following command to log in with interactive authentication:
       ```bash
       azd auth login
       ```
     - **Service Principal**: Run the following command to log in using a service principal:
       ```bash
+      # Set auth.useAzCliAuth to false to allow direct service principal authentication
+      azd config set auth.useAzCliAuth "false"
+      # Use azd auth login with service principal credentials
       azd auth login --client-id "<your client id>" --client-secret "<your client secret>" --tenant-id "<your tenant id>"
       ```
 
-1. Deploy the solution using the command below. This will create a new resource group in your Azure subscription and deploy the resources defined in the `infra` directory.
+5. This template sets up the Terraform backend to use the [AzureRM backend](https://developer.hashicorp.com/terraform/language/backend/azurerm), enabling remote state storage within an Azure Storage account Blob container. You can either create a new storage account with a container using the below provided script or skip this step if you already have an existing storage account and container to use.
+
+    ```bash
+    #!/bin/bash
+
+    RESOURCE_GROUP_NAME=<RG_NAME>
+    LOCATION=<LOCATION>
+    STORAGE_ACCOUNT_NAME=<ACCOUNT_NAME>
+    CONTAINER_NAME=<CONTAINER_NAME>
+
+    # Create resource group
+    az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
+
+    # Create storage account
+    az storage account create --resource-group $RESOURCE_GROUP_NAME --name $STORAGE_ACCOUNT_NAME --sku Standard_LRS --encryption-services blob
+
+    # Create blob container
+    az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
+
+    # Assign Data Contributor role for the container
+    az role assignment create \
+    --role "Storage Blob Data Contributor" \
+    --assignee-object-id $OBJECT_ID \
+    --assignee-principal-type $PRINCIPAL_TYPE \
+    --scope "/subscriptions/$SUBSCRIPTION_ID$/resourceGroups/$RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/$CONTAINER_NAME$/blobServices/default/containers/$CONTAINER_NAME"
+
+    ```
+
+6. Set the remote state configurations
+   ``` bash
+   azd env set RS_STORAGE_ACCOUNT <STORAGE_ACCOUNT_NAME>
+   azd env set RS_CONTAINER_NAME <CONTAINER_NAME>
+   azd env set RS_RESOURCE_GROUP <RESOURCE_GROUP_NAME>
+   ```
+7. Deploy the solution using the command below. This will create a new resource group in your Azure subscription and deploy the resources defined in the `infra` directory.
     ```bash
     azd up
     ```
@@ -131,6 +166,13 @@ To run the demo, follow these steps:
 1.
 2.
 3.
+
+## Workflows
+A mature workflow for a solution not only automates the deployment of the IAC resources, and the application but also incorporates engineering fundamentals, resources validation, dependency management, test execution, security scanning, and more.
+
+This template leverages [Azure Developer CLI Hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility) to seamlessly integrate [TFLint](https://github.com/terraform-linters/tflint), [Checkov](https://www.checkov.io/), and [Gitleaks](https://github.com/gitleaks/gitleaks) into both Dev loop and deployment workflow. These tools run automatically before executing the azd up command, ensuring security, compliance, and best practices are validated prior to deploying the solution.
+
+The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml), utilizes Federated credentials to ensure secure authentication.
 
 ## Resources
 

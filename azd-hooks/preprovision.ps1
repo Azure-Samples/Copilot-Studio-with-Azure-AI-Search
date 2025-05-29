@@ -1,1 +1,0 @@
-Write-Host "Execute Pre-Provision Hook"

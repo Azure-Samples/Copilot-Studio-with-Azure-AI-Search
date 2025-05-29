@@ -6,33 +6,41 @@ infra:
   provider: terraform
 hooks:
   preprovision:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/preprovision.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_gitleaks.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_checkov.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_tf_lint.ps1
   postprovision:
     shell: pwsh
     continueOnError: false
     interactive: false
     run: 
-      src/scripts/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/Copilot_Studio_Gold_Agent" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id
+      azd-hooks/scripts/hooks/postprovision/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/Copilot_Studio_Gold_Agent" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id
   predeploy:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/predeploy.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/predeploy/predeploy.ps1
   postdeploy:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/postdeploy.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/postdeploy/postdeploy.ps1
   prepackage:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/prepackage.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/prepackage/prepackage.ps1
   postpackage:
-    shell: pwsh
-    continueOnError: false
-    interactive: false
-    run: azd-hooks/postpackage.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/postpackage/postpackage.ps1

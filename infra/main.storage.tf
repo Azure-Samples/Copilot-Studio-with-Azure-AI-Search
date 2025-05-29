@@ -1,8 +1,7 @@
 module "storage_account_and_container" {
-
-  source  = "Azure/avm-res-storage-storageaccount/azurerm"
-  version = "~> 0.5"
-
+  # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
+  source                          = "Azure/avm-res-storage-storageaccount/azurerm"
+  version                         = "0.6.2"
   account_replication_type        = var.cps_storage_replication_type
   account_tier                    = "Standard"
   account_kind                    = "StorageV2"

@@ -1,4 +1,5 @@
 module "primary_virtual_network" {
+  # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source              = "Azure/avm-res-network-virtualnetwork/azurerm"
   version             = "0.8.1"
   resource_group_name = azurerm_resource_group.this.name
@@ -14,8 +15,7 @@ module "primary_virtual_network" {
             name    = "Microsoft.PowerPlatform/enterprisePolicies"
             actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
           }
-          }
-        ]
+        }]
         nat_gateway = {
           id = azurerm_nat_gateway.nat_gateways["primary"].id
         }
@@ -38,6 +38,7 @@ module "primary_virtual_network" {
 }
 
 module "failover_virtual_network" {
+  # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source              = "Azure/avm-res-network-virtualnetwork/azurerm"
   version             = "0.8.1"
   resource_group_name = azurerm_resource_group.this.name
