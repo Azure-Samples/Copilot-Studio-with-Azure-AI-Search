@@ -73,7 +73,6 @@ jobs:
       - name: Install Power Platform CLI
         run: |
           dotnet tool install --global Microsoft.PowerApps.CLI.Tool
-          pac --version
 
       - name: Set Up Python
         uses: actions/setup-python@v4
