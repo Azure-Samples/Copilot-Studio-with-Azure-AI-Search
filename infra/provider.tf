@@ -20,7 +20,7 @@ terraform {
     }
     modtm = {
       source  = "Azure/modtm"
-      version = "0.3.5"
+      version = "~> 0.3.2"
     }
     powerplatform = {
       source  = "microsoft/power-platform"
@@ -28,7 +28,7 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.7.2"
+      version = "~> 3.5.1"
     }
     time = {
       source  = "hashicorp/time"
@@ -52,8 +52,6 @@ provider "azurerm" {
     }
 
   }
-
-  use_msi = false
 
   # Keep Azure AD authentication for storage
   storage_use_azuread = true

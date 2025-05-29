@@ -442,5 +442,14 @@ terraform.rc
 *.out
 /test-logs/
 
-# Checkov reports
-checkov_report.*
+# Checkov & Gitleaks reports
+*.sarif
+
+# Lint results 
+infra_lint_res.xml
+
+# Gitleaks
+gitleaks-detect-*.json
+gitleaks
+gitleaks.tar.gz
+LICENSE
