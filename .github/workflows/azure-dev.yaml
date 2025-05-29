@@ -65,9 +65,14 @@ jobs:
           rm gitleaks.tar.gz
           gitleaks version
 
-      - name: Install PAC CLI
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Power Platform CLI
         run: |
-          curl -sL https://aka.ms/pac-cli-install | bash
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
           pac --version
 
       - name: Set Up Python
