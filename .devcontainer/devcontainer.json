@@ -5,7 +5,6 @@
         // See https://containers.dev/features for list of features
         "ghcr.io/devcontainers/features/python:1" : {},
         "ghcr.io/devcontainers/features/powershell:1": {},
-        "ghcr.io/devcontainers/features/powershell:1": {},
         "ghcr.io/devcontainers/features/azure-cli:1": {},
         "ghcr.io/devcontainers/features/docker-in-docker:2": {},
         "ghcr.io/devcontainers/features/terraform:1": {
