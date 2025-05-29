@@ -15,5 +15,5 @@ output "power_platform_environment_id" {
 
 output "aisearch_connection_id" {
   description = "The ID of the AI Search connector in Power Platform"
-  value       = try(module.copilot_studio.power_platform_connections["shared_azureaisearch"].id, null)
+  value       = powerplatform_connection.ai_search_connection.id
 }
