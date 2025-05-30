@@ -453,3 +453,23 @@ gitleaks-detect-*.json
 gitleaks
 gitleaks.tar.gz
 LICENSE
+gitleaks-report.json
+
+# Archive and compressed files
+*.tar.gz
+*.tar
+*.zip
+*.gz
+
+# Installation and executable files
+*.msi
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Local and sensitive files
+*.log
+*.tfstate
+*.vscode
+*.env
