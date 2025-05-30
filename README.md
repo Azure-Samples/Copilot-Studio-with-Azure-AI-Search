@@ -119,20 +119,21 @@ will be created:
 1. Update the Power Platform tenant settings to enable Copilot features:
    - Copilot in Power Apps
    - Publish Copilots with AI features
-1. Install required tools:
+1. Install Required Tools:
    - Using **Dev Container** (Recommended):
      - Rebuild and reopen the project in the development container environment.
    - Without Dev Container:
-     - Ensure your shell environment has the **Azure Developer CLI (azd)** installed. If not,
-     follow the
-     [installation guide](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows).
-     - For non-Windows systems, ensure **PowerShell 7 (pwsh)** is installed to support
-    [AZD hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility).
-    This template leverages AZD hooks to enhance azd commands via PowerShell scripts.
+     - Install the following tools manually:
+       - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows)
+       - [PowerShell 7 (For non-Windows systems)](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.5)
+       - [terraform](https://developer.hashicorp.com/terraform)
+       - [tflint](https://github.com/terraform-linters/tflint)
+       - [gitleaks](https://github.com/gitleaks/gitleaks)
+       - [PAC CLI](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction?tabs=windows)
 
 ### Quickstart
 
-### Deployment Instructions
+#### Deployment Instructions
 
 This solution must be deployed using a **Service Principal**. Follow the steps below, switching
 between authentication options as noted.
@@ -159,24 +160,35 @@ service principal approach is recommended._
     azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
     ```
 
-3. Run the following commands to log in using a service principal:
+3. **Authentication**:
 
-    ```bash
-    export ARM_TENANT_ID="<your tenant ID here>"
-    export ARM_CLIENT_ID="<your service principal's client ID here>"
-    export ARM_CLIENT_SECRET="<your service principal's client secret here>"
-    export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
+    - **Service Principal**: Run the following commands to log in using a service principal:
 
-    export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
-    export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
-    export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
-    export POWER_PLATFORM_USE_CLI="false"
-    export ARM_USE_AZUREAD="true"
-    ```
+      ```bash
+      export ARM_TENANT_ID="<your tenant ID here>"
+      export ARM_CLIENT_ID="<your service principal's client ID here>"
+      export ARM_CLIENT_SECRET="<your service principal's client secret here>"
+      export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
+
+      export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
+      export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
+      export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
+      export POWER_PLATFORM_USE_CLI="false"
+      export ARM_USE_AZUREAD="true"
+      ```
+
+    - **User Account (Not recommended)**: Run the following commands to log in using your user account:
+
+      ```bash
+      az login
+      azd config set auth.useAzCliAuth "true"
+      azd env set POWER_PLATFORM_USE_CLI "true"
+      ```
 
 4. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not
   used in the default solution configuration. If prompted to select an Azure region, consider using
   East US, as other regions may have compatibility issues.
+
     - **Service Principal**: Run the following command to log in using a service principal:
 
       ```bash
@@ -190,7 +202,7 @@ service principal approach is recommended._
         --tenant-id "<your tenant id>"
       ```
 
-    - **User Account** (Not recommended): Run the following command to log in with interactive
+    - **User Account (Not recommended)**: Run the following command to log in with interactive
     authentication:
 
       ```bash
@@ -279,6 +291,12 @@ The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml)
 credentials to ensure secure authentication.
 
 ### Set Up Federated Identity Credential in Azure
+
+Before setting up a federated identity credential in Azure, it’s useful to understand how workload
+identity federation works. For a detailed explanation, refer to the official
+[Microsoft documentation on federated credentials](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation).
+
+To set up a federated identity credential in Azure, follow these steps:
 
 1. Navigate to **Azure Portal** → **App registrations** → select your app registration.
 1. Under **Certificates & Secrets**, click **Federated credentials** → **Add credential**.
