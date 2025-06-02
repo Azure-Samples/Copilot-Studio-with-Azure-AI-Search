@@ -35,6 +35,22 @@ function Run-Gitleaks {
 
     $SourcePath = (Get-Location)
 
+    # Get current git branch
+    $currentBranch = $null
+    try {
+        Write-Host "Getting current git branch..."
+        $currentBranch = git branch --show-current
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Failed to get git branch, defaulting to 'unknown'"
+            $currentBranch = "unknown"
+        } else {
+            Write-Host "Current git branch: $currentBranch"
+        }
+    } catch {
+        Write-Warning "Error getting git branch: $_"
+        $currentBranch = "unknown"
+    }
+
     # Construct command options as an array
     $cmdOptions = @(
         "detect"
@@ -43,7 +59,7 @@ function Run-Gitleaks {
         "--report-path", "./gitleaks-report.$ReportFormat"
         "--report-format", "$ReportFormat"
         "--log-level", "$LogLevel"
-        "--log-opts", "${CI_COMMIT_BRANCH}"
+        "--log-opts", "$currentBranch"
     )
 
     if ($Redact) { $cmdOptions += "--redact" }
