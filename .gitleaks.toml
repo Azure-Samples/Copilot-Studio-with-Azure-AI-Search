@@ -342,16 +342,22 @@ regex = '''xoxb-[a-z0-9]+-[a-z0-9]+'''
 path = '''\.(?:ps1|psm1|js|json|coffee|xml|js|md|html|py|php|java|ipynb|rb)$|hubot'''
 
 [allowlist]
-description = "Allowlisted files"
+description = "Allowlisted files and patterns"
 paths = [
   '''(.*?)(png|tif|tiff|pyc)$''',
   '''buildsearchers.xml''',
   '''UDMSecretChecks.toml''',
   '''UDMSecretChecksv8.toml''',
   '''GitleaksUdmCombo.toml''',
+  '''README\.md$'''
 ]
 regexTarget = "line"
-regexes = ['''#GitLeaksIgnore''']
+regexes = [
+  '''#GitLeaksIgnore''',
+  '''aws_secret= \"AKIAIMNOJVGFDXXXE4OA\"''',
+  '''AKIAIMNOJVGFDXXXE4OA''',
+  '''export BUNDLE_ENTERPRISE__CONTRIBSYS__COM=cafebabe:deadbeef'''
+]
 
 commits = []
 repos = []

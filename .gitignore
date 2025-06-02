@@ -452,4 +452,5 @@ infra_lint_res.xml
 gitleaks-detect-*.json
 gitleaks
 gitleaks.tar.gz
+gitleaks_findings.json
 LICENSE
