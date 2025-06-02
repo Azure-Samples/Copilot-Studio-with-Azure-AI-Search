@@ -130,6 +130,7 @@ will be created:
        - [tflint](https://github.com/terraform-linters/tflint)
        - [gitleaks](https://github.com/gitleaks/gitleaks)
        - [PAC CLI](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction?tabs=windows)
+       - [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ### Quickstart
 
