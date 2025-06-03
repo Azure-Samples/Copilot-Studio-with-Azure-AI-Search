@@ -2,6 +2,7 @@ locals {
   search_name = replace("ais${random_string.name.id}", "/[^a-z0-9-]/", "")
 }
 
+# checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production use.
 resource "azurerm_search_service" "ai_search" {
   name                          = local.search_name
   location                      = var.primary_location
@@ -23,11 +24,11 @@ resource "azurerm_private_endpoint" "private_endpoints" {
   for_each = {
     primary = {
       location = azurerm_search_service.ai_search.location
-      subnet   = module.primary_virtual_network.subnets["ai-search-primary-subnet"].resource.id
+      subnet   = azurerm_subnet.pe_primary_subnet.id
     }
     failover = {
-      location = module.failover_virtual_network.resource.location
-      subnet   = module.failover_virtual_network.subnets["ai-search-failover-subnet"].resource.id
+      location = azurerm_virtual_network.failover_virtual_network.location
+      subnet   = azurerm_subnet.pe_failover_subnet.id
     }
   }
 
@@ -54,8 +55,8 @@ resource "azurerm_private_dns_zone" "aisearch_dns" {
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_links" {
   for_each = {
-    primary  = module.primary_virtual_network.resource.id
-    failover = module.failover_virtual_network.resource.id
+    primary  = azurerm_virtual_network.primary_virtual_network.id
+    failover = azurerm_virtual_network.failover_virtual_network.id
   }
 
   name                  = "${each.key}-link"

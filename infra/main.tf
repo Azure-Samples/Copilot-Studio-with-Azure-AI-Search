@@ -30,12 +30,11 @@ module "copilot_studio" {
   tags = merge(var.tags, local.env_tags)
   # Authentication inputs
   resource_share_user = var.resource_share_user
-
   # Network inputs
-  primary_vnet_name    = module.primary_virtual_network.name
-  primary_subnet_name  = var.primary_subnet_name
-  failover_vnet_name   = module.failover_virtual_network.name
-  failover_subnet_name = var.failover_subnet_name
+  primary_vnet_name    = azurerm_virtual_network.primary_virtual_network.name
+  primary_subnet_name  = azurerm_subnet.ai_search_primary_subnet.name
+  failover_vnet_name   = azurerm_virtual_network.failover_virtual_network.name
+  failover_subnet_name = azurerm_subnet.ai_search_failover_subnet.name
 
   # Power Platform properties
   # Note: the Power Platform environment variables have default values that will 

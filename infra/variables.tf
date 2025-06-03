@@ -327,3 +327,15 @@ variable "ai_search_config" {
     error_message = "The replica_count value must be between 1 and 12."
   }
 }
+
+variable "primary_pe_subnet_address_spaces" {
+  description = "Address space for the primary private endpoint subnet"
+  type        = list(string)
+  default     = ["10.0.1.0/24"]
+}
+
+variable "failover_pe_subnet_address_spaces" {
+  description = "Address space for the failover private endpoint subnet" 
+  type        = list(string)
+  default     = ["10.0.2.0/24"]
+}
