@@ -59,8 +59,13 @@ function Run-Gitleaks {
         "--report-path", "./gitleaks-report.$ReportFormat"
         "--report-format", "$ReportFormat"
         "--log-level", "$LogLevel"
-        "--log-opts", "$currentBranch"
     )
+
+    # Only add log-opts if we have a valid branch name.
+    if ($currentBranch -ne "unknown") {
+        $cmdOptions += "--log-opts"
+        $cmdOptions += "$currentBranch"
+    }
 
     if ($Redact) { $cmdOptions += "--redact" }
     if ($Verbose) { $cmdOptions += "--verbose" }
