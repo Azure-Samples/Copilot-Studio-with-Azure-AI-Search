@@ -174,6 +174,10 @@ This template leverages [Azure Developer CLI Hooks](https://learn.microsoft.com/
 
 The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml), utilizes Federated credentials to ensure secure authentication.
 
+## Resource Configuration Notes
+
+- To avoid cost issues when validating the architecture, the default setting of the AI Search resource is to use one partition and one replica, which is not a production-level configuration. If you use this architecture in a production scenario, udpate the ai_search_config Terraform variable to configure at least 3 partitions and replicas.
+
 ## Resources
 
 - [Power Platform environment basics](https://learn.microsoft.com/en-us/power-platform/admin/environments-overview)
