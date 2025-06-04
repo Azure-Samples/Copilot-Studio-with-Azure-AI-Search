@@ -22,3 +22,28 @@ output "resource_group_name" {
   description = "The name of the resource group containing all resources"
   value       = azurerm_resource_group.this.name
 }
+
+output "container_app_environment_id" {
+  description = "The ID of the Container Apps Environment"
+  value       = module.github_runner_aca_primary.container_app_environment_id
+}
+
+output "github_runner_app_url" {
+  description = "The URL of the GitHub runner Container App"
+  value       = module.github_runner_aca_primary.github_runner_app_url
+}
+
+output "container_registry_id" {
+  description = "The ID of the Azure Container Registry"
+  value       = module.github_runner_aca_primary.container_registry_id
+}
+
+output "container_registry_login_server" {
+  description = "The login server URL for the Azure Container Registry"
+  value       = module.github_runner_aca_primary.container_registry_login_server
+}
+
+output "openai_endpoint" {
+  description = "The endpoint URL for the Azure OpenAI service"
+  value       = module.azure_open_ai.endpoint
+}

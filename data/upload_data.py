@@ -7,9 +7,9 @@ import argparse
 import logging
 import os
 from pathlib import Path
-from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient
 
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
+from azure.storage.blob import BlobServiceClient
 
 logger = logging.getLogger(__name__)
 
@@ -94,10 +94,15 @@ def main():
     if not args.storage_name.islower() or not args.storage_name.isalnum():
         raise ValueError("Storage account name must be a lowercase alphanumeric string (letters and digits).")
 
-    # Using default Azure credentials assuming that it has all needed permissions
-    logger.info("Authenticate code into Azure using default credentials.")
-    credential = DefaultAzureCredential()
+    # Check if we're running in a managed identity environment
+    azure_client_id = os.environ.get("AZURE_CLIENT_ID")
 
+    if azure_client_id:
+        logger.info(f"Using managed identity authentication with client ID: {azure_client_id}")
+        credential = ManagedIdentityCredential(client_id=azure_client_id)
+    else:
+        logger.info("Using default Azure credentials (fallback for local development).")
+        credential = DefaultAzureCredential()
 
     # Create the full document index
     logger.info("Uploading process has been started.")
