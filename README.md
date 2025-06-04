@@ -34,7 +34,6 @@ graph TD
       direction TB
       A[AI Search Connection]
       B[Copilot Studio agent]
-      C[OpenAI Connection]
     end
   end
 
@@ -44,14 +43,11 @@ graph TD
     subgraph VirtualNetwork["Virtual Network"]
         direction LR
         E[AI Search Resource]
-        F[OpenAI Resource]
     end
   end
 
   Environment --> D
-  B --> C
   B --> A
-  C --> F
   A --> E
   D --> VirtualNetwork
 ```
@@ -177,6 +173,10 @@ A mature workflow for a solution not only automates the deployment of the IAC re
 This template leverages [Azure Developer CLI Hooks](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-extensibility) to seamlessly integrate [TFLint](https://github.com/terraform-linters/tflint), [Checkov](https://www.checkov.io/), and [Gitleaks](https://github.com/gitleaks/gitleaks) into both Dev loop and deployment workflow. These tools run automatically before executing the azd up command, ensuring security, compliance, and best practices are validated prior to deploying the solution.
 
 The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml), utilizes Federated credentials to ensure secure authentication.
+
+## Resource Configuration Notes
+
+- To avoid cost issues when validating the architecture, the default setting of the AI Search resource is to use one partition and one replica, which is not a production-caliber configuration. If you use this architecture in a production scenario, update the ai_search_config Terraform variable to configure at least 3 partitions and replicas.
 
 ## Resources
 

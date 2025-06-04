@@ -1,0 +1,32 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnConversationStart
+  id: main
+  actions:
+    - kind: Question
+      id: question_I8RKml
+      displayName: Greeting Question
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.UsersEntireResponse
+      prompt: Welcome to the system-standard 'Conversation Start' topic. For this exercise we've modified the topic to pass your response directly to Azure AI Search. Ask a question about the data you previously uploaded!
+      entity: StringPrebuiltEntity
+
+    - kind: SearchAndSummarizeContent
+      id: tm2fze
+      displayName: Retrieve a generative response from AI Search
+      latencyMessageSettings:
+        allowLatencyMessage: true
+        latencyMessage: Waiting for Azure AI Search to respond...
+
+      userInput: =Topic.UsersEntireResponse
+      applyModelKnowledgeSetting: false
+      fileSearchDataSource:
+        searchFilesMode:
+          kind: DoNotSearchFiles
+
+      knowledgeSources:
+        kind: SearchSpecificKnowledgeSources
+        knowledgeSources:
+          - crf6d_aiSearchConnectionExample.topic.AISearchConnectionExampleAzureAISearch_XHYhN5MyP7X87NpYSV1Pd
