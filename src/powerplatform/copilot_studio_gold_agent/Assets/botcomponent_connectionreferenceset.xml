@@ -1,0 +1,5 @@
+<botcomponent_connectionreferenceset>
+  <botcomponent_connectionreference botcomponentid.schemaname="crf6d_aiSearchConnectionExample.topic.AISearchConnectionExampleAzureAISearch_XHYhN5MyP7X87NpYSV1Pd" connectionreferenceid.connectionreferencelogicalname="crf6d_aiSearchConnectionExample.cr.ERQq7Off">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+</botcomponent_connectionreferenceset>
