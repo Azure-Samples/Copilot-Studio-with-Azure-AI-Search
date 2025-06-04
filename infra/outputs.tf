@@ -17,3 +17,13 @@ output "aisearch_connection_id" {
   description = "The ID of the AI Search connector in Power Platform"
   value       = powerplatform_connection.ai_search_connection.id
 }
+
+output "container_app_environment_id" {
+  description = "The ID of the Container Apps Environment"
+  value       = module.github_runner_aca_primary.container_app_environment_id
+}
+
+output "github_runner_app_url" {
+  description = "The URL of the GitHub runner Container App"
+  value       = module.github_runner_aca_primary.github_runner_app_url
+}

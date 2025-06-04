@@ -15,12 +15,13 @@ network security.
     - [3.1.3 Development Environment Setup](#development-environment-setup)
   - [3.2 Quickstart](#quickstart)
     - [3.2.1 Deployment Instructions](#deployment-instructions)
-- [4. Demo](#demo-tbd)
-- [5. Workflows](#workflows)
-    - [5.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-    - [5.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
-- [6. Resources](#resources)
-- [7. Data Collection](#data-collection)
+- [4. GitHub Self-Hosted Runners](#github-self-hosted-runners)
+- [5. Demo](#demo-tbd)
+- [6. Workflows](#workflows)
+  - [6.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
+  - [6.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
+- [7. Resources](#resources)
+- [8. Data Collection](#data-collection)
 
 ## Features
 
@@ -261,8 +262,127 @@ service principal approach is recommended._
     ```
 
 _Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
-that the storage account’s network access settings allow traffic from your IP address. You may need
-to whitelist your IP or temporarily enable public access, depending on your organization’s policy._
+that the storage account's network access settings allow traffic from your IP address. You may need
+to whitelist your IP or temporarily enable public access, depending on your organization's policy._
+
+## GitHub Self-Hosted Runners
+
+This project deploys GitHub self-hosted runners, using Azure Container Apps for isolated and
+scalable CI/CD workloads.
+
+### Prerequisites for GitHub Runners
+
+Before deploying GitHub runners, you'll need:
+
+1. **Azure Container Registry (ACR)**: A registry to store the custom runner images
+2. **GitHub Personal Access Token (PAT)**: Token with repository and runner permissions
+3. **Container build environment**: Docker and Azure CLI for building images
+
+### Setting up Azure Container Registry
+
+1. **Create ACR manually** (this is a persistent resource that should be created once):
+
+    ```bash
+    # Set your variables
+    export ACR_NAME="<your-unique-acr-name>"
+    export ACR_RESOURCE_GROUP="<your-resource-group-name>"
+    export LOCATION="<your-azure-region>"
+
+    # Create resource group (if it doesn't exist)
+    az group create --name $ACR_RESOURCE_GROUP --location $LOCATION
+
+    # Create Azure Container Registry
+    az acr create \
+      --resource-group $ACR_RESOURCE_GROUP \
+      --name $ACR_NAME \
+      --sku Standard
+
+    # Enable admin user (for basic authentication)
+    az acr update --name $ACR_NAME --admin-enabled true
+    ```
+
+### Building and Pushing Runner Images
+
+1. **Set environment variables** for the container registry:
+
+    ```bash
+    # Azure Container Registry (ACR) login server
+    export ACR_LOGIN_SERVER=$(az acr show --name $ACR_NAME --query loginServer --output tsv)
+
+    # ACR admin username
+    export ACR_USERNAME=$(az acr credential show --name $ACR_NAME --query username --output tsv)
+
+    # ACR admin password
+    export ACR_PASSWORD=$(az acr credential show --name $ACR_NAME --query passwords[0].value --output tsv)
+
+    # Name of the GitHub runner Docker image
+    export GITHUB_RUNNER_IMAGE_NAME="<github-runner-image-name>"  # optional, defaults to "github-runner"
+
+    # Tag of the GitHub runner Docker image
+    export GITHUB_RUNNER_IMAGE_TAG="latest"  # optional, defaults to "latest"
+    ```
+
+2. **Build and push the runner image** using the provided build script:
+
+    **Bash:**
+
+    ```bash
+    # Make the build script executable
+    sudo chmod +x ./infra/containers/github-runner/build.sh
+
+    # Build and push the image
+    ./infra/containers/github-runner/build.sh
+    ```
+
+    **PowerShell:**
+
+    ```bash
+    sudo chmod +x ./infra/containers/github-runner/build.ps1
+    pwsh infra/containers/github-runner/build.ps1
+    ```
+
+_Note: The total build time is approximately 10–15 minutes._
+
+### GitHub Personal Access Token Requirements
+
+Create a **classic** GitHub Personal Access Token with the following permissions:
+
+- **Repository permissions**:
+  - `repo` (Full control of private repositories)
+  - `workflow` (Update GitHub Action workflows)
+
+### Configuring Environment Variables
+
+Set the following environment variables for GitHub runner deployment:
+
+```bash
+# GitHub configuration
+azd env set GITHUB_RUNNER_IMAGE_NAME "$GITHUB_RUNNER_IMAGE_NAME"  # Must match the image name when building
+azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
+azd env set GITHUB_PAT "<your-github-personal-access-token>"
+azd env set GITHUB_REPO_OWNER "<your-github-username-or-org>"
+azd env set GITHUB_REPO_NAME "<your-repository-name>"
+azd env set GITHUB_RUNNER_GROUP "default"  # optional, defaults to "default"
+
+# Container registry configuration
+azd env set ACR_LOGIN_SERVER "$ACR_LOGIN_SERVER$"
+azd env set ACR_USERNAME "$ACR_USERNAME"
+azd env set ACR_PASSWORD "$ACR_PASSWORD$"
+
+# Optional: Container Apps workload profile
+azd env set WORKLOAD_PROFILE_TYPE "D4"  # optional, defaults to "D4"
+```
+
+### Deploying Runners
+
+After configuring all environment variables, the GitHub runners will be automatically deployed
+using the `azd up` command. They will then be registered with your repository and appear under
+*Settings > Actions > Runners* in your repository.
+
+_Note: If you encounter the following error:
+`MissingSubscriptionRegistration: The subscription is not registered to use namespace 'Microsoft.App'`
+please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
+provider in your subscription._
 
 ## Demo (TBD)
 
@@ -326,6 +446,12 @@ To set up a federated identity credential in Azure, follow these steps:
    remote state.
    - `RESOURCE_SHARE_USER`: Object ID of the Power Platform interactive admin user granted access
    to deployed resources.
+   - `GH_PAT`: GitHub personal access token.
+   - `ACR_LOGIN_SERVER`: Azure Container Registry (ACR) login server.
+   - `ACR_USERNAME`: ACR admin username.
+   - `ACR_PASSWORD`: ACR admin password.
+   - `RUNNER_IMAGE_NAME`: Name of the GitHub runner Docker image.
+   - `RUNNER_IMAGE_TAG`: Tag of the GitHub runner Docker image.
 
 _Note: Client secret is not needed if using federated identity._
 

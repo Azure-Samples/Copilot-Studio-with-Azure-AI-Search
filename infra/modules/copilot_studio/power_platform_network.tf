@@ -1,8 +1,8 @@
-# Automate the steps documented at https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure 
+# Automate the steps documented at https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure
 
 #---- 1 - Add Enterprise Policy ----
 
-# Get details on the primary and failover VNets for use in generating the policy 
+# Get details on the primary and failover VNets for use in generating the policy
 data "azurerm_virtual_network" "primary_vnet" {
   name                = var.primary_vnet_name
   resource_group_name = var.resource_group_name

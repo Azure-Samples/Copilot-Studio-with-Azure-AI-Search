@@ -33,7 +33,7 @@ jobs:
     env:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
-    
+
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
 
@@ -44,18 +44,17 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@v2
 
-      
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
-      
+
       - name: Install TFLint
         uses: terraform-linters/setup-tflint@v3
         with:
           tflint_version: v0.49.0
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate 
-      
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate
+
       - name: Install GitLeaks
         run: |
           curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.17.0/gitleaks_8.17.0_linux_x64.tar.gz -o gitleaks.tar.gz
@@ -83,7 +82,7 @@ jobs:
       - name: Install Checkov
         run: pip install checkov
 
-          
+
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
@@ -112,6 +111,14 @@ jobs:
           POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           POWER_PLATFORM_USE_OIDC: "true"
+          GH_PAT: ${{ secrets.GH_PAT }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
+          ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
+          GITHUB_RUNNER_IMAGE_NAME: ${{ secrets.RUNNER_IMAGE_NAME }}
+          GITHUB_RUNNER_IMAGE_TAG: ${{ secrets.RUNNER_IMAGE_TAG }}
 
         shell: pwsh
         run: |
@@ -124,9 +131,18 @@ jobs:
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+
+          azd env set GITHUB_PAT $env:GH_PAT
+          azd env set GITHUB_REPO_OWNER $env:REPO_OWNER
+          azd env set GITHUB_REPO_NAME $env:REPO_NAME
+          azd env set ACR_LOGIN_SERVER $env:ACR_LOGIN_SERVER
+          azd env set ACR_USERNAME $env:ACR_USERNAME
+          azd env set ACR_PASSWORD $env:ACR_PASSWORD
+          azd env set GITHUB_RUNNER_IMAGE_NAME $env:GITHUB_RUNNER_IMAGE_NAME
+          azd env set GITHUB_RUNNER_IMAGE_TAG $env:GITHUB_RUNNER_IMAGE_TAG
+
           azd provision --no-prompt
 
-      
       - uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
@@ -139,12 +155,12 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ./gitleaks-report.sarif
-      
+
       - name: Upload Checkov SARIF Report to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
-  
+
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
@@ -169,6 +185,6 @@ jobs:
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
-          
+
           azd env select $env:AZURE_ENV_NAME
           azd down --no-prompt --force --purge
