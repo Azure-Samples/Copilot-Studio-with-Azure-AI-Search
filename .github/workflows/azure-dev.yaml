@@ -116,7 +116,7 @@ jobs:
         shell: pwsh
         run: |
 
-          azd config set auth.useAzCliAuth "true"
+          # azd config set auth.useAzCliAuth "true"
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
           azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
           azd env set POWER_PLATFORM_USE_CLI "false"
