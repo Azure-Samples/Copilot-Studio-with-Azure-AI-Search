@@ -1,16 +1,16 @@
 # Power Platform connections
 
 locals {
-  search_connection_name        = "shared_azureaisearch"
+  search_connection_name         = "shared_azureaisearch"
   search_connection_display_name = "Azure AI Search Connection"
-  search_connector_name         = "azureaisearch"
+  search_connector_name          = "azureaisearch"
 }
 
 # Create the Power Platform connection for Azure AI Search
 resource "powerplatform_connection" "ai_search_connection" {
-  environment_id        = module.copilot_studio.power_platform_environment_id
-  name                  = local.search_connection_name
-  display_name          = local.search_connection_display_name
+  environment_id = module.copilot_studio.power_platform_environment_id
+  name           = local.search_connection_name
+  display_name   = local.search_connection_display_name
   # PowerPlatform connection resource doesn't accept connector_name directly
   connection_parameters = jsonencode({
     ConnectionEndpoint = local.search_endpoint_url
