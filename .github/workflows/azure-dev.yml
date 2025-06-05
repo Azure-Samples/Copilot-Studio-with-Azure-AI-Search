@@ -99,7 +99,7 @@ jobs:
         env:
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          RS_ACCOUNT_NAME: ${{ vars.RS_ACCOUNT_NAME }}
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
@@ -121,7 +121,7 @@ jobs:
           azd env set RESOURCE_SHARE_USER $env:RESOURCE_SHARE_USER
           azd env set POWER_PLATFORM_USE_CLI "false"
 
-          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           azd provision --no-prompt
@@ -150,7 +150,7 @@ jobs:
         env:
           POWER_PLATFORM_USE_CLI: false
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          RS_ACCOUNT_NAME: ${{ vars.RS_ACCOUNT_NAME }}
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
@@ -166,7 +166,7 @@ jobs:
         shell: pwsh
         run: |
 
-          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           

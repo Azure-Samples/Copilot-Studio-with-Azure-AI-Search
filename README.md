@@ -6,21 +6,24 @@ network security.
 
 ## Table of Contents
 
-- [1. Features](#features)
-- [2. Architecture](#architecture)
-- [3. Getting Started](#getting-started)
-  - [3.1 Prerequisites](#prerequisites)
-    - [3.1.1 App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
-    - [3.1.2 User Configuration](#user-configuration)
-    - [3.1.3 Development Environment Setup](#development-environment-setup)
-  - [3.2 Quickstart](#quickstart)
-    - [3.2.1 Deployment Instructions](#deployment-instructions)
-- [4. Demo](#demo-tbd)
-- [5. Workflows](#workflows)
-    - [5.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-    - [5.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
-- [6. Resources](#resources)
-- [7. Data Collection](#data-collection)
+- [Copilot Studio with Azure AI Search](#copilot-studio-with-azure-ai-search)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Architecture](#architecture)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+      - [App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
+      - [User Configuration](#user-configuration)
+      - [Development Environment Setup](#development-environment-setup)
+    - [Quickstart](#quickstart)
+      - [Deployment Instructions](#deployment-instructions)
+  - [Demo (TBD)](#demo-tbd)
+  - [Workflows](#workflows)
+    - [Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
+    - [Add Required Secrets to GitHub](#add-required-secrets-to-github)
+  - [Resource Configuration Notes](#resource-configuration-notes)
+  - [Resources](#resources)
+  - [Data Collection](#data-collection)
 
 ## Features
 
@@ -318,7 +321,7 @@ To set up a federated identity credential in Azure, follow these steps:
    - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID.
    - `POWER_PLATFORM_CLIENT_ID`: Your Power Platform client ID (typically same as Azure client ID).
    - `POWER_PLATFORM_TENANT_ID`: Power Platform tenant ID.
-   - `RS_ACCOUNT_NAME`: Name of the Azure Storage account used for storing the Terraform remote
+   - `RS_STORAGE_ACCOUNT`: Name of the Azure Storage account used for storing the Terraform remote
    state.
    - `RS_CONTAINER_NAME`: Name of the blob container within the storage account that holds the
    Terraform state file.
