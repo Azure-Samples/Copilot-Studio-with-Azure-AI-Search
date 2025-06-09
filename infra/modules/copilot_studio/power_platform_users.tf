@@ -18,11 +18,6 @@ locals {
   security_role_ids = [for name in var.pp_environment_user_Security_role : local.security_role_id[name]]
 }
 
-resource "time_sleep" "wait_pp_environment" {
-  depends_on      = [powerplatform_environment.this, powerplatform_managed_environment.this]
-  create_duration = "300s"
-}
-
 # Add non-dataverse user to Power Platform environment
 resource "powerplatform_user" "new_non_dataverse_user" {
   count          = var.resource_share_user != "" ? 1 : 0
@@ -30,5 +25,4 @@ resource "powerplatform_user" "new_non_dataverse_user" {
   security_roles = local.security_role_ids # Using the same roles from the all_roles data source
   aad_id         = var.resource_share_user
   disable_delete = false
-  depends_on     = [time_sleep.wait_pp_environment]
 }
