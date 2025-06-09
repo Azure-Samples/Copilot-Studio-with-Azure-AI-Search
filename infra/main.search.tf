@@ -2,7 +2,7 @@ locals {
   search_name = replace("ais${random_string.name.id}", "/[^a-z0-9-]/", "")
 }
 
-# checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production use.
+# checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
 resource "azurerm_search_service" "ai_search" {
   name                          = local.search_name
   location                      = var.primary_location

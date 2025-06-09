@@ -23,7 +23,7 @@ module "storage_account_and_container" {
   containers = {
     (var.cps_container_name) = {
       name          = var.cps_container_name
-      public_access = "blob" # TODO restrict access once 2-pass deployment and config is added
+      public_access = "Blob" # TODO restrict access once 2-pass deployment and config is added
     }
   }
 }

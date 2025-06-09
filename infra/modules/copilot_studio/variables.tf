@@ -97,17 +97,6 @@ A map describing customer-managed keys to associate with the resource. This incl
 DESCRIPTION  
 }
 
-# List of connections to manage using the module.
-variable "power_platform_connections" {
-  type = list(object({
-    name                  = string
-    display_name          = string
-    connection_parameters = map(string)
-    connector_name        = string
-  }))
-  default     = []
-  description = "List of Power Platform connections to manage using the module."
-}
 
 variable "resource_share_user" {
   type        = string

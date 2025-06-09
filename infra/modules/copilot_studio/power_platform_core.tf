@@ -32,36 +32,3 @@ resource "powerplatform_managed_environment" "this" {
   maker_onboarding_url       = var.power_platform_managed_environment.maker_onboarding_url
 }
 
-#---- 2 - Power Platform connections ----
-
-resource "powerplatform_connection" "connections" {
-  for_each = { for idx, conn in var.power_platform_connections : idx => conn }
-
-  environment_id        = local.power_platform_environment_id
-  name                  = each.value.name
-  display_name          = each.value.display_name
-  connection_parameters = jsonencode(each.value.connection_parameters)
-
-  lifecycle {
-    ignore_changes = [
-      connection_parameters
-    ]
-  }
-}
-
-# Share the generated connections with an interactive user for direct administration.
-resource "powerplatform_connection_share" "share_connections_with_user" {
-  for_each = var.resource_share_user != "" ? powerplatform_connection.connections : {}
-
-  environment_id = local.power_platform_environment_id
-  connector_name = each.value.name
-  connection_id  = each.value.id
-  role_name      = "CanEdit"
-  principal = {
-    entra_object_id = var.resource_share_user
-  }
-}
-
-#---- 3 - Set up Dataverse record for the Copilot ----
-
-#---- 4 - Future state: base bot configuration needs model knowledge source ----

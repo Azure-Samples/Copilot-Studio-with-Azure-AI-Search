@@ -306,8 +306,8 @@ variable "ai_search_config" {
   })
   default = {
     sku                           = "basic"
-    partition_count               = 3
-    replica_count                 = 3
+    partition_count               = 1
+    replica_count                 = 1
     public_network_access_enabled = false
   }
   description = "Configuration options for Azure AI Search service. The sku determines pricing tier, partition_count affects index update SLA, and replica_count affects query SLA requirements."
