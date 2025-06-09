@@ -111,3 +111,9 @@ variable "tags" {
   default     = null
   description = "(Optional) Tags of the resource."
 }
+
+variable "pp_environment_user_Security_role" {
+  description = "Power Platform environment user security role, examples of roles can be: System Administrator, System Customizer, basic user and many more."
+  type        = list(string)
+  default     = ["Basic User", "System Administrator"]
+}

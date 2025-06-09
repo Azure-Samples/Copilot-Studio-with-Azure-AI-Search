@@ -32,15 +32,3 @@ resource "powerplatform_managed_environment" "this" {
   maker_onboarding_url       = var.power_platform_managed_environment.maker_onboarding_url
 }
 
-# Add user to Power Platform environment with specified roles
-resource "powerplatform_user" "environment_user" {
-  count          = var.resource_share_user != "" ? 1 : 0
-  environment_id = local.power_platform_environment_id
-  security_roles = [
-    "Environment Admin",
-    "Environment Maker"
-  ]
-  aad_id         = var.resource_share_user
-  disable_delete = false
-}
-
