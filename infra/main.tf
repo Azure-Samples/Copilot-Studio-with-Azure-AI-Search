@@ -44,30 +44,6 @@ module "copilot_studio" {
   #  and the module will attempt to manage the existing environment instead. 
   power_platform_environment         = var.power_platform_environment
   power_platform_managed_environment = var.power_platform_managed_environment
-  # Add Power Platform connections. For the MCS example we need the AOAI connection 
-  # and AI Search connection, but this list could take any supported connectors.
-  power_platform_connections = [
-    {
-      name         = "shared_azureopenai"
-      display_name = "Azure OpenAI Connection"
-      connection_parameters = {
-        azureOpenAIResourceName = module.azure_open_ai.name
-        azureOpenAIApiKey       = module.azure_open_ai.primary_access_key
-        azureSearchEndpointUrl  = local.search_endpoint_url
-        azureSearchApiKey       = azurerm_search_service.ai_search.primary_key
-      }
-      connector_name = "azureopenai"
-    },
-    {
-      name         = "shared_azureaisearch"
-      display_name = "Azure AI Search Connection"
-      connection_parameters = {
-        ConnectionEndpoint = local.search_endpoint_url
-        AdminKey           = azurerm_search_service.ai_search.primary_key
-      }
-      connector_name = "azureaisearch"
-    }
-  ]
 }
 
 # Example tenant settings to support generative answers in Copilot.

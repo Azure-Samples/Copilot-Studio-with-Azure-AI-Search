@@ -3,9 +3,9 @@ output "power_platform_environment_id" {
   value       = local.power_platform_environment_id
 }
 
-
 # required for AVM interface
 output "resource_id" {
   description = "value"
   value       = null
 }
+
