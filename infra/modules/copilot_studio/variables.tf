@@ -99,9 +99,9 @@ DESCRIPTION
 
 
 variable "resource_share_user" {
-  type        = map(string)
-  default     = {}
-  description = "A map of user identifiers to object IDs of interactive users to share the managed resources with. This is used to share resource visibility after a service principal creates resources. If no value is specified, only the service principal will have visibility into the resources."
+  type        = set(string)
+  default     = []
+  description = "A set of Microsoft Entra ID object IDs for interactive users to share the managed resources with. This is used to share resource visibility after a service principal creates resources. If no value is specified, only the service principal will have visibility into the resources."
 }
 
 

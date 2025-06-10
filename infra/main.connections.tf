@@ -26,7 +26,7 @@ resource "powerplatform_connection" "ai_search_connection" {
 
 # Share the connection with an interactive user for direct administration (if specified)
 resource "powerplatform_connection_share" "share_ai_search_connection" {
-  for_each = length(var.resource_share_user) > 0 ? var.resource_share_user : {}
+  for_each = length(var.resource_share_user) > 0 ? var.resource_share_user : []
 
   environment_id = module.copilot_studio.power_platform_environment_id
   connector_name = local.search_connector_name

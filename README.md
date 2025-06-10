@@ -157,9 +157,8 @@ service principal approach is recommended._
   when running with a service principal, as it exposes resource visibility to the specified
   interactive user.
 
-    ```bash
-    # Example for setting a map of users
-    azd env set RESOURCE_SHARE_USER '{"user1":"object-id-1","user2":"object-id-2"}'
+    ```bash    # Example for setting a set of users
+    azd env set RESOURCE_SHARE_USER '["object-id-1","object-id-2"]'
     ```
 
 3. **Authentication**:
@@ -325,7 +324,7 @@ To set up a federated identity credential in Azure, follow these steps:
    Terraform state file.
    - `RS_RESOURCE_GROUP`: Name of the resource group containing the storage account for Terraform
    remote state.
-   - `RESOURCE_SHARE_USER`: Object ID of the Power Platform interactive admin user granted access
+   - `RESOURCE_SHARE_USER`: Set of Microsoft Entra ID object IDs for interactive admin users granted access (see [documentation](./docs/resource_share_user.md))
    to deployed resources.
 
 _Note: Client secret is not needed if using federated identity._

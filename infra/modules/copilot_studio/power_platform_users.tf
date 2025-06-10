@@ -20,7 +20,7 @@ locals {
 
 # Add non-dataverse user to Power Platform environment
 resource "powerplatform_user" "new_non_dataverse_user" {
-  for_each       = length(var.resource_share_user) > 0 ? var.resource_share_user : {}
+  for_each       = length(var.resource_share_user) > 0 ? var.resource_share_user : []
   environment_id = local.power_platform_environment_id
   security_roles = local.security_role_ids # Using the same roles from the all_roles data source
   aad_id         = each.value

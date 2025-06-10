@@ -1,9 +1,9 @@
 # APP INSIGHTS VARIABLES
 
 variable "resource_share_user" {
-  type        = map(string)
-  default     = {}
-  description = "A map of user identifiers to Microsoft Entra ID object IDs for the interactive admin users who will initially have access to the resources created by this pattern. Example: { 'user1' = 'object-id-1', 'user2' = 'object-id-2' }"
+  type        = set(string)
+  default     = []
+  description = "A set of Microsoft Entra ID object IDs for the interactive admin users who will initially have access to the resources created by this pattern. Example: ['object-id-1', 'object-id-2']"
 }
 
 variable "azd_environment_name" {
