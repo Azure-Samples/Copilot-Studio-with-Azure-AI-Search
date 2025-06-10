@@ -54,7 +54,7 @@ resource "azurerm_private_endpoint" "failover_endpoint" {
   }
 
   # Azure will bounce the second Search Service request if two endpoint updates are requested simultaneously, so order them explicitly.
-  depends_on = [azurerm_search_service.ai_search, azurerm_private_endpoint.primary_endpoint]
+  depends_on = [azurerm_private_endpoint.primary_endpoint]
 }
 
 
