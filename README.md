@@ -158,7 +158,8 @@ service principal approach is recommended._
   interactive user.
 
     ```bash
-    azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
+    # Example for setting a map of users
+    azd env set RESOURCE_SHARE_USER '{"user1":"object-id-1","user2":"object-id-2"}'
     ```
 
 3. **Authentication**:

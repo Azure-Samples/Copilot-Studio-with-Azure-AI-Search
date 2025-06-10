@@ -50,7 +50,8 @@ resource "azapi_resource" "network_injection_policy" {
 
 # Grant Power Platform admin access to the new enterprise policy
 resource "azurerm_role_assignment" "principal_enterprise_policy_access" {
-  principal_id         = var.resource_share_user
+  for_each             = length(var.resource_share_user) > 0 ? var.resource_share_user : {}
+  principal_id         = each.value
   scope                = azapi_resource.network_injection_policy.id
   role_definition_name = "Reader"
 }

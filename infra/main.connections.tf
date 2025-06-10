@@ -26,13 +26,13 @@ resource "powerplatform_connection" "ai_search_connection" {
 
 # Share the connection with an interactive user for direct administration (if specified)
 resource "powerplatform_connection_share" "share_ai_search_connection" {
-  count = var.resource_share_user != "" ? 1 : 0
+  for_each = length(var.resource_share_user) > 0 ? var.resource_share_user : {}
 
   environment_id = module.copilot_studio.power_platform_environment_id
   connector_name = local.search_connector_name
   connection_id  = powerplatform_connection.ai_search_connection.id
   role_name      = "CanEdit"
   principal = {
-    entra_object_id = var.resource_share_user
+    entra_object_id = each.value
   }
 }
