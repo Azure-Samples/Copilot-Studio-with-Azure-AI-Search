@@ -25,6 +25,14 @@ resource "azurerm_log_analytics_workspace" "github_runners" {
   tags                = var.tags
 }
 
+# User-assigned managed identity for Container App ACR access
+resource "azurerm_user_assigned_identity" "github_runner" {
+  location            = var.location
+  name                = "id-github-runner-${var.unique_id}"
+  resource_group_name = var.resource_group_name
+  tags                = var.tags
+}
+
 # Container Apps Environment
 resource "azurerm_container_app_environment" "github_runners" {
   name                           = "cae-github-runners-${var.unique_id}"
@@ -50,13 +58,18 @@ resource "azurerm_container_app" "github_runner" {
   resource_group_name           = var.resource_group_name
   revision_mode                 = "Single"
 
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.github_runner.id]
+  }
+
   template {
     min_replicas = var.github_runner_config.min_replicas
     max_replicas = var.github_runner_config.max_replicas
 
     container {
       name   = var.github_runner_config.image_name
-      image  = "${var.image_registry.server}/${var.github_runner_config.image_name}-amd64:${var.github_runner_config.image_tag}"
+      image  = "${azurerm_container_registry.github_runners.login_server}/${var.github_runner_config.image_name}:${var.github_runner_config.image_tag}"
       cpu    = tonumber(var.github_runner_config.cpu_requests)
       memory = var.github_runner_config.memory_requests
 
@@ -94,6 +107,7 @@ resource "azurerm_container_app" "github_runner" {
       name             = "gha-scaler"
       custom_rule_type = "github-runner"
 
+      # https://keda.sh/docs/2.17/scalers/github-runner/
       metadata = {
         githubApiURL              = "https://api.github.com"
         owner                     = var.github_runner_config.github_repo_owner
@@ -110,19 +124,13 @@ resource "azurerm_container_app" "github_runner" {
   }
 
   registry {
-    server               = var.image_registry.server
-    username             = var.image_registry.username
-    password_secret_name = "acr-password"
+    server      = azurerm_container_registry.github_runners.login_server
+    identity    = azurerm_user_assigned_identity.github_runner.id
   }
 
   secret {
     name  = "github-pat"
     value = var.github_runner_config.github_pat
-  }
-
-  secret {
-    name  = "acr-password"
-    value = var.image_registry.password
   }
 
   ingress {
@@ -135,6 +143,11 @@ resource "azurerm_container_app" "github_runner" {
       latest_revision = true
     }
   }
+
+  depends_on = [
+    azurerm_container_registry_task_schedule_run_now.github_runner_build,
+    azurerm_role_assignment.user_identity_acr_pull
+  ]
 }
 
 resource "null_resource" "deregister_runner" {

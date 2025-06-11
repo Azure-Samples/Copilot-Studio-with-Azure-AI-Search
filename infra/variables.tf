@@ -342,17 +342,18 @@ variable "failover_pe_subnet_address_spaces" {
 
 variable "github_runner_config" {
   type = object({
-    image_name            = string
-    image_tag             = string
-    github_pat            = string
-    github_repo_owner     = string
-    github_repo_name      = string
-    github_runner_group   = string
-    min_replicas          = number
-    max_replicas          = number
-    cpu_requests          = string
-    memory_requests       = string
-    workload_profile_type = string
+    image_name                  = string
+    image_tag                   = string
+    github_pat                  = string
+    github_repo_owner           = string
+    github_repo_name            = string
+    github_runner_group         = string
+    github_runner_image_branch  = string
+    min_replicas                = number
+    max_replicas                = number
+    cpu_requests                = string
+    memory_requests             = string
+    workload_profile_type       = string
   })
   description = "Configuration for GitHub self-hosted runners"
   sensitive   = true
@@ -370,12 +371,8 @@ variable "failover_gh_runner_subnet_address_spaces" {
   description = "GitHub runner subnet address spaces in the failover VNET. Must be /23 or larger for Container App Environment."
 }
 
-variable "image_registry" {
-  type = object({
-    server     = string
-    username   = string
-    password   = string
-  })
-  description = "Configuration for ACR"
-  sensitive   = true
+variable "enable_failover_github_runner" {
+  type        = bool
+  default     = false # Disabled to reduce runtime
+  description = "Enable the GitHub Actions self-hosted runner in the failover region. Set to true to deploy failover runner resources."
 }

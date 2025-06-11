@@ -27,3 +27,13 @@ output "github_runner_app_url" {
   description = "The URL of the GitHub runner Container App"
   value       = module.github_runner_aca_primary.github_runner_app_url
 }
+
+output "container_registry_id" {
+  description = "The ID of the Azure Container Registry"
+  value       = module.github_runner_aca_primary.container_registry_id
+}
+
+output "container_registry_login_server" {
+  description = "The login server URL for the Azure Container Registry"
+  value       = module.github_runner_aca_primary.container_registry_login_server
+}

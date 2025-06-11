@@ -5,29 +5,20 @@ variable "environment_name" {
 
 variable "github_runner_config" {
   type = object({
-    image_name            = string
-    image_tag             = string
-    github_pat            = string
-    github_repo_owner     = string
-    github_repo_name      = string
-    github_runner_group   = string
-    min_replicas          = number
-    max_replicas          = number
-    cpu_requests          = string
-    memory_requests       = string
-    workload_profile_type = string
+    image_name                  = string
+    image_tag                   = string
+    github_pat                  = string
+    github_repo_owner           = string
+    github_repo_name            = string
+    github_runner_group         = string
+    github_runner_image_branch  = string
+    min_replicas                = number
+    max_replicas                = number
+    cpu_requests                = string
+    memory_requests             = string
+    workload_profile_type       = string
   })
   description = "Configuration for GitHub self-hosted runners"
-  sensitive   = true
-}
-
-variable "image_registry" {
-  type = object({
-    server   = string
-    username = string
-    password = string
-  })
-  description = "Configuration for Azure Container Registry"
   sensitive   = true
 }
 
@@ -55,4 +46,15 @@ variable "tags" {
 variable "unique_id" {
   type        = string
   description = "A unique identifier to include in resource names to avoid conflicts"
+}
+
+
+variable "private_endpoint_subnet_id" {
+  type        = string
+  description = "The ID of the subnet where private endpoints will be deployed"
+}
+
+variable "virtual_network_id" {
+  type        = string
+  description = "The ID of the virtual network where the private DNS zone will be linked"
 }

@@ -445,7 +445,7 @@ terraform.rc
 # Checkov & Gitleaks reports
 *.sarif
 
-# Lint results 
+# Lint results
 infra_lint_res.xml
 
 # Gitleaks
@@ -453,3 +453,7 @@ gitleaks-detect-*.json
 gitleaks
 gitleaks.tar.gz
 LICENSE
+
+# PowerPlatform Deployment
+power_platform_deployment_settings
+*GoldAgent*
