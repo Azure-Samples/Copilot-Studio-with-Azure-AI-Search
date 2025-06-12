@@ -431,9 +431,9 @@ if (-not (Test-PacCliInstalled)) {
     exit 1
 }
 
-# Verify the solution file exists
+# Verify the solution directory exists
 if (-not (Test-Path $SolutionPath)) {
-    Write-Error "Solution file does not exist at path: $SolutionPath"
+    Write-Error "Solution directory does not exist at path: $SolutionPath"
     exit 1
 }
 
@@ -495,7 +495,7 @@ if (Test-Path $SettingsFilePath) {
     Write-Host "INFO: Cleaned up temporary settings file"
 }
 
-# Clean up the solution file
+# Clean up the output solution file
 if (Test-Path $OutputSolutionPath) {
     Remove-Item -Path $OutputSolutionPath -Force
     Write-Host "INFO: Cleaned up temporary solution file"
