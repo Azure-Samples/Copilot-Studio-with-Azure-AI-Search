@@ -44,19 +44,6 @@ resource "azapi_resource" "network_injection_policy" {
   name                      = "PowerPlatformPrimaryPolicy-${var.unique_id}"
   parent_id                 = data.azurerm_resource_group.this.id
   schema_validation_enabled = false
-
-   # Add timeout configuration to handle potential network latency
-  timeouts {
-    create = "10m"
-    update = "10m"
-    delete = "10m"
-  }
-
-  # Add explicit dependencies to ensure network resources are ready
-  depends_on = [
-    data.azurerm_virtual_network.primary_vnet,
-    data.azurerm_virtual_network.failover_vnet
-  ]
 }
 
 #---- 2 - Set EP access using RBAC ----

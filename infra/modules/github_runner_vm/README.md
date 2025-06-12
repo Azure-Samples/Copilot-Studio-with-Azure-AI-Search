@@ -1,8 +1,7 @@
 # GitHub Self-Hosted Runner on Azure
 
-This Terraform configuration deploys a self-hosted GitHub Actions runner on Azure Virtual Machine within the existing VNET.
-
-
+This Terraform configuration deploys a self-hosted GitHub Actions runner on
+Azure Virtual Machine within the existing VNET.
 
 Before deploying GitHub runners, you'll need:
 
@@ -17,8 +16,8 @@ Create a GitHub Personal Access Token with the following permissions:
 
 ### Configuring Environment Variables and Deploying Runners
 
-**The GitHub runner is disabled by default.** To enable it, you must set `enable_vm_github_runner = true` along 
-with the required GitHub configuration.
+**The GitHub runner is disabled by default.** To enable it, you must 
+set `enable_vm_github_runner = true` along with the required GitHub configuration.
 
 Set these environment variables for the GitHub runner deployment"
 
