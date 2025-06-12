@@ -124,7 +124,7 @@ jobs:
           azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
-          azd provision --no-prompt
+          azd provision --no-prompt --debug
 
       
       - uses: actions/upload-artifact@v4
