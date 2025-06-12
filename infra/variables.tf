@@ -296,3 +296,46 @@ variable "tags" {
   }
   description = "The tags for the resources."
 }
+
+variable "ai_search_config" {
+  type = object({
+    sku                           = string
+    partition_count               = number
+    replica_count                 = number
+    public_network_access_enabled = bool
+  })
+  default = {
+    sku                           = "basic"
+    partition_count               = 1
+    replica_count                 = 1
+    public_network_access_enabled = false
+  }
+  description = "Configuration options for Azure AI Search service. The sku determines pricing tier, partition_count affects index update SLA, and replica_count affects query SLA requirements."
+
+  validation {
+    condition     = contains(["free", "basic", "standard", "standard2", "standard3", "storage_optimized_l1", "storage_optimized_l2", "ultra"], var.ai_search_config.sku)
+    error_message = "The sku value must be one of: free, basic, standard, standard2, standard3, storage_optimized_l1, storage_optimized_l2, or ultra."
+  }
+
+  validation {
+    condition     = var.ai_search_config.partition_count >= 1 && var.ai_search_config.partition_count <= 12
+    error_message = "The partition_count value must be between 1 and 12."
+  }
+
+  validation {
+    condition     = var.ai_search_config.replica_count >= 1 && var.ai_search_config.replica_count <= 12
+    error_message = "The replica_count value must be between 1 and 12."
+  }
+}
+
+variable "primary_pe_subnet_address_spaces" {
+  description = "Address space for the primary private endpoint subnet"
+  type        = list(string)
+  default     = ["10.1.8.0/24"]
+}
+
+variable "failover_pe_subnet_address_spaces" {
+  description = "Address space for the failover private endpoint subnet" 
+  type        = list(string)
+  default     = ["10.2.8.0/24"]
+}
