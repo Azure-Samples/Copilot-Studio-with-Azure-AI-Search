@@ -152,6 +152,8 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
       runner_work_folder = "_work"
       runner_group       = var.vm_github_runner_config.github_runner_group
       runner_labels      = "self-hosted,vm,${var.resource_group_name},${var.location},${var.unique_id}"
+      repo_name          = var.vm_github_runner_config.github_repo_name
+      repo_owner         = var.vm_github_runner_config.github_repo_owner
     }))
   })
 

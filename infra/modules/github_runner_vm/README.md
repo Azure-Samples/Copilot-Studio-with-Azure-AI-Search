@@ -23,9 +23,9 @@ Set these environment variables for the GitHub runner deployment"
 
 ```bash
 azd env set ENABLE_VM_GITHUB_RUNNER "true"
-azd env set GITHUB_RUNNER_URL <your-github-repo-url>
-azd env set GITHUB_RUNNER_NAME <your-github-runner-name>
-azd env set GITHUB_RUNNER_TOKEN"<your-github-personal-access-token>"
+azd env set GITHUB_RUNNER_URL "<your-github-repo-url>"
+azd env set GITHUB_RUNNER_NAME "<your-github-runner-name>"
+azd env set GITHUB_RUNNER_TOKEN "<your-github-personal-access-token>"
 azd env set GITHUB_REPO_OWNER "<your-github-username-or-org>"
 azd env set GITHUB_REPO_NAME "<your-repository-name>"
 azd env set GITHUB_RUNNER_GROUP "default"  # optional, defaults to "default"

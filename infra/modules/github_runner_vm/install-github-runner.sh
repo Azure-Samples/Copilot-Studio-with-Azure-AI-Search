@@ -11,7 +11,9 @@ GITHUB_TOKEN="${github_token}"
 RUNNER_NAME="${runner_name}"
 RUNNER_WORK_FOLDER="${runner_work_folder}"
 RUNNER_GROUP="${runner_group}"
-RUNNER_LABELS="${runner_labels}" 
+RUNNER_LABELS="${runner_labels}"
+REPO_NAME="${repo_name}"
+REPO_OWNER="${repo_owner}"
 
 # Logging function
 log() {
@@ -191,7 +193,7 @@ chown -R github-runner:github-runner "$RUNNER_DIR"
 # Configure the runner
 log "Generating runner registration token..."
 
-API_REGISTRATION_URL="https://api.github.com/repos/phongcao/Copilot-Studio-with-Azure-AI-Search/actions/runners/registration-token"
+API_REGISTRATION_URL="https://api.github.com/repos/$${REPO_OWNER}/$${REPO_NAME}/actions/runners/registration-token"
 
 # Get registration token with error handling
 log "Requesting registration token from GitHub API..."

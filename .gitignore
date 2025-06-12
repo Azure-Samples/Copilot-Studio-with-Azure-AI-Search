@@ -458,7 +458,7 @@ LICENSE
 power_platform_deployment_settings
 *GoldAgent*
 
-#SSH
+# SSH
 .ssh/
 
 .DS_Store
