@@ -376,3 +376,60 @@ variable "enable_failover_github_runner" {
   default     = false # Disabled to reduce runtime
   description = "Enable the GitHub Actions self-hosted runner in the failover region. Set to true to deploy failover runner resources."
 }
+
+# GITHUB RUNNER VARIABLES VM
+
+variable "github_runner_subnet_name" {
+  type        = string
+  default     = "github-runner-subnet"
+  description = "Name of the subnet for GitHub runner VM"
+}
+
+variable "github_runner_subnet_address_spaces" {
+  type        = list(string)
+  default     = ["10.1.2.0/24"]
+  description = "Address spaces for GitHub runner subnet"
+}
+
+variable "enable_vm_github_runner" {
+  type        = bool
+  default     = false
+  description = "Enable GitHub runner VM deployment"
+}
+
+variable "vm_github_runner_config" {
+  type = object({
+    github_runner_name    = string
+    github_runner_token   = string
+    github_runner_url     = string
+    github_repo_owner     = string
+    github_repo_name      = string
+    github_runner_group   = string
+  })
+  default = {
+    github_runner_name    = "azure-runner"
+    github_runner_token   = ""
+    github_runner_url     = ""
+    github_repo_owner     = ""
+    github_repo_name      = ""
+    github_runner_group   = "default"
+  }
+  description = "Configuration object for GitHub runner VM deployment (sensitive data only)"
+  sensitive   = true
+}
+
+variable "github_runner_vm_size" {
+  type        = string
+  default     = "Standard_D2s_v3"
+  description = "VM size for the GitHub runner"
+}
+
+variable "github_runner_os_type" {
+  type        = string
+  default     = "linux"
+  description = "Operating system type for the GitHub runner VM (linux or windows)"
+  validation {
+    condition     = contains(["linux", "windows"], var.github_runner_os_type)
+    error_message = "OS type must be either 'linux' or 'windows'."
+  }
+}

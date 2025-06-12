@@ -20,12 +20,12 @@ output "aisearch_connection_id" {
 
 output "container_app_environment_id" {
   description = "The ID of the Container Apps Environment"
-  value       = module.github_runner_aca_primary.container_app_environment_id
+  value       = var.enable_vm_github_runner ? null : (length(module.github_runner_aca_primary) > 0 ? module.github_runner_aca_primary[0].container_app_environment_id : null)
 }
 
 output "github_runner_app_url" {
   description = "The URL of the GitHub runner Container App"
-  value       = module.github_runner_aca_primary.github_runner_app_url
+  value       = var.enable_vm_github_runner ? null : (length(module.github_runner_aca_primary) > 0 ? module.github_runner_aca_primary[0].github_runner_app_url : null)
 }
 
 output "container_registry_id" {
@@ -36,4 +36,8 @@ output "container_registry_id" {
 output "container_registry_login_server" {
   description = "The login server URL for the Azure Container Registry"
   value       = module.github_runner_aca_primary.container_registry_login_server
+}
+output "github_runner_vm_name" {
+  description = "The name of the GitHub runner VM"
+  value       = var.enable_vm_github_runner ? (length(module.github_runner_vm) > 0 ? module.github_runner_vm[0].github_runner_vm_name : null) : null
 }
