@@ -18,9 +18,8 @@ network security.
     - [Quickstart](#quickstart)
       - [Deployment Instructions](#deployment-instructions)
   - [Demo (TBD)](#demo-tbd)
+  - [Next Steps](#next-steps)
   - [Workflows](#workflows)
-    - [Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-    - [Add Required Secrets to GitHub](#add-required-secrets-to-github)
   - [Resource Configuration Notes](#resource-configuration-notes)
   - [Resources](#resources)
   - [Data Collection](#data-collection)
@@ -279,6 +278,14 @@ To run the demo, follow these steps:
 2.
 3.
 
+## Next Steps
+
+At this point, you have a complete application deployed on Azure using your local dev box. But there is much more that the Azure Developer CLI can do. These next steps will introduce you to additional commands that will make creating applications on Azure much easier. Using the Azure Developer CLI, you can setup your pipelines, monitor your application, test and debug locally.
+
+azd pipeline config - to automate the process to create you own copy of this repo, host it on GitHub organization of your choice, create the needed federated credentials, Github workflow and their needed workflow variables to deploy your code whenever changes are pushed to the main branch.
+
+azd down - to delete all the Azure resources created with this template
+
 ## Workflows
 
 A mature workflow for a solution not only automates the deployment of the IAC resources, and the
@@ -291,46 +298,9 @@ and [Gitleaks](https://github.com/gitleaks/gitleaks) into both Dev loop and depl
 These tools run automatically before executing the azd up command, ensuring security, compliance,
 and best practices are validated prior to deploying the solution.
 
-The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml), utilizes Federated
+The main workflow, defined in [azure-dev.yml](.github/workflows/azure-dev.yml), utilizes Federated
 credentials to ensure secure authentication.
 
-### Set Up Federated Identity Credential in Azure
-
-Before setting up a federated identity credential in Azure, it’s useful to understand how workload
-identity federation works. For a detailed explanation, refer to the official
-[Microsoft documentation on federated credentials](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation).
-
-To set up a federated identity credential in Azure, follow these steps:
-
-1. Navigate to **Azure Portal** → **App registrations** → select your app registration.
-1. Under **Certificates & Secrets**, click **Federated credentials** → **Add credential**.
-1. Configure the federated credential:
-   - **Issuer**: `https://token.actions.githubusercontent.com`
-   - **Subject Identifier**:
-     - For repository-level trust: `repo:<your-org>/<your-repo>:ref:refs/heads/<branch-name>`
-   - **Audience**: `api://AzureADTokenExchange`
-   - Click **Add**.
-
-### Add Required Secrets to GitHub
-
-1. Go to **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
-1. Add the following secrets:
-
-   - `AZURE_CLIENT_ID`: Your app registration’s client ID.
-   - `AZURE_TENANT_ID`: Your Azure AD tenant ID.
-   - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID.
-   - `POWER_PLATFORM_CLIENT_ID`: Your Power Platform client ID (typically same as Azure client ID).
-   - `POWER_PLATFORM_TENANT_ID`: Power Platform tenant ID.
-   - `RS_STORAGE_ACCOUNT`: Name of the Azure Storage account used for storing the Terraform remote
-   state.
-   - `RS_CONTAINER_NAME`: Name of the blob container within the storage account that holds the
-   Terraform state file.
-   - `RS_RESOURCE_GROUP`: Name of the resource group containing the storage account for Terraform
-   remote state.
-   - `RESOURCE_SHARE_USER`: Object ID of the Power Platform interactive admin user granted access
-   to deployed resources.
-
-_Note: Client secret is not needed if using federated identity._
 
 ## Resource Configuration Notes
 
