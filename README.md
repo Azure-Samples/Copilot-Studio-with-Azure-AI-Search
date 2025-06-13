@@ -159,8 +159,8 @@ service principal approach is recommended._
   when running with a service principal, as it exposes resource visibility to the specified
   interactive user.
 
-    ```bash
-    azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
+    ```bash    # Example for setting a set of users
+    azd env set RESOURCE_SHARE_USER '["object-id-1","object-id-2"]'
     ```
 
 3. **Authentication**:

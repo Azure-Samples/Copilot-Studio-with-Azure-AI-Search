@@ -17,3 +17,8 @@ output "aisearch_connection_id" {
   description = "The ID of the AI Search connector in Power Platform"
   value       = powerplatform_connection.ai_search_connection.id
 }
+
+output "resource_group_name" {
+  description = "The name of the resource group containing all resources"
+  value       = azurerm_resource_group.this.name
+}
