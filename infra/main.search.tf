@@ -77,8 +77,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_links" {
 
 # DNS Zone settings can be included in the azurerm_private_endpoint resource, but we need two A records (for primary and failover), and azurerm_private_endpoint doesn't support multiple addresses in one record.
 resource "azurerm_private_dns_a_record" "primary_and_failover" {
-  name                = azurerm_search_service.ai_search.name
-  records             = [
+  name = azurerm_search_service.ai_search.name
+  records = [
     azurerm_private_endpoint.primary_endpoint.private_service_connection[0].private_ip_address,
     azurerm_private_endpoint.failover_endpoint.private_service_connection[0].private_ip_address
   ]

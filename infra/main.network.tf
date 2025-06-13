@@ -22,7 +22,7 @@ resource "azurerm_subnet" "primary_subnet" {
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
   address_prefixes     = var.primary_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage"]
-  
+
   delegation {
     name = "Microsoft.PowerPlatform/enterprisePolicies"
     service_delegation {
@@ -45,7 +45,7 @@ resource "azurerm_subnet" "ai_search_primary_subnet" {
 
   delegation {
     name = "Microsoft.PowerPlatform/enterprisePolicies"
-    
+
     service_delegation {
       name    = "Microsoft.PowerPlatform/enterprisePolicies"
       actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
@@ -65,7 +65,7 @@ resource "azurerm_subnet" "failover_subnet" {
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
   address_prefixes     = var.failover_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage"]
-  
+
   delegation {
     name = "Microsoft.PowerPlatform/enterprisePolicies"
     service_delegation {
@@ -88,7 +88,7 @@ resource "azurerm_subnet" "ai_search_failover_subnet" {
 
   delegation {
     name = "Microsoft.PowerPlatform/enterprisePolicies"
-    
+
     service_delegation {
       name    = "Microsoft.PowerPlatform/enterprisePolicies"
       actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
@@ -107,7 +107,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
   address_prefixes     = var.primary_pe_subnet_address_spaces
-  
+
   # Required for private endpoints
   private_endpoint_network_policies = "Enabled"
 }
@@ -117,7 +117,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
   address_prefixes     = var.failover_pe_subnet_address_spaces
-  
+
   # Required for private endpoints
   private_endpoint_network_policies = "Enabled"
 }

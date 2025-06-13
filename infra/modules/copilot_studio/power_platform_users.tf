@@ -15,7 +15,7 @@ data "powerplatform_security_roles" "all_roles" {
 
 locals {
   security_role_id  = { for item in data.powerplatform_security_roles.all_roles.security_roles : item.name => item.role_id }
-  security_role_ids = [for name in var.pp_environment_user_Security_role : local.security_role_id[name]]
+  security_role_ids = [for name in var.pp_environment_user_security_role : local.security_role_id[name]]
 }
 
 # Add non-dataverse user to Power Platform environment

@@ -335,7 +335,7 @@ variable "primary_pe_subnet_address_spaces" {
 }
 
 variable "failover_pe_subnet_address_spaces" {
-  description = "Address space for the failover private endpoint subnet" 
+  description = "Address space for the failover private endpoint subnet"
   type        = list(string)
   default     = ["10.2.8.0/24"]
 }
