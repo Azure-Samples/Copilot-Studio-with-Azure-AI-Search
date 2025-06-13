@@ -1,9 +1,9 @@
 # APP INSIGHTS VARIABLES
 
 variable "resource_share_user" {
-  type        = string
-  default     = ""
-  description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
+  type        = set(string)
+  default     = []
+  description = "A set of Microsoft Entra ID object IDs for the interactive admin users who will initially have access to the resources created by this pattern. Example: ['object-id-1', 'object-id-2']"
 }
 
 variable "azd_environment_name" {
@@ -335,7 +335,7 @@ variable "primary_pe_subnet_address_spaces" {
 }
 
 variable "failover_pe_subnet_address_spaces" {
-  description = "Address space for the failover private endpoint subnet" 
+  description = "Address space for the failover private endpoint subnet"
   type        = list(string)
   default     = ["10.2.8.0/24"]
 }
