@@ -19,10 +19,11 @@ def concatenate_files(directory_path: str) -> str:
     
     # Get all files recursively, excluding _agent folder
     files = glob.glob(f"{directory_path}/**/*", recursive=True)
-    files = [f for f in files if os.path.isfile(f) and "_agent" not in f]
-    
+    #files = [f for f in files if os.path.isfile(f) and "_agent" not in f]
+
     for file_path in sorted(files):
         try:
+            pritn(f"Processing file: {file_path}")
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 content = file.read()
                 
@@ -37,7 +38,7 @@ def concatenate_files(directory_path: str) -> str:
     return concatenated_content
 
 async def main() -> None:
-    project_root = "/workspaces/Copilot-Studio-with-Azure-AI-Search/src/search"
+    project_root = "/workspaces/Copilot-Studio-with-Azure-AI-Search/src/powerplatform/copilot_studio_gold_agent"
     
     # Option 1: Concatenate all files in the project and analyze with agent
     concatenated = concatenate_files(project_root)
