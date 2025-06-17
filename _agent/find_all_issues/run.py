@@ -8,6 +8,9 @@ from agent import CodeQualityAgent
 async def main() -> None:
     project_root = "/workspaces/Copilot-Studio-with-Azure-AI-Search"
     md_files = glob.glob(f"{project_root}/**/*.md", recursive=True)
+    
+    # Filter out files in the _agent folder
+    md_files = [f for f in md_files if "_agent" not in f]
 
     code_agent = CodeQualityAgent()
     for file_path in md_files:
