@@ -1,0 +1,19 @@
+import asyncio
+import os
+import glob
+from pathlib import Path
+
+from agent import CodeQualityAgent
+
+async def main() -> None:
+    project_root = "/workspaces/Copilot-Studio-with-Azure-AI-Search"
+    md_files = glob.glob(f"{project_root}/**/*.md", recursive=True)
+
+    code_agent = CodeQualityAgent()
+    for file_path in md_files:
+        absolute_path = os.path.abspath(file_path)
+        print(f"ANALYZING: {absolute_path}")
+        await code_agent.run(file_path=file_path)
+
+if __name__ == "__main__":
+    asyncio.run(main())
