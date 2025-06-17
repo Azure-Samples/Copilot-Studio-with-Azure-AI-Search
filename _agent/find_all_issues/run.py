@@ -37,7 +37,7 @@ def concatenate_files(directory_path: str) -> str:
     return concatenated_content
 
 async def main() -> None:
-    project_root = "/workspaces/Copilot-Studio-with-Azure-AI-Search/infra"
+    project_root = "/workspaces/Copilot-Studio-with-Azure-AI-Search/src/search"
     
     # Option 1: Concatenate all files in the project and analyze with agent
     concatenated = concatenate_files(project_root)

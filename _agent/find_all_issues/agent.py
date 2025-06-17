@@ -77,6 +77,7 @@ class CodeQualityAgent:
         - do not analyze additional files, or execute other actions.
         - do not ask for any clarifications, just start analyzing the content
         - ignore the comment lines in the content
+    - Always save the findings in files on the disk. 
 
     # Content to analyze:
     {content}
