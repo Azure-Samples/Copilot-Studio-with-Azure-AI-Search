@@ -23,7 +23,7 @@ def concatenate_files(directory_path: str) -> str:
 
     for file_path in sorted(files):
         try:
-            pritn(f"Processing file: {file_path}")
+            print(f"Processing file: {file_path}")
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 content = file.read()
                 
