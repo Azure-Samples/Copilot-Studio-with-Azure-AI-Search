@@ -11,3 +11,15 @@ resource "azurerm_role_assignment" "ai_search_to_storage" {
   scope                = module.storage_account_and_container.resource_id
   role_definition_name = "Storage Blob Data Reader"
 }
+
+resource "azurerm_role_assignment" "blob_data_contributor" {
+  scope                = module.storage_account_and_container.resource_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
+}
+
+resource "azurerm_role_assignment" "file_data_privileged_contributor" {
+  scope                = module.storage_account_and_container.resource_id
+  role_definition_name = "Storage File Data Privileged Contributor"
+  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
+}

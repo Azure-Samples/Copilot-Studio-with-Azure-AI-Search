@@ -34,3 +34,9 @@ resource "time_sleep" "wait_for_storage" {
 
   depends_on = [module.storage_account_and_container]
 }
+
+resource "azurerm_storage_container" "data" {
+  name                  = "data"
+  storage_account_id  = module.storage_account_and_container.resource_id
+  container_access_type = "private"
+}
