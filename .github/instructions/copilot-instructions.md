@@ -1,8 +1,38 @@
-# Copilot Instructions
+This repository implements an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search using Terraform infrastructure as code and Azure Developer CLI for deployment.
 
-## Coding Guidelines
+We use Terraform with the Azure Provider for all infrastructure provisioning, following a modular structure with separate files for different service types (main.ai.tf, main.search.tf, main.network.tf, etc.).
 
-### Terraform Best Practices
+We deploy Power Platform solutions using PowerShell scripts and the Power Platform CLI (PAC CLI), with automated solution deployment via azd hooks.
+
+We use Azure Developer CLI (azd) as our primary deployment tool, with comprehensive pre-provision hooks for security scanning using Gitleaks, Checkov, and TFLint.
+
+We use snake_case naming for all Terraform resources, variables, and modules, never camelCase or PascalCase.
+
+We authenticate using Service Principal authentication for automation scenarios and support GitHub federated identity for CI/CD pipelines.
+
+We use PowerShell Core (pwsh) for all automation scripts with comprehensive error handling, parameter validation, and proper logging.
+
+We follow enterprise security practices: never hardcode secrets, use Azure Key Vault for sensitive data, mark Terraform variables as sensitive when needed, and implement proper RBAC.
+
+We use Azure Storage backend for Terraform remote state management to enable team collaboration and state consistency.
+
+We tag all Azure resources with azd-env-name and other metadata for organization and cost tracking.
+
+We use the powerplatform Terraform provider for Power Platform environment and connection management.
+
+We implement network security with virtual network injection for Power Platform, private endpoints for Azure services, and enterprise policies.
+
+We use Azure AI Search with vector search capabilities and OpenAI embeddings for the knowledge base functionality.
+
+We organize Terraform code with main.tf as the entry point, variables.tf for inputs, outputs.tf for azd bindings, and provider.tf for provider configurations.
+
+We use modular Terraform structure with reusable modules in the infra/modules/ directory.
+
+We implement retry logic and exponential backoff for transient failures in PowerShell scripts, especially for Power Platform operations.
+
+We use GitHub Actions workflows with federated identity credentials for CI/CD, avoiding long-lived secrets.
+
+## Terraform Best Practices
 
 - Use `snake_case` for all variable, resource, and module names.
 - Use double quotes (`"`) for strings, not single quotes.
@@ -102,3 +132,4 @@ azd down             # Destroy all provisioned resources
 - Use remote state (e.g., Azure Storage backend) to avoid local state file conflicts.
 - Use `outputs.tf` to export values required by `azd` to deploy and configure services.
 - Reference service-level variables via `${azurerm_...}` resources in outputs for app service bindings.
+- We name our feature branches using the following format: mcs/<github user name>/<issue number>-<short-description>
