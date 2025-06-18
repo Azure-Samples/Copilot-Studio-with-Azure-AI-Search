@@ -284,6 +284,8 @@ Set the following environment variables for GitHub runner deployment:
 
 ```bash
 # GitHub configuration
+azd env set DEPLOY_GITHUB_RUNNER "true"  # optional, sets to "true" to enable github runners, defaults to "false"
+azd env set ENABLE_FAILOVER_GITHUB_RUNNER "false".  # optional, sets to "true" to enable failover region deployment, defaults to "false"
 azd env set GITHUB_PAT "<your-github-personal-access-token>"
 azd env set GITHUB_REPO_OWNER "<your-github-username-or-org>"
 azd env set GITHUB_REPO_NAME "<your-repository-name>"

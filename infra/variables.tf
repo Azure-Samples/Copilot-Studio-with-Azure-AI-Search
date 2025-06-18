@@ -373,6 +373,12 @@ variable "failover_gh_runner_subnet_address_spaces" {
   description = "GitHub runner subnet address spaces in the failover VNET. Must be /23 or larger for Container App Environment."
 }
 
+variable "deploy_github_runner" {
+  type        = bool
+  default     = false
+  description = "Deploy GitHub Actions self-hosted runner infrastructure. Set to true to enable GitHub runner resources."
+}
+
 variable "enable_failover_github_runner" {
   type        = bool
   default     = false # Disabled to reduce runtime

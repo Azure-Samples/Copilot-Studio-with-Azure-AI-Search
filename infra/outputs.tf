@@ -25,22 +25,22 @@ output "resource_group_name" {
 
 output "container_app_environment_id" {
   description = "The ID of the Container Apps Environment"
-  value       = module.github_runner_aca_primary.container_app_environment_id
+  value       = var.deploy_github_runner ? module.github_runner_aca_primary[0].container_app_environment_id : null
 }
 
 output "github_runner_app_url" {
   description = "The URL of the GitHub runner Container App"
-  value       = module.github_runner_aca_primary.github_runner_app_url
+  value       = var.deploy_github_runner ? module.github_runner_aca_primary[0].github_runner_app_url : null
 }
 
 output "container_registry_id" {
   description = "The ID of the Azure Container Registry"
-  value       = module.github_runner_aca_primary.container_registry_id
+  value       = var.deploy_github_runner ? module.github_runner_aca_primary[0].container_registry_id : null
 }
 
 output "container_registry_login_server" {
   description = "The login server URL for the Azure Container Registry"
-  value       = module.github_runner_aca_primary.container_registry_login_server
+  value       = var.deploy_github_runner ? module.github_runner_aca_primary[0].container_registry_login_server : null
 }
 
 output "openai_endpoint" {

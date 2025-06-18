@@ -129,6 +129,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
 #---- Set up GitHub Runners ----
 
 resource "azurerm_subnet" "github_runner_primary_subnet" {
+  count                = var.deploy_github_runner ? 1 : 0
   name                 = "github-runner-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -146,11 +147,13 @@ resource "azurerm_subnet" "github_runner_primary_subnet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "github_runner_primary_subnet_nat" {
-  subnet_id      = azurerm_subnet.github_runner_primary_subnet.id
+  count          = var.deploy_github_runner ? 1 : 0
+  subnet_id      = azurerm_subnet.github_runner_primary_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
 resource "azurerm_subnet" "github_runner_failover_subnet" {
+  count                = var.deploy_github_runner ? 1 : 0
   name                 = "github-runner-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -168,7 +171,8 @@ resource "azurerm_subnet" "github_runner_failover_subnet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "github_runner_failover_subnet_nat" {
-  subnet_id      = azurerm_subnet.github_runner_failover_subnet.id
+  count          = var.deploy_github_runner ? 1 : 0
+  subnet_id      = azurerm_subnet.github_runner_failover_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
