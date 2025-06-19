@@ -141,8 +141,6 @@ resource "azapi_resource" "run_python_from_storage" {
         
         # Upload data files
         cd data
-        # TODO this can go once requirements.txt lives in this repo
-        pip install --force-reinstall "msal[broker]==1.20.0" "msal-extensions~=1.0.0"
         pip install -r requirements.txt
         python upload_data.py --storage_name $MAIN_STORAGE_ACCOUNT_NAME --container_name $DATA_CONTAINER_NAME
         
