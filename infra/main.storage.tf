@@ -20,6 +20,12 @@ module "storage_account_and_container" {
   tags             = var.tags
   enable_telemetry = var.enable_telemetry
 
+  network_rules = {
+    bypass                     = ["AzureServices"]
+    default_action             = "Deny"
+    virtual_network_subnet_ids = toset([azurerm_subnet.main.id])
+  }
+
   containers = {
     (var.cps_container_name) = {
       name          = var.cps_container_name
