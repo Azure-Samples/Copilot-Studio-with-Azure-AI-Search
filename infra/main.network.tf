@@ -142,7 +142,7 @@ resource "azurerm_subnet" "main" {
   name                 = "main-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
-  address_prefixes     = ["10.10.1.0/24"]
+  address_prefixes     = ["10.1.12.0/24"]
   service_endpoints    = ["Microsoft.Storage"]
   delegation {
     name = "aci-delegation"
