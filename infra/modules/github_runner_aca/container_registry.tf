@@ -1,13 +1,19 @@
 # Azure Container Registry for GitHub Runner Docker images
 
 resource "azurerm_container_registry" "github_runners" {
+  # checkov:skip=CKV_AZURE_139: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
+  # checkov:skip=CKV_AZURE_164: Not needed since image is built and published together with ACR creation
+  # checkov:skip=CKV_AZURE_165: Deploying with minimal infrastructure for evaluation and cost-saving
+  # checkov:skip=CKV_AZURE_166: Not needed since image is built and published together with ACR creation
+  # checkov:skip=CKV_AZURE_233: Deploying with minimal infrastructure for evaluation and cost-saving
+  # checkov:skip=CKV_AZURE_237: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
   name                            = "acr${var.unique_id}"
   resource_group_name             = var.resource_group_name
   location                        = var.location
   sku                             = "Premium"
   admin_enabled                   = false
+  retention_policy_in_days        = 7
 
-  # checkov:skip=CKV_AZURE_139: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
   public_network_access_enabled   = true
 
   identity {
