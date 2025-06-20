@@ -7,14 +7,14 @@ resource "azurerm_container_registry" "github_runners" {
   # checkov:skip=CKV_AZURE_166: Not needed since image is built and published together with ACR creation
   # checkov:skip=CKV_AZURE_233: Deploying with minimal infrastructure for evaluation and cost-saving
   # checkov:skip=CKV_AZURE_237: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
-  name                     = "acr${var.unique_id}"
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  sku                      = "Premium"
-  admin_enabled            = false
-  retention_policy_in_days = 7
+  name                            = "acr${var.unique_id}"
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
+  sku                             = "Premium"
+  admin_enabled                   = false
+  retention_policy_in_days        = 7
 
-  public_network_access_enabled = true
+  public_network_access_enabled   = true
 
   identity {
     type = "SystemAssigned"
@@ -24,7 +24,7 @@ resource "azurerm_container_registry" "github_runners" {
 }
 
 resource "azapi_update_resource" "allow_task_network_bypass" {
-  type        = "Microsoft.ContainerRegistry/registries@2025-05-01-preview"
+  type = "Microsoft.ContainerRegistry/registries@2025-05-01-preview"
   resource_id = azurerm_container_registry.github_runners.id
 
   body = {
@@ -59,9 +59,9 @@ resource "azurerm_private_endpoint" "acr" {
 }
 
 resource "azurerm_private_dns_zone" "acr" {
-  name                = "privatelink.azurecr.io"
-  resource_group_name = var.resource_group_name
-  tags                = var.tags
+  name                      = "privatelink.azurecr.io"
+  resource_group_name       = var.resource_group_name
+  tags                      = var.tags
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "acr" {
@@ -74,11 +74,11 @@ resource "azurerm_private_dns_zone_virtual_network_link" "acr" {
 }
 
 resource "azurerm_role_assignment" "user_identity_acr_pull" {
-  scope                = azurerm_container_registry.github_runners.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.github_runner.principal_id
+  scope                 = azurerm_container_registry.github_runners.id
+  role_definition_name  = "AcrPull"
+  principal_id          = azurerm_user_assigned_identity.github_runner.principal_id
 
-  depends_on = [azurerm_private_endpoint.acr]
+  depends_on            = [azurerm_private_endpoint.acr]
 }
 
 resource "azurerm_container_registry_task" "github_runner_build" {
@@ -91,7 +91,7 @@ resource "azurerm_container_registry_task" "github_runner_build" {
   }
 
   docker_step {
-    dockerfile_path = "Dockerfile"
+    dockerfile_path      = "Dockerfile"
     # Note: Use "infra/containers/github-runner" for context_path when enabling source_trigger
     context_path         = "https://github.com/${var.github_runner_config.github_repo_owner}/${var.github_runner_config.github_repo_name}#${var.github_runner_config.github_runner_image_branch}:infra/containers/github-runner"
     context_access_token = var.github_runner_config.github_pat

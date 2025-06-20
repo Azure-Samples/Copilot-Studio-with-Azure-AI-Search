@@ -67,7 +67,7 @@ variable "cognitive_deployments" {
       version = string
     })
     scale = object({
-      type     = string
+      type = string
       capacity = optional(number)
     })
     rai_policy_name = string
@@ -81,7 +81,7 @@ variable "cognitive_deployments" {
         version = "1"
       }
       scale = {
-        type     = "Standard"
+        type = "Standard"
         capacity = 100
       }
       rai_policy_name = "Microsoft.DefaultV2"
@@ -344,18 +344,18 @@ variable "failover_pe_subnet_address_spaces" {
 
 variable "github_runner_config" {
   type = object({
-    image_name                 = string
-    image_tag                  = string
-    github_pat                 = string
-    github_repo_owner          = string
-    github_repo_name           = string
-    github_runner_group        = string
-    github_runner_image_branch = string
-    min_replicas               = number
-    max_replicas               = number
-    cpu_requests               = string
-    memory_requests            = string
-    workload_profile_type      = string
+    image_name                  = string
+    image_tag                   = string
+    github_pat                  = string
+    github_repo_owner           = string
+    github_repo_name            = string
+    github_runner_group         = string
+    github_runner_image_branch  = string
+    min_replicas                = number
+    max_replicas                = number
+    cpu_requests                = string
+    memory_requests             = string
+    workload_profile_type       = string
   })
   description = "Configuration for GitHub self-hosted runners"
   sensitive   = true

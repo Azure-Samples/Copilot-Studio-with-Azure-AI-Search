@@ -6,22 +6,29 @@ network security.
 
 ## Table of Contents
 
-- [1. Features](#features)
-- [2. Architecture](#architecture)
-- [3. Getting Started](#getting-started)
-  - [3.1 Prerequisites](#prerequisites)
-    - [3.1.1 App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
-    - [3.1.2 User Configuration](#user-configuration)
-    - [3.1.3 Development Environment Setup](#development-environment-setup)
-  - [3.2 Quickstart](#quickstart)
-    - [3.2.1 Deployment Instructions](#deployment-instructions)
-- [4. GitHub Self-Hosted Runners](#github-self-hosted-runners)
-- [5. Demo](#demo-tbd)
-- [6. Workflows](#workflows)
-  - [6.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-  - [6.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
-- [7. Resources](#resources)
-- [8. Data Collection](#data-collection)
+- [Copilot Studio with Azure AI Search](#copilot-studio-with-azure-ai-search)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Architecture](#architecture)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+      - [App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
+      - [User Configuration](#user-configuration)
+      - [Development Environment Setup](#development-environment-setup)
+    - [Quickstart](#quickstart)
+      - [Deployment Instructions](#deployment-instructions)
+  - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
+    - [GitHub Personal Access Token Requirements](#github-personal-access-token-requirements)
+    - [Configuring Environment Variables](#configuring-environment-variables)
+    - [Deploying Runners](#deploying-runners)
+  - [Demo (TBD)](#demo-tbd)
+  - [Next Steps](#next-steps)
+  - [Workflows](#workflows)
+    - [Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
+    - [Add Required Secrets to GitHub](#add-required-secrets-to-github)
+  - [Resource Configuration Notes](#resource-configuration-notes)
+  - [Resources](#resources)
+  - [Data Collection](#data-collection)
 
 ## Features
 
@@ -269,9 +276,9 @@ service principal approach is recommended.*
     _Note: In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has 
     completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors._
 
-*Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
+_Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
 that the storage account's network access settings allow traffic from your IP address. You may need
-to whitelist your IP or temporarily enable public access, depending on your organization's policy.*
+to whitelist your IP or temporarily enable public access, depending on your organization's policy._
 
 ## GitHub Self-Hosted Runners
 
@@ -312,10 +319,10 @@ After configuring all environment variables, the GitHub runners will be automati
 using the `azd up` command. They will then be registered with your repository and appear under
 *Settings > Actions > Runners* in your repository.
 
-*Note: If you encounter the following error:
+_Note: If you encounter the following error:
 `MissingSubscriptionRegistration: The subscription is not registered to use namespace 'Microsoft.App'`
 please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
-provider in your subscription.*
+provider in your subscription._
 
 ## Demo (TBD)
 
@@ -391,6 +398,7 @@ To set up a federated identity credential in Azure, follow these steps:
    remote state.
    - `RESOURCE_SHARE_USER`: Set of Microsoft Entra ID object IDs for interactive admin users granted access (see [documentation](./docs/resource_share_user.md))
    to deployed resources.
+   - `GITHUB_PAT`: GitHub personal access token.
    - `GITHUB_PAT`: GitHub personal access token.
 
 *Note: Client secret is not needed if using federated identity.*

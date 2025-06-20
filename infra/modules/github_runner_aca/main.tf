@@ -17,8 +17,6 @@ locals {
   )
 
   subscription_id = data.azurerm_subscription.current.subscription_id
-  labels          = "self-hosted,container-apps,${var.resource_group_name},${var.environment_name},${var.location},${var.unique_id}"
-  runner_scope    = "repo"
 }
 
 # Log Analytics Workspace for Container Apps
@@ -59,10 +57,10 @@ resource "azurerm_container_app_environment" "github_runners" {
 
 # Container App for GitHub Runners
 resource "azurerm_container_app" "github_runner" {
-  name                         = local.runner_name
-  container_app_environment_id = azurerm_container_app_environment.github_runners.id
-  resource_group_name          = var.resource_group_name
-  revision_mode                = "Single"
+  name                          = local.runner_name
+  container_app_environment_id  = azurerm_container_app_environment.github_runners.id
+  resource_group_name           = var.resource_group_name
+  revision_mode                 = "Single"
 
   identity {
     type         = "UserAssigned"
@@ -81,7 +79,7 @@ resource "azurerm_container_app" "github_runner" {
 
       env {
         name  = "RUNNER_SCOPE"
-        value = local.runner_scope
+        value = "repo"
       }
       env {
         name  = "REPO_URL"
@@ -97,7 +95,7 @@ resource "azurerm_container_app" "github_runner" {
       }
       env {
         name  = "LABELS"
-        value = local.labels
+        value = "self-hosted,container-apps,${var.resource_group_name},${var.environment_name},${var.location},${var.unique_id}"
       }
       env {
         name  = "DISABLE_RUNNER_UPDATE"
@@ -131,8 +129,8 @@ resource "azurerm_container_app" "github_runner" {
         owner                     = var.github_runner_config.github_repo_owner
         repos                     = var.github_runner_config.github_repo_name
         targetWorkflowQueueLength = "1"
-        labels                    = local.labels
-        runnerScope               = local.runner_scope
+        labels                    = var.github_runner_config.github_runner_group
+        runnerScope               = "repo"
       }
 
       authentication {
@@ -143,8 +141,8 @@ resource "azurerm_container_app" "github_runner" {
   }
 
   registry {
-    server   = azurerm_container_registry.github_runners.login_server
-    identity = azurerm_user_assigned_identity.github_runner.id
+    server      = azurerm_container_registry.github_runners.login_server
+    identity    = azurerm_user_assigned_identity.github_runner.id
   }
 
   secret {
@@ -177,7 +175,7 @@ resource "null_resource" "deregister_runner" {
     runner = azurerm_container_app.github_runner.name
   }
 
-  depends_on = [azurerm_container_app.github_runner]
+  depends_on = [ azurerm_container_app.github_runner ]
 
   provisioner "local-exec" {
     when = destroy

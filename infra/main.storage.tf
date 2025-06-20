@@ -86,3 +86,4 @@ resource "time_sleep" "wait_for_storage" {
 
   depends_on = [module.storage_account_and_container]
 }
+

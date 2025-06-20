@@ -5,18 +5,18 @@ variable "environment_name" {
 
 variable "github_runner_config" {
   type = object({
-    image_name                 = string
-    image_tag                  = string
-    github_pat                 = string
-    github_repo_owner          = string
-    github_repo_name           = string
-    github_runner_group        = string
-    github_runner_image_branch = string
-    min_replicas               = number
-    max_replicas               = number
-    cpu_requests               = string
-    memory_requests            = string
-    workload_profile_type      = string
+    image_name                  = string
+    image_tag                   = string
+    github_pat                  = string
+    github_repo_owner           = string
+    github_repo_name            = string
+    github_runner_group         = string
+    github_runner_image_branch  = string
+    min_replicas                = number
+    max_replicas                = number
+    cpu_requests                = string
+    memory_requests             = string
+    workload_profile_type       = string
   })
   description = "Configuration for GitHub self-hosted runners"
   sensitive   = true
