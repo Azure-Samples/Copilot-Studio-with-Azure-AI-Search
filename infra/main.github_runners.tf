@@ -1,7 +1,7 @@
 #---- GitHub Actions Self-Hosted Runner Module - Primary Region ----
 # Only deploy when enable_vm_github_runner is false
 module "github_runner_aca_primary" {
-  count  = var.deploy_github_runner && var.enable_vm_github_runner ? 0 : 1
+  count  = (var.deploy_github_runner && !var.enable_vm_github_runner) ? 1 : 0
   source = "./modules/github_runner_aca"
 
   environment_name            = var.azd_environment_name
@@ -20,7 +20,7 @@ module "github_runner_aca_primary" {
 #---- GitHub Actions Self-Hosted Runner Module (Virtual Machine) ----
 # Only deploy when enable_vm_github_runner is true
 module "github_runner_vm" {
-  count  = var.deploy_github_runner && var.enable_vm_github_runner ? 1 : 0
+  count  = (var.deploy_github_runner && var.enable_vm_github_runner) ? 1 : 0
   source = "./modules/github_runner_vm"
 
   vm_github_runner_config = var.vm_github_runner_config

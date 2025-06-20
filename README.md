@@ -309,6 +309,11 @@ _Note: If you encounter the following error:
 please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
 provider in your subscription._
 
+### Additional Runner Deployment Options
+
+This project deploys GitHub self-hosted runners, using using Azure Virtual Machines.
+See the [VM GitHub Runner Deployment](infra/modules/github_runner_vm/README.md) for detailed instructions on configuring and deploying VM-based runners.
+
 ## Demo (TBD)
 
 A demo app is included to show how to use the project.
