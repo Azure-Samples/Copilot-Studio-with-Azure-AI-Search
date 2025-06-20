@@ -350,14 +350,8 @@ paths = [
   '''UDMSecretChecksv8.toml''',
   '''GitleaksUdmCombo.toml''',
 ]
-files = [
-  '''main.github_runners.tf'''
-]
 regexTarget = "line"
-regexes = [
-  '''#GitLeaksIgnore''',
-  '''password_secret_name\s*=\s*".*?"'''
-]
+regexes = ['''#GitLeaksIgnore''']
 
 commits = []
 repos = []
