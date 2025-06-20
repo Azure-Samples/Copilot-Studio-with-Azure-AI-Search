@@ -15,12 +15,13 @@ network security.
     - [3.1.3 Development Environment Setup](#development-environment-setup)
   - [3.2 Quickstart](#quickstart)
     - [3.2.1 Deployment Instructions](#deployment-instructions)
-- [4. Demo](#demo-tbd)
-- [5. Workflows](#workflows)
-    - [5.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-    - [5.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
-- [6. Resources](#resources)
-- [7. Data Collection](#data-collection)
+- [4. GitHub Self-Hosted Runners](#github-self-hosted-runners)
+- [5. Demo](#demo-tbd)
+- [6. Workflows](#workflows)
+  - [6.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
+  - [6.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
+- [7. Resources](#resources)
+- [8. Data Collection](#data-collection)
 
 ## Features
 
@@ -261,8 +262,52 @@ service principal approach is recommended._
     ```
 
 _Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
-that the storage account’s network access settings allow traffic from your IP address. You may need
-to whitelist your IP or temporarily enable public access, depending on your organization’s policy._
+that the storage account's network access settings allow traffic from your IP address. You may need
+to whitelist your IP or temporarily enable public access, depending on your organization's policy._
+
+## GitHub Self-Hosted Runners
+
+This project deploys GitHub self-hosted runners, using Azure Container Apps for isolated and
+scalable CI/CD workloads.
+
+### GitHub Personal Access Token Requirements
+
+Create a **classic** GitHub Personal Access Token with the following permissions:
+
+- **Repository permissions**:
+  - `repo` (Full control of private repositories)
+  - `workflow` (Update GitHub Action workflows)
+
+### Configuring Environment Variables
+
+Set the following environment variables for GitHub runner deployment:
+
+```bash
+# GitHub configuration
+azd env set DEPLOY_GITHUB_RUNNER "true"  # optional, sets to "true" to enable github runners, defaults to "false"
+azd env set ENABLE_FAILOVER_GITHUB_RUNNER "false".  # optional, sets to "true" to enable failover region deployment, defaults to "false"
+azd env set GITHUB_PAT "<your-github-personal-access-token>"
+azd env set GITHUB_REPO_OWNER "<your-github-username-or-org>"
+azd env set GITHUB_REPO_NAME "<your-repository-name>"
+azd env set GITHUB_RUNNER_IMAGE_NAME "<github-runner-image-name>"  # optional, defaults to "github-runner"
+azd env set GITHUB_RUNNER_IMAGE_TAG "<github-runner-image-tag>"  # optional, defaults to "latest"
+azd env set GITHUB_RUNNER_IMAGE_BRANCH "<branch-containing-docker-file>"  # optional, defaults to "main"
+azd env set GITHUB_RUNNER_GROUP "<github-runner-group>"  # optional, defaults to "default"
+
+# Optional: Container Apps workload profile
+azd env set WORKLOAD_PROFILE_TYPE "D4"  # optional, defaults to "D4"
+```
+
+### Deploying Runners
+
+After configuring all environment variables, the GitHub runners will be automatically deployed
+using the `azd up` command. They will then be registered with your repository and appear under
+*Settings > Actions > Runners* in your repository.
+
+_Note: If you encounter the following error:
+`MissingSubscriptionRegistration: The subscription is not registered to use namespace 'Microsoft.App'`
+please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
+provider in your subscription._
 
 ## Demo (TBD)
 
@@ -326,6 +371,7 @@ To set up a federated identity credential in Azure, follow these steps:
    remote state.
    - `RESOURCE_SHARE_USER`: Set of Microsoft Entra ID object IDs for interactive admin users granted access (see [documentation](./docs/resource_share_user.md))
    to deployed resources.
+   - `GITHUB_PAT`: GitHub personal access token.
 
 _Note: Client secret is not needed if using federated identity._
 
