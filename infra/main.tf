@@ -37,10 +37,10 @@ module "copilot_studio" {
   failover_subnet_name = azurerm_subnet.ai_search_failover_subnet.name
 
   # Power Platform properties
-  # Note: the Power Platform environment variables have default values that will 
-  #  be used to generate new resources. If you have an existing environment you'd 
+  # Note: the Power Platform environment variables have default values that will
+  #  be used to generate new resources. If you have an existing environment you'd
   #  prefer to manage instead, specify the environment IDs in the variable objects
-  #  and the module will attempt to manage the existing environment instead. 
+  #  and the module will attempt to manage the existing environment instead.
   power_platform_environment         = var.power_platform_environment
   power_platform_managed_environment = var.power_platform_managed_environment
 }
