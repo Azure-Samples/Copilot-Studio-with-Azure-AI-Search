@@ -9,14 +9,16 @@ locals {
   # - start with alphabetic, end with alphanumeric
   # - no consecutive '--'
   # - max 32 characters
-  sanitized_env_name = lower(replace(var.environment_name, "/[^a-zA-Z0-9-]/", "-"))
-  runner_name = substr(
+  sanitized_env_name  = lower(replace(var.environment_name, "/[^a-zA-Z0-9-]/", "-"))
+  runner_name         = substr(
     "ca-runner-${local.sanitized_env_name}-${var.unique_id}",
     0,
     32
   )
 
-  subscription_id = data.azurerm_subscription.current.subscription_id
+  subscription_id     = data.azurerm_subscription.current.subscription_id
+  labels              = "self-hosted,container-apps,${var.resource_group_name},${var.environment_name},${var.location},${var.unique_id}"
+  runner_scope        = "repo"
 }
 
 # Log Analytics Workspace for Container Apps
@@ -79,7 +81,7 @@ resource "azurerm_container_app" "github_runner" {
 
       env {
         name  = "RUNNER_SCOPE"
-        value = "repo"
+        value = local.runner_scope
       }
       env {
         name  = "REPO_URL"
@@ -95,7 +97,7 @@ resource "azurerm_container_app" "github_runner" {
       }
       env {
         name  = "LABELS"
-        value = "self-hosted,container-apps,${var.resource_group_name},${var.environment_name},${var.location},${var.unique_id}"
+        value = local.labels
       }
       env {
         name  = "DISABLE_RUNNER_UPDATE"
@@ -129,8 +131,8 @@ resource "azurerm_container_app" "github_runner" {
         owner                     = var.github_runner_config.github_repo_owner
         repos                     = var.github_runner_config.github_repo_name
         targetWorkflowQueueLength = "1"
-        labels                    = var.github_runner_config.github_runner_group
-        runnerScope               = "repo"
+        labels                    = local.labels
+        runnerScope               = local.runner_scope
       }
 
       authentication {
