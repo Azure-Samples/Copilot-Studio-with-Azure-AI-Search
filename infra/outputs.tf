@@ -18,26 +18,33 @@ output "aisearch_connection_id" {
   value       = powerplatform_connection.ai_search_connection.id
 }
 
+output "resource_group_name" {
+  description = "The name of the resource group containing all resources"
+  value       = azurerm_resource_group.this.name
+}
+
 output "container_app_environment_id" {
   description = "The ID of the Container Apps Environment"
-  value       = var.enable_vm_github_runner ? null : (length(module.github_runner_aca_primary) > 0 ? module.github_runner_aca_primary[0].container_app_environment_id : null)
+  value       = var.deploy_github_runner && !var.enable_vm_github_runner ? module.github_runner_aca_primary[0].container_app_environment_id : null
 }
 
 output "github_runner_app_url" {
   description = "The URL of the GitHub runner Container App"
-  value       = var.enable_vm_github_runner ? null : (length(module.github_runner_aca_primary) > 0 ? module.github_runner_aca_primary[0].github_runner_app_url : null)
+  value       = var.deploy_github_runner && !var.enable_vm_github_runner ? module.github_runner_aca_primary[0].github_runner_app_url : null
+  
 }
 
 output "container_registry_id" {
   description = "The ID of the Azure Container Registry"
-  value       = module.github_runner_aca_primary.container_registry_id
+  value       = var.deploy_github_runner && !var.enable_vm_github_runner ? module.github_runner_aca_primary[0].container_registry_id : null
 }
 
 output "container_registry_login_server" {
   description = "The login server URL for the Azure Container Registry"
-  value       = module.github_runner_aca_primary.container_registry_login_server
+  value       = var.deploy_github_runner && !var.enable_vm_github_runner ? module.github_runner_aca_primary[0].container_registry_login_server : null
 }
-output "github_runner_vm_name" {
-  description = "The name of the GitHub runner VM"
-  value       = var.enable_vm_github_runner ? (length(module.github_runner_vm) > 0 ? module.github_runner_vm[0].github_runner_vm_name : null) : null
+
+output "openai_endpoint" {
+  description = "The endpoint URL for the Azure OpenAI service"
+  value       = module.azure_open_ai.endpoint
 }

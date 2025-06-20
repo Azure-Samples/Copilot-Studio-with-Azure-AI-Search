@@ -1,6 +1,8 @@
 # GitHub Actions Self-Hosted Runner Module
 # This module deploys GitHub Actions self-hosted runners on Azure Container Apps
 
+data "azurerm_subscription" "current" {}
+
 locals {
   # Ensure container app name meets Azure naming requirements:
   # - lowercase alphanumeric or '-' only
@@ -13,6 +15,8 @@ locals {
     0,
     32
   )
+
+  subscription_id = data.azurerm_subscription.current.subscription_id
 }
 
 # Log Analytics Workspace for Container Apps
@@ -101,6 +105,18 @@ resource "azurerm_container_app" "github_runner" {
         name  = "RUNNER_NAME"
         value = local.runner_name
       }
+      env {
+        name  = "AZURE_CLIENT_ID"
+        value = azurerm_user_assigned_identity.github_runner.client_id
+      }
+      env {
+        name  = "AZURE_OPENAI_ENDPOINT"
+        value = var.openai_endpoint
+      }
+      env {
+        name  = "AZURE_SUBSCRIPTION_ID"
+        value = local.subscription_id
+      }
     }
 
     custom_scale_rule {
@@ -114,6 +130,7 @@ resource "azurerm_container_app" "github_runner" {
         repos                     = var.github_runner_config.github_repo_name
         targetWorkflowQueueLength = "1"
         labels                    = var.github_runner_config.github_runner_group
+        runnerScope               = "repo"
       }
 
       authentication {

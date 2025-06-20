@@ -454,9 +454,36 @@ gitleaks
 gitleaks.tar.gz
 LICENSE
 
+# Compressed files
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.lzma
+*.cab
+*.iso
+*.jar
+*.war
+*.ear
+*.dmg
+*.img
+*.pkg
+*.deb
+*.rpm
+*.txz
+*.tbz2
+*.tlz
+*.bak
+
 # PowerPlatform Deployment
 power_platform_deployment_settings
 *GoldAgent*
+
 
 # SSH
 .ssh/

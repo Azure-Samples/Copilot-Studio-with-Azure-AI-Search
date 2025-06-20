@@ -158,8 +158,8 @@ service principal approach is recommended._
   when running with a service principal, as it exposes resource visibility to the specified
   interactive user.
 
-    ```bash
-    azd env set RESOURCE_SHARE_USER "<target interactive user's object ID here>"
+    ```bash    # Example for setting a set of users
+    azd env set RESOURCE_SHARE_USER '["object-id-1","object-id-2"]'
     ```
 
 3. **Authentication**:
@@ -284,6 +284,8 @@ Set the following environment variables for GitHub runner deployment:
 
 ```bash
 # GitHub configuration
+azd env set DEPLOY_GITHUB_RUNNER "true"  # optional, sets to "true" to enable github runners, defaults to "false"
+azd env set ENABLE_FAILOVER_GITHUB_RUNNER "false".  # optional, sets to "true" to enable failover region deployment, defaults to "false"
 azd env set GITHUB_PAT "<your-github-personal-access-token>"
 azd env set GITHUB_REPO_OWNER "<your-github-username-or-org>"
 azd env set GITHUB_REPO_NAME "<your-repository-name>"
@@ -367,12 +369,9 @@ To set up a federated identity credential in Azure, follow these steps:
    Terraform state file.
    - `RS_RESOURCE_GROUP`: Name of the resource group containing the storage account for Terraform
    remote state.
-   - `RESOURCE_SHARE_USER`: Object ID of the Power Platform interactive admin user granted access
+   - `RESOURCE_SHARE_USER`: Set of Microsoft Entra ID object IDs for interactive admin users granted access (see [documentation](./docs/resource_share_user.md))
    to deployed resources.
-   - `GH_PAT`: GitHub personal access token.
-   - `RUNNER_IMAGE_NAME`: Name of the GitHub runner Docker image.
-   - `RUNNER_IMAGE_TAG`: Tag of the GitHub runner Docker image.
-   - `RUNNER_IMAGE_BRANCH`: GitHub repo branch containing the Docker file to build.
+   - `GITHUB_PAT`: GitHub personal access token.
 
 _Note: Client secret is not needed if using federated identity._
 

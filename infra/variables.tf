@@ -1,9 +1,9 @@
 # APP INSIGHTS VARIABLES
 
 variable "resource_share_user" {
-  type        = string
-  default     = ""
-  description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
+  type        = set(string)
+  default     = []
+  description = "A set of Microsoft Entra ID object IDs for the interactive admin users who will initially have access to the resources created by this pattern. Example: ['object-id-1', 'object-id-2']"
 }
 
 variable "azd_environment_name" {
@@ -68,6 +68,7 @@ variable "cognitive_deployments" {
     })
     scale = object({
       type = string
+      capacity = optional(number)
     })
     rai_policy_name = string
   }))
@@ -81,6 +82,7 @@ variable "cognitive_deployments" {
       }
       scale = {
         type = "Standard"
+        capacity = 100
       }
       rai_policy_name = "Microsoft.DefaultV2"
     }
@@ -369,6 +371,12 @@ variable "failover_gh_runner_subnet_address_spaces" {
   type        = list(string)
   default     = ["10.2.10.0/23"]
   description = "GitHub runner subnet address spaces in the failover VNET. Must be /23 or larger for Container App Environment."
+}
+
+variable "deploy_github_runner" {
+  type        = bool
+  default     = false
+  description = "Deploy GitHub Actions self-hosted runner infrastructure. Set to true to enable GitHub runner resources."
 }
 
 variable "enable_failover_github_runner" {

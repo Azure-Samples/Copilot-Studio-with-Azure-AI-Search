@@ -58,3 +58,8 @@ variable "virtual_network_id" {
   type        = string
   description = "The ID of the virtual network where the private DNS zone will be linked"
 }
+
+variable "openai_endpoint" {
+  type        = string
+  description = "The Azure OpenAI service endpoint URL"
+}

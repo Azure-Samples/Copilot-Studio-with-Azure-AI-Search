@@ -27,3 +27,13 @@ output "container_registry_login_server" {
   description = "The login server URL for the Azure Container Registry"
   value       = azurerm_container_registry.github_runners.login_server
 }
+
+output "identity_id" {
+  description = "Resource ID of the runner’s user-assigned identity"
+  value       = azurerm_user_assigned_identity.github_runner.id
+}
+
+output "identity_principal_id" {
+  description = "Principal ID of the runner’s user-assigned identity"
+  value       = azurerm_user_assigned_identity.github_runner.principal_id
+}

@@ -1,15 +1,20 @@
 # Azure Container Registry for GitHub Runner Docker images
 
 resource "azurerm_container_registry" "github_runners" {
+  # checkov:skip=CKV_AZURE_139: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
+  # checkov:skip=CKV_AZURE_164: Not needed since image is built and published together with ACR creation
+  # checkov:skip=CKV_AZURE_165: Deploying with minimal infrastructure for evaluation and cost-saving
+  # checkov:skip=CKV_AZURE_166: Not needed since image is built and published together with ACR creation
+  # checkov:skip=CKV_AZURE_233: Deploying with minimal infrastructure for evaluation and cost-saving
+  # checkov:skip=CKV_AZURE_237: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
   name                            = "acr${var.unique_id}"
   resource_group_name             = var.resource_group_name
   location                        = var.location
   sku                             = "Premium"
   admin_enabled                   = false
+  retention_policy_in_days        = 7
 
-  # We need to enable public network access until
-  # networkRuleBypassAllowedForTasks actually works
-  public_network_access_enabled   = true # false
+  public_network_access_enabled   = true
 
   identity {
     type = "SystemAssigned"
@@ -87,23 +92,29 @@ resource "azurerm_container_registry_task" "github_runner_build" {
 
   docker_step {
     dockerfile_path      = "Dockerfile"
-    context_path         = "infra/containers/github-runner"
+    # Note: Use "infra/containers/github-runner" for context_path when enabling source_trigger
+    context_path         = "https://github.com/${var.github_runner_config.github_repo_owner}/${var.github_runner_config.github_repo_name}#${var.github_runner_config.github_runner_image_branch}:infra/containers/github-runner"
     context_access_token = var.github_runner_config.github_pat
     image_names          = ["${var.github_runner_config.image_name}:${var.github_runner_config.image_tag}"]
   }
 
-  source_trigger {
-    name           = "manual-trigger"
-    repository_url = "https://github.com/${var.github_runner_config.github_repo_owner}/${var.github_runner_config.github_repo_name}"
-    source_type    = "Github"
-    branch         = var.github_runner_config.github_runner_image_branch
-    events         = ["commit"]
+  # This webhook allows ACR tasks to listen for new commits from the specified repo branch
+  # and re-build the image automatically.
+  # Since webhook creation requires admin/repo permissions that can be restricted in some organizations,
+  # we have disabled this feature by default to avoid issues.
 
-    authentication {
-      token      = var.github_runner_config.github_pat
-      token_type = "PAT"
-    }
-  }
+  # source_trigger {
+  #   name           = "manual-trigger"
+  #   repository_url = "https://github.com/${var.github_runner_config.github_repo_owner}/${var.github_runner_config.github_repo_name}"
+  #   source_type    = "Github"
+  #   branch         = var.github_runner_config.github_runner_image_branch
+  #   events         = ["commit"]
+
+  #   authentication {
+  #     token      = var.github_runner_config.github_pat
+  #     token_type = "PAT"
+  #   }
+  # }
 
   identity {
     type = "SystemAssigned"
