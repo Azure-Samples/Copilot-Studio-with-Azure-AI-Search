@@ -22,6 +22,7 @@ set `enable_vm_github_runner = true` along with the required GitHub configuratio
 Set these environment variables for the GitHub runner deployment"
 
 ```bash
+azd env set DEPLOY_GITHUB_RUNNER "true"
 azd env set ENABLE_VM_GITHUB_RUNNER "true"
 azd env set GITHUB_RUNNER_URL "<your-github-repo-url>"
 azd env set GITHUB_RUNNER_NAME "<your-github-runner-name>"
