@@ -22,8 +22,6 @@ RUN apt-get update && apt-get install -y \
     python3.10-distutils \
     python3.10-venv \
     python3-pip \
-    nodejs \
-    npm \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,10 +35,9 @@ RUN wget -q https://packages.microsoft.com/config/ubuntu/22.04/packages-microsof
     && dpkg -i /tmp/packages-microsoft-prod.deb \
     && rm -f /tmp/packages-microsoft-prod.deb \
     && apt-get update \
-    && apt-get install -y \
-         powershell \
-         dotnet-sdk-7.0 \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y powershell dotnet-sdk-8.0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && dotnet --list-sdks
 
 # ----------------------------
 # Install Azure CLI
@@ -54,6 +51,28 @@ RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor >
     && apt-get update \
     && apt-get install -y azure-cli \
     && rm -rf /var/lib/apt/lists/*
+
+# ----------------------------
+# Install Power Apps Test Engine
+# ----------------------------
+
+# Install Node.js 18.x
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+ && apt-get install -y nodejs \
+ && npm install -g npm@10 \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install playwright dependencies
+RUN npx playwright install chromium --with-deps
+
+RUN git clone https://github.com/microsoft/PowerApps-TestEngine.git \
+ && cd PowerApps-TestEngine/src \
+ && dotnet build --configuration Release \
+ && cd .. \
+ && pwsh ./bin/Release/PowerAppsTestEngine/playwright.ps1 install
+
+# Install Power Platform CLI
+RUN dotnet tool install --global Microsoft.PowerApps.CLI.Tool
 
 # Create a non-root user for running GitHub Actions runner
 RUN useradd -m -s /bin/bash runner

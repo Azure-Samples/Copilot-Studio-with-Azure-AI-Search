@@ -63,6 +63,7 @@ resource "azurerm_container_app" "github_runner" {
   container_app_environment_id  = azurerm_container_app_environment.github_runners.id
   resource_group_name           = var.resource_group_name
   revision_mode                 = "Single"
+  workload_profile_name         = "wp-general"
 
   identity {
     type         = "UserAssigned"
