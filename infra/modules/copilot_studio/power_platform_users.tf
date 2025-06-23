@@ -15,7 +15,6 @@ data "powerplatform_security_roles" "all_roles" {
 }
 
 locals {
-  power_platform_environment_id       = coalesce(var.power_platform_environment.id, powerplatform_environment.this[0].id)
   security_role_id  = { for item in data.powerplatform_security_roles.all_roles.security_roles : item.name => item.role_id }
   # Add error checking for missing roles
   security_role_ids = [for name in var.pp_environment_user_security_role : 
