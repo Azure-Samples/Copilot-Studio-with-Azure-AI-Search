@@ -12,6 +12,8 @@ resource "azurerm_search_service" "ai_search" {
   public_network_access_enabled = var.ai_search_config.public_network_access_enabled
   replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
+  local_authentication_enabled  = true
+  authentication_failure_mode   = "http403"
 
   identity {
     type = "SystemAssigned"
@@ -77,8 +79,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "dns_links" {
 
 # DNS Zone settings can be included in the azurerm_private_endpoint resource, but we need two A records (for primary and failover), and azurerm_private_endpoint doesn't support multiple addresses in one record.
 resource "azurerm_private_dns_a_record" "primary_and_failover" {
-  name                = azurerm_search_service.ai_search.name
-  records             = [
+  name = azurerm_search_service.ai_search.name
+  records = [
     azurerm_private_endpoint.primary_endpoint.private_service_connection[0].private_ip_address,
     azurerm_private_endpoint.failover_endpoint.private_service_connection[0].private_ip_address
   ]

@@ -94,14 +94,14 @@ A map describing customer-managed keys to associate with the resource. This incl
 - `key_version` - (Optional) The version of the key. If not specified, the latest version is used.
 - `user_assigned_identity` - (Optional) An object representing a user-assigned identity with the following properties:
   - `resource_id` - The resource ID of the user-assigned identity.
-DESCRIPTION  
+DESCRIPTION
 }
 
 
 variable "resource_share_user" {
-  type        = string
-  default     = ""
-  description = "The object ID of an interactive user to share the managed resources with. This is used to share resource visibility after a service principal creates resources. If no value is specified, only the service principal will have visibility into the resources."
+  type        = set(string)
+  default     = []
+  description = "A set of Microsoft Entra ID object IDs for interactive users to share the managed resources with. This is used to share resource visibility after a service principal creates resources. If no value is specified, only the service principal will have visibility into the resources."
 }
 
 
@@ -110,4 +110,10 @@ variable "tags" {
   type        = map(string)
   default     = null
   description = "(Optional) Tags of the resource."
+}
+
+variable "pp_environment_user_security_role" {
+  description = "Power Platform environment user security role, examples of roles can be: System Administrator, System Customizer, basic user and many more."
+  type        = list(string)
+  default     = ["Basic User", "Bot Author", "System Administrator"]
 }
