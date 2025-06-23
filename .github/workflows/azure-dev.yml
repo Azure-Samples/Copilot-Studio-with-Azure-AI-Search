@@ -20,6 +20,7 @@ on:
     # Set this to the mainline branch you are using
     branches:
       - main
+      - mcs/ianjensenisme/test-azd-pipeline-update
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
