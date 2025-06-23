@@ -153,66 +153,61 @@ service principal approach is recommended.*
   configure an Azure Developer CLI (azd) environment. Choose a descriptive name for your azd
   environment, as it will be used throughout this example.
 
-    ```bash
-    azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
-    ```
+    - **Outside dev container**:
+      ```bash
+      azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
+      ```
+    
+    - **Inside dev container** (after opening project in container):
+      ```bash
+      azd init
+      ```
 
 2. Set a value for the interactive user who should be able to access the solution resources.
   Note that this step is optional when running with a user account, but it is strongly encouraged
   when running with a service principal, as it exposes resource visibility to the specified
   interactive user.
 
-    ```bash    # Example for setting a set of users
+    ```bash
+    # Example for setting current signed-in user (recommended)
+    azd env set RESOURCE_SHARE_USER "[\"$(az ad signed-in-user show --query id -o tsv)\"]"
+    
+    # Alternative: manually specify user object IDs
     azd env set RESOURCE_SHARE_USER '["object-id-1","object-id-2"]'
     ```
 
-3. **Authentication**:
+3. **Authentication**: Set up your authentication credentials. For production use, it's recommended to create separate app registrations for ARM and Power Platform providers for better security isolation.
 
-    - **Service Principal**: Run the following commands to log in using a service principal:
+    **Service Principal (Recommended)**:
 
       ```bash
-      export ARM_TENANT_ID="<your tenant ID here>"
-      export ARM_CLIENT_ID="<your service principal's client ID here>"
-      export ARM_CLIENT_SECRET="<your service principal's client secret here>"
-      export ARM_SUBSCRIPTION_ID="<your subscription ID here>"
+      # Set Azure ARM provider credentials
+      export ARM_TENANT_ID="<your tenant ID>"
+      export ARM_CLIENT_ID="<your ARM service principal client ID>"
+      export ARM_CLIENT_SECRET="<your ARM service principal client secret>"
+      export ARM_SUBSCRIPTION_ID="<your subscription ID>"
 
-      export POWER_PLATFORM_TENANT_ID="<your tenant ID here>"
-      export POWER_PLATFORM_CLIENT_ID="<your service principal's client ID here>"
-      export POWER_PLATFORM_CLIENT_SECRET="<your service principal's client secret here>"
+      # Set Power Platform provider credentials (can reuse ARM credentials or use separate app)
+      export POWER_PLATFORM_TENANT_ID="$ARM_TENANT_ID"
+      export POWER_PLATFORM_CLIENT_ID="<your Power Platform service principal client ID>"
+      export POWER_PLATFORM_CLIENT_SECRET="<your Power Platform service principal client secret>"
       export POWER_PLATFORM_USE_CLI="false"
       export ARM_USE_AZUREAD="true"
-      ```
-
-    - **User Account (Not recommended)**: Run the following commands to log in using your user account:
-
-      ```bash
-      az login
-      azd config set auth.useAzCliAuth "true"
-      azd env set POWER_PLATFORM_USE_CLI "true"
       ```
 
 4. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not
   used in the default solution configuration. If prompted to select an Azure region, consider using
   East US, as other regions may have compatibility issues.
 
-    - **Service Principal**: Run the following command to log in using a service principal:
-
       ```bash
       # Set auth.useAzCliAuth to false to allow direct service principal authentication
       azd config set auth.useAzCliAuth "false"
 
-      # Use azd auth login with service principal credentials
+      # Use azd auth login with service principal credentials (reusing environment variables)
       azd auth login \
-        --client-id "<your client id>" \
-        --client-secret "<your client secret>" \
-        --tenant-id "<your tenant id>"
-      ```
-
-    - **User Account (Not recommended)**: Run the following command to log in with interactive
-    authentication:
-
-      ```bash
-      azd auth login
+        --client-id "$ARM_CLIENT_ID" \
+        --client-secret "$ARM_CLIENT_SECRET" \
+        --tenant-id "$ARM_TENANT_ID"
       ```
 
 5. This template sets up the Terraform backend to use the
@@ -224,10 +219,16 @@ service principal approach is recommended.*
     ```bash
     #!/bin/bash
 
+    # Define variables for storage setup
     RESOURCE_GROUP_NAME=<RG_NAME>
     LOCATION=<LOCATION>
     STORAGE_ACCOUNT_NAME=<ACCOUNT_NAME>
     CONTAINER_NAME=<CONTAINER_NAME>
+    
+    # Get current user information for role assignment
+    OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
+    PRINCIPAL_TYPE="User"
+    SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
     # Create resource group
     az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
@@ -247,15 +248,15 @@ service principal approach is recommended.*
     --role "Storage Blob Data Contributor" \
     --assignee-object-id $OBJECT_ID \
     --assignee-principal-type $PRINCIPAL_TYPE \
-    --scope "/subscriptions/$SUBSCRIPTION_ID$/resourceGroups/$RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/$CONTAINER_NAME$/blobServices/default/containers/$CONTAINER_NAME"
+    --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT_NAME/blobServices/default/containers/$CONTAINER_NAME"
     ```
 
-6. Set the remote state configurations
+6. Set the remote state configurations (reusing variables from step 5):
 
    ``` bash
-   azd env set RS_STORAGE_ACCOUNT <STORAGE_ACCOUNT_NAME>
-   azd env set RS_CONTAINER_NAME <CONTAINER_NAME>
-   azd env set RS_RESOURCE_GROUP <RESOURCE_GROUP_NAME>
+   azd env set RS_STORAGE_ACCOUNT $STORAGE_ACCOUNT_NAME
+   azd env set RS_CONTAINER_NAME $CONTAINER_NAME
+   azd env set RS_RESOURCE_GROUP $RESOURCE_GROUP_NAME
    ```
 
 7. Deploy the solution using the command below. This will create a new resource group in your
@@ -264,6 +265,9 @@ service principal approach is recommended.*
     ```bash
     azd up
     ```
+
+    _Note: In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has 
+    completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors._
 
 *Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
 that the storage account's network access settings allow traffic from your IP address. You may need
@@ -372,13 +376,13 @@ To set up a federated identity credential in Azure, follow these steps:
 ### Add Required Secrets to GitHub
 
 1. Go to **Settings** → **Secrets and variables** → **Actions** → **New repository secret**.
-1. Add the following secrets:
+1. Add the following secrets (consider using separate app registrations for ARM and Power Platform providers for better security isolation):
 
    - `AZURE_CLIENT_ID`: Your app registration’s client ID.
    - `AZURE_TENANT_ID`: Your Azure AD tenant ID.
    - `AZURE_SUBSCRIPTION_ID`: Your Azure subscription ID.
-   - `POWER_PLATFORM_CLIENT_ID`: Your Power Platform client ID (typically same as Azure client ID).
-   - `POWER_PLATFORM_TENANT_ID`: Power Platform tenant ID.
+   - `POWER_PLATFORM_CLIENT_ID`: Your Power Platform app registration's client ID (can be same as Azure client ID or separate for better isolation).
+   - `POWER_PLATFORM_TENANT_ID`: Power Platform tenant ID (typically same as Azure tenant ID).
    - `RS_ACCOUNT_NAME`: Name of the Azure Storage account used for storing the Terraform remote
    state.
    - `RS_CONTAINER_NAME`: Name of the blob container within the storage account that holds the

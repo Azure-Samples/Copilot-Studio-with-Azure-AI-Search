@@ -35,7 +35,8 @@
                 "ms-azuretools.vscode-azureterraform",
                 "terraform-linters.tflint-vscode",
                 "microsoft-IsvExpTools.powerplatform-vscode",
-                "ms-vscode.azurecli"
+                "ms-vscode.azurecli",
+                "bierner.markdown-mermaid"
                 // Include other VSCode extensions if needed
                 // Right click on an extension inside VSCode to add directly to devcontainer.json, or copy the extension ID
             ],
