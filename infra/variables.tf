@@ -1,9 +1,9 @@
 # APP INSIGHTS VARIABLES
 
 variable "resource_share_user" {
-  type        = string
-  default     = ""
-  description = "The Object ID of the Microsoft Entra ID identity for the interactive admin user who will initially have access to the resources created by this pattern."
+  type        = set(string)
+  default     = []
+  description = "A set of Microsoft Entra ID object IDs for the interactive admin users who will initially have access to the resources created by this pattern. Example: ['object-id-1', 'object-id-2']"
 }
 
 variable "azd_environment_name" {
@@ -68,6 +68,7 @@ variable "cognitive_deployments" {
     })
     scale = object({
       type = string
+      capacity = optional(number)
     })
     rai_policy_name = string
   }))
@@ -81,6 +82,7 @@ variable "cognitive_deployments" {
       }
       scale = {
         type = "Standard"
+        capacity = 100
       }
       rai_policy_name = "Microsoft.DefaultV2"
     }
@@ -89,7 +91,7 @@ variable "cognitive_deployments" {
   A map of cognitive model deployments to create on the Azure OpenAI Cognitive Services account. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
   - `name` - (Required) The name of the deployment.
   - `model` - (Required) The model to deploy.
-    - `format` - "OpenAI"  
+    - `format` - "OpenAI"
     - `name` - The name of the model to deploy.
     - `version` - The version of the model to deploy.
   - `scale` - (Required) The scale of the model.
@@ -335,7 +337,50 @@ variable "primary_pe_subnet_address_spaces" {
 }
 
 variable "failover_pe_subnet_address_spaces" {
-  description = "Address space for the failover private endpoint subnet" 
+  description = "Address space for the failover private endpoint subnet"
   type        = list(string)
   default     = ["10.2.8.0/24"]
+}
+
+variable "github_runner_config" {
+  type = object({
+    image_name                  = string
+    image_tag                   = string
+    github_pat                  = string
+    github_repo_owner           = string
+    github_repo_name            = string
+    github_runner_group         = string
+    github_runner_image_branch  = string
+    min_replicas                = number
+    max_replicas                = number
+    cpu_requests                = string
+    memory_requests             = string
+    workload_profile_type       = string
+  })
+  description = "Configuration for GitHub self-hosted runners"
+  sensitive   = true
+}
+
+variable "primary_gh_runner_subnet_address_spaces" {
+  type        = list(string)
+  default     = ["10.1.10.0/23"]
+  description = "GitHub runner subnet address spaces in the primary VNET. Ensure there are no collisions with existing subnets. Must be /23 or larger for Container App Environment."
+}
+
+variable "failover_gh_runner_subnet_address_spaces" {
+  type        = list(string)
+  default     = ["10.2.10.0/23"]
+  description = "GitHub runner subnet address spaces in the failover VNET. Must be /23 or larger for Container App Environment."
+}
+
+variable "deploy_github_runner" {
+  type        = bool
+  default     = false
+  description = "Deploy GitHub Actions self-hosted runner infrastructure. Set to true to enable GitHub runner resources."
+}
+
+variable "enable_failover_github_runner" {
+  type        = bool
+  default     = false # Disabled to reduce runtime
+  description = "Enable the GitHub Actions self-hosted runner in the failover region. Set to true to deploy failover runner resources."
 }
