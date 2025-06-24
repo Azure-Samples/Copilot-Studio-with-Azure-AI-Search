@@ -107,10 +107,12 @@ def main():
     azure_client_id = os.environ.get("AZURE_CLIENT_ID")
 
     if azure_client_id:
-        logger.info(f"Using managed identity authentication with client ID: {azure_client_id}")
+        logger.info(
+            f"Using managed identity authentication with client ID: {azure_client_id}")
         credential = ManagedIdentityCredential(client_id=azure_client_id)
     else:
-        logger.info("Using default Azure credentials (fallback for local development).")
+        logger.info(
+            "Using default Azure credentials (fallback for local development).")
         credential = DefaultAzureCredential()
 
     # Create the full document index

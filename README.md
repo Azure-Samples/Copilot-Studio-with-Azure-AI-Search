@@ -276,9 +276,9 @@ service principal approach is recommended.*
     _Note: In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has 
     completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors._
 
-_Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
+*Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
 that the storage account's network access settings allow traffic from your IP address. You may need
-to whitelist your IP or temporarily enable public access, depending on your organization's policy._
+to whitelist your IP or temporarily enable public access, depending on your organization's policy.*
 
 ## GitHub Self-Hosted Runners
 
@@ -319,10 +319,10 @@ After configuring all environment variables, the GitHub runners will be automati
 using the `azd up` command. They will then be registered with your repository and appear under
 *Settings > Actions > Runners* in your repository.
 
-_Note: If you encounter the following error:
+*Note: If you encounter the following error:
 `MissingSubscriptionRegistration: The subscription is not registered to use namespace 'Microsoft.App'`
 please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
-provider in your subscription._
+provider in your subscription.*
 
 ## Demo (TBD)
 

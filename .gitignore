@@ -484,3 +484,12 @@ LICENSE
 # PowerPlatform Deployment
 power_platform_deployment_settings
 *GoldAgent*
+
+# Ignore Pytest results
+**/test/**/*.xml
+**/test/**/*.html
+
+# Ignore virtual environments
+*_env/
+*_venv/
+*.venv/
