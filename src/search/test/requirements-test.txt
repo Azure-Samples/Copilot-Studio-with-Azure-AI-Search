@@ -1,0 +1,22 @@
+# Test dependencies for Azure AI Search E2E tests
+
+# Core pytest framework
+pytest>=7.0.0
+pytest-html>=3.1.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0
+pytest-timeout>=2.1.0
+pytest-env>=0.8.0
+
+# Azure SDK dependencies
+azure-identity>=1.15.0
+azure-search-documents>=11.4.0
+azure-core>=1.29.0
+
+# Logging and utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Optional: for better test reporting
+pytest-json-report>=1.5.0
+pytest-metadata>=3.0.0
