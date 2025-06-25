@@ -70,6 +70,17 @@ if (!(Test-Path $SettingsDirectory)) {
     New-Item -ItemType Directory -Path $SettingsDirectory -Force | Out-Null
 }
 
+# Copy azd .env values to local state
+$envValues = azd env get-values
+foreach ($line in $envValues) {
+    if ($line -match '(.+)=(.+)') {
+        $key = $matches[1]
+        $value = $matches[2] -replace '^"' -replace '"$'
+        Set-Item -Path "env:$key" -Value $value
+    }
+}
+
+
 Write-Host "INFO: Starting Power Platform solution deployment"
 
 # Function to ensure PAC CLI is installed
