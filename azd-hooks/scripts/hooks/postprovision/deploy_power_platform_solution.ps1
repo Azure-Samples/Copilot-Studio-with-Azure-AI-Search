@@ -70,17 +70,6 @@ if (!(Test-Path $SettingsDirectory)) {
     New-Item -ItemType Directory -Path $SettingsDirectory -Force | Out-Null
 }
 
-# Copy azd .env values to local state
-$envValues = azd env get-values
-foreach ($line in $envValues) {
-    if ($line -match '(.+)=(.+)') {
-        $key = $matches[1]
-        $value = $matches[2] -replace '^"' -replace '"$'
-        Set-Item -Path "env:$key" -Value $value
-    }
-}
-
-
 Write-Host "INFO: Starting Power Platform solution deployment"
 
 # Function to ensure PAC CLI is installed
@@ -113,28 +102,28 @@ function Set-PacAuthentication {
 
     try {        # Try GitHub federated auth first if explicitly requested and environment variables are available
         if ($UseGithubFederated -and
-            (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
-            ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID))) {
+            (![string]::IsNullOrEmpty($POWER_PLATFORM_CLIENT_ID) -and 
+            ![string]::IsNullOrEmpty($POWER_PLATFORM_TENANT_ID))) {
                 Write-Host "INFO: Setting a PAC auth profile based on GitHub federated authentication"
                 $authOutput = & pac auth create --name github-federated-auth `
-                                --applicationId $env:POWER_PLATFORM_CLIENT_ID `
-                                --tenant $env:POWER_PLATFORM_TENANT_ID `
+                                --applicationId $POWER_PLATFORM_CLIENT_ID `
+                                --tenant $POWER_PLATFORM_TENANT_ID `
                                 --githubFederated
                 & pac auth select --name github-federated-auth
         }
         # Try Service Principal auth second
-        elseif (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
-            ![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_SECRET) -and 
-            ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
+        elseif (![string]::IsNullOrEmpty($POWER_PLATFORM_CLIENT_ID) -and 
+            ![string]::IsNullOrEmpty($POWER_PLATFORM_CLIENT_SECRET) -and 
+            ![string]::IsNullOrEmpty($POWER_PLATFORM_TENANT_ID)) {
             
             Write-Host "INFO: Found service principal environment variables, using service principal authentication"
 
             # Execute the auth create command and capture output
             # TODO decide whether it's worth reconfiguring the devcontainer to support keyring auth so we can remove the cleartext-caching parameter below
             $authOutput = & pac auth create --name service-principal-auth `
-                        --applicationId $env:POWER_PLATFORM_CLIENT_ID `
-                        --clientSecret $env:POWER_PLATFORM_CLIENT_SECRET `
-                        --tenant $env:POWER_PLATFORM_TENANT_ID `
+                        --applicationId $POWER_PLATFORM_CLIENT_ID `
+                        --clientSecret $POWER_PLATFORM_CLIENT_SECRET `
+                        --tenant $POWER_PLATFORM_TENANT_ID `
                         --accept-cleartext-caching 2>&1 | Out-String
 
             # Log that authentication was attempted (don't log the actual output which may contain secrets)
