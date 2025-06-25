@@ -3,6 +3,7 @@ Initialize blob storage with local data.
 
 We assume that this code will be executed just once to prepare a blob container for experiments.
 """
+
 import argparse
 import logging
 import os
@@ -21,7 +22,8 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 
 # Create a formatter and set it for the console handler
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(formatter)
 
 # Add the console handler to the logger
@@ -31,17 +33,19 @@ STORAGE_ACCOUNT_URL = "https://{storage_account_name}.blob.core.windows.net"
 
 
 def upload_data_files(
-    credential: DefaultAzureCredential,
+    credential: TokenCredential,
     storage_account_name: str,
     storage_container: str,
     local_folder: str,
 ):
 
-    account_url = STORAGE_ACCOUNT_URL.format(storage_account_name=storage_account_name)
+    account_url = STORAGE_ACCOUNT_URL.format(
+        storage_account_name=storage_account_name)
     blob_service_client = BlobServiceClient(
         account_url=account_url, credential=credential
     )
-    blob_container_client = blob_service_client.get_container_client(storage_container)
+    blob_container_client = blob_service_client.get_container_client(
+        storage_container)
 
     if not blob_container_client.exists():
         logger.info(f"Creating {storage_container} container.")
@@ -69,6 +73,7 @@ def upload_data_files(
             logger.info(f"Exception uploading file name {file_name}: {e}")
             raise
 
+
 def main():
     """
     Upload data files to Azure Blob Storage.
@@ -92,16 +97,20 @@ def main():
 
     # Validate storage account name
     if not args.storage_name.islower() or not args.storage_name.isalnum():
-        raise ValueError("Storage account name must be a lowercase alphanumeric string (letters and digits).")
+        raise ValueError(
+            "Storage account name must be a lowercase alphanumeric string (letters and digits)."
+        )
 
     # Check if we're running in a managed identity environment
     azure_client_id = os.environ.get("AZURE_CLIENT_ID")
 
     if azure_client_id:
-        logger.info(f"Using managed identity authentication with client ID: {azure_client_id}")
+        logger.info(
+            f"Using managed identity authentication with client ID: {azure_client_id}")
         credential = ManagedIdentityCredential(client_id=azure_client_id)
     else:
-        logger.info("Using default Azure credentials (fallback for local development).")
+        logger.info(
+            "Using default Azure credentials (fallback for local development).")
         credential = DefaultAzureCredential()
 
     # Create the full document index
