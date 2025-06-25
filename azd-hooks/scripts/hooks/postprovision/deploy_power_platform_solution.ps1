@@ -100,6 +100,8 @@ function Set-PacAuthentication {
     
     Write-Host "INFO: Starting authentication"
 
+    Write-HOST "***DELETE DEBUG: $POWER_PLATFORM_CLIENT_ID, $POWER_PLATFORM_TENANT_ID"
+
     try {        # Try GitHub federated auth first if explicitly requested and environment variables are available
         if ($UseGithubFederated -and
             (![string]::IsNullOrEmpty($POWER_PLATFORM_CLIENT_ID) -and 
