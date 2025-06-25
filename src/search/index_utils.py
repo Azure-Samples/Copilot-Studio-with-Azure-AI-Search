@@ -4,12 +4,20 @@ Utilities for managing AI Search service components.
 This module contains functions to create or update an index, indexer, skillset, and datasource.
 It serves as the primary endpoint for experiments with the AI Search service.
 """
+
 import argparse
-import os
 import logging
-from azure.identity import DefaultAzureCredential
+import os
+
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
-from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer, SearchIndexerSkillset
+from azure.search.documents.indexes.models import (
+    SearchIndex,
+    SearchIndexer,
+    SearchIndexerDataSourceConnection,
+    SearchIndexerSkillset,
+)
+
 from .common_utils import absolute_url, valid_name
 
 logger = logging.getLogger(__name__)
@@ -22,7 +30,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 
 # Create a formatter and set it for the console handler
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(formatter)
 
 # Add the console handler to the logger
@@ -30,16 +38,21 @@ logger.addHandler(console_handler)
 
 APPLICATION_JSON_CONTENT_TYPE = "application/json"
 AI_SEARCH_API_VERSION = "2024-07-01"
-INDEX_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndex.json")
-DATASOURCE_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentDataSource.json")
-SKILLSET_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentSkillSet.json")
-INDEXER_SCHEMA_PATH = os.path.join(os.path.dirname(__file__), "index_config/documentIndexer.json")
+INDEX_SCHEMA_PATH = os.path.join(
+    os.path.dirname(__file__), "index_config/documentIndex.json"
+)
+DATASOURCE_SCHEMA_PATH = os.path.join(
+    os.path.dirname(__file__), "index_config/documentDataSource.json"
+)
+SKILLSET_SCHEMA_PATH = os.path.join(
+    os.path.dirname(__file__), "index_config/documentSkillSet.json"
+)
+INDEXER_SCHEMA_PATH = os.path.join(
+    os.path.dirname(__file__), "index_config/documentIndexer.json"
+)
 
 
-def _prepare_json_schema(
-    file_name: str,
-    values_to_assign: dict
-) -> str:
+def _prepare_json_schema(file_name: str, values_to_assign: dict) -> str:
     """
     Create a string object that represent a json with replaced values based on the dictionary.
 
@@ -60,15 +73,15 @@ def _prepare_json_schema(
 
 
 def create_or_update_skillset(
-        skillset_name: str,
-        index_name: str,
-        skillset_file: str,
-        ai_search_uri: str,
-        open_ai_uri: str,
-        credentials: DefaultAzureCredential,
-):    
+    skillset_name: str,
+    index_name: str,
+    skillset_file: str,
+    ai_search_uri: str,
+    open_ai_uri: str,
+    credentials: DefaultAzureCredential,
+):
     """
-    Create or update the skillset in the AI Search service.
+    Create or update the skillset in the AI Search service. If the skillset already exists, no change.
 
     Args:
         skillset_name: The name of the skillset to create or update.
@@ -89,32 +102,40 @@ def create_or_update_skillset(
 
         # read definition from the file and replace placeholders with actual values
         definition = _prepare_json_schema(
-            skillset_file, 
+            skillset_file,
             {
                 "<search_index_name>": index_name,
                 "<skillset_name>": skillset_name,
-                "<open_ai_uri>": open_ai_uri
-            })
+                "<open_ai_uri>": open_ai_uri,
+            },
+        )
 
         # create an object of the skillset and initiate index creation process
-        skillset = SearchIndexerSkillset.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
-        indexer_client.create_or_update_skillset(skillset=skillset)
+        skillset = SearchIndexerSkillset.deserialize(
+            definition, APPLICATION_JSON_CONTENT_TYPE
+        )
+        if skillset_name not in indexer_client.get_skillset_names():
+            indexer_client.create_or_update_skillset(skillset=skillset)
+        else:
+            logger.info(
+                f"Skillset with name '{skillset_name}' already exists. Not recreating the skillset"
+            )
     except Exception as e:
         logger.error(f"Failed to create or update the skillset '{skillset_name}': {e}")
         raise
 
 
 def create_or_update_indexer(
-        indexer_name: str,
-        index_name: str,
-        skillset_name: str,
-        datasource_name: str,
-        indexer_file: str,
-        ai_search_uri: str,
-        credential: DefaultAzureCredential,
+    indexer_name: str,
+    index_name: str,
+    skillset_name: str,
+    datasource_name: str,
+    indexer_file: str,
+    ai_search_uri: str,
+    credential: DefaultAzureCredential,
 ):
     """
-    Create or update the indexer in the AI Search service.
+    Create or update the indexer in the AI Search service. If the indexer already exists, no change.
 
     Args:
         indexer_name: The name of the indexer to create or update.
@@ -138,33 +159,38 @@ def create_or_update_indexer(
         definition = _prepare_json_schema(
             indexer_file,
             {
-            "<search_indexer_name>": indexer_name,
-            "<search_index_name>": index_name,
-            "<skillset_name>": skillset_name,
-            "<data_source_name>": datasource_name,
-            }
+                "<search_indexer_name>": indexer_name,
+                "<search_index_name>": index_name,
+                "<skillset_name>": skillset_name,
+                "<data_source_name>": datasource_name,
+            },
         )
 
         # create an object of the indexer and initiate index creation process
         indexer = SearchIndexer.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
-        indexer_client.create_or_update_indexer(indexer=indexer)
+        if indexer_name not in indexer_client.get_indexer_names():
+            indexer_client.create_or_update_indexer(indexer=indexer)
+        else:
+            logger.info(
+                f"Indexer with name '{indexer_name}' already exists. Not recreating the indexer"
+            )
     except Exception as e:
         logger.error(f"Failed to create or update the indexer '{indexer_name}': {e}")
         raise
 
 
 def create_or_update_datasource(
-        datasource_name: str,
-        datasource_file: str,
-        ai_search_uri: str,
-        subscription_id: str,
-        resource_group_name: str,
-        storage_account_name: str,
-        container_name: str,
-        credential: DefaultAzureCredential,
+    datasource_name: str,
+    datasource_file: str,
+    ai_search_uri: str,
+    subscription_id: str,
+    resource_group_name: str,
+    storage_account_name: str,
+    container_name: str,
+    credential: DefaultAzureCredential,
 ):
     """
-    Create or update the data source in the AI Search service.
+    Create or update the data source in the AI Search service. If the data source already exists, no change.
 
     Args:
         datasource_name: The name of the data source to create or update.
@@ -183,7 +209,8 @@ def create_or_update_datasource(
         # Create the connection string for the storage account applying Entra ID approach
         # The connection string is in the format: "ResourceId=/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Storage/storageAccounts/{storage_account_name};"
         conn_string = _get_storage_conn_string(
-            subscription_id, storage_account_name, resource_group_name)
+            subscription_id, storage_account_name, resource_group_name
+        )
 
         # Create a search indexer client
         indexer_client = SearchIndexerClient(
@@ -194,10 +221,10 @@ def create_or_update_datasource(
         definition = _prepare_json_schema(
             datasource_file,
             {
-            "<connection_string>": conn_string,
-            "<container_name>": container_name,
-            "<data_source_name>": datasource_name,
-            }
+                "<connection_string>": conn_string,
+                "<container_name>": container_name,
+                "<data_source_name>": datasource_name,
+            },
         )
 
         # create an object of the data source connection and initiate data source creation process
@@ -205,14 +232,23 @@ def create_or_update_datasource(
             definition, APPLICATION_JSON_CONTENT_TYPE
         )
 
-        # Explicitly setting the connection string as it is required by the SearchIndexerDataSourceConnection object 
+        # Explicitly setting the connection string as it is required by the SearchIndexerDataSourceConnection object
         # to properly establish the connection, even though credentials are provided.
         data_source_connection.connection_string = conn_string
 
-        # Create or update the data source
-        indexer_client.create_or_update_data_source_connection(data_source_connection)
+        # Create the data source only if it doesn't already exist to avoid LONG WAIT TIMES
+        if datasource_name not in indexer_client.get_data_source_connection_names():
+            indexer_client.create_or_update_data_source_connection(
+                data_source_connection
+            )
+        else:
+            logger.info(
+                f"Data source with name '{datasource_name}' already exists in this resource. Not recreating the data source"
+            )
     except Exception as e:
-        logger.error(f"Failed to create or update the data source '{datasource_name}': {e}")
+        logger.error(
+            f"Failed to create or update the data source '{datasource_name}': {e}"
+        )
         raise
 
 
@@ -221,22 +257,24 @@ def _get_storage_conn_string(
     storage_account_name: str,
     resource_group_name: str,
 ) -> str:
-    conn_string = f"ResourceId=/subscriptions/{subscription_id}" \
-        f"/resourceGroups/{resource_group_name}/providers/Microsoft.Storage" \
+    conn_string = (
+        f"ResourceId=/subscriptions/{subscription_id}"
+        f"/resourceGroups/{resource_group_name}/providers/Microsoft.Storage"
         f"/storageAccounts/{storage_account_name};"
+    )
 
     return conn_string
 
 
 def create_or_update_index(
-        index_name: str,
-        index_file: str,
-        ai_search_uri: str,
-        open_ai_uri: str,
-        credential: DefaultAzureCredential,
+    index_name: str,
+    index_file: str,
+    ai_search_uri: str,
+    open_ai_uri: str,
+    credential: DefaultAzureCredential,
 ):
     """
-    Create or update the index in the AI Search service.
+    Create or update the index in the AI Search service. If the index already exists, then no change.
 
     Args:
         index_name: The name of the index to create or update.
@@ -256,14 +294,19 @@ def create_or_update_index(
         definition = _prepare_json_schema(
             index_file,
             {
-            "<search_index_name>": index_name,
-            "<open_ai_uri>": open_ai_uri,
-            }
+                "<search_index_name>": index_name,
+                "<open_ai_uri>": open_ai_uri,
+            },
         )
 
-        # create an object of the index and initiate index creation process
+        # create an object of the index and initiate index creation process if it does not already exist
         index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
-        index_client.create_or_update_index(index=index)
+        if index_name not in index_client.list_index_names():
+            index_client.create_or_update_index(index=index)
+        else:
+            logger.info(
+                f"Index with name '{index_name}' already exists. Not recreating the index"
+            )
     except Exception as e:
         logger.error(f"Failed to create or update the index '{index_name}': {e}")
         raise
@@ -273,14 +316,14 @@ def main():
     """
     Create an indexer and related entities based on the configuration parameters.
 
-    This function serves as the entry point for the script. It reads configuration parameters 
-    from command-line arguments, authenticates with Azure using default credentials, and 
+    This function serves as the entry point for the script. It reads configuration parameters
+    from command-line arguments, authenticates with Azure using default credentials, and
     orchestrates the creation or update of the following AI Search service components:
-    
+
     - Search Index: Defines the structure of the searchable content.
     - Data Source: Specifies the source of the data to be indexed.
     - Skillset: Defines the AI enrichment pipeline for the data.
-    - Indexer: Manages the process of pulling data from the data source, applying the skillset, 
+    - Indexer: Manages the process of pulling data from the data source, applying the skillset,
       and populating the search index.
 
     The function expects the following command-line arguments:
@@ -292,7 +335,7 @@ def main():
     - --storage_name: The name of the Azure storage account.
     - --container_name: The name of the Azure storage container.
 
-    The function uses these parameters to construct the necessary components and logs the progress 
+    The function uses these parameters to construct the necessary components and logs the progress
     of each operation.
     """
     logger.info("Read and check parameters.")
@@ -342,9 +385,17 @@ def main():
     )
     args = parser.parse_args()
 
-    # Using default Azure credentials assuming that it has all needed permissions
-    logger.info("Authenticate code into Azure using default credentials.")
-    credential = DefaultAzureCredential()
+    # Check if we're running in a managed identity environment
+    azure_client_id = os.environ.get("AZURE_CLIENT_ID")
+
+    if azure_client_id:
+        logger.info(
+            f"Using managed identity authentication with client ID: {azure_client_id[:4]}... (redacted)"
+        )
+        credential = ManagedIdentityCredential(client_id=azure_client_id)
+    else:
+        logger.info("Using default Azure credentials (fallback for local development).")
+        credential = DefaultAzureCredential()
 
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 
@@ -390,6 +441,7 @@ def main():
     logger.info("Skillset creation completed.")
 
     logger.info("Initiate indexer creation method.")
+
     create_or_update_indexer(
         indexer_name,
         index_name,
@@ -400,6 +452,7 @@ def main():
         credential,
     )
     logger.info("Indexer creation completed.")
+
 
 # This block ensures that the script runs the main function only when executed directly,
 # and not when imported as a module in another script.
