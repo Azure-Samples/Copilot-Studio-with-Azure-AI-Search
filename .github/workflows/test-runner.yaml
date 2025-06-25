@@ -120,7 +120,7 @@ jobs:
           retention-days: 30
 
       - name: Publish pytest test results
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2
         if: (!cancelled()) # Run even if tests fail
         with:
           name: Azure AI Search E2E Tests
