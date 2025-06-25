@@ -12,6 +12,21 @@ module "azure_open_ai" {
   cognitive_deployments = var.cognitive_deployments
   network_acls = {
     default_action = "Deny"
+    virtual_network_rules = [
+      {
+        subnet_id = azurerm_subnet.ai_search_primary_subnet.id
+      },
+      {
+        subnet_id = azurerm_subnet.ai_search_failover_subnet.id
+      },
+      {
+        subnet_id = azurerm_subnet.pe_primary_subnet.id
+      },
+      {
+        subnet_id = azurerm_subnet.pe_failover_subnet.id
+      }
+    ]
+    bypass = "AzureServices"
   }
   managed_identities = {
     system_assigned = true
