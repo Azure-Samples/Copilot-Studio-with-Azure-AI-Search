@@ -26,6 +26,17 @@ module "storage_account_and_container" {
       public_access = "Blob" # TODO restrict access once 2-pass deployment and config is added
     }
   }
+
+  network_rules = var.deploy_github_runner ? {
+    default_action = "Deny"
+    virtual_network_subnet_ids = var.enable_failover_github_runner ? [
+      azurerm_subnet.github_runner_primary_subnet[0].id,
+      azurerm_subnet.github_runner_failover_subnet[0].id
+      ] : [
+      azurerm_subnet.github_runner_primary_subnet[0].id
+    ]
+    bypass = ["AzureServices"]
+  } : null
 }
 
 # TODO add a proper polling mechanism instead of wait
