@@ -66,7 +66,7 @@ jobs:
           gitleaks version
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
@@ -86,30 +86,30 @@ jobs:
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Authenticate with Azure Developer CLI
         run: |
-          azd auth login --client-id ${{ secrets.AZURE_CLIENT_ID }} --tenant-id ${{ secrets.AZURE_TENANT_ID }} --federated-credential-provider "github"
+          azd auth login --client-id ${{ vars.AZURE_CLIENT_ID }} --tenant-id ${{ vars.AZURE_TENANT_ID }} --federated-credential-provider "github"
 
       - name: Provision Infrastructure
         env:
           POWER_PLATFORM_USE_CLI: false
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
-          RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
-          RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
-          RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
           ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
           ARM_USE_OIDC: "true"
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           POWER_PLATFORM_USE_OIDC: "true"
           GITHUB_PAT: ${{ secrets.MCS_RUNNER }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
@@ -124,7 +124,7 @@ jobs:
           azd env set RESOURCE_SHARE_USER "$env:RESOURCE_SHARE_USER"
           azd env set POWER_PLATFORM_USE_CLI "false"
 
-          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+          azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
 
@@ -159,23 +159,24 @@ jobs:
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
           POWER_PLATFORM_USE_CLI: false
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          RS_ACCOUNT_NAME: ${{ secrets.RS_ACCOUNT_NAME }}
-          RS_CONTAINER_NAME: ${{ secrets.RS_CONTAINER_NAME }}
-          RS_RESOURCE_GROUP: ${{ secrets.RS_RESOURCE_GROUP }}
-          RESOURCE_SHARE_USER: ${{ secrets.RESOURCE_SHARE_USER }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
           ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
           ARM_USE_OIDC: "true"
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          POWER_PLATFORM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          POWER_PLATFORM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           POWER_PLATFORM_USE_OIDC: "true"
         shell: pwsh
         run: |
-          azd env set RS_STORAGE_ACCOUNT $env:RS_ACCOUNT_NAME
+
+          azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
           azd env set RESOURCE_SHARE_USER "$env:RESOURCE_SHARE_USER"

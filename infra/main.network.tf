@@ -179,9 +179,9 @@ resource "azurerm_subnet_nat_gateway_association" "github_runner_failover_subnet
 #---- Set up NAT gateways, which are not initialized by the AVM ----
 
 resource "azurerm_public_ip" "nat" {
-  for_each            = {
-    primary1          = var.primary_location,
-    failover1         = var.failover_location,
+  for_each = {
+    primary1  = var.primary_location,
+    failover1 = var.failover_location,
   }
   name                = "${each.key}-pip"
   location            = each.value

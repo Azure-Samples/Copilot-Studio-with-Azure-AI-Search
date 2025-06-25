@@ -44,3 +44,6 @@ hooks:
       continueOnError: false
       interactive: false
       run: azd-hooks/scripts/hooks/postpackage/postpackage.ps1
+pipeline:
+  variables:
+    - RESOURCE_SHARE_USER
