@@ -43,7 +43,7 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@v2
         with:
-          version: '1.17.1'  # Specify your desired azd version here
+          version: '1.17.2'  # Specify your desired azd version here
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
