@@ -38,41 +38,67 @@ network security.
 
 ## Architecture
 
-This architecture deploys the 40+ Azure and Power Platform resources required to set up a basic AI
-Search endpoint and query the resource through a Copilot Studio agent. The most novel parts of this
-architecture are included in the diagram below.
+This enterprise-ready architecture demonstrates how to securely connect Copilot Studio with Azure AI Search through a private virtual network infrastructure. The solution focuses on data security, network isolation, and compliance with enterprise governance policies.
+
+### Key Architecture Components
+
+**Power Platform Integration:**
+- **Copilot Studio Bot**: Central conversational AI interface that processes user queries
+- **AI Search Connector**: Secure connector that enables Copilot Studio to query Azure AI Search while respecting enterprise data boundaries
+
+**Azure Infrastructure:**
+- **Virtual Network (VNet)**: Provides network isolation and secure communication channels
+- **Private Endpoints**: Ensures Azure AI Search and Storage Account traffic remains within the corporate network perimeter
+- **Azure AI Search Service**: Indexes and searches through enterprise data with built-in AI capabilities
+- **Storage Account**: Stores indexed documents and search artifacts securely
+
+**Enterprise Security & Governance:**
+- **Network Injection Policy**: Enforces that Power Platform resources communicate through designated virtual networks
+- **Data Loss Prevention (DLP)**: Prevents sensitive data from leaving the organizational boundary
+- **Private Network Access**: All data flows through private endpoints, eliminating exposure to public internet
+
+This architecture ensures that sensitive enterprise data never traverses public networks while enabling powerful AI-driven search capabilities through Copilot Studio. The network injection policy guarantees that Power Platform connectors respect corporate network boundaries, providing an additional layer of security for regulated industries.
 
 ```mermaid
----
-config:
-  theme: dark
-  look: handDrawn
-  width: 1000
-  height: 600
----
 graph TD
   subgraph PowerPlatform["Power Platform"]
     direction TB
-    subgraph Environment["Environment"]
+    subgraph Environment["Power Platform Environment"]
       direction TB
-      A[AI Search Connection]
-      B[Copilot Studio agent]
+      CopilotStudio[Copilot Studio Bot]
+      Connector[AI Search Connector]
     end
   end
 
-  subgraph Azure["Azure"]
+  subgraph Azure["Azure Subscription"]
     direction TB
-    D[Enterprise Policy: Network Injection]
-    subgraph VirtualNetwork["Virtual Network"]
-        direction LR
-        E[AI Search Resource]
+    subgraph VNet["Virtual Network"]
+      direction TB
+      subgraph PrivateEndpoints["Private Endpoints"]
+        SearchPE[Search Service PE]
+        StoragePE[Storage Account PE]
+      end
+      AISearch[Azure AI Search Service]
+      Storage[Storage Account]
+    end
+    
+    subgraph Policies["Enterprise Policies"]
+      NetworkPolicy[Network Injection Policy]
+      DataPolicy[Data Loss Prevention]
     end
   end
 
-  Environment --> D
-  B --> A
-  A --> E
-  D --> VirtualNetwork
+  subgraph OnPremises["On-Premises/Corporate Network"]
+    Users[End Users]
+  end
+
+  Users --> CopilotStudio
+  CopilotStudio --> Connector
+  Connector -.->|Secure Connection| SearchPE
+  SearchPE --> AISearch
+  AISearch --> Storage
+  NetworkPolicy --> VNet
+  DataPolicy --> Environment
 ```
 
 ## Getting Started
@@ -86,7 +112,7 @@ To use this example, complete the following prerequisites:
 1. Create an **App Registration** in Azure AD with the required permissions as outlined in the
 [Power Platform Terraform Provider’s documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/).
 1. This App Registration will automatically have an associated **Service Principal**.
-1. Register the app with the Power Platform using either:
+1. Register the app with the Power Platform using either (this action must be done by an existing Power Platform Administrator):
    - The [Terraform provider](https://registry.terraform.io/providers/microsoft/power-platform/latest/docs/resources/admin_management_application), or
    - [PowerShell](https://learn.microsoft.com/power-platform/admin/powershell-create-service-principal), or
    - Bash:
@@ -149,19 +175,19 @@ between authentication options as noted.
 with initializing Power Platform connections using user-based authentication. Therefore, the
 service principal approach is recommended.*
 
-1. To set up a local clone of this template, run the following command. Follow the steps to
-  configure an Azure Developer CLI (azd) environment. Choose a descriptive name for your azd
-  environment, as it will be used throughout this example.
+1. Initialize the Azure Developer CLI (azd) environment configuration. This step configures azd to work with this template and creates the necessary environment files:
 
-    - **Outside dev container**:
+    - **Outside dev container** (when first cloning the template):
       ```bash
       azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
       ```
     
-    - **Inside dev container** (after opening project in container):
+    - **Inside dev container** (after opening the cloned project in the container):
       ```bash
       azd init
       ```
+      
+    Choose a descriptive name for your azd environment, as it will be used throughout this example. This command sets up the local azd configuration even though you've already cloned the repository.
 
 2. Set a value for the interactive user who should be able to access the solution resources.
   Note that this step is optional when running with a user account, but it is strongly encouraged
