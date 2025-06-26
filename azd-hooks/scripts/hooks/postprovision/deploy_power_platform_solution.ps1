@@ -16,7 +16,8 @@
     ./deploy_power_platform_solution.ps1 `
       -SolutionPath "../powerplatform/Copilot_Studio_Gold_Agent" `
       -PowerPlatformEnvironmentId "<Power Platform environment ID>" `
-      -AISearchConnectionId "<AI Search Connection ID from Terraform Outputs>"
+      -AISearchConnectionId "<AI Search Connection ID from Terraform Outputs>" `
+      -AuthenticationMethod "GitHubFederated"
 
 .PARAMETER SolutionPath
     Path to the solution source directory
@@ -30,9 +31,10 @@
 .PARAMETER AISearchConnectionId
     Direct connection ID for the Azure AI Search connector (highest priority)
 
-.PARAMETER UseGithubFederated
-    Whether to explicitly use GitHub Federated authentication (default: false)
-    Set to true when running in GitHub Actions with workload identity federation
+.PARAMETER AuthenticationMethod
+    Authentication method to use for Power Platform CLI authentication.
+    Valid values: "ServicePrincipal", "GitHubFederated", "OIDC", "AzCli", "Auto"
+    Default: "Auto" (automatically detects GitHub Actions vs local environment)
       
 .EXAMPLE
     # Using with connection ID(s)
@@ -40,7 +42,7 @@
       -SolutionPath "path/to/Gold_Agent_Source_directory"
       -PowerPlatformEnvironmentId "<Power Platform Environment ID>"
       -AISearchConnectionId "<AI Search Connection ID>"
-      -UseGithubFederated $true
+      -AuthenticationMethod "GitHubFederated"
 #>
 
 param (
@@ -57,12 +59,24 @@ param (
     [bool]$RunSolutionChecker = $true,
     
     [Parameter(Mandatory = $false)]
-    [bool]$UseGithubFederated = $false
+    [ValidateSet("ServicePrincipal", "GitHubFederated", "OIDC", "AzCli", "Auto")]
+    [string]$AuthenticationMethod = "Auto"
 )
 
 #region Setup
 # Set error action preference to stop on any error
 $ErrorActionPreference = "Stop"
+
+# Auto-detect authentication method if not explicitly specified
+if ($AuthenticationMethod -eq "Auto") {
+    if ($env:GITHUB_ACTIONS -eq "true") {
+        Write-Host "INFO: GitHub Actions environment detected, using OIDC authentication"
+        $AuthenticationMethod = "OIDC"
+    } else {
+        Write-Host "INFO: Local environment detected, using ServicePrincipal authentication"
+        $AuthenticationMethod = "ServicePrincipal"
+    }
+}
 
 # Create settings directory for storing solution settings
 $SettingsDirectory = "$PSScriptRoot/power_platform_deployment_settings"
@@ -95,54 +109,81 @@ function Test-PacCliInstalled {
 # Function to handle PAC CLI authentication with secure credential handling
 function Set-PacAuthentication {    
     param (        
-        [bool]$UseGithubFederated
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("ServicePrincipal", "GitHubFederated", "OIDC", "AzCli")]
+        [string]$AuthenticationMethod
     )
     
-    Write-Host "INFO: Starting authentication"
+    Write-Host "INFO: Starting authentication using method: $AuthenticationMethod"
 
-    try {        # Try GitHub federated auth first if explicitly requested and environment variables are available
-        if ($UseGithubFederated -and
-            (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
-            ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID))) {
-                Write-Host "INFO: Setting a PAC auth profile based on GitHub federated authentication"
-                $authOutput = & pac auth create --name github-federated-auth `
+    try {
+        switch ($AuthenticationMethod) {
+            "GitHubFederated" {
+                if (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
+                    ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
+                    Write-Host "INFO: Setting a PAC auth profile based on GitHub federated authentication"
+                    $authOutput = & pac auth create --name github-federated-auth `
+                                    --applicationId $env:POWER_PLATFORM_CLIENT_ID `
+                                    --tenant $env:POWER_PLATFORM_TENANT_ID `
+                                    --githubFederated
+                    & pac auth select --name github-federated-auth
+                } else {
+                    Write-Error "GitHub Federated authentication requires POWER_PLATFORM_CLIENT_ID and POWER_PLATFORM_TENANT_ID environment variables"
+                    exit 1
+                }
+            }
+            "OIDC" {
+                if (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
+                    ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
+                    Write-Host "INFO: Setting a PAC auth profile based on OIDC authentication"
+                    $authOutput = & pac auth create --name oidc-auth `
+                                    --applicationId $env:POWER_PLATFORM_CLIENT_ID `
+                                    --tenant $env:POWER_PLATFORM_TENANT_ID `
+                                    --oidc
+                    & pac auth select --name oidc-auth
+                } else {
+                    Write-Error "OIDC authentication requires POWER_PLATFORM_CLIENT_ID and POWER_PLATFORM_TENANT_ID environment variables"
+                    exit 1
+                }
+            }
+            "ServicePrincipal" {
+                if (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
+                    ![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_SECRET) -and 
+                    ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
+                    
+                    Write-Host "INFO: Found service principal environment variables, using service principal authentication"
+
+                    # Execute the auth create command and capture output
+                    # TODO decide whether it's worth reconfiguring the devcontainer to support keyring auth so we can remove the cleartext-caching parameter below
+                    $authOutput = & pac auth create --name service-principal-auth `
                                 --applicationId $env:POWER_PLATFORM_CLIENT_ID `
+                                --clientSecret $env:POWER_PLATFORM_CLIENT_SECRET `
                                 --tenant $env:POWER_PLATFORM_TENANT_ID `
-                                --githubFederated
-                & pac auth select --name github-federated-auth
-        }
-        # Try Service Principal auth second
-        elseif (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
-            ![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_SECRET) -and 
-            ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
-            
-            Write-Host "INFO: Found service principal environment variables, using service principal authentication"
+                                --accept-cleartext-caching 2>&1 | Out-String
 
-            # Execute the auth create command and capture output
-            # TODO decide whether it's worth reconfiguring the devcontainer to support keyring auth so we can remove the cleartext-caching parameter below
-            $authOutput = & pac auth create --name service-principal-auth `
-                        --applicationId $env:POWER_PLATFORM_CLIENT_ID `
-                        --clientSecret $env:POWER_PLATFORM_CLIENT_SECRET `
-                        --tenant $env:POWER_PLATFORM_TENANT_ID `
-                        --accept-cleartext-caching 2>&1 | Out-String
-
-            # Log that authentication was attempted (don't log the actual output which may contain secrets)
-            Write-Host "INFO: PAC auth create completed"
-            
-            & pac auth select --name service-principal-auth
-        } else {
-            # Try to find active pac CLI auth profile
-            $ActiveLine = pac auth list | Where-Object { $_ -match '^\[\d+\]\s+\*\s+' }
-            $Tokens = $ActiveLine -split '\s+'
-            $ActiveName = $Tokens[3]
-            
-            # If we found an active profile, it's already set - just use it. If not, create a new one.
-            if ([string]::IsNullOrEmpty($ActiveName)) {
-                Write-Host "INFO: Creating new az-cli-auth profile"
-                $authOutput = & pac auth create --name az-cli-auth
-                & pac auth select --name az-cli-auth
-            } else {
-                Write-Host "INFO: Using existing active auth profile: $ActiveName"
+                    # Log that authentication was attempted (don't log the actual output which may contain secrets)
+                    Write-Host "INFO: PAC auth create completed"
+                    
+                    & pac auth select --name service-principal-auth
+                } else {
+                    Write-Error "Service Principal authentication requires POWER_PLATFORM_CLIENT_ID, POWER_PLATFORM_CLIENT_SECRET, and POWER_PLATFORM_TENANT_ID environment variables"
+                    exit 1
+                }
+            }
+            "AzCli" {
+                # Try to find active pac CLI auth profile
+                $ActiveLine = pac auth list | Where-Object { $_ -match '^\[\d+\]\s+\*\s+' }
+                $Tokens = $ActiveLine -split '\s+'
+                $ActiveName = $Tokens[3]
+                
+                # If we found an active profile, it's already set - just use it. If not, create a new one.
+                if ([string]::IsNullOrEmpty($ActiveName)) {
+                    Write-Host "INFO: Creating new az-cli-auth profile"
+                    $authOutput = & pac auth create --name az-cli-auth
+                    & pac auth select --name az-cli-auth
+                } else {
+                    Write-Host "INFO: Using existing active auth profile: $ActiveName"
+                }
             }
         }
     }
@@ -422,7 +463,7 @@ Write-Host "INFO: Solution path: $SolutionPath"
 Write-Host "INFO: Environment ID: $PowerPlatformEnvironmentId"
 Write-Host "INFO: Run solution checker: $RunSolutionChecker"
 Write-Host "INFO: AI Search connection ID: $(if ([string]::IsNullOrEmpty($AISearchConnectionId)) { "Not provided" } else { "Provided" })"
-Write-Host "INFO: Use GitHub federated: $UseGithubFederated"
+Write-Host "INFO: Authentication method: $AuthenticationMethod"
 
 
 # Step 1: Verify PAC CLI is installed
@@ -438,7 +479,7 @@ if (-not (Test-Path $SolutionPath)) {
 }
 
 # Step 2: Set up authentication
-Set-PacAuthentication -UseGithubFederated $UseGithubFederated
+Set-PacAuthentication -AuthenticationMethod $AuthenticationMethod
 
 # Step 3: Verify environment access
 if (-not (Test-EnvironmentAccess -PowerPlatformEnvironmentId $PowerPlatformEnvironmentId)) {
