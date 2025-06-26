@@ -70,8 +70,8 @@ $ErrorActionPreference = "Stop"
 # Auto-detect authentication method if not explicitly specified
 if ($AuthenticationMethod -eq "Auto") {
     if ($env:GITHUB_ACTIONS -eq "true") {
-        Write-Host "INFO: GitHub Actions environment detected, using OIDC authentication"
-        $AuthenticationMethod = "OIDC"
+        Write-Host "INFO: GitHub Actions environment detected, using GitHub Federated authentication"
+        $AuthenticationMethod = "GitHubFederated"
     } else {
         Write-Host "INFO: Local environment detected, using ServicePrincipal authentication"
         $AuthenticationMethod = "ServicePrincipal"
