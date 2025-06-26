@@ -179,7 +179,7 @@ function Set-PacAuthentication {
                 # If we found an active profile, it's already set - just use it. If not, create a new one.
                 if ([string]::IsNullOrEmpty($ActiveName)) {
                     Write-Host "INFO: Creating new az-cli-auth profile"
-                    $authOutput = & pac auth create --name az-cli-auth
+                    $authOutput = & pac auth create --name az-cli-auth `
                     & pac auth select --name az-cli-auth
                 } else {
                     Write-Host "INFO: Using existing active auth profile: $ActiveName"
