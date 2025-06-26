@@ -20,7 +20,6 @@ on:
     # Set this to the mainline branch you are using
     branches:
       - main
-      - mcs/ianjensenisme/152-power-platform-script-auth-update
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
