@@ -20,7 +20,6 @@ on:
     # Set this to the mainline branch you are using
     branches:
       - main
-      - mcs/ianjensenisme/151-fix-hanging-power-platform-script
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
