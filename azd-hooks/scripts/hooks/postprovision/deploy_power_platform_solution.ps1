@@ -33,7 +33,7 @@
 
 .PARAMETER AuthenticationMethod
     Authentication method to use for Power Platform CLI authentication.
-    Valid values: "ServicePrincipal", "GitHubFederated", "OIDC", "AzCli", "Auto"
+    Valid values: "ServicePrincipal", "GitHubFederated", "AzCli", "Auto"
     Default: "Auto" (automatically detects GitHub Actions vs local environment)
       
 .EXAMPLE
@@ -59,7 +59,7 @@ param (
     [bool]$RunSolutionChecker = $true,
     
     [Parameter(Mandatory = $false)]
-    [ValidateSet("ServicePrincipal", "GitHubFederated", "OIDC", "AzCli", "Auto")]
+    [ValidateSet("ServicePrincipal", "GitHubFederated", "AzCli", "Auto")]
     [string]$AuthenticationMethod = "Auto"
 )
 
@@ -110,7 +110,7 @@ function Test-PacCliInstalled {
 function Set-PacAuthentication {    
     param (        
         [Parameter(Mandatory = $true)]
-        [ValidateSet("ServicePrincipal", "GitHubFederated", "OIDC", "AzCli")]
+        [ValidateSet("ServicePrincipal", "GitHubFederated", "AzCli")]
         [string]$AuthenticationMethod
     )
     
@@ -129,20 +129,6 @@ function Set-PacAuthentication {
                     & pac auth select --name github-federated-auth
                 } else {
                     Write-Error "GitHub Federated authentication requires POWER_PLATFORM_CLIENT_ID and POWER_PLATFORM_TENANT_ID environment variables"
-                    exit 1
-                }
-            }
-            "OIDC" {
-                if (![string]::IsNullOrEmpty($env:POWER_PLATFORM_CLIENT_ID) -and 
-                    ![string]::IsNullOrEmpty($env:POWER_PLATFORM_TENANT_ID)) {
-                    Write-Host "INFO: Setting a PAC auth profile based on OIDC authentication"
-                    $authOutput = & pac auth create --name oidc-auth `
-                                    --applicationId $env:POWER_PLATFORM_CLIENT_ID `
-                                    --tenant $env:POWER_PLATFORM_TENANT_ID `
-                                    --oidc
-                    & pac auth select --name oidc-auth
-                } else {
-                    Write-Error "OIDC authentication requires POWER_PLATFORM_CLIENT_ID and POWER_PLATFORM_TENANT_ID environment variables"
                     exit 1
                 }
             }
