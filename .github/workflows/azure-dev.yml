@@ -182,3 +182,4 @@ jobs:
 
           azd env select $env:AZURE_ENV_NAME
           azd down --no-prompt --force --purge
+          
