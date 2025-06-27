@@ -180,5 +180,4 @@ jobs:
           azd env set RESOURCE_SHARE_USER "$env:RESOURCE_SHARE_USER"
 
           azd env select $env:AZURE_ENV_NAME
-          azd down --no-prompt --force --purge
 
