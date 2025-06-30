@@ -240,7 +240,7 @@ jobs:
               - ✅ TFLint Check
               - ✅ Security Scanning
               
-              This PR can be safely merged.`
+              This PR can pass all the checks to be tested and then merged.`
             });
             
             // Add 'terraform-validated' label to the PR
