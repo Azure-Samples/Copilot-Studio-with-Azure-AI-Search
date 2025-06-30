@@ -138,11 +138,11 @@ resource "azurerm_nat_gateway" "nat_gateways" {
 
 }
 
-resource "azurerm_subnet" "main" {
-  name                 = "main-subnet"
+resource "azurerm_subnet" "deployment_script" {
+  name                 = "deploymentscript-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
-  address_prefixes     = ["10.1.12.0/24"]
+  address_prefixes     = ["10.1.9.0/24"]
   service_endpoints    = ["Microsoft.Storage"]
   delegation {
     name = "aci-delegation"
@@ -153,4 +153,9 @@ resource "azurerm_subnet" "main" {
       ]
     }
   }
+}
+
+resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
+  subnet_id      = azurerm_subnet.deployment_script.id
+  nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }

@@ -10,7 +10,7 @@ import logging
 from azure.identity import DefaultAzureCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer, SearchIndexerSkillset
-from .common_utils import absolute_url, valid_name
+from common_utils import absolute_url, valid_name
 
 logger = logging.getLogger(__name__)
 

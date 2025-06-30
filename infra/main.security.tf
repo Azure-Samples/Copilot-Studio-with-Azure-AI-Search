@@ -35,3 +35,9 @@ resource "azurerm_role_assignment" "privileged_contributor_to_ai_search" {
   scope                = azurerm_search_service.ai_search.id
   role_definition_name = "Azure AI Administrator"
 }
+
+resource "azurerm_role_assignment" "container_apps_contributor" {
+  scope                = azurerm_resource_group.this.id
+  role_definition_name = "Container Apps Contributor"
+  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
+}
