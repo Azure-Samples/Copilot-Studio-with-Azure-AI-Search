@@ -162,13 +162,16 @@ resource "azapi_resource" "run_python_from_storage" {
       environmentVariables = [
         {
           name  = "SCRIPT_STORAGE_ACCOUNT_NAME"
+          name  = "SCRIPT_STORAGE_ACCOUNT_NAME"
           value = "${azurerm_storage_account.deployment_scripts.name}"
         },
         {
           name  = "MAIN_STORAGE_ACCOUNT_NAME"
+          name  = "MAIN_STORAGE_ACCOUNT_NAME"
           value = "${module.storage_account_and_container.name}"
         },
         {
+          name  = "DATA_CONTAINER_NAME"
           name  = "DATA_CONTAINER_NAME"
           value = "${var.cps_container_name}"
         },
@@ -180,6 +183,7 @@ resource "azapi_resource" "run_python_from_storage" {
           name  = "AI_SEARCH_ADMIN_KEY"
           value = "${azurerm_search_service.ai_search.primary_key}"
         }
+      ]
       ]
     }
   }
@@ -240,10 +244,14 @@ resource "time_sleep" "wait_for_search_permissions" {
 resource "azurerm_storage_container" "scripts" {
   name                  = "scripts"
   storage_account_id    = azurerm_storage_account.deployment_scripts.id
+  name                  = "scripts"
+  storage_account_id    = azurerm_storage_account.deployment_scripts.id
   container_access_type = "blob"
+
 
   depends_on = [
     azurerm_storage_account.deployment_scripts,
+    time_sleep.wait_for_rbac  # Ensure RBAC is ready for script execution
     time_sleep.wait_for_rbac  # Ensure RBAC is ready for script execution
   ]
 }
@@ -256,8 +264,10 @@ resource "azurerm_storage_blob" "data_requirements" {
   type                   = "Block"
   source                 = "${path.root}/../data/requirements.txt"
 
+
   depends_on = [
     azurerm_storage_container.scripts,
+    time_sleep.wait_for_rbac  # Only need RBAC propagation for script execution
     time_sleep.wait_for_rbac  # Only need RBAC propagation for script execution
   ]
   
@@ -273,6 +283,7 @@ resource "azurerm_storage_blob" "data_upload_script" {
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../data/upload_data.py"
+
 
   depends_on = [
     azurerm_storage_container.scripts,
@@ -293,6 +304,7 @@ resource "azurerm_storage_blob" "search_requirements" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/requirements.txt"
 
+
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
@@ -311,6 +323,7 @@ resource "azurerm_storage_blob" "search_index_utils" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_utils.py"
 
+
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
@@ -328,6 +341,7 @@ resource "azurerm_storage_blob" "search_common_utils" {
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/common_utils.py"
+
 
   depends_on = [
     azurerm_storage_container.scripts,
@@ -348,6 +362,7 @@ resource "azurerm_storage_blob" "document_data_source" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentDataSource.json"
 
+
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
@@ -365,6 +380,7 @@ resource "azurerm_storage_blob" "document_index" {
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentIndex.json"
+
 
   depends_on = [
     azurerm_storage_container.scripts,
@@ -384,6 +400,7 @@ resource "azurerm_storage_blob" "document_indexer" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentIndexer.json"
 
+
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
@@ -401,6 +418,7 @@ resource "azurerm_storage_blob" "document_skillset" {
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentSkillSet.json"
+
 
   depends_on = [
     azurerm_storage_container.scripts,
