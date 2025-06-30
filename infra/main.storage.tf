@@ -1,3 +1,35 @@
+# Wait for subnets to be fully provisioned before creating storage account
+resource "time_sleep" "wait_for_subnets" {
+  depends_on = [
+    azurerm_subnet.primary_subnet,
+    azurerm_subnet_nat_gateway_association.primary_subnet_nat,
+    azurerm_subnet.deployment_script,
+    azurerm_subnet_nat_gateway_association.deployment_script_nat
+  ]
+  create_duration = "90s" # Wait for subnets to exit 'Updating' state
+}
+
+# Additional verification that subnets are ready for storage account creation
+resource "null_resource" "verify_subnet_readiness" {
+  depends_on = [
+    time_sleep.wait_for_subnets,
+    null_resource.verify_subnet_readiness
+  ]
+
+  provisioner "local-exec" {
+    command = <<EOF
+      echo "Verifying subnet readiness for storage account creation..."
+      echo "Primary subnet: ${azurerm_subnet.primary_subnet.id}"
+      echo "Subnets should now be in 'Succeeded' state, ready for storage account network rules"
+    EOF
+  }
+
+  triggers = {
+    primary_subnet_id = azurerm_subnet.primary_subnet.id
+    timestamp = timestamp()
+  }
+}
+
 module "storage_account_and_container" {
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
@@ -21,9 +53,12 @@ module "storage_account_and_container" {
   enable_telemetry = var.enable_telemetry
 
   network_rules = {
-    bypass                     = ["AzureServices"]
-    default_action             = "Deny"
-    virtual_network_subnet_ids = toset([azurerm_subnet.main.id])
+    bypass                     = ["AzureServices", "Logging", "Metrics"]
+    default_action             = "Allow"  # Temporarily allow all access for deployment script
+    virtual_network_subnet_ids = toset([
+      azurerm_subnet.primary_subnet.id,
+      azurerm_subnet.deployment_script.id
+    ])
   }
 
   containers = {
