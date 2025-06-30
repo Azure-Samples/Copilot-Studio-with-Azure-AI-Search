@@ -11,12 +11,18 @@ on:
 permissions:
   contents: read
   security-events: write
+  
+# Global environment variables
+env:
+  ERROR_HANDLING: true # Enable enhanced error handling
 
 jobs:
   lint-and-check:
     name: Lint and Security Checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Fail the workflow if any of the jobs fails
+    continue-on-error: false
 
     steps:
       - name: Checkout code
@@ -30,16 +36,41 @@ jobs:
           terraform_version: "1.12.0"  # Pinning specific version is recommended
         
       - name: Terraform Init
-        run: terraform init -backend=false
+        id: tf-init
+        run: |
+          echo "Running Terraform Init..."
+          terraform init -backend=false
+          if [ $? -ne 0 ]; then
+            echo "::error::Terraform init failed! Check Terraform configuration files."
+            exit 1
+          fi
         working-directory: ./infra
+        continue-on-error: false
 
       - name: Terraform Fmt
-        run: terraform fmt -check -recursive
+        id: tf-fmt
+        run: |
+          echo "Checking Terraform formatting..."
+          terraform fmt -check -recursive
+          if [ $? -ne 0 ]; then
+            echo "::error::Terraform format check failed! Run 'terraform fmt -recursive' locally to fix formatting issues."
+            exit 1
+          fi
         working-directory: ./infra
+        continue-on-error: false
 
       - name: Terraform Validate
-        run: terraform validate
+        id: tf-validate
+        run: |
+          echo "Validating Terraform configuration..."
+          terraform validate -json | tee validation_result.json
+          if [ $? -ne 0 ]; then
+            echo "::error::Terraform validation failed! Check your Terraform files for errors."
+            cat validation_result.json
+            exit 1
+          fi
         working-directory: ./infra
+        continue-on-error: false
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v3
@@ -48,12 +79,29 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate limiting
 
       - name: Initialize TFLint plugins
-        run: tflint --init
+        id: tflint-init
+        run: |
+          echo "Initializing TFLint plugins..."
+          tflint --init
+          if [ $? -ne 0 ]; then
+            echo "::error::TFLint initialization failed!"
+            exit 1
+          fi
         working-directory: ./infra
+        continue-on-error: false
 
       - name: Run TFLint
-        run: tflint --format=compact --force
+        id: tflint-run
+        run: |
+          echo "Running TFLint..."
+          tflint --format=json --force | tee tflint_result.json
+          if [ $? -ne 0 ]; then
+            echo "::error::TFLint found issues in your Terraform configuration!"
+            cat tflint_result.json | jq '.issues[] | "::error file=\(.range.filename),line=\(.range.start.line),col=\(.range.start.column)::\(.message)"'
+            exit 1
+          fi
         working-directory: ./infra
+        continue-on-error: false
 
       - name: Run Checkov action
         id: checkov
@@ -62,12 +110,79 @@ jobs:
           framework: terraform
           download_external_modules: true
           directory: ./infra
+          soft_fail: false  # Make workflow fail on Checkov failures
+          output_format: sarif
+        continue-on-error: false
+
+      - name: Upload Checkov SARIF report
+        if: success() || failure()  # Upload even if Checkov finds issues
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+          category: checkov
 
       - name: GitLeaks Scan
+        id: gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           verbosity: "info"
-          report-format: "json"
-          report-path: "gitleaks-report.json"
+          report-format: "sarif"
+          report-path: "gitleaks-report.sarif"
+        continue-on-error: false
+        
+      - name: Upload GitLeaks SARIF report
+        if: success() || failure()  # Upload even if GitLeaks finds issues
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: gitleaks-report.sarif
+          category: gitleaks
+          
+      - name: Summary
+        if: always()  # Always run this step
+        run: |
+          echo "## Terraform Validation Results :clipboard:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check Terraform Init
+          if [ "${{ steps.tf-init.outcome }}" == "success" ]; then
+            echo "✅ **Terraform Init**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Terraform Init**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Terraform Format
+          if [ "${{ steps.tf-fmt.outcome }}" == "success" ]; then
+            echo "✅ **Terraform Format**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Terraform Format**: Failed - Run 'terraform fmt -recursive' locally" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Terraform Validate
+          if [ "${{ steps.tf-validate.outcome }}" == "success" ]; then
+            echo "✅ **Terraform Validate**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Terraform Validate**: Failed - Check configuration files" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check TFLint
+          if [ "${{ steps.tflint-run.outcome }}" == "success" ]; then
+            echo "✅ **TFLint**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **TFLint**: Failed - Review linting errors" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Checkov
+          if [ "${{ steps.checkov.outcome }}" == "success" ]; then
+            echo "✅ **Checkov Security Check**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Checkov Security Check**: Failed - Security issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check GitLeaks
+          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
+            echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
+          fi
