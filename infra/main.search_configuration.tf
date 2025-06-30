@@ -7,10 +7,6 @@ locals {
     for pdf_file in local.data_pdf_files : 
     replace(pdf_file, ".pdf", "") => pdf_file
   }
-  
-  # Force recreation of Python scripts on each deployment
-  # This ensures the latest versions are always uploaded
-  deployment_timestamp = timestamp()
 }
 
 resource "azurerm_storage_account" "deployment_scripts" {
@@ -141,10 +137,49 @@ resource "azapi_resource" "run_python_from_storage" {
         
         # Upload data files
         cd data
-        pip install -r requirements.txt
-        python upload_data.py --storage_name $MAIN_STORAGE_ACCOUNT_NAME --container_name $DATA_CONTAINER_NAME
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        else
+          echo "WARNING: requirements.txt not found in data directory"
+        fi
         
-        # Configure search index
+        echo "Downloading PDF files from deployment storage to local directory..."
+        # Download PDF files from deployment storage account
+        az storage blob download-batch \
+          --destination . \
+          --source scripts \
+          --pattern "data/*.pdf" \
+          --account-name $SCRIPT_STORAGE_ACCOUNT_NAME \
+          --auth-mode login
+        
+        echo "PDF files downloaded to data directory:"
+        ls -la *.pdf || echo "No PDF files found"
+        
+        echo "Uploading data files to main storage..."
+        echo "Target storage: $MAIN_STORAGE_ACCOUNT_NAME"
+        echo "Target container: $DATA_CONTAINER_NAME"
+        
+        # Retry upload with exponential backoff in case of authorization delays
+        max_retries=5
+        retry_count=0
+        while [ $retry_count -lt $max_retries ]; do
+          if python upload_data.py --storage_name $MAIN_STORAGE_ACCOUNT_NAME --container_name $DATA_CONTAINER_NAME; then
+            echo "Data upload successful on attempt $((retry_count + 1))"
+            break
+          else
+            retry_count=$((retry_count + 1))
+            if [ $retry_count -lt $max_retries ]; then
+              wait_time=$((retry_count * 30))  # 30, 60, 90, 120 seconds
+              echo "Data upload failed on attempt $retry_count. Retrying in $wait_time seconds..."
+              sleep $wait_time
+            else
+              echo "ERROR: Failed to upload data files after $max_retries attempts"
+              exit 1
+            fi
+          fi
+        done
+        
+        echo "Moving to search directory..."
         cd ../src/search
         pip install -r requirements.txt
         python index_utils.py \
@@ -419,16 +454,10 @@ resource "azurerm_storage_blob" "document_skillset" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentSkillSet.json"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
 }
 
 # Upload all PDF data files to deployment script storage dynamically
