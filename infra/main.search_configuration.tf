@@ -1,3 +1,14 @@
+locals {
+  # Dynamically discover all PDF files in the data directory
+  data_pdf_files = fileset("${path.root}/../data", "*.pdf")
+  
+  # Create a map of PDF files for for_each
+  pdf_files_map = {
+    for pdf_file in local.data_pdf_files : 
+    replace(pdf_file, ".pdf", "") => pdf_file
+  }
+}
+
 resource "azurerm_storage_account" "deployment_scripts" {
   name                     = "deploy${random_string.name.id}"
   resource_group_name      = azurerm_resource_group.this.name
@@ -198,7 +209,19 @@ resource "azapi_resource" "run_python_from_storage" {
           echo "WARNING: requirements.txt not found in data directory"
         fi
         
-        echo "Uploading data files to storage..."
+        echo "Downloading PDF files from deployment storage to local directory..."
+        # Download PDF files from deployment storage account
+        az storage blob download-batch \
+          --destination . \
+          --source scripts \
+          --pattern "data/*.pdf" \
+          --account-name $SCRIPT_STORAGE_ACCOUNT_NAME \
+          --auth-mode login
+        
+        echo "PDF files downloaded to data directory:"
+        ls -la *.pdf || echo "No PDF files found"
+        
+        echo "Uploading data files to main storage..."
         echo "Target storage: $MAIN_STORAGE_ACCOUNT_NAME"
         echo "Target container: $DATA_CONTAINER_NAME"
         
@@ -440,6 +463,22 @@ resource "azurerm_storage_blob" "document_skillset" {
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentSkillSet.json"
+
+  depends_on = [
+    azurerm_storage_container.scripts,
+    time_sleep.wait_for_rbac
+  ]
+}
+
+# Upload all PDF data files to deployment script storage dynamically
+resource "azurerm_storage_blob" "pdf_data_files" {
+  for_each = local.pdf_files_map
+  
+  name                   = "data/${each.value}"
+  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source                 = "${path.root}/../data/${each.value}"
 
   depends_on = [
     azurerm_storage_container.scripts,
