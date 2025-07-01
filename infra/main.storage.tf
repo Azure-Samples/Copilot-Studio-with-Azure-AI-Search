@@ -13,6 +13,7 @@ module "storage_account_and_container" {
   shared_access_key_enabled       = false
   # Disable public network access to comply with CKV_AZURE_35
   public_network_access_enabled   = false 
+  # Disable blob public access to comply with CKV_AZURE_190
   allow_nested_items_to_be_public = false
 
   managed_identities = {
