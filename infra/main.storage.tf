@@ -1,5 +1,6 @@
 module "storage_account_and_container" {
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
+  # checkov:skip=CKV_AZURE_59: Public access is already disabled with public_network_access_enabled=false and allow_nested_items_to_be_public=false in AVM 0.6.2
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "0.6.2"
   account_replication_type        = var.cps_storage_replication_type
@@ -11,7 +12,7 @@ module "storage_account_and_container" {
   min_tls_version                 = "TLS1_2"
   # Disable local authentication to comply with CKV_AZURE_244
   shared_access_key_enabled       = false
-  # Disable public network access to comply with CKV_AZURE_35
+  # Disable public network access to comply with CKV_AZURE_35 and CKV_AZURE_59
   public_network_access_enabled   = false 
   # Disable blob public access to comply with CKV_AZURE_190
   allow_nested_items_to_be_public = false
