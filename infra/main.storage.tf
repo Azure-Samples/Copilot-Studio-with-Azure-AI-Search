@@ -10,8 +10,9 @@ module "storage_account_and_container" {
   resource_group_name             = azurerm_resource_group.this.name
   min_tls_version                 = "TLS1_2"
   shared_access_key_enabled       = true # TODO turn this off once 2-pass deployment and config is added
-  public_network_access_enabled   = true # TODO turn this off once 2-pass deployment and config is added
-  allow_nested_items_to_be_public = true # TODO turn this off once 2-pass deployment and config is added
+  # Disable public network access to comply with CKV_AZURE_35
+  public_network_access_enabled   = false 
+  allow_nested_items_to_be_public = false
 
   managed_identities = {
     system_assigned = true
@@ -23,7 +24,7 @@ module "storage_account_and_container" {
   containers = {
     (var.cps_container_name) = {
       name          = var.cps_container_name
-      public_access = "Blob" # TODO restrict access once 2-pass deployment and config is added
+      public_access = "None" # Restricted for security compliance
     }
   }
 
@@ -36,7 +37,10 @@ module "storage_account_and_container" {
       azurerm_subnet.github_runner_primary_subnet[0].id
     ]
     bypass = ["AzureServices"]
-  } : null
+  } : {
+    default_action = "Deny"
+    bypass = ["AzureServices"]
+  }
 }
 
 # TODO add a proper polling mechanism instead of wait
