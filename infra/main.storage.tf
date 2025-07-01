@@ -22,6 +22,17 @@ module "storage_account_and_container" {
 
   tags             = var.tags
   enable_telemetry = var.enable_telemetry
+  
+  # Enable Queue logging to comply with CKV_AZURE_33
+  queue_properties = {
+    logging = {
+      delete                = true
+      read                  = true
+      write                 = true
+      version               = "1.0"
+      retention_policy_days = 7
+    }
+  }
 
   containers = {
     (var.cps_container_name) = {
