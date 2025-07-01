@@ -122,7 +122,21 @@ resource "azurerm_subnet" "pe_failover_subnet" {
   private_endpoint_network_policies = "Enabled"
 }
 
-#---- Set up NAT gateways, which are not initialized by the AVM ----
+
+# Create public IP addresses for NAT gateways
+resource "azurerm_public_ip" "nat_gateway_ips" {
+  for_each = {
+    primary  = var.primary_location
+    failover = var.failover_location
+  }
+
+  name                = "${each.key}-nat-gateway-ip"
+  location            = each.value
+  resource_group_name = azurerm_resource_group.this.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  tags                = var.tags
+}
 
 resource "azurerm_nat_gateway" "nat_gateways" {
   for_each = {
@@ -134,11 +148,24 @@ resource "azurerm_nat_gateway" "nat_gateways" {
   name                = "${each.key}-nat-gateway"
   resource_group_name = azurerm_resource_group.this.name
   sku_name            = "Standard"
+  tags                = var.tags
 
-
+  # Associate the public IP address with the NAT gateway
+  depends_on = [azurerm_public_ip.nat_gateway_ips]
 }
 
-resource "azurerm_subnet" "deployment_script" {
+# Associate public IP addresses with NAT gateways
+resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_associations" {
+  for_each = {
+    primary  = var.primary_location
+    failover = var.failover_location
+  }
+
+  nat_gateway_id       = azurerm_nat_gateway.nat_gateways[each.key].id
+  public_ip_address_id = azurerm_public_ip.nat_gateway_ips[each.key].id
+}
+
+resource "azurerm_subnet" "deployment_script_container" {
   name                 = "deploymentscript-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -156,6 +183,6 @@ resource "azurerm_subnet" "deployment_script" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
-  subnet_id      = azurerm_subnet.deployment_script.id
+  subnet_id      = azurerm_subnet.deployment_script_container.id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }

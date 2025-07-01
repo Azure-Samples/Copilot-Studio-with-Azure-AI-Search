@@ -7,7 +7,8 @@ It serves as the primary endpoint for experiments with the AI Search service.
 import argparse
 import os
 import logging
-from azure.identity import DefaultAzureCredential
+import time
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import SearchIndex, SearchIndexerDataSourceConnection, SearchIndexer, SearchIndexerSkillset
 from common_utils import absolute_url, valid_name
@@ -65,7 +66,7 @@ def create_or_update_skillset(
         skillset_file: str,
         ai_search_uri: str,
         open_ai_uri: str,
-        credentials: DefaultAzureCredential,
+        credentials,
 ):    
     """
     Create or update the skillset in the AI Search service.
@@ -111,7 +112,7 @@ def create_or_update_indexer(
         datasource_name: str,
         indexer_file: str,
         ai_search_uri: str,
-        credential: DefaultAzureCredential,
+        credential,
 ):
     """
     Create or update the indexer in the AI Search service.
@@ -161,7 +162,7 @@ def create_or_update_datasource(
         resource_group_name: str,
         storage_account_name: str,
         container_name: str,
-        credential: DefaultAzureCredential,
+        credential,
 ):
     """
     Create or update the data source in the AI Search service.
@@ -233,7 +234,7 @@ def create_or_update_index(
         index_file: str,
         ai_search_uri: str,
         open_ai_uri: str,
-        credential: DefaultAzureCredential,
+        credential,
 ):
     """
     Create or update the index in the AI Search service.
@@ -263,9 +264,29 @@ def create_or_update_index(
 
         # create an object of the index and initiate index creation process
         index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
+        logger.info(f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}")
         index_client.create_or_update_index(index=index)
+        logger.info(f"Successfully created/updated index '{index_name}'")
     except Exception as e:
         logger.error(f"Failed to create or update the index '{index_name}': {e}")
+        logger.error(f"AI Search URI: {ai_search_uri}")
+        logger.error(f"Credential type: {type(credential).__name__}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        
+        # Try to extract additional error details
+        try:
+            status_code = getattr(e, 'status_code', None)
+            if status_code:
+                logger.error(f"HTTP Status Code: {status_code}")
+            response = getattr(e, 'response', None)
+            if response:
+                logger.error(f"Response details: {response}")
+            error_detail = getattr(e, 'error', None)
+            if error_detail:
+                logger.error(f"Error details: {error_detail}")
+        except Exception as inner_e:
+            logger.error(f"Could not extract error details: {inner_e}")
+            
         raise
 
 
@@ -342,10 +363,50 @@ def main():
     )
     args = parser.parse_args()
 
-    # Using default Azure credentials assuming that it has all needed permissions
-    logger.info("Authenticate code into Azure using default credentials.")
-    credential = DefaultAzureCredential()
+    # Using user-assigned managed identity for authentication
+    logger.info("Authenticate code into Azure using user-assigned managed identity.")
+    
+    # Debug environment variables
+    logger.info("Environment variables for authentication:")
+    for var in ['AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID']:
+        value = os.getenv(var)
+        if value:
+            logger.info(f"  {var}: {value[:8]}... (truncated)")
+        else:
+            logger.info(f"  {var}: Not set")
+    
+    # Get the client ID from environment variable (set by deployment script)
+    client_id = os.getenv('AZURE_CLIENT_ID')
+    if client_id and client_id.strip():
+        logger.info(f"Using user-assigned managed identity with client ID: {client_id}")
+        credential = ManagedIdentityCredential(client_id=client_id)
+        logger.info("Successfully created ManagedIdentityCredential")
+    else:
+        logger.warning("AZURE_CLIENT_ID not found or empty, falling back to DefaultAzureCredential")
+        logger.warning("This may cause authentication issues in Azure Deployment Scripts")
+        credential = DefaultAzureCredential()
+        logger.info("Successfully created DefaultAzureCredential")
 
+    # Log the credential type for debugging
+    logger.info(f"Final credential type: {type(credential).__name__}")
+    
+    # Test the credential by attempting to get a token (optional verification)
+    try:
+        logger.info("Testing credential by requesting a token...")
+        token = credential.get_token("https://management.azure.com/.default")
+        logger.info("Credential test successful - token obtained")
+        
+        # Also test with Search Service scope
+        logger.info("Testing credential with Search Service scope...")
+        search_token = credential.get_token("https://search.azure.com/.default")
+        logger.info("Search Service credential test successful - token obtained")
+    except Exception as e:
+        logger.warning(f"Credential test failed, but continuing: {e}")
+    
+    # Additional wait for permission propagation (especially for Search Service)
+    logger.info("Waiting for permission propagation to complete...")
+    time.sleep(10)  # 10 second delay for permission propagation
+    
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 
     # forming entity names based on the base name
