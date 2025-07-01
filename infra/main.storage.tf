@@ -30,6 +30,7 @@ module "storage_account_and_container" {
     }
   }
 
+  # Ensure network rules always have bypass for AzureServices to comply with CKV_AZURE_36
   network_rules = var.deploy_github_runner ? {
     default_action = "Deny"
     virtual_network_subnet_ids = var.enable_failover_github_runner ? [
@@ -38,10 +39,10 @@ module "storage_account_and_container" {
       ] : [
       azurerm_subnet.github_runner_primary_subnet[0].id
     ]
-    bypass = ["AzureServices"]
+    bypass = ["AzureServices"] # Enable Trusted Microsoft Services
   } : {
     default_action = "Deny"
-    bypass = ["AzureServices"]
+    bypass = ["AzureServices"] # Enable Trusted Microsoft Services
   }
 }
 
