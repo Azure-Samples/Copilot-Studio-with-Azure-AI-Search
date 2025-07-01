@@ -209,7 +209,7 @@ jobs:
     name: Update Dependabot PR Status
     needs: [check-dependabot, lint-and-check]
     runs-on: ubuntu-latest
-    if: needs.check-dependabot.outputs.is_dependabot == 'true'
+    if: needs.check-dependabot.outputs.is_dependabot == 'true' && success()
     steps:
       - name: Comment on PR
         uses: actions/github-script@v7
@@ -240,4 +240,36 @@ jobs:
               repo: context.repo.repo,
               issue_number: prNumber,
               labels: ['terraform-validated']
+            });
+
+  update-dependabot-pr-failure:
+    name: Report Validation Failure on Dependabot PR
+    needs: [check-dependabot, lint-and-check]
+    runs-on: ubuntu-latest
+    if: needs.check-dependabot.outputs.is_dependabot == 'true' && failure()
+    steps:
+      - name: Comment on PR about failure
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `## ❌ Terraform Validation Failed
+              
+              The Terraform provider update has failed validation. Please check the workflow logs for details.
+              
+              This may indicate that the provider update is not compatible with the current configuration.`
+            });
+            
+            // Add 'terraform-validation-failed' label to the PR
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['terraform-validation-failed']
             });
