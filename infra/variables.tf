@@ -137,7 +137,8 @@ variable "cps_container_name" {
 
 variable "cps_storage_replication_type" {
   type        = string
-  default     = "LRS"
+  # Using ZRS to comply with CKV_AZURE_206 which requires Storage Accounts to use replication for better availability
+  default     = "ZRS"
   description = "The replication type to use for the storage account the CPS bot's AI Search resource's datasource will connect to"
 }
 
