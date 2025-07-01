@@ -1,7 +1,7 @@
 module "azure_open_ai" {
-  # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
-  # checkov:skip=CKV_AZURE_247: Data loss prevention for Cognitive Services account is not directly configurable through the AVM module. The module manages this configuration internally.
   source                = "Azure/avm-res-cognitiveservices-account/azurerm"
+  #checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
+  #checkov:skip=CKV_AZURE_247: Data loss prevention for Cognitive Services account is not directly configurable through the AVM module. The module manages this configuration internally.
   version               = "0.7.1"
   kind                  = "OpenAI"
   location              = var.location

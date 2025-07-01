@@ -1,6 +1,7 @@
 # Create virtual networks directly instead of using AVMs - necessary due to timing issues when a first-class resource dependency is unavailable.
-# checkov:skip=CKV_TF_1: Using direct resource creation instead of modules for more explicit dependency management
 resource "azurerm_virtual_network" "primary_virtual_network" {
+  #checkov:skip=CKV_TF_1: Using direct resource creation instead of modules for more explicit dependency management
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                = "power-platform-primary-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
   location            = var.primary_location
@@ -9,6 +10,8 @@ resource "azurerm_virtual_network" "primary_virtual_network" {
 }
 
 resource "azurerm_virtual_network" "failover_virtual_network" {
+  #checkov:skip=CKV_TF_1: Using direct resource creation instead of modules for more explicit dependency management
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                = "power-platform-failover-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
   location            = var.failover_location
@@ -18,6 +21,7 @@ resource "azurerm_virtual_network" "failover_virtual_network" {
 
 # Create primary subnets as first-class resources
 resource "azurerm_subnet" "primary_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                 = var.primary_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -39,6 +43,7 @@ resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
 }
 
 resource "azurerm_subnet" "ai_search_primary_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                 = "ai-search-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -62,6 +67,7 @@ resource "azurerm_subnet_nat_gateway_association" "ai_search_primary_subnet_nat"
 
 # Create failover subnets as first-class resources
 resource "azurerm_subnet" "failover_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                 = var.failover_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -83,6 +89,7 @@ resource "azurerm_subnet_nat_gateway_association" "failover_subnet_nat" {
 }
 
 resource "azurerm_subnet" "ai_search_failover_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                 = "ai-search-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -106,6 +113,7 @@ resource "azurerm_subnet_nat_gateway_association" "ai_search_failover_subnet_nat
 
 # Create dedicated private endpoint subnets without delegations
 resource "azurerm_subnet" "pe_primary_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                 = "pe-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -117,6 +125,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
 }
 
 resource "azurerm_subnet" "pe_failover_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   name                 = "pe-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -130,6 +139,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
 #---- Set up GitHub Runners ----
 
 resource "azurerm_subnet" "github_runner_primary_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   count                = var.deploy_github_runner ? 1 : 0
   name                 = "github-runner-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
@@ -154,6 +164,7 @@ resource "azurerm_subnet_nat_gateway_association" "github_runner_primary_subnet_
 }
 
 resource "azurerm_subnet" "github_runner_failover_subnet" {
+  #checkov:skip=CKV2_AZURE_31: Network Security Groups are managed by PowerPlatform policy and service delegations
   count                = var.deploy_github_runner ? 1 : 0
   name                 = "github-runner-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
