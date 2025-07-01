@@ -90,6 +90,7 @@ def create_or_update_skillset(
         ai_search_uri: str,
         open_ai_uri: str,
         credentials,
+        credentials,
 ):    
     """
     Create or update the skillset in the AI Search service. If the skillset already exists, no change.
@@ -143,6 +144,7 @@ def create_or_update_indexer(
         datasource_name: str,
         indexer_file: str,
         ai_search_uri: str,
+        credential,
         credential,
 ):
     """
@@ -198,6 +200,7 @@ def create_or_update_datasource(
         resource_group_name: str,
         storage_account_name: str,
         container_name: str,
+        credential,
         credential,
 ):
     """
@@ -283,6 +286,7 @@ def create_or_update_index(
         ai_search_uri: str,
         open_ai_uri: str,
         credential,
+        credential,
 ):
     """
     Create or update the index in the AI Search service. If the index already exists, then no change.
@@ -313,10 +317,30 @@ def create_or_update_index(
         # create an object of the index and initiate index creation process if it does not already exist
         index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
         logger.info(f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}")
+        logger.info(f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}")
         index_client.create_or_update_index(index=index)
+        logger.info(f"Successfully created/updated index '{index_name}'")
         logger.info(f"Successfully created/updated index '{index_name}'")
     except Exception as e:
         logger.error(f"Failed to create or update the index '{index_name}': {e}")
+        logger.error(f"AI Search URI: {ai_search_uri}")
+        logger.error(f"Credential type: {type(credential).__name__}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        
+        # Try to extract additional error details
+        try:
+            status_code = getattr(e, 'status_code', None)
+            if status_code:
+                logger.error(f"HTTP Status Code: {status_code}")
+            response = getattr(e, 'response', None)
+            if response:
+                logger.error(f"Response details: {response}")
+            error_detail = getattr(e, 'error', None)
+            if error_detail:
+                logger.error(f"Error details: {error_detail}")
+        except Exception as inner_e:
+            logger.error(f"Could not extract error details: {inner_e}")
+            
         logger.error(f"AI Search URI: {ai_search_uri}")
         logger.error(f"Credential type: {type(credential).__name__}")
         logger.error(f"Exception type: {type(e).__name__}")
