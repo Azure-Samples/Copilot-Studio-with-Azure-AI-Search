@@ -10,6 +10,9 @@ module "azure_open_ai" {
   sku_name              = "S0"
   local_auth_enabled    = true
   cognitive_deployments = var.cognitive_deployments
+  # Disable public network access to comply with CKV_AZURE_134 security check
+  public_network_access_enabled = false
+
   network_acls = {
     default_action = "Deny"
     virtual_network_rules = [
