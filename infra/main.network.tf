@@ -1,4 +1,5 @@
 # Create virtual networks directly instead of using AVMs - necessary due to timing issues when a first-class resource dependency is unavailable.
+# checkov:skip=CKV_TF_1: Using direct resource creation instead of modules for more explicit dependency management
 resource "azurerm_virtual_network" "primary_virtual_network" {
   name                = "power-platform-primary-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
