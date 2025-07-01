@@ -60,7 +60,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          terraform_version: "1.12.0"  # Pinning specific version is recommended
+          terraform_version: "1.12.2"  # Pinning specific version is recommended
         
       - name: Terraform Init
         id: tf-init
