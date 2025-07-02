@@ -1,0 +1,129 @@
+name: "Test Search Service on Private Github Runner"
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_group_tag:
+        description: "Resource Group ID Tag (5 Characters)"
+        required: true
+        default: ""
+        type: string
+      base_index_name:
+        description: "Index name for test"
+        required: true
+        default: "testindex"
+        type: string
+      upload_container_name:
+        description: "Storage Container directory name to upload content for testing"
+        required: true
+        default: "testuploaddata"
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  issues: read
+  checks: write
+
+jobs:
+  upload-data:
+    name: "Upload Data, Setup Search Resources, Run E2E Tests"
+    env:
+      AISEARCH_NAME: "ais${{ inputs.runner_group_tag }}"
+      INDEX_NAME: "${{ inputs.base_index_name }}-index"
+      DATASOURCE_NAME: "${{ inputs.base_index_name }}-ds"
+      SKILLSET_NAME: "${{ inputs.base_index_name }}-skills"
+      INDEXER_NAME: "${{ inputs.base_index_name }}-indexer"
+    runs-on: [self-hosted, "rg-${{ inputs.runner_group_tag }}"]
+    environment: testing
+
+    steps:
+      - name: Checkout the branch ${{ github.ref_name }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Initialize virtual environment
+        run: |
+          echo "Create a new virtual environment"
+          python3 -m venv .copilot_venv
+
+      - name: Run `data/upload_data.py` script
+        run: |
+          echo "Activate the virtual environment"
+          source .copilot_venv/bin/activate
+
+          echo "Install the requirements"
+          pip install -r data/requirements.txt
+
+          echo "Upload the dataset"
+          python -m data/upload_data \
+            --storage_name cps${{ inputs.runner_group_tag }} \
+            --container_name ${{ inputs.upload_container_name }}
+
+      - name: Run `src/search/index_utils.py` script
+        run: |
+          echo "Activate the virtual environment"
+          source .copilot_venv/bin/activate
+
+          echo "Install the required dependencies"
+          pip install -r src/search/requirements.txt
+
+          echo "Run the script to create the contents of the search service"
+          python -m src.search.index_utils \
+            --aisearch_name ais${{ inputs.runner_group_tag }} \
+            --base_index_name "${{ inputs.base_index_name }}" \
+            --openai_api_base $AZURE_OPENAI_ENDPOINT \
+            --subscription_id $AZURE_SUBSCRIPTION_ID \
+            --resource_group_name rg-${{ inputs.runner_group_tag }} \
+            --storage_name cps${{ inputs.runner_group_tag }} \
+            --container_name ${{ inputs.upload_container_name }}
+
+      - name: Run pytest E2E tests
+        run: |
+          echo "Activate the virtual environment"
+          source .copilot_venv/bin/activate
+
+          echo "Install test dependencies"
+          pip install -r src/search/test/requirements-test.txt
+
+          echo "Environment variables for pytest:"
+          echo "AISEARCH_NAME: $AISEARCH_NAME"
+          echo "INDEX_NAME: $INDEX_NAME"
+          echo "DATASOURCE_NAME: $DATASOURCE_NAME"
+          echo "SKILLSET_NAME: $SKILLSET_NAME"
+          echo "INDEXER_NAME: $INDEXER_NAME"
+
+          echo "Run pytest with JUnit XML output"
+          pytest src/search/test/test_e2e_search_resources_pytest.py \
+            --aisearch-name $AISEARCH_NAME \
+            --index-name $INDEX_NAME \
+            --datasource-name $DATASOURCE_NAME \
+            --skillset-name $SKILLSET_NAME \
+            --indexer-name $INDEXER_NAME \
+            --verbose \
+            --tb=auto \
+            --junitxml=test-results.xml \
+            --html=test-report.html \
+            --self-contained-html \
+            --durations=10
+        continue-on-error: true # Continue even if tests fail to ensure artifacts are uploaded
+
+      - name: Upload test results as workflow artifact
+        uses: actions/upload-artifact@v4
+        if: (!cancelled()) # Upload artifacts even if tests fail
+        with:
+          name: pytest-test-results
+          path: |
+            test-results.xml
+            test-report.html
+          retention-days: 30
+
+      - name: Publish pytest test results
+        uses: dorny/test-reporter@v2
+        if: (!cancelled()) # Run even if tests fail
+        with:
+          name: Azure AI Search E2E Tests
+          path: test-results.xml
+          reporter: java-junit
+          fail-on-error: false # Don't fail the workflow on test failures

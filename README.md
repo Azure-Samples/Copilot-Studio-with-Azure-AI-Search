@@ -38,7 +38,9 @@ network security.
 
 ## Architecture
 
-This architecture deploys the 40+ Azure and Power Platform resources required to set up a basic AI Search endpoint and query the resource through a Copilot Studio agent. The most novel parts of this architecture are included in the diagram below.
+This architecture deploys the 40+ Azure and Power Platform resources required to set up a basic AI
+Search endpoint and query the resource through a Copilot Studio agent. The most novel parts of this
+architecture are included in the diagram below.
 
 ```mermaid
 ---
@@ -88,6 +90,7 @@ To use this example, complete the following prerequisites:
    - The [Terraform provider](https://registry.terraform.io/providers/microsoft/power-platform/latest/docs/resources/admin_management_application), or
    - [PowerShell](https://learn.microsoft.com/power-platform/admin/powershell-create-service-principal), or
    - Bash:
+
       ```bash
       SP_CLIENT_ID="<your service principal's client ID>"
       TOKEN=$(az account get-access-token --resource https://api.bap.microsoft.com --query accessToken -o tsv)
@@ -97,6 +100,7 @@ To use this example, complete the following prerequisites:
       -H "Authorization: Bearer $TOKEN" \
       -d '{}'
       ```
+
 1. Grant **admin consent** for all delegated permissions assigned to the app.
 1. Assign the following roles to the Service Principal in the Azure subscription where resources
 will be created:
@@ -140,10 +144,10 @@ will be created:
 This solution must be deployed using a **Service Principal**. Follow the steps below, switching
 between authentication options as noted.
 
-_Note: There are
+*Note: There are
 [known issues](https://github.com/microsoft/terraform-provider-power-platform/issues/283)
 with initializing Power Platform connections using user-based authentication. Therefore, the
-service principal approach is recommended._
+service principal approach is recommended.*
 
 1. To set up a local clone of this template, run the following command. Follow the steps to
   configure an Azure Developer CLI (azd) environment. Choose a descriptive name for your azd
@@ -261,9 +265,9 @@ service principal approach is recommended._
     azd up
     ```
 
-_Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
+*Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
 that the storage account's network access settings allow traffic from your IP address. You may need
-to whitelist your IP or temporarily enable public access, depending on your organization's policy._
+to whitelist your IP or temporarily enable public access, depending on your organization's policy.*
 
 ## GitHub Self-Hosted Runners
 
@@ -304,10 +308,10 @@ After configuring all environment variables, the GitHub runners will be automati
 using the `azd up` command. They will then be registered with your repository and appear under
 *Settings > Actions > Runners* in your repository.
 
-_Note: If you encounter the following error:
+*Note: If you encounter the following error:
 `MissingSubscriptionRegistration: The subscription is not registered to use namespace 'Microsoft.App'`
 please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
-provider in your subscription._
+provider in your subscription.*
 
 ### Additional Runner Deployment Options
 
@@ -326,6 +330,14 @@ To run the demo, follow these steps:
 2.
 3.
 
+## Next Steps
+
+At this point, you have a complete application deployed on Azure using your local dev box. But there is much more that the Azure Developer CLI can do. These next steps will introduce you to additional commands that will make creating applications on Azure much easier. Using the Azure Developer CLI, you can setup your pipelines, monitor your application, test and debug locally.
+
+azd pipeline config - to automate the process to create you own copy of this repo, host it on GitHub organization of your choice, create the needed federated credentials, Github workflow and their needed workflow variables to deploy your code whenever changes are pushed to the main branch.
+
+azd down - to delete all the Azure resources created with this template
+
 ## Workflows
 
 A mature workflow for a solution not only automates the deployment of the IAC resources, and the
@@ -338,8 +350,12 @@ and [Gitleaks](https://github.com/gitleaks/gitleaks) into both Dev loop and depl
 These tools run automatically before executing the azd up command, ensuring security, compliance,
 and best practices are validated prior to deploying the solution.
 
-The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml), utilizes Federated
+The main workflow, defined in [azure-dev.yml](.github/workflows/azure-dev.yml), utilizes Federated
 credentials to ensure secure authentication.
+
+**ONLY FOR SELF-HOSTED GITHUB RUNNERS**: There is a workflow defined in [test-runner.yaml](/.github/workflows/test-runner.yaml)
+that runs through uploading test data to defined resource group, and testing the search service after
+that data upload.
 
 ### Set Up Federated Identity Credential in Azure
 
@@ -378,11 +394,14 @@ To set up a federated identity credential in Azure, follow these steps:
    to deployed resources.
    - `GITHUB_PAT`: GitHub personal access token.
 
-_Note: Client secret is not needed if using federated identity._
+*Note: Client secret is not needed if using federated identity.*
 
 ## Resource Configuration Notes
 
-- To avoid cost issues when validating the architecture, the default setting of the AI Search resource is to use one partition and one replica, which is not a production-caliber configuration. If you use this architecture in a production scenario, update the ai_search_config Terraform variable to configure at least 3 partitions and replicas.
+- To avoid cost issues when validating the architecture, the default setting of the AI Search resource
+is to use one partition and one replica, which is not a production-caliber configuration. If you use
+this architecture in a production scenario, update the ai_search_config Terraform variable to configure
+at least 3 partitions and replicas.
 
 ## Resources
 
@@ -399,7 +418,7 @@ and services. You may turn off the telemetry as described below. There are also 
 in the software that may enable you and Microsoft to collect data from users of your applications.
 If you use these features, you must comply with applicable law, including providing appropriate
 notices to users of your applications together with a copy of Microsoft’s privacy statement. Our
-privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more
+privacy statement is located at <https://go.microsoft.com/fwlink/?LinkID=824704>. You can learn more
 about data collection and use in the help documentation and our privacy statement. Your use of the
 software operates as your consent to these practices.
 
