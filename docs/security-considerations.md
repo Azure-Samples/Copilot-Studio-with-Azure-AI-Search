@@ -95,63 +95,15 @@ graph TB
 
 ### Threat Categories
 
-#### 1. Infrastructure Threats
-
-**T1.1 Network-based Attacks**
-- **Description**: Unauthorized network access to Azure resources
-- **Mitigations**: 
-  - Private endpoints for AI Search
-  - Network ACLs on Azure OpenAI (default deny)
-  - VNet isolation with dedicated subnets
-  - NAT gateways for controlled outbound access
-
-**T1.2 Identity and Access Management Attacks**
-- **Description**: Unauthorized access through compromised identities
-- **Mitigations**:
-  - System-assigned managed identities
-  - Least privilege RBAC assignments
-  - No long-lived secrets for inter-service communication
-
-**T1.3 Data Exfiltration**
-- **Description**: Unauthorized access to stored data or AI models
-- **Mitigations**:
-  - Private endpoint access to storage
-  - Managed identity authentication
-  - Network restrictions on storage account
-
-#### 2. Application Threats
-
-**T2.1 Power Platform Environment Compromise**
-- **Description**: Unauthorized access to Power Platform resources
-- **Mitigations**:
-  - Enterprise policy enforcement
-  - Network injection into Azure VNet
-  - Role-based access control
-  - Connection sharing controls
-
-**T2.2 AI Model Abuse**
-- **Description**: Misuse of AI capabilities through the Copilot
-- **Mitigations**:
-  - Azure OpenAI built-in content filtering
-  - Network isolation of AI services
-  - Audit logging through Application Insights
-
-#### 3. Deployment and Operations Threats
-
-**T3.1 Supply Chain Attacks**
-- **Description**: Compromised dependencies or deployment pipeline
-- **Mitigations**:
-  - Security scanning in pre-deployment hooks (Checkov, Gitleaks, TFLint)
-  - Azure Verified Modules (AVM) usage
-  - Dependabot for dependency updates
-  - Optional self-hosted GitHub runners for controlled environment
-
-**T3.2 Credential Compromise**
-- **Description**: Exposed secrets or misconfigured authentication
-- **Mitigations**:
-  - Support for federated identity (OIDC) authentication
-  - Service principal isolation
-  - Remote state storage with proper access controls
+| Threat ID | Category | Description | Mitigations |
+|-----------|----------|-------------|-------------|
+| **T1.1** | Infrastructure | **Network-based Attacks**: Unauthorized network access to Azure resources | • Private endpoints for AI Search<br>• Network ACLs on Azure OpenAI (default deny)<br>• VNet isolation with dedicated subnets<br>• NAT gateways for controlled outbound access |
+| **T1.2** | Infrastructure | **Identity and Access Management Attacks**: Unauthorized access through compromised identities | • System-assigned managed identities<br>• Least privilege RBAC assignments<br>• No long-lived secrets for inter-service communication |
+| **T1.3** | Infrastructure | **Data Exfiltration**: Unauthorized access to stored data or AI models | • Private endpoint access to storage<br>• Managed identity authentication<br>• Network restrictions on storage account |
+| **T2.1** | Application | **Power Platform Environment Compromise**: Unauthorized access to Power Platform resources | • Enterprise policy enforcement<br>• Network injection into Azure VNet<br>• Role-based access control<br>• Connection sharing controls |
+| **T2.2** | Application | **AI Model Abuse**: Misuse of AI capabilities through the Copilot | • Azure OpenAI built-in content filtering<br>• Network isolation of AI services<br>• Audit logging through Application Insights |
+| **T3.1** | Deployment & Operations | **Supply Chain Attacks**: Compromised dependencies or deployment pipeline | • Security scanning in pre-deployment hooks (Checkov, Gitleaks, TFLint)<br>• Azure Verified Modules (AVM) usage<br>• Dependabot for dependency updates<br>• Optional self-hosted GitHub runners for controlled environment |
+| **T3.2** | Deployment & Operations | **Credential Compromise**: Exposed secrets or misconfigured authentication | • Support for federated identity (OIDC) authentication<br>• Service principal isolation<br>• Remote state storage with proper access controls |
 
 ## Trust Boundaries
 
@@ -206,40 +158,15 @@ graph TB
 
 ### Boundary Controls
 
-**TB1: Azure Subscription Boundary**
-- Control: Azure RBAC, Subscription policies
-- Authentication: Microsoft Entra ID
-- Authorization: Role-based access control
-
-**TB2: Resource Group Boundary**  
-- Control: Resource-level RBAC
-- Isolation: Logical grouping of related resources
-- Management: Unified lifecycle and access control
-
-**TB3 & TB4: Virtual Network Boundaries**
-- Control: Network Security Groups, Private endpoints
-- Isolation: Layer 3 network segmentation
-- Access Control: Subnet-level routing and firewall rules
-
-**TB5: Azure Service Boundaries**
-- Control: Service-specific access policies, Managed identities
-- Isolation: Service endpoints and private connectivity
-- Authentication: Azure AD authentication for service-to-service
-
-**TB6: Power Platform Tenant Boundary**
-- Control: Power Platform governance policies
-- Isolation: Environment-level separation
-- Integration: Network injection to Azure VNet
-
-**TB7: GitHub Boundary**
-- Control: Repository permissions, Branch protection
-- Isolation: Workflow isolation, Self-hosted runner segregation
-- Authentication: OIDC federation, Service principals
-
-**TB8: Microsoft 365 Tenant Boundary**
-- Control: Conditional access policies, Identity governance
-- Isolation: Tenant-level user and admin separation
-- Authentication: Multi-factor authentication, Identity protection
+| Trust Boundary | Control Mechanisms | Isolation | Authentication/Access Control |
+|-----------------|-------------------|-----------|------------------------------|
+| **TB1: Azure Subscription** | Azure RBAC, Subscription policies | Subscription-level separation | Microsoft Entra ID, Role-based access control |
+| **TB2: Resource Group** | Resource-level RBAC | Logical grouping of related resources | Unified lifecycle and access control |
+| **TB3 & TB4: Virtual Network** | Network Security Groups, Private endpoints | Layer 3 network segmentation | Subnet-level routing and firewall rules |
+| **TB5: Azure Service** | Service-specific access policies, Managed identities | Service endpoints and private connectivity | Azure AD authentication for service-to-service |
+| **TB6: Power Platform Tenant** | Power Platform governance policies | Environment-level separation | Network injection to Azure VNet |
+| **TB7: GitHub** | Repository permissions, Branch protection | Workflow isolation, Self-hosted runner segregation | OIDC federation, Service principals |
+| **TB8: Microsoft 365 Tenant** | Conditional access policies, Identity governance | Tenant-level user and admin separation | Multi-factor authentication, Identity protection |
 
 ## Security Design Goals
 
@@ -340,7 +267,7 @@ resource "azurerm_private_endpoint" "terraform_state" {
 **Security Impact**: Prevents exfiltration of Terraform state data
 
 #### 1.2 OIDC Federation for Secretless Authentication
-**Current State**: Template supports OIDC but may use service principal secrets
+**Current State**: Template supports OIDC but uses service principal secrets by default since OIDC requires setting up the federated trust between App Registration and GitHub.
 **Recommendation**:
 ```yaml
 # In GitHub workflow
