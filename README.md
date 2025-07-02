@@ -54,7 +54,6 @@ This enterprise-ready architecture demonstrates how to securely connect Copilot 
 
 **Enterprise Security & Governance:**
 - **Network Injection Policy**: Enforces that Power Platform resources communicate through designated virtual networks
-- **Data Loss Prevention (DLP)**: Prevents sensitive data from leaving the organizational boundary
 - **Private Network Access**: All data flows through private endpoints, eliminating exposure to public internet
 
 This architecture ensures that sensitive enterprise data never traverses public networks while enabling powerful AI-driven search capabilities through Copilot Studio. The network injection policy guarantees that Power Platform connectors respect corporate network boundaries, providing an additional layer of security for regulated industries.
@@ -84,7 +83,6 @@ graph TD
     
     subgraph Policies["Enterprise Policies"]
       NetworkPolicy[Network Injection Policy]
-      DataPolicy[Data Loss Prevention]
     end
   end
 
