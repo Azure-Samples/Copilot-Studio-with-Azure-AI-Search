@@ -355,6 +355,14 @@ To run the demo, follow these steps:
 2.
 3.
 
+## Next Steps
+
+At this point, you have a complete application deployed on Azure using your local dev box. But there is much more that the Azure Developer CLI can do. These next steps will introduce you to additional commands that will make creating applications on Azure much easier. Using the Azure Developer CLI, you can setup your pipelines, monitor your application, test and debug locally.
+
+azd pipeline config - to automate the process to create you own copy of this repo, host it on GitHub organization of your choice, create the needed federated credentials, Github workflow and their needed workflow variables to deploy your code whenever changes are pushed to the main branch.
+
+azd down - to delete all the Azure resources created with this template
+
 ## Workflows
 
 A mature workflow for a solution not only automates the deployment of the IAC resources, and the
@@ -367,7 +375,7 @@ and [Gitleaks](https://github.com/gitleaks/gitleaks) into both Dev loop and depl
 These tools run automatically before executing the azd up command, ensuring security, compliance,
 and best practices are validated prior to deploying the solution.
 
-The main workflow, defined in [azure-dev.yaml](.github/workflows/azure-dev.yaml), utilizes Federated
+The main workflow, defined in [azure-dev.yml](.github/workflows/azure-dev.yml), utilizes Federated
 credentials to ensure secure authentication.
 
 **ONLY FOR SELF-HOSTED GITHUB RUNNERS**: There is a workflow defined in [test-runner.yaml](/.github/workflows/test-runner.yaml)
