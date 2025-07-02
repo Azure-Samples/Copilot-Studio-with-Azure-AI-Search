@@ -415,7 +415,7 @@ variable "vm_github_runner_config" {
     github_runner_group   = string
   })
   default = {
-    github_runner_name    = "azure-runner"
+    github_runner_name    = ""
     github_runner_token   = ""
     github_runner_url     = ""
     github_repo_owner     = ""
@@ -435,9 +435,9 @@ variable "github_runner_vm_size" {
 variable "github_runner_os_type" {
   type        = string
   default     = "linux"
-  description = "Operating system type for the GitHub runner VM (linux or windows)"
+  description = "Operating system type for the GitHub runner VM."
   validation {
-    condition     = contains(["linux", "windows"], var.github_runner_os_type)
-    error_message = "OS type must be either 'linux' or 'windows'."
+    condition     = contains(["linux"], var.github_runner_os_type)
+    error_message = "OS type must be 'linux'. Other OS types are not supported yet."
   }
 }

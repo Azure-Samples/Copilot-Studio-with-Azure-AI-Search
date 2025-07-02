@@ -1,9 +1,3 @@
-variable "enable_vm_github_runner" {
-  type        = bool
-  default     = false
-  description = "Enable GitHub self-hosted runner deployment"
-}
-
 variable "vm_github_runner_config" {
   type = object({
     github_runner_name    = string
@@ -34,10 +28,10 @@ variable "github_runner_vm_size" {
 variable "github_runner_os_type" {
   type        = string
   default     = "linux"
-  description = "Operating system type for the GitHub runner VM (linux or windows)"
+  description = "Operating system type for the GitHub runner VM."
   validation {
-    condition     = contains(["linux", "windows"], var.github_runner_os_type)
-    error_message = "OS type must be either 'linux' or 'windows'."
+    condition     = contains(["linux"], var.github_runner_os_type)
+    error_message = "OS type must be 'linux'. Other OS types are not supported yet"
   }
 }
 

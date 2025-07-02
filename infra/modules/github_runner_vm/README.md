@@ -14,6 +14,9 @@ Create a GitHub Personal Access Token with the following permissions:
   - `repo` (Full control of private repositories)
   - `workflow` (Update GitHub Action workflows)
 
+**⚠️ SECURITY WARNING**: These permissions grant significant access to your repositories
+The Personal Access Token should be managed carefully.
+
 ### Configuring Environment Variables and Deploying Runners
 
 **The GitHub runner is disabled by default.** To enable it, you must 

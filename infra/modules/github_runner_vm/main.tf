@@ -1,6 +1,5 @@
 # Network Security Group for GitHub Runner
 resource "azurerm_network_security_group" "github_runner" {
-  count               = var.enable_vm_github_runner ? 1 : 0
   name                = "nsg-github-runner-${var.unique_id}"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -10,26 +9,12 @@ resource "azurerm_network_security_group" "github_runner" {
 
 # Network Security Group Association
 resource "azurerm_subnet_network_security_group_association" "github_runner" {
-  count                     = var.enable_vm_github_runner ? 1 : 0
   subnet_id                 = var.subnet_id
-  network_security_group_id = azurerm_network_security_group.github_runner[0].id
-}
-
-# Public IP for GitHub Runner VM
-resource "azurerm_public_ip" "github_runner" {
-  count               = var.enable_vm_github_runner ? 1 : 0
-  name                = "pip-github-runner-${var.unique_id}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-
-  tags = var.tags
+  network_security_group_id = azurerm_network_security_group.github_runner.id
 }
 
 # Network Interface for GitHub Runner VM
 resource "azurerm_network_interface" "github_runner" {
-  count               = var.enable_vm_github_runner ? 1 : 0
   name                = "nic-github-runner-${var.unique_id}"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -38,7 +23,6 @@ resource "azurerm_network_interface" "github_runner" {
     name                          = "internal"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.github_runner[0].id
   }
 
   tags = var.tags
@@ -46,7 +30,7 @@ resource "azurerm_network_interface" "github_runner" {
 
 # GitHub Runner VM
 resource "azurerm_linux_virtual_machine" "github_runner" {
-  count               = var.enable_vm_github_runner && var.github_runner_os_type == "linux" ? 1 : 0
+  count               = var.github_runner_os_type == "linux" ? 1 : 0
   name                = "vm-github-runner-${var.unique_id}"
   location            = var.location
   resource_group_name = var.resource_group_name
@@ -57,12 +41,12 @@ resource "azurerm_linux_virtual_machine" "github_runner" {
   disable_password_authentication = true
 
   network_interface_ids = [
-    azurerm_network_interface.github_runner[0].id,
+    azurerm_network_interface.github_runner.id,
   ]
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = tls_private_key.github_runner[0].public_key_openssh
+    public_key = tls_private_key.github_runner.public_key_openssh
   }
 
   os_disk {
@@ -86,22 +70,20 @@ resource "azurerm_linux_virtual_machine" "github_runner" {
 
 # Generate SSH key pair for the VM
 resource "tls_private_key" "github_runner" {
-  count     = var.enable_vm_github_runner ? 1 : 0
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
 # Save SSH private key to local file for easy access
 resource "local_file" "github_runner_private_key" {
-  count           = var.enable_vm_github_runner ? 1 : 0
-  content         = tls_private_key.github_runner[0].private_key_pem
+  content         = tls_private_key.github_runner.private_key_pem
   filename        = "${path.root}/.ssh/github_runner_${azurerm_linux_virtual_machine.github_runner[0].name}_key"
   file_permission = "0600"
 }
 
 # Custom Script Extension to install and configure GitHub Actions Runner
 resource "azurerm_virtual_machine_extension" "github_runner" {
-  count                = var.enable_vm_github_runner && var.github_runner_os_type == "linux" ? 1 : 0
+  count                = var.github_runner_os_type == "linux" ? 1 : 0
   name                 = "install-github-runner"
   virtual_machine_id   = azurerm_linux_virtual_machine.github_runner[0].id
   publisher            = "Microsoft.Azure.Extensions"

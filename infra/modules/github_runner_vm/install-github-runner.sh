@@ -17,7 +17,7 @@ REPO_OWNER="${repo_owner}"
 
 # Logging function
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a /var/log/github-runner-install.log
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
 # Network diagnostics function
@@ -26,35 +26,35 @@ run_network_diagnostics() {
     
     # Check basic network configuration
     log "Network interfaces:"
-    ip addr show | tee -a /var/log/github-runner-install.log
+    ip addr show
     
     log "Routing table:"
-    ip route show | tee -a /var/log/github-runner-install.log
+    ip route show
     
     log "DNS configuration:"
-    cat /etc/resolv.conf | tee -a /var/log/github-runner-install.log
+    cat /etc/resolv.conf
     
     # Test DNS resolution
     log "Testing DNS resolution..."
-    nslookup google.com | tee -a /var/log/github-runner-install.log || log "DNS resolution failed"
+    nslookup google.com || log "DNS resolution failed"
     
     # Test internet connectivity
     log "Testing internet connectivity..."
-    ping -c 3 8.8.8.8 | tee -a /var/log/github-runner-install.log || log "Ping to 8.8.8.8 failed"
+    ping -c 3 8.8.8.8 || log "Ping to 8.8.8.8 failed"
     
     # Test HTTPS connectivity
     log "Testing HTTPS connectivity..."
-    curl -I https://google.com --connect-timeout 10 | tee -a /var/log/github-runner-install.log || log "HTTPS test failed"
+    curl -I https://google.com --connect-timeout 10 || log "HTTPS test failed"
     
     # Test specific GitHub connectivity
     log "Testing GitHub connectivity..."
-    curl -I https://github.com --connect-timeout 10 | tee -a /var/log/github-runner-install.log || log "GitHub connectivity test failed"
-    curl -I https://api.github.com --connect-timeout 10 | tee -a /var/log/github-runner-install.log || log "GitHub API connectivity test failed"
+    curl -I https://github.com --connect-timeout 10 || log "GitHub connectivity test failed"
+    curl -I https://api.github.com --connect-timeout 10 || log "GitHub API connectivity test failed"
     
     # Test package repository connectivity
     log "Testing package repository connectivity..."
-    curl -I https://packages.microsoft.com --connect-timeout 10 | tee -a /var/log/github-runner-install.log || log "Microsoft packages connectivity test failed"
-    curl -I https://deb.nodesource.com --connect-timeout 10 | tee -a /var/log/github-runner-install.log || log "NodeSource connectivity test failed"
+    curl -I https://packages.microsoft.com --connect-timeout 10 || log "Microsoft packages connectivity test failed"
+    curl -I https://deb.nodesource.com --connect-timeout 10 || log "NodeSource connectivity test failed"
 }
 
 log "Starting GitHub Actions Runner installation..."
@@ -155,7 +155,7 @@ for i in {1..3}; do
 done
 
 if [ -z "$RUNNER_VERSION" ] || [ "$RUNNER_VERSION" == "null" ]; then
-    log "ERROR: Could not retrieve GitHub Actions runner version. Using fallback version 2.311.0"
+    log "ERROR: Could not retrieve GitHub Actions runner version. Using fallback version 2.325.0"
     RUNNER_VERSION="2.325.0"
 fi
 
@@ -172,7 +172,7 @@ for i in {1..3}; do
         log "Runner download failed on attempt $i, retrying in 30 seconds..."
         sleep 30
         # Test connectivity again
-        curl -I https://github.com --connect-timeout 10 | tee -a /var/log/github-runner-install.log || log "GitHub connectivity still failing"
+        curl -I https://github.com --connect-timeout 10 || log "GitHub connectivity still failing"
     fi
 done
 
