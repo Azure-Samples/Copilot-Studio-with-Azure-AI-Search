@@ -71,6 +71,7 @@ variable "cognitive_deployments" {
       capacity = optional(number)
     })
     rai_policy_name = string
+    dynamic_throttling_enabled = bool
   }))
   default = {
     "gpt-4" = {
@@ -85,6 +86,7 @@ variable "cognitive_deployments" {
         capacity = 100
       }
       rai_policy_name = "Microsoft.DefaultV2"
+      dynamic_throttling_enabled = true
     }
   }
   description = <<DESCRIPTION
