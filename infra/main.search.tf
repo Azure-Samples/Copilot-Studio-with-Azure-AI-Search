@@ -12,9 +12,11 @@ resource "azurerm_search_service" "ai_search" {
   public_network_access_enabled = var.ai_search_config.public_network_access_enabled
   replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
+  # Enable key-based authentication for Power Platform and deployment scripts
+  local_authentication_enabled = true
 
   identity {
-    type = "SystemAssigned"
+    type         = "SystemAssigned"
   }
 }
 
