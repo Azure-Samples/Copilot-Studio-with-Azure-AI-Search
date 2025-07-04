@@ -129,17 +129,20 @@ These settings must be configured at the tenant level by a Power Platform Admini
 The following user configuration is required to interact with the Azure and Power Platform resources deployed by this solution:
 
 **Required Roles:**
+
 - **Contributor** or **Owner** role on the Azure subscription for managing Azure resources
 - **Power Platform System Administrator** or appropriate environment-specific roles for managing Power Platform connections and Copilot Studio resources
 
 **Required Licenses:**
 The designated user must have the following Power Platform licenses assigned:
+
 - Microsoft Power Apps
 - Power Automate  
 - Copilot Studio
 
 **Access Permissions:**
 Upon deployment, the configured user will be granted:
+
 - Owner/Contributor access to the created Azure resources
 - Administrative permissions for Power Platform connections
 - Full access to the deployed Copilot Studio bot
@@ -162,19 +165,20 @@ While user authentication is technically supported, it has documented limitation
 
 1. Initialize the Azure Developer CLI (azd) environment configuration. This step configures azd to work with this template and creates the necessary environment files:
 
-    - **Outside dev container** (when first cloning the template):
-
-      ```bash
-      azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
-      ```
-
     - **Inside dev container** (after opening the cloned project in the container):
 
       ```bash
       azd init
       ```  
 
+    - **Outside dev container** (when first cloning the template):
+
+      ```bash
+      azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
+      ```
+
     Choose a descriptive name for your azd environment, as it will be used throughout this example. This command sets up the local azd configuration even though you've already cloned the repository.
+    If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
 
 2. Set a value for the interactive user who should be able to access the solution resources.
   Note that this step is optional when running with a user account, but it is strongly encouraged
@@ -191,96 +195,23 @@ While user authentication is technically supported, it has documented limitation
 
 3. **Authentication**: Set up your authentication credentials. For production use, it's recommended to create separate app registrations for ARM and Power Platform providers for better security isolation.
 
-    **Service Principal (Recommended)**:
-
-      ```bash
-      # Set Azure ARM provider credentials
-      export ARM_TENANT_ID="<your tenant ID>"
-      export ARM_CLIENT_ID="<your ARM service principal client ID>"
-      export ARM_CLIENT_SECRET="<your ARM service principal client secret>"
-      export ARM_SUBSCRIPTION_ID="<your subscription ID>"
-
-      # Set Power Platform provider credentials (can reuse ARM credentials or use separate app)
-      export POWER_PLATFORM_TENANT_ID="$ARM_TENANT_ID"
-      export POWER_PLATFORM_CLIENT_ID="<your Power Platform service principal client ID>"
-      export POWER_PLATFORM_CLIENT_SECRET="<your Power Platform service principal client secret>"
-      export POWER_PLATFORM_USE_CLI="false"
-      export ARM_USE_AZUREAD="true"
-      ```
-
-4. Log in to Azure Developer CLI (azd). Note that an auth context is required by azd, but it is not
-  used in the default solution configuration. If prompted to select an Azure region, consider using
-  East US, as other regions may have compatibility issues.
-
-      ```bash
-      # Set auth.useAzCliAuth to false to allow direct service principal authentication
-      azd config set auth.useAzCliAuth "false"
-
-      # Use azd auth login with service principal credentials (reusing environment variables)
-      azd auth login \
-        --client-id "$ARM_CLIENT_ID" \
-        --client-secret "$ARM_CLIENT_SECRET" \
-        --tenant-id "$ARM_TENANT_ID"
-      ```
-
-5. This template sets up the Terraform backend to use the
-  [AzureRM backend](https://developer.hashicorp.com/terraform/language/backend/azurerm), enabling
-  remote state storage within an Azure Storage account Blob container. You can either create a new
-  storage account with a container using the below provided script or skip this step if you already
-  have an existing storage account and container to use.
-
     ```bash
-    #!/bin/bash
+    azd config set auth.useAzCliAuth "true"
+    azd env set USE_LOCAL_STATE true
 
-    # Define variables for storage setup
-    RESOURCE_GROUP_NAME=<RG_NAME>
-    LOCATION=<LOCATION>
-    STORAGE_ACCOUNT_NAME=<ACCOUNT_NAME>
-    CONTAINER_NAME=<CONTAINER_NAME>
-    
-    # Get current user information for role assignment
-    OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
-    PRINCIPAL_TYPE="User"
-    SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-
-    # Create resource group
-    az group create --name $RESOURCE_GROUP_NAME --location $LOCATION
-
-    # Create storage account
-    az storage account create \
-      --resource-group $RESOURCE_GROUP_NAME \
-      --name $STORAGE_ACCOUNT_NAME \
-      --sku Standard_LRS \
-      --encryption-services blob
-
-    # Create blob container
-    az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
-
-    # Assign Data Contributor role for the container
-    az role assignment create \
-    --role "Storage Blob Data Contributor" \
-    --assignee-object-id $OBJECT_ID \
-    --assignee-principal-type $PRINCIPAL_TYPE \
-    --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT_NAME/blobServices/default/containers/$CONTAINER_NAME"
+    az login --service-principal --username <SP_CLIENT_ID> --password <SP_SECRET> --tenant <TENANT_ID> 
+    pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID>
     ```
 
-6. Set the remote state configurations (reusing variables from step 5):
-
-   ``` bash
-   azd env set RS_STORAGE_ACCOUNT $STORAGE_ACCOUNT_NAME
-   azd env set RS_CONTAINER_NAME $CONTAINER_NAME
-   azd env set RS_RESOURCE_GROUP $RESOURCE_GROUP_NAME
-   ```
-
-7. Deploy the solution using the command below. This will create a new resource group in your
+4. Deploy the solution using the command below. This will create a new resource group in your
   Azure subscription and deploy the resources defined in the `infra` directory.
 
     ```bash
     azd up
     ```
 
-    _Note: In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has 
-    completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors._
+_Note: In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has
+completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors._
 
 *Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
 that the storage account's network access settings allow traffic from your IP address. You may need
@@ -288,47 +219,9 @@ to whitelist your IP or temporarily enable public access, depending on your orga
 
 ## GitHub Self-Hosted Runners
 
-This project deploys GitHub self-hosted runners, using Azure Container Apps for isolated and
-scalable CI/CD workloads.
+For organizations requiring deployment through CI/CD pipelines, this solution supports GitHub self-hosted runners. The self-hosted runner configuration provides enhanced control over the deployment environment and enables execution within corporate network boundaries.
 
-### GitHub Personal Access Token Requirements
-
-Create a **classic** GitHub Personal Access Token with the following permissions:
-
-- **Repository permissions**:
-  - `repo` (Full control of private repositories)
-  - `workflow` (Update GitHub Action workflows)
-
-### Configuring Environment Variables
-
-Set the following environment variables for GitHub runner deployment:
-
-```bash
-# GitHub configuration
-azd env set DEPLOY_GITHUB_RUNNER "true"  # optional, sets to "true" to enable github runners, defaults to "false"
-azd env set ENABLE_FAILOVER_GITHUB_RUNNER "false".  # optional, sets to "true" to enable failover region deployment, defaults to "false"
-azd env set GITHUB_PAT "<your-github-personal-access-token>"
-azd env set GITHUB_REPO_OWNER "<your-github-username-or-org>"
-azd env set GITHUB_REPO_NAME "<your-repository-name>"
-azd env set GITHUB_RUNNER_IMAGE_NAME "<github-runner-image-name>"  # optional, defaults to "github-runner"
-azd env set GITHUB_RUNNER_IMAGE_TAG "<github-runner-image-tag>"  # optional, defaults to "latest"
-azd env set GITHUB_RUNNER_IMAGE_BRANCH "<branch-containing-docker-file>"  # optional, defaults to "main"
-azd env set GITHUB_RUNNER_GROUP "<github-runner-group>"  # optional, defaults to "default"
-
-# Optional: Container Apps workload profile
-azd env set WORKLOAD_PROFILE_TYPE "D4"  # optional, defaults to "D4"
-```
-
-### Deploying Runners
-
-After configuring all environment variables, the GitHub runners will be automatically deployed
-using the `azd up` command. They will then be registered with your repository and appear under
-*Settings > Actions > Runners* in your repository.
-
-*Note: If you encounter the following error:
-`MissingSubscriptionRegistration: The subscription is not registered to use namespace 'Microsoft.App'`
-please run `az provider register --namespace Microsoft.App` to register the Container Apps resource
-provider in your subscription.*
+For detailed configuration instructions and deployment procedures, refer to the [GitHub Self-Hosted Deployment Guide](/docs/github_self_hosted_deployment.md).
 
 ## Demo (TBD)
 
