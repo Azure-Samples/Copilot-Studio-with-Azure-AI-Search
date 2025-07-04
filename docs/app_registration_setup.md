@@ -20,9 +20,16 @@ To enable secure automation and integration with Azure and Power Platform, you n
          && echo -e "\nRegistration finished!"
       ```
 
-1. Grant **admin consent** for all delegated permissions assigned to the app.
+1. Grant **admin consent** for all delegated permissions assigned to the app. This can be done in the Azure portal under **App registrations** > **API permissions** > **Grant admin consent**.
+
 1. Assign the following roles to the Service Principal in the Azure subscription where resources
 will be created:
    - *Contributor*: Grants permission to create and manage Azure resources.
    - *Role Based Access Control Administrator*: Grants permission to assign RBAC roles, which is
    required when using managed identities.
+
+## Important Security Notes
+
+- **Principle of Least Privilege**: The permissions listed above represent the minimum required permissions for this template. Review and adjust based on your organization's security requirements.
+- **Permission Validation**: After setup, verify that all permissions are working correctly by testing the deployment in a non-production environment.
+- **Regular Reviews**: Periodically review and audit the permissions to ensure they remain appropriate for your use case.
