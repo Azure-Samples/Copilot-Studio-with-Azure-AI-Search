@@ -6,22 +6,28 @@ network security.
 
 ## Table of Contents
 
-- [1. Features](#features)
-- [2. Architecture](#architecture)
-- [3. Getting Started](#getting-started)
-  - [3.1 Prerequisites](#prerequisites)
-    - [3.1.1 App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
-    - [3.1.2 User Configuration](#user-configuration)
-    - [3.1.3 Development Environment Setup](#development-environment-setup)
-  - [3.2 Quickstart](#quickstart)
-    - [3.2.1 Deployment Instructions](#deployment-instructions)
-- [4. GitHub Self-Hosted Runners](#github-self-hosted-runners)
-- [5. Demo](#demo-tbd)
-- [6. Workflows](#workflows)
-  - [6.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-  - [6.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
-- [7. Resources](#resources)
-- [8. Data Collection](#data-collection)
+- [Copilot Studio with Azure AI Search](#copilot-studio-with-azure-ai-search)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Architecture](#architecture)
+    - [Key Architecture Components](#key-architecture-components)
+  - [Getting Started](#getting-started)
+    - [Authentication](#authentication)
+    - [Prerequisites](#prerequisites)
+      - [App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
+      - [Power Platform Tenant Settings](#power-platform-tenant-settings)
+      - [User Configuration](#user-configuration)
+      - [Development Environment Setup](#development-environment-setup)
+    - [Quickstart](#quickstart)
+      - [Deployment Instructions](#deployment-instructions)
+  - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
+  - [Demo (TBD)](#demo-tbd)
+  - [Workflows](#workflows)
+    - [Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
+    - [Add Required Secrets to GitHub](#add-required-secrets-to-github)
+  - [Resource Configuration Notes](#resource-configuration-notes)
+  - [Resources](#resources)
+  - [Data Collection](#data-collection)
 
 ## Features
 
@@ -129,20 +135,17 @@ These settings must be configured at the tenant level by a Power Platform Admini
 The following user configuration is required to interact with the Azure and Power Platform resources deployed by this solution:
 
 **Required Roles:**
-
 - **Contributor** or **Owner** role on the Azure subscription for managing Azure resources
 - **Power Platform System Administrator** or appropriate environment-specific roles for managing Power Platform connections and Copilot Studio resources
 
 **Required Licenses:**
 The designated user must have the following Power Platform licenses assigned:
-
 - Microsoft Power Apps
 - Power Automate  
 - Copilot Studio
 
 **Access Permissions:**
 Upon deployment, the configured user will be granted:
-
 - Owner/Contributor access to the created Azure resources
 - Administrative permissions for Power Platform connections
 - Full access to the deployed Copilot Studio bot
@@ -176,6 +179,12 @@ While user authentication is technically supported, it has documented limitation
       ```bash
       azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
       ```
+
+    - **Inside dev container** (after opening the cloned project in the container):
+
+      ```bash
+      azd init
+      ```  
 
     Choose a descriptive name for your azd environment, as it will be used throughout this example. This command sets up the local azd configuration even though you've already cloned the repository.
     If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
