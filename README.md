@@ -101,90 +101,79 @@ graph TD
 
 ## Getting Started
 
+### Authentication
+
 ### Prerequisites
 
-To use this example, complete the following prerequisites:
+This solution requires proper authentication setup before deployment. While user authentication is supported, **service principal authentication is strongly recommended** for production deployments due to enhanced security and reliability.
 
 #### App Registration and Service Principal Setup
 
-1. Create an **App Registration** in Azure AD with the required permissions as outlined in the
-[Power Platform Terraform Provider’s documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/).
-1. This App Registration will automatically have an associated **Service Principal**.
-1. Register the app with the Power Platform using either (this action must be done by an existing Power Platform Administrator):
-   - The [Terraform provider](https://registry.terraform.io/providers/microsoft/power-platform/latest/docs/resources/admin_management_application), or
-   - [PowerShell](https://learn.microsoft.com/power-platform/admin/powershell-create-service-principal), or
-   - Bash:
+For optimal security and deployment reliability, create a dedicated App Registration with appropriate permissions. Detailed configuration instructions are available in the [App Registration Setup Guide](/docs/app_registration_setup.md).
 
-      ```bash
-      SP_CLIENT_ID="<your service principal's client ID>"
-      TOKEN=$(az account get-access-token --resource https://api.bap.microsoft.com --query accessToken -o tsv)
-      curl -X PUT "https://api.bap.microsoft.com/providers/Microsoft.BusinessAppPlatform/adminApplications/$SP_CLIENT_ID?api-version=2020-10-01" \
-      -H "Host: api.bap.microsoft.com" \
-      -H "Accept: application/json" \
-      -H "Authorization: Bearer $TOKEN" \
-      -d '{}'
-      ```
+**Important:** User-based authentication has [documented limitations](https://github.com/microsoft/terraform-provider-power-platform/issues/283) when initializing Power Platform connections, which may cause deployment failures. Service principal authentication avoids these issues and provides better security isolation.
 
-1. Grant **admin consent** for all delegated permissions assigned to the app.
-1. Assign the following roles to the Service Principal in the Azure subscription where resources
-will be created:
-   - *Contributor*: Grants permission to create and manage Azure resources.
-   - *Role Based Access Control Administrator*: Grants permission to assign RBAC roles, which is
-   required when using managed identities.
+#### Power Platform Tenant Settings
+
+To enable the required Copilot functionality, configure the following settings in your Power Platform tenant administration portal:
+
+**Required Settings:**
+
+- [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
+- [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled
+
+These settings must be configured at the tenant level by a Power Platform Administrator before proceeding with the deployment.
 
 #### User Configuration
 
-1. Set up an interactive user to interact with the resources managed by this module.
-1. Assign the **Power Platform Admin** role to both:
-   - The service principal
-   - The interactive user (via the M365 Admin Center)
-1. Assign the following licenses to the interactive user (via the M365 Admin Center):
-   - Microsoft Power Apps
-   - Power Automate
-   - Copilot Studio
+The following user configuration is required to interact with the Azure and Power Platform resources deployed by this solution:
+
+**Required Roles:**
+- **Contributor** or **Owner** role on the Azure subscription for managing Azure resources
+- **Power Platform System Administrator** or appropriate environment-specific roles for managing Power Platform connections and Copilot Studio resources
+
+**Required Licenses:**
+The designated user must have the following Power Platform licenses assigned:
+- Microsoft Power Apps
+- Power Automate  
+- Copilot Studio
+
+**Access Permissions:**
+Upon deployment, the configured user will be granted:
+- Owner/Contributor access to the created Azure resources
+- Administrative permissions for Power Platform connections
+- Full access to the deployed Copilot Studio bot
+
+**Note:** While Power Platform Administrator role provides comprehensive access, users with environment-specific administrative roles may also be sufficient depending on your organization's security requirements.
 
 #### Development Environment Setup
 
-1. Update the Power Platform tenant settings to enable Copilot features:
-   - Copilot in Power Apps
-   - Publish Copilots with AI features
-1. Install Required Tools:
-   - Using **Dev Container** (Recommended):
-     - Rebuild and reopen the project in the development container environment.
-   - Without Dev Container:
-     - Install the following tools manually:
-       - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows)
-       - [PowerShell 7 (For non-Windows systems)](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.5)
-       - [terraform](https://developer.hashicorp.com/terraform)
-       - [tflint](https://github.com/terraform-linters/tflint)
-       - [gitleaks](https://github.com/gitleaks/gitleaks)
-       - [PAC CLI](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction?tabs=windows)
-       - [.NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+It it recommended to you **Dev Container** provided in the module's repository. if you prefer to run and build the module on your own machine instructions are provider in [Development Environment Setup Guide](/docs/development_environment.md)
 
 ### Quickstart
 
 #### Deployment Instructions
 
-This solution must be deployed using a **Service Principal**. Follow the steps below, switching
-between authentication options as noted.
+This solution requires authentication for deployment. **Service Principal authentication is strongly advised** for production deployments due to enhanced security, reliability, and better automation capabilities.
 
-*Note: There are
-[known issues](https://github.com/microsoft/terraform-provider-power-platform/issues/283)
-with initializing Power Platform connections using user-based authentication. Therefore, the
-service principal approach is recommended.*
+> **Important:** Before proceeding with deployment, ensure you have completed the [App Registration and Service Principal Setup](#app-registration-and-service-principal-setup) as outlined in the prerequisites section.
+
+While user authentication is technically supported, it has documented limitations that may cause deployment failures. For production environments, always use a properly configured service principal with appropriate permissions as detailed in the setup guide.
 
 1. Initialize the Azure Developer CLI (azd) environment configuration. This step configures azd to work with this template and creates the necessary environment files:
 
     - **Outside dev container** (when first cloning the template):
+
       ```bash
       azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
       ```
-    
+
     - **Inside dev container** (after opening the cloned project in the container):
+
       ```bash
       azd init
-      ```
-      
+      ```  
+
     Choose a descriptive name for your azd environment, as it will be used throughout this example. This command sets up the local azd configuration even though you've already cloned the repository.
 
 2. Set a value for the interactive user who should be able to access the solution resources.
