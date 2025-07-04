@@ -21,7 +21,7 @@ resource "azurerm_subnet" "primary_subnet" {
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
   address_prefixes     = var.primary_subnet_address_spaces
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
 
   delegation {
     name = "Microsoft.PowerPlatform/enterprisePolicies"
@@ -65,7 +65,7 @@ resource "azurerm_subnet" "failover_subnet" {
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
   address_prefixes     = var.failover_subnet_address_spaces
-  service_endpoints    = ["Microsoft.Storage"]
+  service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
 
   delegation {
     name = "Microsoft.PowerPlatform/enterprisePolicies"

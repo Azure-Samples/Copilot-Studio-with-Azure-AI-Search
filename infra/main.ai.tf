@@ -13,7 +13,16 @@ module "azure_open_ai" {
   public_network_access_enabled = false
 
   network_acls = {
-    default_action = "Allow"
+    default_action = "Deny"
+    bypass = "AzureServices"
+    virtual_network_rules = [
+      {
+        subnet_id = azurerm_subnet.primary_subnet.id
+      },
+      {
+        subnet_id = azurerm_subnet.failover_subnet.id
+      }
+    ]
   }
 
   private_endpoints = {
@@ -43,4 +52,36 @@ module "azure_open_ai" {
     system_assigned = true
   }
   tags = var.tags
+}
+
+# Private DNS zone for Azure OpenAI private endpoint resolution
+resource "azurerm_private_dns_zone" "aoai_dns" {
+  name                = "privatelink.openai.azure.com"
+  resource_group_name = azurerm_resource_group.this.name
+  tags                = var.tags
+}
+
+# Link the Azure OpenAI DNS zone to both VNets
+resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
+  for_each = {
+    primary  = azurerm_virtual_network.primary_virtual_network.id
+    failover = azurerm_virtual_network.failover_virtual_network.id
+  }
+
+  name                  = "aoai-${each.key}-link"
+  private_dns_zone_name = azurerm_private_dns_zone.aoai_dns.name
+  resource_group_name   = azurerm_resource_group.this.name
+  virtual_network_id    = each.value
+  tags                  = var.tags
+}
+
+# DNS A record for Azure OpenAI private endpoint
+# The module creates the private endpoint, so we reference it from the module outputs
+resource "azurerm_private_dns_a_record" "aoai_dns_record" {
+  name                = module.azure_open_ai.resource.name
+  zone_name           = azurerm_private_dns_zone.aoai_dns.name
+  resource_group_name = azurerm_resource_group.this.name
+  ttl                 = 10
+  records             = [module.azure_open_ai.private_endpoints["pe_endpoint"].private_service_connection[0].private_ip_address]
+  tags                = var.tags
 }
