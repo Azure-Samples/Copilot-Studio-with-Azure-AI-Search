@@ -477,7 +477,7 @@ def main():
         INDEX_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        search_credential,
+        credential,
     )
     logger.info("Index creation completed.")
 
@@ -490,7 +490,7 @@ def main():
         args.resource_group_name,
         args.storage_name,
         args.container_name,
-        search_credential,
+        credential,
     )
     logger.info("Data source creation completed.")
 
@@ -501,7 +501,7 @@ def main():
         SKILLSET_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        search_credential,
+        credential,
     )
     logger.info("Skillset creation completed.")
 
@@ -514,7 +514,7 @@ def main():
         datasource_name,
         INDEXER_SCHEMA_PATH,
         ai_search_uri,
-        search_credential,
+        credential,
     )
     logger.info("Indexer creation completed.")
 
