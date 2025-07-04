@@ -12,6 +12,8 @@ module "azure_open_ai" {
   cognitive_deployments = var.cognitive_deployments
   public_network_access_enabled = false
 
+  public_network_access_enabled = false
+
   network_acls = {
     default_action = "Deny"
     bypass = "AzureServices"

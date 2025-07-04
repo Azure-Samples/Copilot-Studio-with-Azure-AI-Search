@@ -20,6 +20,12 @@ from azure.search.documents.indexes.models import (
     SearchIndexer, 
     SearchIndexerSkillset
 )
+from azure.search.documents.indexes.models import (
+    SearchIndex, 
+    SearchIndexerDataSourceConnection, 
+    SearchIndexer, 
+    SearchIndexerSkillset
+)
 from common_utils import absolute_url, valid_name
 import subprocess
 from azure.search.documents.indexes.models import (
@@ -424,6 +430,7 @@ def main():
     parser.add_argument(
         "--storage_name",
         type=str,
+        type=str,
         required=True,
         help="Azure storage account name",
     )
@@ -470,7 +477,7 @@ def main():
         INDEX_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        credential,
+        search_credential,
     )
     logger.info("Index creation completed.")
 
@@ -483,7 +490,7 @@ def main():
         args.resource_group_name,
         args.storage_name,
         args.container_name,
-        credential,
+        search_credential,
     )
     logger.info("Data source creation completed.")
 
@@ -494,7 +501,7 @@ def main():
         SKILLSET_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        credential,
+        search_credential,
     )
     logger.info("Skillset creation completed.")
 
@@ -507,7 +514,7 @@ def main():
         datasource_name,
         INDEXER_SCHEMA_PATH,
         ai_search_uri,
-        credential,
+        search_credential,
     )
     logger.info("Indexer creation completed.")
 
