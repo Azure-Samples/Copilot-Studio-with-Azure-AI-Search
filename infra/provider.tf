@@ -1,6 +1,7 @@
 # Configure desired versions of terraform, azurerm provider
 terraform {
-  backend "azurerm" {
+  backend "local" {
+    path = "terraform.tfstate"
   }
 }
 terraform {
@@ -74,3 +75,17 @@ data "azurerm_client_config" "current" {}
 provider "powerplatform" {
   # PowerPlatform provider will use the same credentials as Azure provider by default
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
