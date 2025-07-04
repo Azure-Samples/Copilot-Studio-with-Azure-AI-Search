@@ -8,11 +8,20 @@ It serves as the primary endpoint for experiments with the AI Search service.
 import argparse
 import logging
 import time
+from azure.core.credentials import AzureKeyCredential
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 import os
 
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
+from azure.search.documents.indexes.models import (
+    SearchIndex, 
+    SearchIndexerDataSourceConnection, 
+    SearchIndexer, 
+    SearchIndexerSkillset
+)
+from common_utils import absolute_url, valid_name
+import subprocess
 from azure.search.documents.indexes.models import (
     SearchIndex,
     SearchIndexer,
@@ -390,7 +399,7 @@ def main():
     )
     parser.add_argument(
         "--storage_name",
-        type=valid_name,
+        type=str,
         required=True,
         help="Azure storage account name",
     )
@@ -400,52 +409,24 @@ def main():
         required=True,
         help="Azure storage container name",
     )
+    parser.add_argument(
+        "--aisearch_key",
+        type=str,
+        required=True,
+        help="Azure AI Search primary key for authentication",
+    )
     args = parser.parse_args()
 
-    # Using user-assigned managed identity for authentication
-    logger.info("Authenticate code into Azure using user-assigned managed identity.")
+    # Using API key authentication for AI Search
+    logger.info("Authenticate to AI Search using API key.")
     
-    # Debug environment variables
-    logger.info("Environment variables for authentication:")
-    for var in ['AZURE_CLIENT_ID', 'AZURE_TENANT_ID', 'AZURE_SUBSCRIPTION_ID']:
-        value = os.getenv(var)
-        if value:
-            logger.info(f"  {var}: {value[:8]}... (truncated)")
-        else:
-            logger.info(f"  {var}: Not set")
-    
-    # Get the client ID from environment variable (set by deployment script)
-    client_id = os.getenv('AZURE_CLIENT_ID')
-    if client_id and client_id.strip():
-        logger.info(f"Using user-assigned managed identity with client ID: {client_id}")
-        credential = ManagedIdentityCredential(client_id=client_id)
-        logger.info("Successfully created ManagedIdentityCredential")
-    else:
-        logger.warning("AZURE_CLIENT_ID not found or empty, falling back to DefaultAzureCredential")
-        logger.warning("This may cause authentication issues in Azure Deployment Scripts")
-        credential = DefaultAzureCredential()
-        logger.info("Successfully created DefaultAzureCredential")
+    # Create Azure Key Credential for AI Search authentication
+    search_credential = AzureKeyCredential(args.aisearch_key)
+    logger.info("Successfully created AzureKeyCredential for AI Search")
 
     # Log the credential type for debugging
-    logger.info(f"Final credential type: {type(credential).__name__}")
-    
-    # Test the credential by attempting to get a token (optional verification)
-    try:
-        logger.info("Testing credential by requesting a token...")
-        token = credential.get_token("https://management.azure.com/.default")
-        logger.info("Credential test successful - token obtained")
-        
-        # Also test with Search Service scope
-        logger.info("Testing credential with Search Service scope...")
-        search_token = credential.get_token("https://search.azure.com/.default")
-        logger.info("Search Service credential test successful - token obtained")
-    except Exception as e:
-        logger.warning(f"Credential test failed, but continuing: {e}")
-    
-    # Additional wait for permission propagation (especially for Search Service)
-    logger.info("Waiting for permission propagation to complete...")
-    time.sleep(10)  # 10 second delay for permission propagation
-    
+    logger.info(f"Final search credential type: {type(search_credential).__name__}")
+
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 
     # forming entity names based on the base name
@@ -461,7 +442,7 @@ def main():
         INDEX_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        credential,
+        search_credential,
     )
     logger.info("Index creation completed.")
 
@@ -474,7 +455,7 @@ def main():
         args.resource_group_name,
         args.storage_name,
         args.container_name,
-        credential,
+        search_credential,
     )
     logger.info("Data source creation completed.")
 
@@ -485,7 +466,7 @@ def main():
         SKILLSET_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        credential,
+        search_credential,
     )
     logger.info("Skillset creation completed.")
 
@@ -498,7 +479,7 @@ def main():
         datasource_name,
         INDEXER_SCHEMA_PATH,
         ai_search_uri,
-        credential,
+        search_credential,
     )
     logger.info("Indexer creation completed.")
 

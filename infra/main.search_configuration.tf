@@ -153,8 +153,9 @@ resource "azapi_resource" "run_python_from_storage" {
           --openai_api_base ${module.azure_open_ai.endpoint} \
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \
-          --storage_name $MAIN_STORAGE_ACCOUNT_NAME \
-          --container_name $DATA_CONTAINER_NAME
+          --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
+          --container_name $DATA_CONTAINER_NAME \
+          --aisearch_key $AISEARCH_PRIMARY_KEY
           
         echo "=== Deployment script completed successfully ==="
       EOF

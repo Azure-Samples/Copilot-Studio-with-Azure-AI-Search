@@ -126,6 +126,9 @@ resource "azurerm_subnet" "pe_failover_subnet" {
   private_endpoint_network_policies = "Enabled"
 }
 
+# Create public IP addresses for NAT gateways
+resource "azurerm_public_ip" "nat_gateway_ips" {
+
 #---- Set up GitHub Runners ----
 
 resource "azurerm_subnet" "github_runner_primary_subnet" {

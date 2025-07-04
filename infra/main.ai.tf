@@ -10,7 +10,18 @@ module "azure_open_ai" {
   sku_name              = "S0"
   local_auth_enabled    = true
   cognitive_deployments = var.cognitive_deployments
+  public_network_access_enabled = false
+
   network_acls = {
+    default_action = "Allow"
+  }
+
+  private_endpoints = {
+    pe_endpoint = {
+      name                            = "pe_endpoint_${random_string.name.id}"
+      private_service_connection_name = "pe_endpoint_connection"
+      subnet_resource_id              = azurerm_subnet.pe_primary_subnet.id
+    }
     default_action = "Deny"
     virtual_network_rules = [
       {
