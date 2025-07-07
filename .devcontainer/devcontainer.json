@@ -17,7 +17,8 @@
         },
         "ghcr.io/azure/azure-dev/azd:latest": {
             "version": "1.17.2"
-        }
+        },
+        "./features/dev-tools": {}
     },
     "customizations": {
         "vscode": {
@@ -56,7 +57,7 @@
     "remoteEnv": {
         "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
     },
-    "postCreateCommand": "pip install --upgrade pip && pip install checkov && dotnet tool install --global Microsoft.PowerApps.CLI.Tool && curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash && mkdir -p ~/.tflint.d/plugins && tflint --init && GITLEAKS_VERSION=$(curl -s https://api.github.com/repos/gitleaks/gitleaks/releases/latest | grep -oP '\"tag_name\": \"\\K(.*)(?=\")') && curl -L \"https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION#v}_linux_x64.tar.gz\" -o gitleaks.tar.gz && mkdir -p /tmp/gitleaks && tar -xzf gitleaks.tar.gz -C /tmp/gitleaks gitleaks && sudo mv /tmp/gitleaks/gitleaks /usr/local/bin/ && rm -rf /tmp/gitleaks gitleaks.tar.gz 2>/dev/null || true && dotnet tool install --global Microsoft.PowerApps.CLI.Tool",
+    "postCreateCommand": "sh .devcontainer/postCreate.sh",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "8gb"
