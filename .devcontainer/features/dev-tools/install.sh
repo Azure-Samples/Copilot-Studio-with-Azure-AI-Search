@@ -8,10 +8,6 @@ echo "Installing checkov..."
 pip install --upgrade pip
 pip install checkov
 
-# Install PowerApps CLI (Microsoft.PowerApps.CLI.Tool)
-echo "Installing PowerApps CLI..."
-dotnet tool install --global Microsoft.PowerApps.CLI.Tool
-
 # Install tflint
 echo "Installing tflint..."
 curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
