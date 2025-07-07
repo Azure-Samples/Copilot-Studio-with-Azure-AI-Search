@@ -52,7 +52,7 @@ def upload_data_files(
         blob_container_client.create_container()
         logger.info("Done.")
 
-    for file in Path(local_folder).rglob("*.pdf"):
+    for file in Path(local_folder + "/sample_data").rglob("*.*"):
         logger.info(f"Uploading {file} to {storage_container}.")
 
         # construct blob name from file path
