@@ -37,28 +37,6 @@ resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
-resource "azurerm_subnet" "ai_search_primary_subnet" {
-  name                 = "ai-search-primary-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
-  address_prefixes     = var.primary_ai_search_subnet_address_spaces
-  service_endpoints    = ["Microsoft.CognitiveServices"]
-
-  delegation {
-    name = "Microsoft.PowerPlatform/enterprisePolicies"
-
-    service_delegation {
-      name    = "Microsoft.PowerPlatform/enterprisePolicies"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-    }
-  }
-}
-
-resource "azurerm_subnet_nat_gateway_association" "ai_search_primary_subnet_nat" {
-  subnet_id      = azurerm_subnet.ai_search_primary_subnet.id
-  nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
-}
-
 # Create failover subnets as first-class resources
 resource "azurerm_subnet" "failover_subnet" {
   name                 = var.failover_subnet_name
@@ -78,28 +56,6 @@ resource "azurerm_subnet" "failover_subnet" {
 
 resource "azurerm_subnet_nat_gateway_association" "failover_subnet_nat" {
   subnet_id      = azurerm_subnet.failover_subnet.id
-  nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
-}
-
-resource "azurerm_subnet" "ai_search_failover_subnet" {
-  name                 = "ai-search-failover-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
-  address_prefixes     = var.failover_ai_search_subnet_address_spaces
-  service_endpoints    = ["Microsoft.CognitiveServices"]
-
-  delegation {
-    name = "Microsoft.PowerPlatform/enterprisePolicies"
-
-    service_delegation {
-      name    = "Microsoft.PowerPlatform/enterprisePolicies"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-    }
-  }
-}
-
-resource "azurerm_subnet_nat_gateway_association" "ai_search_failover_subnet_nat" {
-  subnet_id      = azurerm_subnet.ai_search_failover_subnet.id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
@@ -176,18 +132,19 @@ resource "azurerm_subnet_nat_gateway_association" "github_runner_failover_subnet
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
-#---- Set up NAT gateways, which are not initialized by the AVM ----
-
-resource "azurerm_public_ip" "nat" {
+# Create public IP addresses for NAT gateways
+resource "azurerm_public_ip" "nat_gateway_ips" {
   for_each = {
-    primary1  = var.primary_location,
-    failover1 = var.failover_location,
+    primary  = var.primary_location
+    failover = var.failover_location
   }
-  name                = "${each.key}-pip"
+
+  name                = "${each.key}-nat-gateway-ip"
   location            = each.value
   resource_group_name = azurerm_resource_group.this.name
   allocation_method   = "Static"
   sku                 = "Standard"
+  tags                = var.tags
 }
 
 resource "azurerm_nat_gateway" "nat_gateways" {
@@ -200,14 +157,41 @@ resource "azurerm_nat_gateway" "nat_gateways" {
   name                = "${each.key}-nat-gateway"
   resource_group_name = azurerm_resource_group.this.name
   sku_name            = "Standard"
+  tags                = var.tags
+
+  # Associate the public IP address with the NAT gateway
+  depends_on = [azurerm_public_ip.nat_gateway_ips]
 }
 
-resource "azurerm_nat_gateway_public_ip_association" "primary_ip" {
-  nat_gateway_id       = azurerm_nat_gateway.nat_gateways["primary"].id
-  public_ip_address_id = azurerm_public_ip.nat["primary1"].id
+# Associate public IP addresses with NAT gateways
+resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_associations" {
+  for_each = {
+    primary  = var.primary_location
+    failover = var.failover_location
+  }
+
+  nat_gateway_id       = azurerm_nat_gateway.nat_gateways[each.key].id
+  public_ip_address_id = azurerm_public_ip.nat_gateway_ips[each.key].id
 }
 
-resource "azurerm_nat_gateway_public_ip_association" "failover_ip" {
-  nat_gateway_id       = azurerm_nat_gateway.nat_gateways["failover"].id
-  public_ip_address_id = azurerm_public_ip.nat["failover1"].id
+resource "azurerm_subnet" "deployment_script_container" {
+  name                 = "deploymentscript-subnet"
+  resource_group_name  = azurerm_resource_group.this.name
+  virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
+  address_prefixes     = ["10.1.9.0/24"]
+  service_endpoints    = ["Microsoft.Storage"]
+  delegation {
+    name = "aci-delegation"
+    service_delegation {
+      name = "Microsoft.ContainerInstance/containerGroups"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/action"
+      ]
+    }
+  }
+}
+
+resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
+  subnet_id      = azurerm_subnet.deployment_script_container.id
+  nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }

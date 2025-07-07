@@ -151,11 +151,11 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
-variable "failover_ai_search_subnet_address_spaces" {
-  type        = list(string)
-  default     = ["10.2.0.0/24"]
-  description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-}
+# variable "failover_ai_search_subnet_address_spaces" {
+#   type        = list(string)
+#   default     = ["10.2.0.0/24"]
+#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
+# }
 
 variable "failover_location" {
   type        = string
@@ -249,11 +249,11 @@ variable "power_platform_managed_environment" {
   description = "Configuration for the Power Platform managed environment"
 }
 
-variable "primary_ai_search_subnet_address_spaces" {
-  type        = list(string)
-  default     = ["10.1.7.0/24"]
-  description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-}
+# variable "primary_ai_search_subnet_address_spaces" {
+#   type        = list(string)
+#   default     = ["10.1.7.0/24"]
+#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
+# }
 
 variable "primary_location" {
   type        = string
