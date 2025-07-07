@@ -7,7 +7,7 @@ It serves as the primary endpoint for experiments with the AI Search service.
 
 import argparse
 import logging
-import time
+from azure.identity import DefaultAzureCredential
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import (
@@ -400,20 +400,24 @@ def main():
     parser.add_argument(
         "--aisearch_key",
         type=str,
-        required=True,
-        help="Azure AI Search primary key for authentication",
+        required=False,
+        help="AI Search service admin key (if not provided, will use DefaultAzureCredential)",
     )
     args = parser.parse_args()
 
-    # Using API key authentication for AI Search
-    logger.info("Authenticate to AI Search using API key.")
-    
-    # Create Azure Key Credential for AI Search authentication
-    search_credential = AzureKeyCredential(args.aisearch_key)
-    logger.info("Successfully created AzureKeyCredential for AI Search")
+    # Choose authentication method based on whether API key is provided
+    if args.aisearch_key:
+        logger.info("Authenticate to AI Search using API key.")
+        # Create Azure Key Credential for AI Search authentication
+        credential = AzureKeyCredential(args.aisearch_key)
+        logger.info("Successfully created AzureKeyCredential for AI Search")
+    else:
+        # Using default Azure credentials assuming that it has all needed permissions
+        logger.info("Authenticate code into Azure using default credentials.")
+        credential = DefaultAzureCredential()
 
     # Log the credential type for debugging
-    logger.info(f"Final search credential type: {type(search_credential).__name__}")
+    logger.info(f"Final search credential type: {type(credential).__name__}")
 
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 
@@ -430,7 +434,7 @@ def main():
         INDEX_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        search_credential,
+        credential,
     )
     logger.info("Index creation completed.")
 
@@ -443,7 +447,7 @@ def main():
         args.resource_group_name,
         args.storage_name,
         args.container_name,
-        search_credential,
+        credential,
     )
     logger.info("Data source creation completed.")
 
@@ -454,7 +458,7 @@ def main():
         SKILLSET_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        search_credential,
+        credential,
     )
     logger.info("Skillset creation completed.")
 
@@ -467,7 +471,7 @@ def main():
         datasource_name,
         INDEXER_SCHEMA_PATH,
         ai_search_uri,
-        search_credential,
+        credential,
     )
     logger.info("Indexer creation completed.")
 
