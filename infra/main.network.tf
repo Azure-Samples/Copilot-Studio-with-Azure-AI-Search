@@ -175,29 +175,11 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_association
 }
 
 resource "azurerm_subnet" "deployment_script_container" {
-  tags                = var.tags
-
-  # Associate the public IP address with the NAT gateway
-  depends_on = [azurerm_public_ip.nat_gateway_ips]
-}
-
-# Associate public IP addresses with NAT gateways
-resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_associations" {
-  for_each = {
-    primary  = var.primary_location
-    failover = var.failover_location
-  }
-
-  nat_gateway_id       = azurerm_nat_gateway.nat_gateways[each.key].id
-  public_ip_address_id = azurerm_public_ip.nat_gateway_ips[each.key].id
-}
-
-resource "azurerm_subnet" "deployment_script_container" {
   name                 = "deploymentscript-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
   address_prefixes     = ["10.1.9.0/24"]
-  service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
+  service_endpoints    = ["Microsoft.Storage"]
   delegation {
     name = "aci-delegation"
     service_delegation {
@@ -210,7 +192,6 @@ resource "azurerm_subnet" "deployment_script_container" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
-  subnet_id      = azurerm_subnet.deployment_script_container.id
   subnet_id      = azurerm_subnet.deployment_script_container.id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }

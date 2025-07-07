@@ -14,13 +14,8 @@ resource "azurerm_search_service" "ai_search" {
   tags                          = var.tags
   # Enable key-based authentication for Power Platform and deployment scripts
   local_authentication_enabled = true
-  local_authentication_enabled  = true
-  authentication_failure_mode   = "http403"
-  # Enable key-based authentication for Power Platform and deployment scripts
-  local_authentication_enabled = true
 
   identity {
-    type         = "SystemAssigned"
     type         = "SystemAssigned"
   }
 }

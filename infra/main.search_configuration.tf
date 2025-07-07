@@ -52,8 +52,6 @@ resource "azurerm_storage_account" "deployment_container" {
   public_network_access_enabled = true
   # Enable shared key access for deployment scripts
   shared_access_key_enabled      = true
-  # Enable shared key access for deployment scripts
-  shared_access_key_enabled      = true
   tags = var.tags
 
   # Explicit network rules with proper bypass for Azure services
@@ -67,39 +65,6 @@ resource "azurerm_storage_account" "deployment_container" {
   depends_on = [
     time_sleep.wait_for_subnets
   ]
-}
-
-resource "azurerm_storage_account" "deployment_container" {
-  name                     = "deploycontainer${random_string.name.id}"
-  resource_group_name      = azurerm_resource_group.this.name
-  location                 = azurerm_resource_group.this.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  # Allow blob public access for script uploads
-  allow_nested_items_to_be_public = true
-  # Ensure public network access is enabled for deployment scripts
-  public_network_access_enabled = true
-  # Enable shared key access for deployment scripts
-  shared_access_key_enabled      = true
-  tags = var.tags
-
-  # Explicit network rules with proper bypass for Azure services
-  # This ensures Azure Deployment Scripts can access the storage account
-  network_rules {
-    default_action = "Allow"
-    default_action = "Allow"
-    bypass         = ["AzureServices", "Logging", "Metrics"]
-  }
-
-  # Ensure subnet timing is handled for main storage account dependencies
-  depends_on = [
-    time_sleep.wait_for_subnets
-  ]
-}
-
-# Force recreation of Python scripts on each deployment
-resource "terraform_data" "force_script_update" {
-  input = local.deployment_timestamp
 }
 
 # Force recreation of Python scripts on each deployment
@@ -108,7 +73,6 @@ resource "terraform_data" "force_script_update" {
 }
 
 resource "azapi_resource" "run_python_from_storage" {
-  
   
   # Ensure all script files are uploaded and RBAC is fully propagated before running
   depends_on = [
@@ -122,13 +86,8 @@ resource "azapi_resource" "run_python_from_storage" {
     azurerm_storage_blob.document_indexer,
     azurerm_storage_blob.document_skillset,
     azurerm_storage_blob.pdf_data_files,  # PDF files
-    azurerm_storage_blob.pdf_data_files,  # PDF files
     null_resource.verify_rbac_propagation,
     time_sleep.wait_for_storage_network,
-    time_sleep.wait_for_search_permissions,  # Wait for Search Service permissions
-    azurerm_storage_account.deployment_scripts,
-    azurerm_storage_account.deployment_container,
-    module.storage_account_and_container,
     time_sleep.wait_for_search_permissions,  # Wait for Search Service permissions
     azurerm_storage_account.deployment_scripts,
     azurerm_storage_account.deployment_container,
@@ -139,15 +98,10 @@ resource "azapi_resource" "run_python_from_storage" {
   name = "run-python-from-github"
   parent_id = azurerm_resource_group.this.id
 
-  type = "Microsoft.Resources/deploymentScripts@2023-08-01"
-  name = "run-python-from-github"
-  parent_id = azurerm_resource_group.this.id
-
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.script_identity.id]
   }
-
 
   body = {
     kind     = "AzureCLI"
@@ -167,31 +121,12 @@ resource "azapi_resource" "run_python_from_storage" {
           }
         ]
       }
-      storageAccountSettings = {
-        storageAccountName = azurerm_storage_account.deployment_container.name
-      }
-      containerSettings = {
-        subnetIds = [
-          {
-            id = "${azurerm_subnet.deployment_script_container.id}"
-          }
-        ]
-      }
       scriptContent = <<EOF
         set -euo pipefail
-        set -euo pipefail
         
         echo "=== Deployment Script Start ==="
         echo "Storage accounts: $MAIN_STORAGE_ACCOUNT_NAME, $SCRIPT_STORAGE_ACCOUNT_NAME"
-        echo "=== Deployment Script Start ==="
-        echo "Storage accounts: $MAIN_STORAGE_ACCOUNT_NAME, $SCRIPT_STORAGE_ACCOUNT_NAME"
         
-        # Verify storage accounts exist
-        az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
-        az storage account show --name $SCRIPT_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
-        
-        # Setup Python environment
-        python3 -m venv /tmp/venv && source /tmp/venv/bin/activate
         # Verify storage accounts exist
         az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
         az storage account show --name $SCRIPT_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
@@ -200,11 +135,6 @@ resource "azapi_resource" "run_python_from_storage" {
         python3 -m venv /tmp/venv && source /tmp/venv/bin/activate
         pip install --upgrade pip
         
-        # Download scripts and data
-        mkdir -p /tmp/scripts && cd /tmp/scripts
-        az storage blob download-batch --destination . --source scripts --account-name $SCRIPT_STORAGE_ACCOUNT_NAME --auth-mode login
-        
-        # Upload data files
         # Download scripts and data
         mkdir -p /tmp/scripts && cd /tmp/scripts
         az storage blob download-batch --destination . --source scripts --account-name $SCRIPT_STORAGE_ACCOUNT_NAME --auth-mode login
@@ -219,41 +149,33 @@ resource "azapi_resource" "run_python_from_storage" {
         pip install -r requirements.txt
         python index_utils.py \
           --aisearch_name ${azurerm_search_service.ai_search.name} \
-          --base_index_name "default" \
+          --base_index_name "default-index" \
           --openai_api_base ${module.azure_open_ai.endpoint} \
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \
           --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
           --container_name $DATA_CONTAINER_NAME \
-          --aisearch_key "$AI_SEARCH_ADMIN_KEY"
+          --aisearch_key $AISEARCH_PRIMARY_KEY
           
         echo "=== Deployment script completed successfully ==="
       EOF
       environmentVariables = [
         {
           name  = "SCRIPT_STORAGE_ACCOUNT_NAME"
-          name  = "SCRIPT_STORAGE_ACCOUNT_NAME"
           value = "${azurerm_storage_account.deployment_scripts.name}"
         },
         {
           name  = "MAIN_STORAGE_ACCOUNT_NAME"
-          name  = "MAIN_STORAGE_ACCOUNT_NAME"
           value = "${module.storage_account_and_container.name}"
         },
         {
-          name  = "DATA_CONTAINER_NAME"
           name  = "DATA_CONTAINER_NAME"
           value = "${var.cps_container_name}"
         },
         {
           name  = "AZURE_CLIENT_ID"
           value = "${azurerm_user_assigned_identity.script_identity.client_id}"
-        },
-        {
-          name  = "AI_SEARCH_ADMIN_KEY"
-          value = "${azurerm_search_service.ai_search.primary_key}"
         }
-      ]
       ]
     }
   }
@@ -286,32 +208,7 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.script_cognitive_services_contributor,
     # Other permissions
     azurerm_role_assignment.script_container_apps_contributor
-    # Terraform storage access
-    azurerm_role_assignment.terraform_deployment_scripts_file_access,
-    azurerm_role_assignment.terraform_deployment_container_storage_access,
-    azurerm_role_assignment.terraform_deployment_container_file_access,
-    # Script identity storage permissions
-    azurerm_role_assignment.script_deployment_scripts_storage_owner,
-    azurerm_role_assignment.script_deployment_scripts_blob_owner,
-    azurerm_role_assignment.script_deployment_scripts_file_owner,
-    azurerm_role_assignment.script_deployment_container_storage_owner,
-    azurerm_role_assignment.script_deployment_container_blob_owner,
-    azurerm_role_assignment.script_deployment_container_file_owner,
-    # Main storage permissions
-    azurerm_role_assignment.script_main_storage_blob_contributor,
-    azurerm_role_assignment.script_main_storage_file_contributor,
-    azurerm_role_assignment.script_main_storage_reader,
-    # AI Search permissions
-    azurerm_role_assignment.script_search_service_contributor,
-    azurerm_role_assignment.script_search_index_data_contributor,
-    azurerm_role_assignment.script_search_index_data_reader,
-    # Azure OpenAI permissions
-    azurerm_role_assignment.script_cognitive_services_openai_user,
-    azurerm_role_assignment.script_cognitive_services_contributor,
-    # Other permissions
-    azurerm_role_assignment.script_container_apps_contributor
   ]
-  create_duration = "180s" # Increased to 3 minutes for better propagation of all roles including Search Service
   create_duration = "180s" # Increased to 3 minutes for better propagation of all roles including Search Service
 }
 
@@ -335,29 +232,14 @@ resource "time_sleep" "wait_for_search_permissions" {
   create_duration = "60s" # Extra wait for Search Service permissions
 }
 
-# Additional wait specifically for Search Service permissions to propagate
-resource "time_sleep" "wait_for_search_permissions" {
-  depends_on = [
-    azurerm_role_assignment.script_search_service_contributor,
-    azurerm_role_assignment.script_search_index_data_contributor,
-    azurerm_role_assignment.script_search_index_data_reader,
-    time_sleep.wait_for_rbac
-  ]
-  create_duration = "60s" # Extra wait for Search Service permissions
-}
-
 # Upload scripts to storage for deployment script execution
 resource "azurerm_storage_container" "scripts" {
   name                  = "scripts"
   storage_account_id    = azurerm_storage_account.deployment_scripts.id
-  name                  = "scripts"
-  storage_account_id    = azurerm_storage_account.deployment_scripts.id
   container_access_type = "blob"
-
 
   depends_on = [
     azurerm_storage_account.deployment_scripts,
-    time_sleep.wait_for_rbac  # Ensure RBAC is ready for script execution
     time_sleep.wait_for_rbac  # Ensure RBAC is ready for script execution
   ]
 }
@@ -370,17 +252,10 @@ resource "azurerm_storage_blob" "data_requirements" {
   type                   = "Block"
   source                 = "${path.root}/../data/requirements.txt"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac  # Only need RBAC propagation for script execution
-    time_sleep.wait_for_rbac  # Only need RBAC propagation for script execution
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -395,16 +270,10 @@ resource "azurerm_storage_blob" "data_upload_script" {
   type                   = "Block"
   source                 = "${path.root}/../data/upload_data.py"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -420,16 +289,10 @@ resource "azurerm_storage_blob" "search_requirements" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/requirements.txt"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -444,16 +307,10 @@ resource "azurerm_storage_blob" "search_index_utils" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_utils.py"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -468,16 +325,10 @@ resource "azurerm_storage_blob" "search_common_utils" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/common_utils.py"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -493,16 +344,10 @@ resource "azurerm_storage_blob" "document_data_source" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentDataSource.json"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -517,16 +362,10 @@ resource "azurerm_storage_blob" "document_index" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentIndex.json"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -541,16 +380,10 @@ resource "azurerm_storage_blob" "document_indexer" {
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentIndexer.json"
 
-
   depends_on = [
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
   
   # Force recreation on each deployment to ensure latest version
   lifecycle {
@@ -596,23 +429,6 @@ resource "azurerm_storage_blob" "pdf_data_files" {
 resource "null_resource" "verify_rbac_propagation" {
   depends_on = [
     time_sleep.wait_for_rbac,
-    # Storage permissions
-    azurerm_role_assignment.script_main_storage_blob_contributor,
-    azurerm_role_assignment.script_main_storage_file_contributor,
-    azurerm_role_assignment.script_main_storage_reader,
-    azurerm_role_assignment.script_deployment_scripts_storage_owner,
-    azurerm_role_assignment.script_deployment_scripts_blob_owner,
-    azurerm_role_assignment.script_deployment_scripts_file_owner,
-    azurerm_role_assignment.script_deployment_container_storage_owner,
-    azurerm_role_assignment.script_deployment_container_blob_owner,
-    azurerm_role_assignment.script_deployment_container_file_owner,
-    # AI Search permissions
-    azurerm_role_assignment.script_search_service_contributor,
-    azurerm_role_assignment.script_search_index_data_contributor,
-    azurerm_role_assignment.script_search_index_data_reader,
-    # Azure OpenAI permissions
-    azurerm_role_assignment.script_cognitive_services_openai_user,
-    azurerm_role_assignment.script_cognitive_services_contributor
     # Storage permissions
     azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,

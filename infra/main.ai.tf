@@ -12,19 +12,8 @@ module "azure_open_ai" {
   cognitive_deployments = var.cognitive_deployments
   public_network_access_enabled = false
 
-  public_network_access_enabled = false
-
   network_acls = {
-    default_action = "Deny"
-    bypass = "AzureServices"
-    virtual_network_rules = [
-      {
-        subnet_id = azurerm_subnet.primary_subnet.id
-      },
-      {
-        subnet_id = azurerm_subnet.failover_subnet.id
-      }
-    ]
+    default_action = "Allow"
   }
 
   private_endpoints = {
@@ -33,22 +22,6 @@ module "azure_open_ai" {
       private_service_connection_name = "pe_endpoint_connection"
       subnet_resource_id              = azurerm_subnet.pe_primary_subnet.id
     }
-    default_action = "Deny"
-    virtual_network_rules = [
-      {
-        subnet_id = azurerm_subnet.ai_search_primary_subnet.id
-      },
-      {
-        subnet_id = azurerm_subnet.ai_search_failover_subnet.id
-      },
-      {
-        subnet_id = azurerm_subnet.pe_primary_subnet.id
-      },
-      {
-        subnet_id = azurerm_subnet.pe_failover_subnet.id
-      }
-    ]
-    bypass = "AzureServices"
   }
   managed_identities = {
     system_assigned = true

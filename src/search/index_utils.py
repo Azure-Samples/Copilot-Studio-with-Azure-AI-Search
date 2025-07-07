@@ -7,19 +7,9 @@ It serves as the primary endpoint for experiments with the AI Search service.
 import os
 import argparse
 import logging
-from azure.identity import DefaultAzureCredential
+import time
 from azure.core.credentials import AzureKeyCredential
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-import os
-
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
-from azure.search.documents.indexes.models import (
-    SearchIndex, 
-    SearchIndexerDataSourceConnection, 
-    SearchIndexer, 
-    SearchIndexerSkillset
-)
 from azure.search.documents.indexes.models import (
     SearchIndex, 
     SearchIndexerDataSourceConnection, 
@@ -28,14 +18,6 @@ from azure.search.documents.indexes.models import (
 )
 from common_utils import absolute_url, valid_name
 import subprocess
-from azure.search.documents.indexes.models import (
-    SearchIndex,
-    SearchIndexer,
-    SearchIndexerDataSourceConnection,
-    SearchIndexerSkillset,
-)
-
-from .common_utils import absolute_url, valid_name
 
 logger = logging.getLogger(__name__)
 
@@ -96,7 +78,6 @@ def create_or_update_skillset(
         ai_search_uri: str,
         open_ai_uri: str,
         credentials,
-        credentials,
 ):    
     """
     Create or update the skillset in the AI Search service. If the skillset already exists, no change.
@@ -150,7 +131,6 @@ def create_or_update_indexer(
         datasource_name: str,
         indexer_file: str,
         ai_search_uri: str,
-        credential,
         credential,
 ):
     """
@@ -206,7 +186,6 @@ def create_or_update_datasource(
         resource_group_name: str,
         storage_account_name: str,
         container_name: str,
-        credential,
         credential,
 ):
     """
@@ -292,7 +271,6 @@ def create_or_update_index(
         ai_search_uri: str,
         open_ai_uri: str,
         credential,
-        credential,
 ):
     """
     Create or update the index in the AI Search service. If the index already exists, then no change.
@@ -323,30 +301,10 @@ def create_or_update_index(
         # create an object of the index and initiate index creation process if it does not already exist
         index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
         logger.info(f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}")
-        logger.info(f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}")
         index_client.create_or_update_index(index=index)
-        logger.info(f"Successfully created/updated index '{index_name}'")
         logger.info(f"Successfully created/updated index '{index_name}'")
     except Exception as e:
         logger.error(f"Failed to create or update the index '{index_name}': {e}")
-        logger.error(f"AI Search URI: {ai_search_uri}")
-        logger.error(f"Credential type: {type(credential).__name__}")
-        logger.error(f"Exception type: {type(e).__name__}")
-        
-        # Try to extract additional error details
-        try:
-            status_code = getattr(e, 'status_code', None)
-            if status_code:
-                logger.error(f"HTTP Status Code: {status_code}")
-            response = getattr(e, 'response', None)
-            if response:
-                logger.error(f"Response details: {response}")
-            error_detail = getattr(e, 'error', None)
-            if error_detail:
-                logger.error(f"Error details: {error_detail}")
-        except Exception as inner_e:
-            logger.error(f"Could not extract error details: {inner_e}")
-            
         logger.error(f"AI Search URI: {ai_search_uri}")
         logger.error(f"Credential type: {type(credential).__name__}")
         logger.error(f"Exception type: {type(e).__name__}")
@@ -430,7 +388,6 @@ def main():
     parser.add_argument(
         "--storage_name",
         type=str,
-        type=str,
         required=True,
         help="Azure storage account name",
     )
@@ -443,21 +400,20 @@ def main():
     parser.add_argument(
         "--aisearch_key",
         type=str,
-        required=False,
-        help="AI Search service admin key (if not provided, will use DefaultAzureCredential)",
+        required=True,
+        help="Azure AI Search primary key for authentication",
     )
     args = parser.parse_args()
 
-    # Choose authentication method based on whether API key is provided
-    if args.aisearch_key:
-        logger.info("Authenticate to AI Search using API key.")
-        # Create Azure Key Credential for AI Search authentication
-        credential = AzureKeyCredential(args.aisearch_key)
-        logger.info("Successfully created AzureKeyCredential for AI Search")
-    else:
-        # Using default Azure credentials assuming that it has all needed permissions
-        logger.info("Authenticate code into Azure using default credentials.")
-        credential = DefaultAzureCredential()
+    # Using API key authentication for AI Search
+    logger.info("Authenticate to AI Search using API key.")
+    
+    # Create Azure Key Credential for AI Search authentication
+    search_credential = AzureKeyCredential(args.aisearch_key)
+    logger.info("Successfully created AzureKeyCredential for AI Search")
+
+    # Log the credential type for debugging
+    logger.info(f"Final search credential type: {type(search_credential).__name__}")
 
     # Log the credential type for debugging
     logger.info(f"Final search credential type: {type(credential).__name__}")
@@ -477,7 +433,7 @@ def main():
         INDEX_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        credential,
+        search_credential,
     )
     logger.info("Index creation completed.")
 
@@ -490,7 +446,7 @@ def main():
         args.resource_group_name,
         args.storage_name,
         args.container_name,
-        credential,
+        search_credential,
     )
     logger.info("Data source creation completed.")
 
@@ -501,7 +457,7 @@ def main():
         SKILLSET_SCHEMA_PATH,
         ai_search_uri,
         args.openai_api_base,
-        credential,
+        search_credential,
     )
     logger.info("Skillset creation completed.")
 
@@ -514,7 +470,7 @@ def main():
         datasource_name,
         INDEXER_SCHEMA_PATH,
         ai_search_uri,
-        credential,
+        search_credential,
     )
     logger.info("Indexer creation completed.")
 
