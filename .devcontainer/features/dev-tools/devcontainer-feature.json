@@ -7,5 +7,8 @@
     "options": {},
     "containerEnv": {},
     "customizations": {},
-    "installsAfter": []
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/python",
+        "ghcr.io/devcontainers/features/dotnet"
+    ]
 }
