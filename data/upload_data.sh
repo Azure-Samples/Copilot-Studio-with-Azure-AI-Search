@@ -33,10 +33,9 @@ else
     echo "Container '$CONTAINER_NAME' already exists."
 fi
 
-$LOCAL_FOLDER = ${LOCAL_FOLDER}/sample_data
 # Upload all PDF files from the current directory
 echo "Uploading PDF files from '$LOCAL_FOLDER' to container '$CONTAINER_NAME'..."
-for file in $(find "$LOCAL_FOLDER" -type f -name "*.*"); do
+for file in $(find "$LOCAL_FOLDER" -type f -name "*.pdf"); do
     # Generate a unique blob name by replacing directory separators with underscores
     BLOB_NAME=$(echo "$file" | sed "s|$LOCAL_FOLDER/||" | tr '/' '_')
     echo "Uploading '$file' as blob '$BLOB_NAME'..."

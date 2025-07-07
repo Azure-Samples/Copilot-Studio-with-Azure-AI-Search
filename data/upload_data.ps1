@@ -52,10 +52,9 @@ if ($ContainerExists -ne "true") {
     Write-Host "Container '$ContainerName' already exists." -ForegroundColor Green
 }
 
-$LocalFolder = $LocalFolder + "/sample_data"
 # Upload all PDF files from the current directory
 Write-Host "Uploading PDF files from '$LocalFolder' to container '$ContainerName'..."
-Get-ChildItem -Path $LocalFolder -Recurse -Filter *.* | ForEach-Object {
+Get-ChildItem -Path $LocalFolder -Recurse -Filter *.pdf | ForEach-Object {
     $FilePath = $_.FullName
     $BlobName = $FilePath.Substring($LocalFolder.Length + 1) -replace '\\', '/'
     Write-Host "Uploading '$FilePath' as blob '$BlobName'..."
