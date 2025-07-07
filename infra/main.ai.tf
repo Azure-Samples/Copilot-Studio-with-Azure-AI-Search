@@ -13,7 +13,16 @@ module "azure_open_ai" {
   public_network_access_enabled = false
 
   network_acls = {
-    default_action = "Allow"
+    default_action = "Deny"
+    bypass = "AzureServices"
+    virtual_network_rules = [
+      {
+        subnet_id = azurerm_subnet.primary_subnet.id
+      },
+      {
+        subnet_id = azurerm_subnet.failover_subnet.id
+      }
+    ]
   }
 
   private_endpoints = {

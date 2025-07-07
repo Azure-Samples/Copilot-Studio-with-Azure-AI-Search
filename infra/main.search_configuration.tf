@@ -149,13 +149,13 @@ resource "azapi_resource" "run_python_from_storage" {
         pip install -r requirements.txt
         python index_utils.py \
           --aisearch_name ${azurerm_search_service.ai_search.name} \
-          --base_index_name "default-index" \
+          --base_index_name "default" \
           --openai_api_base ${module.azure_open_ai.endpoint} \
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \
           --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
           --container_name $DATA_CONTAINER_NAME \
-          --aisearch_key $AISEARCH_PRIMARY_KEY
+          --aisearch_key "$AI_SEARCH_ADMIN_KEY"
           
         echo "=== Deployment script completed successfully ==="
       EOF
@@ -175,6 +175,10 @@ resource "azapi_resource" "run_python_from_storage" {
         {
           name  = "AZURE_CLIENT_ID"
           value = "${azurerm_user_assigned_identity.script_identity.client_id}"
+        },
+        {
+          name  = "AI_SEARCH_ADMIN_KEY"
+          value = "${azurerm_search_service.ai_search.primary_key}"
         }
       ]
     }

@@ -67,11 +67,10 @@ variable "cognitive_deployments" {
       version = string
     })
     scale = object({
-      type     = string
-      capacity = optional(number)
+      capacity = number
+      type = string
     })
     rai_policy_name = string
-    dynamic_throttling_enabled = bool
     dynamic_throttling_enabled = bool
   }))
   default = {
@@ -83,11 +82,10 @@ variable "cognitive_deployments" {
         version = "1"
       }
       scale = {
-        type     = "Standard"
         capacity = 100
+        type = "Standard"
       }
       rai_policy_name = "Microsoft.DefaultV2"
-      dynamic_throttling_enabled = true
       dynamic_throttling_enabled = true
     }
   }
