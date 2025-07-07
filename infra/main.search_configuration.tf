@@ -149,7 +149,7 @@ resource "azapi_resource" "run_python_from_storage" {
         pip install -r requirements.txt
         python index_utils.py \
           --aisearch_name ${azurerm_search_service.ai_search.name} \
-          --base_index_name "default-index" \
+          --base_index_name "default" \
           --openai_api_base ${module.azure_open_ai.endpoint} \
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \
