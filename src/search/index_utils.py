@@ -4,7 +4,7 @@ Utilities for managing AI Search service components.
 This module contains functions to create or update an index, indexer, skillset, and datasource.
 It serves as the primary endpoint for experiments with the AI Search service.
 """
-
+import os
 import argparse
 import logging
 from azure.identity import DefaultAzureCredential
