@@ -43,88 +43,41 @@ This enterprise-ready architecture demonstrates how to securely connect Copilot 
 ### Key Architecture Components
 
 **Power Platform Integration:**
+
 - **Copilot Studio Bot**: Central conversational AI interface that processes user queries
 - **AI Search Connector**: Secure connector that enables Copilot Studio to query Azure AI Search while respecting enterprise data boundaries
 
 **Azure Infrastructure:**
+
 - **Virtual Network (VNet)**: Provides network isolation and secure communication channels
 - **Private Endpoints**: Ensures Azure AI Search and Storage Account traffic remains within the corporate network perimeter
 - **Azure AI Search Service**: Indexes and searches through enterprise data with built-in AI capabilities
 - **Storage Account**: Stores indexed documents and search artifacts securely
 
 **Enterprise Security & Governance:**
+
 - **Network Injection Policy**: Enforces that Power Platform resources communicate through designated virtual networks
 - **Private Network Access**: All data flows through private endpoints, eliminating exposure to public internet
 
 This architecture ensures that sensitive enterprise data never traverses public networks while enabling powerful AI-driven search capabilities through Copilot Studio. The network injection policy guarantees that Power Platform connectors respect corporate network boundaries, providing an additional layer of security for regulated industries.
 
-```mermaid
-graph TD
-  subgraph PowerPlatform["Power Platform"]
-    direction TB
-    subgraph Environment["Power Platform Environment"]
-      direction TB
-      CopilotStudio[Copilot Studio Bot]
-      Connector[AI Search Connector]
-    end
-  end
+## Account & licenses requirements
 
-  subgraph Azure["Azure Subscription"]
-    direction TB
-    subgraph VNet["Virtual Network"]
-      direction TB
-      subgraph PrivateEndpoints["Private Endpoints"]
-        SearchPE[Search Service PE]
-        StoragePE[Storage Account PE]
-      end
-      AISearch[Azure AI Search Service]
-      Storage[Storage Account]
-    end
-    
-    subgraph Policies["Enterprise Policies"]
-      NetworkPolicy[Network Injection Policy]
-    end
-  end
+**IMPORTANT:** In order to deploy and run this example, you'll need:
 
-  subgraph OnPremises["On-Premises/Corporate Network"]
-    Users[End Users]
-  end
+- **Azure account**. If you're new to Azure, [get an Azure account for free](https://azure.microsoft.com/free/cognitive-search/) and you'll get some free Azure credits to get started. See [guide to deploying with the free trial](docs/deploy_freetrial.md).
+- **Azure EntraID App Registration**. To run the example you will have to create an App Registration and give it permissions inside Azure. Detailed configuration instructions are available in the [App Registration Setup Guide](/docs/app_registration_setup.md).
 
-  Users --> CopilotStudio
-  CopilotStudio --> Connector
-  Connector -.->|Secure Connection| SearchPE
-  SearchPE --> AISearch
-  AISearch --> Storage
-  NetworkPolicy --> VNet
-  DataPolicy --> Environment
-```
+- **Power Platform**. If you are new to Power Platform and Copilot Studio, you can [get 30-day trial for free](https://www.microsoft.com/en-us/power-platform/try-free)
+- **Power Platform settings**. To enable the required Copilot functionality, configure the following settings in your Power Platform tenant administration portal:
+  - [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
+  - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled  
+- **Power Platform licenses**. The designated user must have the following Power Platform licenses assigned:
+  - Microsoft Power Apps
+  - Power Automate  
+  - Copilot Studio
 
-## Getting Started
-
-### Authentication
-
-### Prerequisites
-
-This solution requires proper authentication setup before deployment. While user authentication is supported, **service principal authentication is strongly recommended** for production deployments due to enhanced security and reliability.
-
-#### App Registration and Service Principal Setup
-
-For optimal security and deployment reliability, create a dedicated App Registration with appropriate permissions. Detailed configuration instructions are available in the [App Registration Setup Guide](/docs/app_registration_setup.md).
-
-**Important:** User-based authentication has [documented limitations](https://github.com/microsoft/terraform-provider-power-platform/issues/283) when initializing Power Platform connections, which may cause deployment failures. Service principal authentication avoids these issues and provides better security isolation.
-
-#### Power Platform Tenant Settings
-
-To enable the required Copilot functionality, configure the following settings in your Power Platform tenant administration portal:
-
-**Required Settings:**
-
-- [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
-- [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled
-
-These settings must be configured at the tenant level by a Power Platform Administrator before proceeding with the deployment.
-
-#### User Configuration
+### User Configuration
 
 The following user configuration is required to interact with the Azure and Power Platform resources deployed by this solution:
 
@@ -132,13 +85,6 @@ The following user configuration is required to interact with the Azure and Powe
 
 - **Contributor** or **Owner** role on the Azure subscription for managing Azure resources
 - **Power Platform System Administrator** or appropriate environment-specific roles for managing Power Platform connections and Copilot Studio resources
-
-**Required Licenses:**
-The designated user must have the following Power Platform licenses assigned:
-
-- Microsoft Power Apps
-- Power Automate  
-- Copilot Studio
 
 **Access Permissions:**
 Upon deployment, the configured user will be granted:
@@ -149,101 +95,131 @@ Upon deployment, the configured user will be granted:
 
 **Note:** While Power Platform Administrator role provides comprehensive access, users with environment-specific administrative roles may also be sufficient depending on your organization's security requirements.
 
-#### Development Environment Setup
+## Getting Started
 
-It it recommended to you **Dev Container** provided in the module's repository. if you prefer to run and build the module on your own machine instructions are provider in [Development Environment Setup Guide](/docs/development_environment.md)
+You have a few options for setting up this project.
+The easiest way to get started is GitHub Codespaces, since it will setup all the tools for you,
+but you can also [set it up locally](#local-environment) if desired.
 
-### Quickstart
+### GitHub Codespaces
 
-#### Deployment Instructions
+You can run this repo virtually by using GitHub Codespaces, which will open a web-based VS Code in your browser:
 
-This solution requires authentication for deployment. **Service Principal authentication is strongly advised** for production deployments due to enhanced security, reliability, and better automation capabilities.
+[![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=964739309&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2)
 
-> **Important:** Before proceeding with deployment, ensure you have completed the [App Registration and Service Principal Setup](#app-registration-and-service-principal-setup) as outlined in the prerequisites section.
+Once the codespace opens (this may take several minutes), open a terminal window.
 
-While user authentication is technically supported, it has documented limitations that may cause deployment failures. For production environments, always use a properly configured service principal with appropriate permissions as detailed in the setup guide.
+### VS Code Dev Containers
 
-1. Initialize the Azure Developer CLI (azd) environment configuration. This step configures azd to work with this template and creates the necessary environment files:
+A related option is VS Code Dev Containers, which will open the project in your local VS Code using the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers):
 
-    - **Inside dev container** (after opening the cloned project in the container):
+1. Start Docker Desktop (install it if not already installed)
+2. Open the project:
+    [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search)
 
-      ```bash
-      azd init
-      ```  
+3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
 
-    - **Outside dev container** (when first cloning the template):
+### Local environment
 
-      ```bash
-      azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
-      ```
+1. Install the required tools:
 
-    Choose a descriptive name for your azd environment, as it will be used throughout this example. This command sets up the local azd configuration even though you've already cloned the repository.
-    If prompted to select an Azure region, consider using East US, as other regions may have compatibility issues.
+    - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd) - Platform-specific installers available via package managers or direct download
+    - [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.5) - Required for non-Windows systems; Windows users may use built-in PowerShell
+    - [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) - Includes .NET CLI, runtime, and development tools
+    - [Terraform](https://developer.hashicorp.com/terraform) - HashiCorp official distribution via package manager or binary
+    - [TFLint](https://github.com/terraform-linters/tflint) - Optional but recommended for infrastructure validation
+    - [PAC CLI](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction) - Microsoft Power Platform developer tooling
+    - [Gitleaks](https://github.com/gitleaks/gitleaks) - Pre-commit hook integration recommended
+    - [Python 3.9, 3.10, or 3.11](https://www.python.org/downloads/)
+      - **Important**: Python and the pip package manager must be in the path in Windows for the setup scripts to work.
+      - **Important**: Ensure you can run `python --version` from console. On Ubuntu, you might need to run `sudo apt install python-is-python3` to link `python` to `python3`.
 
-2. Set a value for the interactive user who should be able to access the solution resources.
-  Note that this step is optional when running with a user account, but it is strongly encouraged
-  when running with a service principal, as it exposes resource visibility to the specified
-  interactive user.
+2. Create a new folder and switch to it in the terminal.
+3. Run this command to download the project code:
 
-    ```bash
-    # Example for setting current signed-in user (recommended)
-    azd env set RESOURCE_SHARE_USER "[\"$(az ad signed-in-user show --query id -o tsv)\"]"
-    
-    # Alternative: manually specify user object IDs
-    azd env set RESOURCE_SHARE_USER '["object-id-1","object-id-2"]'
+    ```shell
+    azd init -t https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search
     ```
 
-3. **Authentication**: Set up your authentication credentials. For production use, it's recommended to create separate app registrations for ARM and Power Platform providers for better security isolation.
+    Note that this command will initialize a git repository, so you do not need to clone this repository.
 
-    ```bash
+### Deploying
+
+The steps below will provision Azure and Power Platform resources and will deploy Copilot Studio bot.
+
+1. Login to you Azure and config azd to use Az CLI authentication:
+
+    ```shell
+    az login --service-principal --username <SP_CLIENT_ID> --password <SP_SECRET> --tenant <TENANT_ID>
     azd config set auth.useAzCliAuth "true"
-    azd env set USE_LOCAL_STATE true
+    ```
 
-    az login --service-principal --username <SP_CLIENT_ID> --password <SP_SECRET> --tenant <TENANT_ID> 
+1. Login to your Power Platform:
+
+    ```shell
     pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID>
     ```
 
-4. Deploy the solution using the command below. This will create a new resource group in your
-  Azure subscription and deploy the resources defined in the `infra` directory.
+1. Create a new azd environment:
 
-    ```bash
+    ```shell
+    azd env new
+    ```
+
+    This will create a new folder in the `.azure` folder, and set it as the active environment for any calls to `azd` going forward.
+
+1. Set you internative testing user.
+  
+    ```shell
+    azd env set RESOURCE_SHARE_USER '["entraid_user_object_id"]'
+    ```
+
+    Set a value for the interactive user who should be able to access the solution resources, as it exposes resource visibility to the specified
+    interactive user in the Power Platform, such as bot ownership.
+
+1. Use local state storage for terraform:
+  
+    ```shell
+    azd env set USE_LOCAL_STATE true
+    ```
+
+    To simplify deployment, Terraform state will be stored in terraform.state file localy in your hard drive/docker container. This way of managing Terraform state file is for testing purposes only. For Pipeline/Production use, You should save state remotly. You can [check out advanced secarios guide](/docs/github_self_hosted_deployment.md) for more guidenance.
+
+1. Deploy your ifrastructure
+
+    ```shell
     azd up
     ```
 
-_Note: In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has
-completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors._
+    This will proision all the resources including building a search index based on the .pdf files found in `data` folder.
+      - You will be promted to select a location. One of the resource is Azure OpenAI resource, which is currently avaiable in a limited amout if regions. `East US` maybe be the best option for You. Check the [OpenAI model availability table](https://learn.microsoft.com/azure/cognitive-services/openai/concepts/models#model-summary-table-and-region-availability)
+      - In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors.
+      - If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify that the storage account's network access settings allow traffic from your IP address. You may need to whitelist your IP or temporarily enable public access, depending on your organization's policy.
 
-*Note: If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify
-that the storage account's network access settings allow traffic from your IP address. You may need
-to whitelist your IP or temporarily enable public access, depending on your organization's policy.*
+### Using the bot
 
-## GitHub Self-Hosted Runners
+- Go to [Copilot Studio webpage](https://copilotstudio.microsoft.com/)
+- In the top right corner select environment with name starting `Copilot Studio + Azure AI`
+- Open the `AI Search Connection Example` agent.
+
+### Clean up
+
+To clean up all the resources created by this sample:
+
+1. Run `azd down`
+2. When asked if you are sure you want to continue, enter `yes`
+
+All the Azure and Power Platform resources will be deleted.
+
+## Advanced scenarios
+
+### GitHub self-hosted runners
 
 For organizations requiring deployment through CI/CD pipelines, this solution supports GitHub self-hosted runners. The self-hosted runner configuration provides enhanced control over the deployment environment and enables execution within corporate network boundaries.
 
 For detailed configuration instructions and deployment procedures, refer to the [GitHub Self-Hosted Deployment Guide](/docs/github_self_hosted_deployment.md).
 
-## Demo (TBD)
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Next Steps
-
-At this point, you have a complete application deployed on Azure using your local dev box. But there is much more that the Azure Developer CLI can do. These next steps will introduce you to additional commands that will make creating applications on Azure much easier. Using the Azure Developer CLI, you can setup your pipelines, monitor your application, test and debug locally.
-
-azd pipeline config - to automate the process to create you own copy of this repo, host it on GitHub organization of your choice, create the needed federated credentials, Github workflow and their needed workflow variables to deploy your code whenever changes are pushed to the main branch.
-
-azd down - to delete all the Azure resources created with this template
-
-## Workflows
+### Workflows
 
 A mature workflow for a solution not only automates the deployment of the IAC resources, and the
 application but also incorporates engineering fundamentals, resources validation, dependency
@@ -305,7 +281,7 @@ To set up a federated identity credential in Azure, follow these steps:
 
 - To avoid cost issues when validating the architecture, the default setting of the AI Search resource
 is to use one partition and one replica, which is not a production-caliber configuration. If you use
-this architecture in a production scenario, update the ai_search_config Terraform variable to configure
+this architecture in a production scenario, update the `ai_search_config` Terraform variable to configure
 at least 3 partitions and replicas.
 
 ## Resources
@@ -332,3 +308,8 @@ telemetry that helps us justify ongoing investment in maintaining and improving 
 Keeping this enabled supports the project and future feature development. To opt out of this
 telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appended to the
 `User-Agent` on requests made by the configured terraform providers.
+
+### Getting help
+
+This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
+For help with deploying this sample, please post in [GitHub Issues](/issues).
