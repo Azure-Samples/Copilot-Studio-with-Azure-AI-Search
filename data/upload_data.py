@@ -33,7 +33,7 @@ STORAGE_ACCOUNT_URL = "https://{storage_account_name}.blob.core.windows.net"
 
 
 def upload_data_files(
-    credential: TokenCredential,
+    credential: DefaultAzureCredential,
     storage_account_name: str,
     storage_container: str,
     local_folder: str,
