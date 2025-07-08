@@ -120,12 +120,6 @@ jobs:
           GITHUB_RUNNER_IMAGE_NAME: "github-runner"
           GITHUB_RUNNER_IMAGE_TAG: "latest"
           GITHUB_RUNNER_IMAGE_BRANCH: ${{ github.ref_name }}
-          GITHUB_PAT: ${{ secrets.MCS_RUNNER }}
-          GITHUB_REPO_OWNER: ${{ github.repository_owner }}
-          GITHUB_REPO_NAME: ${{ github.event.repository.name }}
-          GITHUB_RUNNER_IMAGE_NAME: "github-runner"
-          GITHUB_RUNNER_IMAGE_TAG: "latest"
-          GITHUB_RUNNER_IMAGE_BRANCH: ${{ github.ref_name }}
         shell: pwsh
         run: |
           azd config set auth.useAzCliAuth "true"
