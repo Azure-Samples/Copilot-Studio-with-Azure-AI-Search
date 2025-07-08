@@ -8,7 +8,9 @@ updates:
       prefix: "chore(deps):"
     open-pull-requests-limit: 7
   - package-ecosystem: "terraform"
-    directory: "/infra"
+    directories: 
+    - "/infra"
+    - "/infra/modules/*"
     schedule:
       interval: "daily"
     commit-message:
