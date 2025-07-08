@@ -10,8 +10,6 @@ import os
 from pathlib import Path
 
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
 
 logger = logging.getLogger(__name__)
