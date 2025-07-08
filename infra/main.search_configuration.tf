@@ -92,6 +92,7 @@ resource "azapi_resource" "run_python_from_storage" {
     azurerm_storage_account.deployment_scripts,
     azurerm_storage_account.deployment_container,
     module.storage_account_and_container,
+    module.azure_open_ai
   ]
 
   type = "Microsoft.Resources/deploymentScripts@2023-08-01"
