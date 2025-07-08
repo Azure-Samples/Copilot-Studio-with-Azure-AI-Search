@@ -157,7 +157,7 @@ Upon deployment, the configured user will be granted:
 
 #### Development Environment Setup
 
-It it recommended to you **Dev Container** provided in the module's repository. if you prefer to run and build the module on your own machine instructions are provider in [Development Environment Setup Guide](/docs/development_environment.md)
+It is recommended to use the **Dev Container** provided in the module's repository. If you prefer to run and build the module locally, instructions are provided in the [Development Environment Setup Guide](/docs/development_environment.md).
 
 ### Quickstart
 

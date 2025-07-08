@@ -12,8 +12,7 @@ resource "time_sleep" "wait_for_subnets" {
 # Additional verification that subnets are ready for storage account creation
 resource "null_resource" "verify_subnet_readiness" {
   depends_on = [
-    time_sleep.wait_for_subnets,
-    null_resource.verify_subnet_readiness
+    time_sleep.wait_for_subnets
   ]
 
   provisioner "local-exec" {
