@@ -2,8 +2,6 @@
 terraform {
   backend "local" {
     path = "terraform.tfstate"
-  backend "local" {
-    path = "terraform.tfstate"
   }
 }
 terraform {
@@ -75,6 +73,11 @@ data "azurerm_client_config" "current" {}
 
 # Configure Power Platform provider
 provider "powerplatform" {}
+
+
+
+
+
 
 
 
