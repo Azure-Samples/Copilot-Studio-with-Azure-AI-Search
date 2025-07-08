@@ -160,6 +160,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     ```shell
     pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID>
+    export POWER_PLATFORM_USE_CLI="true"
     ```
 
 1. Create a new azd environment:
