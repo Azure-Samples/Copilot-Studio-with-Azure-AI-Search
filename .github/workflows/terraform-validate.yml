@@ -96,7 +96,7 @@ jobs:
         working-directory: ./infra
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v3
+        uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: v0.49.0  # Specify a version (recommended)
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate limiting
