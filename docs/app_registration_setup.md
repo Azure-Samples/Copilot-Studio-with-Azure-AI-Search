@@ -6,7 +6,7 @@ To enable secure automation and integration with Azure and Power Platform, you n
 
 1. Create an **App Registration** in Microsoft Entra with the required permissions as outlined in the
 [Power Platform Terraform Provider’s documentation](https://microsoft.github.io/terraform-provider-power-platform/guides/app_registration/).
-1. Elevate your Service Principal to an Administrator using following snippet (this action must be done by an existing **Power Platform Administrator**):
+1. Elevate your Service Principal to a Power Platform Admin Application using following snippet (this action must be done by an existing **Power Platform Administrator**):
 
       ```bash
          az login
