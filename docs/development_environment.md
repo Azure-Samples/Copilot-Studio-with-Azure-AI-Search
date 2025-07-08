@@ -4,7 +4,7 @@ This document describes the development environment configuration for the projec
 
 ## Environment Options
 
-### Dev Container (Recommended)
+### Dev Container or GitHub Codespaces (Recommended)
 
 Pre-configured container with all required dependencies and tools. No manual installation required.
 
