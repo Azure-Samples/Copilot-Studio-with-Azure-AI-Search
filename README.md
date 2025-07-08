@@ -6,22 +6,24 @@ network security.
 
 ## Table of Contents
 
-- [1. Features](#features)
-- [2. Architecture](#architecture)
-- [3. Getting Started](#getting-started)
-  - [3.1 Prerequisites](#prerequisites)
-    - [3.1.1 App Registration and Service Principal Setup](#app-registration-and-service-principal-setup)
-    - [3.1.2 User Configuration](#user-configuration)
-    - [3.1.3 Development Environment Setup](#development-environment-setup)
-  - [3.2 Quickstart](#quickstart)
-    - [3.2.1 Deployment Instructions](#deployment-instructions)
-- [4. GitHub Self-Hosted Runners](#github-self-hosted-runners)
-- [5. Demo](#demo-tbd)
-- [6. Workflows](#workflows)
-  - [6.1.1 Set Up Federated Identity Credential in Azure](#set-up-federated-identity-credential-in-azure)
-  - [6.1.2 Add Required Secrets to GitHub](#add-required-secrets-to-github)
-- [7. Resources](#resources)
-- [8. Data Collection](#data-collection)
+- [Features](#features)
+- [Architecture](#architecture)
+  - [Key Architecture Components](#key-architecture-components)
+- [Account & licenses requirements](#account--licenses-requirements)
+  - [User Configuration](#user-configuration)
+- [Getting Started](#getting-started)
+  - [GitHub Codespaces](#github-codespaces)
+  - [VS Code Dev Containers](#vs-code-dev-containers)
+  - [Local environment](#local-environment)
+  - [Deploying](#deploying)
+  - [Using the bot](#using-the-bot)
+  - [Clean up](#clean-up)
+- [Advanced scenarios](#advanced-scenarios)
+  - [GitHub self-hosted runners](#github-self-hosted-runners)
+- [Resource Configuration Notes](#resource-configuration-notes)
+- [Resources](#resources)
+- [Data Collection](#data-collection)
+  - [Getting help](#getting-help)
 
 ## Features
 
@@ -171,10 +173,10 @@ The steps below will provision Azure and Power Platform resources and will deplo
 1. Set you internative testing user.
   
     ```shell
-      azd env set RESOURCE_SHARE_USER '["entraid_user_object_id"]'
-      ```
+    azd env set RESOURCE_SHARE_USER '["entraid_user_object_id"]'
+    ```
 
-      Set this value to the Azure Entra ID object ID of the primary administrator or developer who will manage and modify the deployed solution resources in the future. This user will be granted administrative access to the Power Platform resources (such as bot ownership and environment management) and will have visibility into the Azure resources provisioned by this deployment. Replace `entraid_user_object_id` with the actual object ID of the intended admin or developer.
+    Set this value to the Azure Entra ID object ID of the primary administrator or developer who will manage and modify the deployed solution resources in the future. This user will be granted administrative access to the Power Platform resources (such as bot ownership and environment management) and will have visibility into the Azure resources provisioned by this deployment. Replace `entraid_user_object_id` with the actual object ID of the intended admin or developer.
 
 1. Use local state storage for terraform:
   
@@ -250,7 +252,7 @@ Keeping this enabled supports the project and future feature development. To opt
 telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appended to the
 `User-Agent` on requests made by the configured terraform providers.
 
-### Getting help
+## Getting help
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
 For help with deploying this sample, please post in [GitHub Issues](/issues).
