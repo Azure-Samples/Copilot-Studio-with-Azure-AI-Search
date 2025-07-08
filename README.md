@@ -171,11 +171,10 @@ The steps below will provision Azure and Power Platform resources and will deplo
 1. Set you internative testing user.
   
     ```shell
-    azd env set RESOURCE_SHARE_USER '["entraid_user_object_id"]'
-    ```
+      azd env set RESOURCE_SHARE_USER '["entraid_user_object_id"]'
+      ```
 
-    Set a value for the interactive user who should be able to access the solution resources, as it exposes resource visibility to the specified
-    interactive user in the Power Platform, such as bot ownership.
+      Set this value to the Azure Entra ID object ID of the primary administrator or developer who will manage and modify the deployed solution resources in the future. This user will be granted administrative access to the Power Platform resources (such as bot ownership and environment management) and will have visibility into the Azure resources provisioned by this deployment. Replace `entraid_user_object_id` with the actual object ID of the intended admin or developer.
 
 1. Use local state storage for terraform:
   
