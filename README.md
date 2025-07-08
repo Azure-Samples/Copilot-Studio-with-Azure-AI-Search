@@ -65,7 +65,7 @@ This architecture ensures that sensitive enterprise data never traverses public 
 
 **IMPORTANT:** In order to deploy and run this example, you'll need:
 
-- **Azure account**. If you're new to Azure, [get an Azure account for free](https://azure.microsoft.com/free/cognitive-search/) and you'll get some free Azure credits to get started. See [guide to deploying with the free trial](docs/deploy_freetrial.md).
+- **Azure subscription**. If you're new to Azure, [get an Azure account for free](https://azure.microsoft.com/free/cognitive-search/) and you'll get some free Azure credits to get started. See [guide to deploying with the free trial](docs/deploy_freetrial.md).
 - **Azure EntraID App Registration**. To run the example you will have to create an App Registration and give it permissions inside Azure. Detailed configuration instructions are available in the [App Registration Setup Guide](/docs/app_registration_setup.md).
 
 - **Power Platform**. If you are new to Power Platform and Copilot Studio, you can [get 30-day trial for free](https://www.microsoft.com/en-us/power-platform/try-free)
