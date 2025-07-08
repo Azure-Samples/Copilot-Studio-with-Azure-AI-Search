@@ -1,0 +1,277 @@
+name: Terraform Lint and Security Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+      - '.github/workflows/terraform_validate.yml'
+  pull_request_target:
+    branches:
+      - main
+    paths:
+      - 'infra/provider.tf'
+      - 'infra/provider.conf.json'
+      - 'infra/.terraform.lock.hcl'
+      
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write  # Allow workflow to comment on PRs
+  
+# Global environment variables
+env:
+  ERROR_HANDLING: true # Enable enhanced error handling
+
+jobs:
+  check-dependabot:
+    name: Check if Dependabot PR
+    runs-on: ubuntu-latest
+    outputs:
+      is_dependabot: ${{ steps.check-actor.outputs.is_dependabot }}
+    steps:
+      - name: Check if PR is from Dependabot
+        id: check-actor
+        run: |
+          if [[ "${{ github.actor }}" == "dependabot[bot]" && "${{ github.actor_id }}" == "49699333" ]]; then
+            echo "is_dependabot=true" >> $GITHUB_OUTPUT
+            echo "PR is from Dependabot"
+          else
+            echo "is_dependabot=false" >> $GITHUB_OUTPUT
+            echo "PR is not from Dependabot"
+          fi
+
+  lint-and-check:
+    name: Lint and Security Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: check-dependabot
+    # Run for all PRs but handle Dependabot PRs specially
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0  # Required for proper GitLeaks scanning
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: "1.12.2"  # Pinning specific version is recommended
+        
+      - name: Terraform Init
+        id: tf-init
+        run: |
+          echo "Running Terraform Init..."
+          terraform init -backend=false
+          if [ $? -ne 0 ]; then
+            echo "::error::Terraform init failed! Check Terraform configuration files."
+            exit 1
+          fi
+        working-directory: ./infra
+
+      - name: Terraform Fmt
+        id: tf-fmt
+        run: |
+          echo "Checking Terraform formatting..."
+          terraform fmt -check -recursive
+          if [ $? -ne 0 ]; then
+            echo "::error::Terraform format check failed! Run 'terraform fmt -recursive' locally to fix formatting issues."
+            exit 1
+          fi
+        working-directory: ./infra
+
+      - name: Terraform Validate
+        id: tf-validate
+        run: |
+          echo "Validating Terraform configuration..."
+          terraform validate -json | tee validation_result.json
+          if [ $? -ne 0 ]; then
+            echo "::error::Terraform validation failed! Check your Terraform files for errors."
+            cat validation_result.json
+            exit 1
+          fi
+        working-directory: ./infra
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v3
+        with:
+          tflint_version: v0.49.0  # Specify a version (recommended)
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate limiting
+
+      - name: Initialize TFLint plugins
+        id: tflint-init
+        run: |
+          echo "Initializing TFLint plugins..."
+          tflint --init
+          if [ $? -ne 0 ]; then
+            echo "::error::TFLint initialization failed!"
+            exit 1
+          fi
+        working-directory: ./infra
+
+      - name: Run TFLint
+        id: tflint-run
+        run: |
+          echo "Running TFLint..."
+          tflint --format=json --force | tee tflint_result.json
+          if [ $? -ne 0 ]; then
+            echo "::error::TFLint found issues in your Terraform configuration!"
+            cat tflint_result.json | jq '.issues[] | "::error file=\(.range.filename),line=\(.range.start.line),col=\(.range.start.column)::\(.message)"'
+            exit 1
+          fi
+        working-directory: ./infra
+
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b # v12.1347.0
+        with: 
+          framework: terraform
+          download_external_modules: true
+          directory: ./infra
+          soft_fail: false  # Make workflow fail on Checkov failures
+          output_format: sarif
+          output_file_path: checkov-results.sarif  # Explicitly specify the output file path
+
+      - name: Upload Checkov SARIF report
+        if: success() || failure()  # Upload even if Checkov finds issues
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: checkov-results.sarif
+          category: checkov
+
+      - name: GitLeaks Scan
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          verbosity: "info"
+          report-format: "sarif"
+          report-path: "gitleaks-report.sarif"
+        
+      - name: Upload GitLeaks SARIF report
+        if: success() || failure()  # Upload even if GitLeaks finds issues
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: gitleaks-report.sarif
+          category: gitleaks
+          
+      - name: Summary
+        if: always()  # Always run this step
+        run: |
+          echo "## Terraform Validation Results :clipboard:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check Terraform Init
+          if [ "${{ steps.tf-init.outcome }}" == "success" ]; then
+            echo "✅ **Terraform Init**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Terraform Init**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Terraform Format
+          if [ "${{ steps.tf-fmt.outcome }}" == "success" ]; then
+            echo "✅ **Terraform Format**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Terraform Format**: Failed - Run 'terraform fmt -recursive' locally" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Terraform Validate
+          if [ "${{ steps.tf-validate.outcome }}" == "success" ]; then
+            echo "✅ **Terraform Validate**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Terraform Validate**: Failed - Check configuration files" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check TFLint
+          if [ "${{ steps.tflint-run.outcome }}" == "success" ]; then
+            echo "✅ **TFLint**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **TFLint**: Failed - Review linting errors" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check Checkov
+          if [ "${{ steps.checkov.outcome }}" == "success" ]; then
+            echo "✅ **Checkov Security Check**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Checkov Security Check**: Failed - Security issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check GitLeaks
+          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
+            echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  update-dependabot-pr:
+    name: Update Dependabot PR Status
+    needs: [check-dependabot, lint-and-check]
+    runs-on: ubuntu-latest
+    if: needs.check-dependabot.outputs.is_dependabot == 'true' && success()
+    steps:
+      - name: Comment on PR
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `## Terraform Validation Passed ✅
+              
+              The Terraform provider update has been validated with:
+              - ✅ Terraform Init
+              - ✅ Terraform Format Check
+              - ✅ Terraform Validation
+              - ✅ TFLint Check
+              - ✅ Security Scanning
+              
+              This PR can pass all the checks to be tested and then merged.`
+            });
+            
+            // Add 'terraform-validated' label to the PR
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['terraform-validated']
+            });
+
+  update-dependabot-pr-failure:
+    name: Report Validation Failure on Dependabot PR
+    needs: [check-dependabot, lint-and-check]
+    runs-on: ubuntu-latest
+    if: needs.check-dependabot.outputs.is_dependabot == 'true' && failure()
+    steps:
+      - name: Comment on PR about failure
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `## ❌ Terraform Validation Failed
+              
+              The Terraform provider update has failed validation. Please check the workflow logs for details.
+              
+              This may indicate that the provider update is not compatible with the current configuration.`
+            });
+            
+            // Add 'terraform-validation-failed' label to the PR
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              labels: ['terraform-validation-failed']
+            });
