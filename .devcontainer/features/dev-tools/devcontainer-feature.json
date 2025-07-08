@@ -1,0 +1,14 @@
+{
+    "id": "dev-tools",
+    "version": "1.0.0",
+    "name": "Development Tools for Copilot Studio Azure AI Search",
+    "documentationURL": "https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search",
+    "description": "Installs checkov, tflint, gitleaks, and PowerApps CLI tools for development",
+    "options": {},
+    "containerEnv": {},
+    "customizations": {},
+    "installsAfter": [
+        "ghcr.io/devcontainers/features/python",
+        "ghcr.io/devcontainers/features/dotnet"
+    ]
+}
