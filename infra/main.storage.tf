@@ -53,7 +53,7 @@ module "storage_account_and_container" {
 
   network_rules = {
     bypass                     = ["AzureServices", "Logging", "Metrics"]
-    default_action             = "Allow"  # Temporarily allow all access for deployment script
+    default_action             = "Deny"
     virtual_network_subnet_ids = toset([
       azurerm_subnet.primary_subnet.id,
       azurerm_subnet.deployment_script_container.id
