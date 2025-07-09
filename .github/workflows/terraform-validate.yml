@@ -137,10 +137,9 @@ jobs:
           verbosity: "info"
           report-format: "sarif"
           report-path: "./gitleaks-report.sarif"
-          
+
       - name: Run Tests
         run: |
-         ls -la ./infra
          ls -la ./
          pwd
         
@@ -149,7 +148,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           directory: ./  # Ensure the report path is correct
-          sarif_file: gitleaks-report.sarif
+          sarif_file: results.sarif
           category: gitleaks
 
       - name: Run Checkov action
