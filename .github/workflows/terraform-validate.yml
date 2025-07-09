@@ -125,6 +125,12 @@ jobs:
           fi
         working-directory: ./infra
 
+      - name: Run Tests
+        run: |
+         ls -la ./infra
+         ls -la ./
+         pwd
+
       - name: GitLeaks Scan
         id: gitleaks
         uses: gitleaks/gitleaks-action@v2
@@ -143,12 +149,6 @@ jobs:
           directory: ./  # Ensure the report path is correct
           sarif_file: gitleaks-report.sarif
           category: gitleaks
-          
-      - name: Run Tests
-        run: |
-         ls -la ./infra
-         ls -la ./
-         pwd
 
       - name: Run Checkov action
         id: checkov
