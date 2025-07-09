@@ -199,14 +199,14 @@ While user authentication is technically supported, it has documented limitation
     azd env set RESOURCE_SHARE_USER '["object-id-1","object-id-2"]'
     ```
 
-3. **Authentication**: Set up your authentication credentials. For production use, it's recommended to create separate app registrations for ARM and Power Platform providers for better security isolation.
+3. **Authentication**: Set up your authentication credentials. For production use, it's recommended to create separate app registrations for ARM and Power Platform providers for better security isolation. *Note: the `pac auth create` command may return a warning about being unable to connect to a Dataverse organization. This is expected, and will not impact the deployment.*
 
     ```bash
     azd config set auth.useAzCliAuth "true"
     azd env set USE_LOCAL_STATE true
 
     az login --service-principal --username <SP_CLIENT_ID> --password <SP_SECRET> --tenant <TENANT_ID> 
-    pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID>
+    pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID> --accept-cleartext-caching
     ```
 
 4. Deploy the solution using the command below. This will create a new resource group in your
