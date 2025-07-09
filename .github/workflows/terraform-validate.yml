@@ -1,19 +1,28 @@
 name: Terraform Lint and Security Checks
 
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#     paths:
+#       - 'infra/**'
+#       - '.github/workflows/terraform_validate.yml'
+#   pull_request_target:
+#     branches:
+#       - main
+#     paths:
+#       - 'infra/provider.tf'
+#       - 'infra/provider.conf.json'
+#       - 'infra/.terraform.lock.hcl'
+
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'infra/**'
-      - '.github/workflows/terraform_validate.yml'
   pull_request_target:
     branches:
       - main
     paths:
-      - 'infra/provider.tf'
-      - 'infra/provider.conf.json'
-      - 'infra/.terraform.lock.hcl'
+      - 'infra/**'
+      - '.github/workflows/terraform-validate.yml'
+      
       
 
 permissions:
