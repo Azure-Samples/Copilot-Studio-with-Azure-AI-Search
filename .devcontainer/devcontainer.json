@@ -1,6 +1,6 @@
 {
     "name": "Azure Developer CLI",
-    "image": "mcr.microsoft.com/devcontainers/go:1.4.1-bullseye",    
+    "image": "mcr.microsoft.com/devcontainers/go:1.4.1-bullseye",
     "features": {
         // terraform and az (required for auth) are installed by default
         // See https://containers.dev/features for list of features
@@ -36,7 +36,8 @@
                 "ms-azuretools.vscode-azureterraform",
                 "terraform-linters.tflint-vscode",
                 "microsoft-IsvExpTools.powerplatform-vscode",
-                "ms-vscode.azurecli"
+                "ms-vscode.azurecli",
+                "bierner.markdown-mermaid"
                 // Include other VSCode extensions if needed
                 // Right click on an extension inside VSCode to add directly to devcontainer.json, or copy the extension ID
             ],
