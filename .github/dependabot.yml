@@ -6,7 +6,10 @@ updates:
       interval: "daily"
     commit-message:
       prefix: "chore(deps):"
-    open-pull-requests-limit: 7
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "terraform"
     directories: 
     - "/infra"
@@ -15,11 +18,17 @@ updates:
       interval: "daily"
     commit-message:
       prefix: "chore(deps):"
-    open-pull-requests-limit: 7
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     commit-message:
       prefix: "chore(deps):"
-    open-pull-requests-limit: 7
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
