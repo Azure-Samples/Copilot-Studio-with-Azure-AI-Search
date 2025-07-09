@@ -124,6 +124,24 @@ jobs:
           fi
         working-directory: ./infra
 
+      - name: GitLeaks Scan
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          verbosity: "info"
+          report-format: "sarif"
+          report-path: "gitleaks-report.sarif"
+        
+      - name: Upload GitLeaks SARIF report
+        if: success() || failure()  # Upload even if GitLeaks finds issues
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks-report.sarif
+          category: gitleaks
+          wait-for-processing: false  # Don't wait for processing to complete
+
       - name: Run Checkov action
         id: checkov
         uses: bridgecrewio/checkov-action@d1ecbbd991738bb77267c875eff09fe1f2c6e044 # v12.1347.0
@@ -145,22 +163,7 @@ jobs:
           category: checkov
           wait-for-processing: false  # Don't wait for processing to complete
 
-      - name: GitLeaks Scan
-        id: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          verbosity: "info"
-          report-format: "sarif"
-          report-path: "gitleaks-report.sarif"
-      - name: Upload GitLeaks SARIF report
-        if: success() || failure()  # Upload even if GitLeaks finds issues
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: gitleaks-report.sarif
-          category: gitleaks
-          wait-for-processing: false  # Don't wait for processing to complete
+     
           
       - name: Summary
         if: always()  # Always run this step
