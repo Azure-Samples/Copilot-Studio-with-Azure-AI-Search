@@ -124,16 +124,16 @@ jobs:
           fi
         working-directory: ./infra
 
-      # - name: Run Checkov action
-      #   id: checkov
-      #   uses: bridgecrewio/checkov-action@d1ecbbd991738bb77267c875eff09fe1f2c6e044 # v12.1347.0
-      #   with: 
-      #     framework: terraform
-      #     download_external_modules: true
-      #     directory: ./infra
-      #     soft_fail: false  # Make workflow fail on Checkov failures
-      #     output_format: sarif
-      #     output_file_path: checkov-results.sarif  # Explicitly specify the output file path
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@d1ecbbd991738bb77267c875eff09fe1f2c6e044 # v12.1347.0
+        with: 
+          framework: terraform
+          download_external_modules: true
+          directory: ./infra
+          soft_fail: false  # Make workflow fail on Checkov failures
+          output_format: sarif
+          output_file_path: checkov-results.sarif  # Explicitly specify the output file path
 
       - name: Upload Checkov SARIF report
         if: success() || failure()  # Upload even if Checkov finds issues
