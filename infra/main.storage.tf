@@ -14,19 +14,6 @@ resource "null_resource" "verify_subnet_readiness" {
   depends_on = [
     time_sleep.wait_for_subnets
   ]
-
-  provisioner "local-exec" {
-    command = <<EOF
-      echo "Verifying subnet readiness for storage account creation..."
-      echo "Primary subnet: ${azurerm_subnet.primary_subnet.id}"
-      echo "Subnets should now be in 'Succeeded' state, ready for storage account network rules"
-    EOF
-  }
-
-  triggers = {
-    primary_subnet_id = azurerm_subnet.primary_subnet.id
-    timestamp = timestamp()
-  }
 }
 
 module "storage_account_and_container" {
