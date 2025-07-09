@@ -16,7 +16,7 @@ resource "azurerm_search_service" "ai_search" {
   local_authentication_enabled = true
 
   identity {
-    type         = "SystemAssigned"
+    type = "SystemAssigned"
   }
 }
 

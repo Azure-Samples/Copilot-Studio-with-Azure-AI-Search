@@ -1,20 +1,20 @@
 module "azure_open_ai" {
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
-  source                = "Azure/avm-res-cognitiveservices-account/azurerm"
-  version               = "0.7.1"
-  kind                  = "OpenAI"
-  location              = var.location
-  name                  = "aoai${random_string.name.id}"
-  resource_group_name   = azurerm_resource_group.this.name
-  enable_telemetry      = true
-  sku_name              = "S0"
-  local_auth_enabled    = true
-  cognitive_deployments = var.cognitive_deployments
+  source                        = "Azure/avm-res-cognitiveservices-account/azurerm"
+  version                       = "0.7.1"
+  kind                          = "OpenAI"
+  location                      = var.location
+  name                          = "aoai${random_string.name.id}"
+  resource_group_name           = azurerm_resource_group.this.name
+  enable_telemetry              = true
+  sku_name                      = "S0"
+  local_auth_enabled            = true
+  cognitive_deployments         = var.cognitive_deployments
   public_network_access_enabled = false
 
   network_acls = {
     default_action = "Deny"
-    bypass = "AzureServices"
+    bypass         = "AzureServices"
     virtual_network_rules = [
       {
         subnet_id = azurerm_subnet.primary_subnet.id

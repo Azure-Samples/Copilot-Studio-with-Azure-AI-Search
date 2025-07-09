@@ -39,8 +39,8 @@ module "storage_account_and_container" {
   enable_telemetry = var.enable_telemetry
 
   network_rules = {
-    bypass                     = ["AzureServices", "Logging", "Metrics"]
-    default_action             = "Deny"
+    bypass         = ["AzureServices", "Logging", "Metrics"]
+    default_action = "Deny"
     virtual_network_subnet_ids = toset([
       azurerm_subnet.primary_subnet.id,
       azurerm_subnet.deployment_script_container.id

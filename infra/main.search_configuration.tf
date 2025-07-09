@@ -1,13 +1,13 @@
 locals {
   # Dynamically discover all PDF files in the data directory
   data_pdf_files = fileset("${path.root}/../data", "*.pdf")
-  
+
   # Create a map of PDF files for for_each
   pdf_files_map = {
-    for pdf_file in local.data_pdf_files : 
+    for pdf_file in local.data_pdf_files :
     replace(pdf_file, ".pdf", "") => pdf_file
   }
-  
+
   # Force recreation of Python scripts on each deployment
   # This ensures the latest versions are always uploaded
   deployment_timestamp = timestamp()
@@ -24,8 +24,8 @@ resource "azurerm_storage_account" "deployment_scripts" {
   # Ensure public network access is enabled for deployment scripts
   public_network_access_enabled = true
   # Enable shared key access for deployment scripts
-  shared_access_key_enabled      = true
-  tags = var.tags
+  shared_access_key_enabled = true
+  tags                      = var.tags
 
   # Explicit network rules with proper bypass for Azure services
   # This ensures Azure Deployment Scripts can access the storage account
@@ -51,8 +51,8 @@ resource "azurerm_storage_account" "deployment_container" {
   # Ensure public network access is enabled for deployment scripts
   public_network_access_enabled = true
   # Enable shared key access for deployment scripts
-  shared_access_key_enabled      = true
-  tags = var.tags
+  shared_access_key_enabled = true
+  tags                      = var.tags
 
   # Explicit network rules with proper bypass for Azure services
   # This ensures Azure Deployment Scripts can access the storage account
@@ -73,7 +73,7 @@ resource "terraform_data" "force_script_update" {
 }
 
 resource "azapi_resource" "run_python_from_storage" {
-  
+
   # Ensure all script files are uploaded and RBAC is fully propagated before running
   depends_on = [
     azurerm_storage_blob.data_requirements,
@@ -85,18 +85,18 @@ resource "azapi_resource" "run_python_from_storage" {
     azurerm_storage_blob.document_index,
     azurerm_storage_blob.document_indexer,
     azurerm_storage_blob.document_skillset,
-    azurerm_storage_blob.pdf_data_files,  # PDF files
+    azurerm_storage_blob.pdf_data_files, # PDF files
     null_resource.verify_rbac_propagation,
     time_sleep.wait_for_storage_network,
-    time_sleep.wait_for_search_permissions,  # Wait for Search Service permissions
+    time_sleep.wait_for_search_permissions, # Wait for Search Service permissions
     azurerm_storage_account.deployment_scripts,
     azurerm_storage_account.deployment_container,
     module.storage_account_and_container,
     module.azure_open_ai
   ]
 
-  type = "Microsoft.Resources/deploymentScripts@2023-08-01"
-  name = "run-python-from-github"
+  type      = "Microsoft.Resources/deploymentScripts@2023-08-01"
+  name      = "run-python-from-github"
   parent_id = azurerm_resource_group.this.id
 
   identity {
@@ -245,7 +245,7 @@ resource "azurerm_storage_container" "scripts" {
 
   depends_on = [
     azurerm_storage_account.deployment_scripts,
-    time_sleep.wait_for_rbac  # Ensure RBAC is ready for script execution
+    time_sleep.wait_for_rbac # Ensure RBAC is ready for script execution
   ]
 }
 
@@ -259,9 +259,9 @@ resource "azurerm_storage_blob" "data_requirements" {
 
   depends_on = [
     azurerm_storage_container.scripts,
-    time_sleep.wait_for_rbac  # Only need RBAC propagation for script execution
+    time_sleep.wait_for_rbac # Only need RBAC propagation for script execution
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -279,7 +279,7 @@ resource "azurerm_storage_blob" "data_upload_script" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -298,7 +298,7 @@ resource "azurerm_storage_blob" "search_requirements" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -316,7 +316,7 @@ resource "azurerm_storage_blob" "search_index_utils" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -334,7 +334,7 @@ resource "azurerm_storage_blob" "search_common_utils" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -353,7 +353,7 @@ resource "azurerm_storage_blob" "document_data_source" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -371,7 +371,7 @@ resource "azurerm_storage_blob" "document_index" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -389,7 +389,7 @@ resource "azurerm_storage_blob" "document_indexer" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -407,7 +407,7 @@ resource "azurerm_storage_blob" "document_skillset" {
     azurerm_storage_container.scripts,
     time_sleep.wait_for_rbac
   ]
-  
+
   # Force recreation on each deployment to ensure latest version
   lifecycle {
     replace_triggered_by = [terraform_data.force_script_update]
@@ -417,7 +417,7 @@ resource "azurerm_storage_blob" "document_skillset" {
 # Upload all PDF data files to deployment script storage dynamically
 resource "azurerm_storage_blob" "pdf_data_files" {
   for_each = local.pdf_files_map
-  
+
   name                   = "data/${each.value}"
   storage_account_name   = azurerm_storage_account.deployment_scripts.name
   storage_container_name = azurerm_storage_container.scripts.name
