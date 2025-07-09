@@ -7,15 +7,14 @@ on:
     paths:
       - 'infra/**'
       - '.github/workflows/terraform_validate.yml'
-  # pull_request_target:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'infra/provider.tf'
-  #     - 'infra/provider.conf.json'
-  #     - 'infra/.terraform.lock.hcl'
+  pull_request_target:
+    branches:
+      - main
+    paths:
+      - 'infra/provider.tf'
+      - 'infra/provider.conf.json'
+      - 'infra/.terraform.lock.hcl'
      
-      
 
 permissions:
   contents: read
@@ -66,8 +65,6 @@ jobs:
         id: tf-init
         run: |
           echo "Running Terraform Init..."
-          echo "Disabling plugin verification for this run..."
-          export TF_PLUGIN_VERIFICATION=false
           terraform init -backend=false
           if [ $? -ne 0 ]; then
             echo "::error::Terraform init failed! Check Terraform configuration files."
