@@ -138,6 +138,8 @@ jobs:
       - name: Upload Checkov SARIF report
         if: success() || failure()  # Upload even if Checkov finds issues
         uses: github/codeql-action/upload-sarif@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           sarif_file: checkov-results.sarif
           category: checkov
