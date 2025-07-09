@@ -16,8 +16,8 @@ resource "azurerm_virtual_network" "failover_virtual_network" {
 }
 
 # Create primary subnets as first-class resources
-# checkov:skip=CKV2_AZURE_31: NSG not required for Power Platform enterprise policies delegation
 resource "azurerm_subnet" "primary_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = var.primary_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -38,8 +38,8 @@ resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
-# checkov:skip=CKV2_AZURE_31: NSG not required for Power Platform enterprise policies delegation
 resource "azurerm_subnet" "ai_search_primary_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "ai-search-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -62,8 +62,8 @@ resource "azurerm_subnet_nat_gateway_association" "ai_search_primary_subnet_nat"
 }
 
 # Create failover subnets as first-class resources
-# checkov:skip=CKV2_AZURE_31: NSG not required for Power Platform enterprise policies delegation
 resource "azurerm_subnet" "failover_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = var.failover_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -84,8 +84,8 @@ resource "azurerm_subnet_nat_gateway_association" "failover_subnet_nat" {
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
-# checkov:skip=CKV2_AZURE_31: NSG not required for Power Platform enterprise policies delegation
 resource "azurerm_subnet" "ai_search_failover_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "ai-search-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -108,8 +108,8 @@ resource "azurerm_subnet_nat_gateway_association" "ai_search_failover_subnet_nat
 }
 
 # Create dedicated private endpoint subnets without delegations
-# checkov:skip=CKV2_AZURE_31: NSG not required for private endpoint subnets
 resource "azurerm_subnet" "pe_primary_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "pe-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -120,8 +120,8 @@ resource "azurerm_subnet" "pe_primary_subnet" {
   private_endpoint_network_policies = "Enabled"
 }
 
-# checkov:skip=CKV2_AZURE_31: NSG not required for private endpoint subnets
 resource "azurerm_subnet" "pe_failover_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "pe-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -134,8 +134,8 @@ resource "azurerm_subnet" "pe_failover_subnet" {
 
 #---- Set up GitHub Runners ----
 
-# checkov:skip=CKV2_AZURE_31: NSG not required for GitHub runner container app delegation
 resource "azurerm_subnet" "github_runner_primary_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   count                = var.deploy_github_runner ? 1 : 0
   name                 = "github-runner-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
@@ -159,8 +159,8 @@ resource "azurerm_subnet_nat_gateway_association" "github_runner_primary_subnet_
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
-# checkov:skip=CKV2_AZURE_31: NSG not required for GitHub runner container app delegation
 resource "azurerm_subnet" "github_runner_failover_subnet" {
+  # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   count                = var.deploy_github_runner ? 1 : 0
   name                 = "github-runner-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
