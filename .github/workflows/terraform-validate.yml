@@ -159,7 +159,6 @@ jobs:
           sarif_file: gitleaks-report.sarif
           category: gitleaks
           wait-for-processing: false  # Don't wait for processing to complete
-          category: gitleaks
           
       - name: Summary
         if: always()  # Always run this step
