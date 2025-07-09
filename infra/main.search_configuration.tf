@@ -452,20 +452,4 @@ resource "null_resource" "verify_rbac_propagation" {
     azurerm_role_assignment.script_cognitive_services_openai_user,
     azurerm_role_assignment.script_cognitive_services_contributor
   ]
-
-  # Use local-exec to test storage access with the managed identity
-  provisioner "local-exec" {
-    command = <<EOF
-      echo "Verifying RBAC propagation for script identity..."
-      # Test will be done within the deployment script itself
-      echo "RBAC verification placeholder completed"
-    EOF
-  }
-
-  # Trigger re-run if any role assignments change
-  triggers = {
-    script_identity_id = azurerm_user_assigned_identity.script_identity.principal_id
-    storage_account_id = module.storage_account_and_container.resource_id
-    deployment_storage_id = azurerm_storage_account.deployment_scripts.id
-  }
 }
