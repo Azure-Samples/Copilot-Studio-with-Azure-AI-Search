@@ -17,7 +17,7 @@ on:
      
 
 permissions:
-  actions: read
+  actions: read # Needed for uploading SARIF reports
   contents: read
   security-events: write
   pull-requests: write  # Allow workflow to comment on PRs
