@@ -134,7 +134,7 @@ jobs:
         with:
           verbosity: "info"
           report-format: "sarif"
-          report-path: "gitleaks-report.sarif"
+          report-path: "./gitleaks-report.sarif"
         
       - name: Upload GitLeaks SARIF report
         if: success() || failure()  # Upload even if GitLeaks finds issues
