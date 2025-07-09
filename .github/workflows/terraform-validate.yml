@@ -65,6 +65,7 @@ jobs:
         id: tf-init
         run: |
           echo "Running Terraform Init..."
+          export TF_PLUGIN_VERIFICATION=false
           terraform init -backend=false
           if [ $? -ne 0 ]; then
             echo "::error::Terraform init failed! Check Terraform configuration files."
