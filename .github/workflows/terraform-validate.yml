@@ -210,12 +210,12 @@ jobs:
             echo "❌ **Checkov Security Check**: Failed - Security issues found" >> $GITHUB_STEP_SUMMARY
           fi
           
-          # # Check GitLeaks
-          # if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
-          #   echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
-          # else
-          #   echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
-          # fi
+          # Check GitLeaks
+          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
+            echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
+          fi
 
   update-dependabot-pr:
     name: Update Dependabot PR Status
