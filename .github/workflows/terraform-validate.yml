@@ -140,9 +140,15 @@ jobs:
         if: success() || failure()  # Upload even if GitLeaks finds issues
         uses: github/codeql-action/upload-sarif@v3
         with:
+          directory: ./  # Ensure the report path is correct
           sarif_file: gitleaks-report.sarif
           category: gitleaks
           
+      - name: Run Tests
+        run: |
+         ls -la ./infra
+         ls -la ./
+         pwd
 
       - name: Run Checkov action
         id: checkov
