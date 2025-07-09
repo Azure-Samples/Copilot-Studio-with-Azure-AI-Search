@@ -141,6 +141,7 @@ jobs:
         with:
           sarif_file: checkov-results.sarif
           category: checkov
+          wait-for-processing: false  # Don't wait for processing to complete
 
       - name: GitLeaks Scan
         id: gitleaks
@@ -151,12 +152,13 @@ jobs:
           verbosity: "info"
           report-format: "sarif"
           report-path: "gitleaks-report.sarif"
-        
       - name: Upload GitLeaks SARIF report
         if: success() || failure()  # Upload even if GitLeaks finds issues
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: gitleaks-report.sarif
+          category: gitleaks
+          wait-for-processing: false  # Don't wait for processing to complete
           category: gitleaks
           
       - name: Summary
