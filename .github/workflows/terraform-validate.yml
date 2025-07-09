@@ -141,7 +141,6 @@ jobs:
       #   with:
       #     sarif_file: gitleaks-report.sarif
       #     category: gitleaks
-      #     wait-for-processing: false  # Don't wait for processing to complete
 
       - name: Run Checkov action
         id: checkov
@@ -162,7 +161,7 @@ jobs:
         with:
           sarif_file: checkov-results.sarif
           category: checkov
-          wait-for-processing: false  # Don't wait for processing to complete
+          wait-for-processing: true  # Wait for processing to complete before proceeding
 
      
           
@@ -207,12 +206,12 @@ jobs:
             echo "❌ **Checkov Security Check**: Failed - Security issues found" >> $GITHUB_STEP_SUMMARY
           fi
           
-          # Check GitLeaks
-          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
-            echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
-          fi
+          # # Check GitLeaks
+          # if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
+          #   echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
+          # else
+          #   echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
+          # fi
 
   update-dependabot-pr:
     name: Update Dependabot PR Status
