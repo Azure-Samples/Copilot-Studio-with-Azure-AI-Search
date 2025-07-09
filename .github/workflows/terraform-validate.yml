@@ -125,22 +125,24 @@ jobs:
           fi
         working-directory: ./infra
 
-      # - name: GitLeaks Scan
-      #   id: gitleaks
-      #   uses: gitleaks/gitleaks-action@v2
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     verbosity: "info"
-      #     report-format: "sarif"
-      #     report-path: "gitleaks-report.sarif"
+      - name: GitLeaks Scan
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        with:
+          verbosity: "info"
+          report-format: "sarif"
+          report-path: "gitleaks-report.sarif"
         
-      # - name: Upload GitLeaks SARIF report
-      #   if: success() || failure()  # Upload even if GitLeaks finds issues
-      #   uses: github/codeql-action/upload-sarif@v3
-      #   with:
-      #     sarif_file: gitleaks-report.sarif
-      #     category: gitleaks
+      - name: Upload GitLeaks SARIF report
+        if: success() || failure()  # Upload even if GitLeaks finds issues
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks-report.sarif
+          category: gitleaks
+          
 
       - name: Run Checkov action
         id: checkov
