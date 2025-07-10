@@ -41,6 +41,7 @@ resource "azurerm_role_assignment" "script_cognitive_services_openai_user" {
   role_definition_name = "Cognitive Services OpenAI User"
 }
 
+# --- AI Search Permissions ---
 resource "azurerm_role_assignment" "script_search_service_contributor" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_search_service.ai_search.id
@@ -51,6 +52,12 @@ resource "azurerm_role_assignment" "script_search_index_data_contributor" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_search_service.ai_search.id
   role_definition_name = "Search Index Data Contributor"
+}
+
+resource "azurerm_role_assignment" "script_search_index_data_reader" {
+  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
+  scope                = azurerm_search_service.ai_search.id
+  role_definition_name = "Search Index Data Reader"
 }
 
 # --- Main Storage Account Permissions ---

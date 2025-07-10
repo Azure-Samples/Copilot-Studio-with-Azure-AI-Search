@@ -174,8 +174,7 @@ resource "azapi_resource" "configure_search_index" {
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \
           --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
-          --container_name $DATA_CONTAINER_NAME \
-          --aisearch_key "$AI_SEARCH_ADMIN_KEY"
+          --container_name $DATA_CONTAINER_NAME
           
         echo "=== Search index configuration completed successfully ==="
       EOF
@@ -195,10 +194,6 @@ resource "azapi_resource" "configure_search_index" {
         {
           name  = "AZURE_CLIENT_ID"
           value = "${azurerm_user_assigned_identity.script_identity.client_id}"
-        },
-        {
-          name  = "AI_SEARCH_ADMIN_KEY"
-          value = "${azurerm_search_service.ai_search.primary_key}"
         },
         {
           name  = "DATA_SOURCE_TYPE"
@@ -237,9 +232,7 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.script_deployment_container_file_owner,
     # Main storage permissions (write access needed for upload_data.py to upload data files)
     azurerm_role_assignment.script_main_storage_queue_contributor,
-    azurerm_role_assignment.script_main_storage_table_contributor,
     azurerm_role_assignment.script_main_storage_blob_owner,
-    azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
@@ -455,9 +448,7 @@ resource "null_resource" "verify_rbac_propagation" {
     time_sleep.wait_for_rbac,
     # Storage permissions
     azurerm_role_assignment.script_main_storage_queue_contributor,
-    azurerm_role_assignment.script_main_storage_table_contributor,
     azurerm_role_assignment.script_main_storage_blob_owner,
-    azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,
     azurerm_role_assignment.script_deployment_container_storage_owner,
     azurerm_role_assignment.script_deployment_container_blob_owner,

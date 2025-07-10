@@ -415,9 +415,7 @@ def main():
         # Using default Azure credentials assuming that it has all needed permissions
         logger.info("Authenticate code into Azure using default credentials.")
         credential = DefaultAzureCredential()
-
-    # Log the credential type for debugging
-    logger.info(f"Final search credential type: {type(credential).__name__}")
+        logger.info("Successfully created DefaultAzureCredential for AI Search")
 
     # Log the credential type for debugging
     logger.info(f"Final search credential type: {type(credential).__name__}")
