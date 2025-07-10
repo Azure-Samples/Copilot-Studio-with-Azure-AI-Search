@@ -9,6 +9,10 @@ hooks:
     - shell: pwsh
       continueOnError: false
       interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_preconfig.ps1
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
       run: azd-hooks/scripts/hooks/preprovision/run_gitleaks.ps1
     - shell: pwsh
       continueOnError: false
@@ -44,6 +48,6 @@ hooks:
       continueOnError: false
       interactive: false
       run: azd-hooks/scripts/hooks/postpackage/postpackage.ps1
-pipeline:
-  variables:
-    - RESOURCE_SHARE_USER
+      pipeline:
+        variables:
+          - RESOURCE_SHARE_USER
