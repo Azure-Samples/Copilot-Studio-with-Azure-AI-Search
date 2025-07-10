@@ -187,7 +187,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
     azd env set USE_LOCAL_STATE true
     ```
 
-    To simplify deployment, Terraform state will be stored in terraform.state file localy in your hard drive/docker container. This way of managing Terraform state file is for testing purposes only. For Pipeline/Production use, You should save state remotly. You can [check out advanced secarios guide](/docs/advanced_scenarios.md) for more guidenance.
+    To simplify deployment, Terraform state will be stored in terraform.state file locally in your hard drive/docker container. This way of managing Terraform state file is for testing purposes only. For Pipeline/Production use, You should save state remotly. You can [check out advanced secarios guide](/docs/advanced_scenarios.md) for more guidenance.
 
 1. Deploy your infrastructure
 
