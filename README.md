@@ -163,6 +163,8 @@ The steps below will provision Azure and Power Platform resources and will deplo
     export POWER_PLATFORM_USE_CLI="true"
     ```
 
+    *Note: the `pac auth create` command may return a warning about being unable to connect to a Dataverse organization. This is expected, and will not impact the deployment.*
+
 1. Create a new azd environment:
 
     ```shell
