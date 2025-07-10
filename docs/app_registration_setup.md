@@ -18,6 +18,7 @@ To enable secure automation and integration with Azure and Power Platform, you n
 
       **Note**: Remember to save in a secure place `Application Id` and `Client Secret` generated as an output of this command. You will need it later.
 
+
 1. Assign the following roles to the Service Principal in the Azure subscription where resources
 will be created:
    - *Contributor*: Grants permission to create and manage Azure resources.
@@ -215,3 +216,4 @@ will be created:
          }
       ]
       ```
+

@@ -25,6 +25,7 @@ network security.
 - [Data Collection](#data-collection)
   - [Getting help](#getting-help)
 
+
 ## Features
 
 - Seamless integration of Copilot Studio with Azure AI resources.
@@ -62,6 +63,7 @@ This enterprise-ready architecture demonstrates how to securely connect Copilot 
 - **Private Network Access**: All data flows through private endpoints, eliminating exposure to public internet
 
 This architecture ensures that sensitive enterprise data never traverses public networks while enabling powerful AI-driven search capabilities through Copilot Studio. The network injection policy guarantees that Power Platform connectors respect corporate network boundaries, providing an additional layer of security for regulated industries.
+
 
 ## Account & licenses requirements
 
@@ -111,6 +113,7 @@ You can run this repo virtually by using GitHub Codespaces, which will open a we
 
 Once the codespace opens (this may take several minutes), open a terminal window.
 
+
 ### VS Code Dev Containers
 
 A related option is VS Code Dev Containers, which will open the project in your local VS Code using the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers):
@@ -156,6 +159,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
     azd config set auth.useAzCliAuth "true"
     ```
 
+
 1. Login to your Power Platform:
 
     ```shell
@@ -189,6 +193,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
 1. Deploy your infrastructure
 
+
     ```shell
     azd up
     ```
@@ -198,7 +203,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
       - In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors.
       - If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify that the storage account's network access settings allow traffic from your IP address. You may need to whitelist your IP or temporarily enable public access, depending on your organization's policy.
 
-### Using the bot
+### Using the agent
 
 - Go to [Copilot Studio webpage](https://copilotstudio.microsoft.com/)
 - In the top right corner select environment with name starting `Copilot Studio + Azure AI`
@@ -218,6 +223,7 @@ All the Azure and Power Platform resources will be deleted.
 ### GitHub self-hosted runners
 
 For organizations requiring deployment through CI/CD pipelines, this solution supports GitHub self-hosted runners. The self-hosted runner configuration provides enhanced control over the deployment environment and enables execution within corporate network boundaries.
+
 
 For detailed configuration instructions and deployment procedures, refer to the [GitHub Self-Hosted Deployment Guide](/docs/advanced_scenarios.md).
 
