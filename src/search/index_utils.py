@@ -7,7 +7,7 @@ It serves as the primary endpoint for experiments with the AI Search service.
 import os
 import argparse
 import logging
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import (
@@ -398,27 +398,42 @@ def main():
         help="Azure storage container name",
     )
     parser.add_argument(
-        "--aisearch_key",
+        "--client_id",
         type=str,
         required=False,
-        help="AI Search service admin key (if not provided, will use DefaultAzureCredential)",
+        help="Azure client ID for user-assigned managed identity (if not provided, will try system-assigned managed identity)",
     )
     args = parser.parse_args()
 
-    # Choose authentication method based on whether API key is provided
-    if args.aisearch_key:
-        logger.info("Authenticate to AI Search using API key.")
-        # Create Azure Key Credential for AI Search authentication
-        credential = AzureKeyCredential(args.aisearch_key)
-        logger.info("Successfully created AzureKeyCredential for AI Search")
-    else:
-        # Using default Azure credentials assuming that it has all needed permissions
-        logger.info("Authenticate code into Azure using default credentials.")
+    # Choose authentication method with explicit user-assigned managed identity priority
+    credential = None
+    
+    # Check if a client ID was provided for user-assigned managed identity
+    if args.client_id:
+        logger.info(f"Attempting user-assigned managed identity authentication with client ID: {args.client_id}")
+        try:
+            # Use user-assigned managed identity with provided client ID
+            credential = ManagedIdentityCredential(client_id=args.client_id)
+            logger.info("Successfully created ManagedIdentityCredential (user-assigned) for AI Search")
+        except Exception as e:
+            logger.warning(f"Failed to create user-assigned managed identity credential: {e}")
+            credential = None
+    
+    # Fall back to DefaultAzureCredential if user-assigned managed identity fails or no client ID provided
+    if credential is None:
+        logger.info("Using DefaultAzureCredential for AI Search authentication (includes system-assigned managed identity, service principal, etc.)")
         credential = DefaultAzureCredential()
         logger.info("Successfully created DefaultAzureCredential for AI Search")
 
-    # Log the credential type for debugging
+    # Log the final credential type for debugging
     logger.info(f"Final search credential type: {type(credential).__name__}")
+    
+    # Log authentication method details for troubleshooting
+    logger.info(f"Authentication method details:")
+    if args.client_id and isinstance(credential, ManagedIdentityCredential):
+        logger.info(f"  - Using user-assigned managed identity with client ID: {args.client_id}")
+    else:
+        logger.info(f"  - Using DefaultAzureCredential (system-assigned managed identity, service principal, etc.)")
 
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 

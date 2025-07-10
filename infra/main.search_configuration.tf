@@ -174,7 +174,8 @@ resource "azapi_resource" "configure_search_index" {
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \
           --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
-          --container_name $DATA_CONTAINER_NAME
+          --container_name $DATA_CONTAINER_NAME \
+          --client_id "$AZURE_CLIENT_ID"
           
         echo "=== Search index configuration completed successfully ==="
       EOF

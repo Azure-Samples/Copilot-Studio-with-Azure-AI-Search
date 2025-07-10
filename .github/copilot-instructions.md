@@ -74,7 +74,7 @@ We name our feature branches using the following format: mcs/<github user name>/
 - Use lifecycle rules like `create_before_destroy` with caution.
 - Never store secrets in plain text in `.tf` files.
 - Do not commit `.tfstate`, `.tfvars`, or `.terraform/` folders.
-- Every .tf file should end with a single newline after the last non-blank line.
+- Every .tf file should end with a single blank after the last non-blank line.
 
 ## Testing
 

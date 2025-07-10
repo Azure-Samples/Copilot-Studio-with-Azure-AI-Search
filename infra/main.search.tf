@@ -17,6 +17,7 @@ resource "azurerm_search_service" "ai_search" {
   # Enable both key-based and Entra ID authentication
   # Key-based auth for backward compatibility and Power Platform
   local_authentication_enabled = true
+  authentication_failure_mode  = "http403"
 
   identity {
     type = "SystemAssigned"
