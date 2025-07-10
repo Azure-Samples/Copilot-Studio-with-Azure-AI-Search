@@ -17,6 +17,7 @@ resource "null_resource" "verify_subnet_readiness" {
 }
 
 module "storage_account_and_container" {
+  # checkov:skip=CKV_AZURE_190: Not supported in the AVM.
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "0.6.2"
@@ -27,10 +28,9 @@ module "storage_account_and_container" {
   name                            = replace("cps${random_string.name.id}", "/[^a-z0-9-]/", "")
   resource_group_name             = azurerm_resource_group.this.name
   min_tls_version                 = "TLS1_2"
-  shared_access_key_enabled       = true # TODO turn this off once 2-pass deployment and config is added
-  public_network_access_enabled   = true # TODO turn this off once 2-pass deployment and config is added
-  allow_nested_items_to_be_public = true # TODO turn this off once 2-pass deployment and config is added
-
+  shared_access_key_enabled       = false
+  public_network_access_enabled   = false
+  allow_nested_items_to_be_public = false
   managed_identities = {
     system_assigned = true
   }
@@ -45,12 +45,26 @@ module "storage_account_and_container" {
       azurerm_subnet.primary_subnet.id,
       azurerm_subnet.deployment_script_container.id
     ])
+
+    logging = {
+      delete                = true
+      read                  = true
+      write                 = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+  }
+
+  blob_properties = {
+    delete_retention_policy = {
+      days = 7
+    }
   }
 
   containers = {
     (var.cps_container_name) = {
       name          = var.cps_container_name
-      public_access = "Blob" # TODO restrict access once 2-pass deployment and config is added
+      public_access = "None" # Private access only - no public access allowed for security
     }
   }
 

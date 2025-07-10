@@ -167,7 +167,7 @@ variable "data_file_pattern" {
 
 variable "cps_storage_replication_type" {
   type        = string
-  default     = "LRS"
+  default     = "GRS"
   description = "The replication type to use for the storage account the CPS bot's AI Search resource's datasource will connect to"
 }
 
@@ -413,4 +413,10 @@ variable "enable_failover_github_runner" {
   type        = bool
   default     = false # Disabled to reduce runtime
   description = "Enable the GitHub Actions self-hosted runner in the failover region. Set to true to deploy failover runner resources."
+}
+
+variable "deployment_script_subnet_address_spaces" {
+  type        = list(string)
+  default     = ["10.1.9.0/24"]
+  description = "Deployment script container subnet address spaces."
 }

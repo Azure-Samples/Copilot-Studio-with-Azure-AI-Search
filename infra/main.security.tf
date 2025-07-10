@@ -54,10 +54,12 @@ resource "azurerm_role_assignment" "script_search_index_data_contributor" {
 }
 
 # --- Main Storage Account Permissions ---
-resource "azurerm_role_assignment" "script_main_storage_blob_contributor" {
+
+
+resource "azurerm_role_assignment" "script_main_storage_blob_owner" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = module.storage_account_and_container.resource_id
-  role_definition_name = "Storage Blob Data Contributor"
+  role_definition_name = "Storage Blob Data Owner"
 }
 
 resource "azurerm_role_assignment" "script_main_storage_file_contributor" {
@@ -72,8 +74,13 @@ resource "azurerm_role_assignment" "script_main_storage_reader" {
   role_definition_name = "Reader"
 }
 
+resource "azurerm_role_assignment" "script_main_storage_account_contributor" {
+  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
+  scope                = module.storage_account_and_container.resource_id
+  role_definition_name = "Storage Account Contributor"
+}
 
-# --- Deployment Container Storage Account (God-Mode Access) ---
+# --- Deployment Container Storage Account ---
 resource "azurerm_role_assignment" "script_deployment_container_storage_owner" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_storage_account.deployment_container.id
