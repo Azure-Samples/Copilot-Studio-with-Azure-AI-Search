@@ -1,6 +1,7 @@
 # Configure desired versions of terraform, azurerm provider
 terraform {
-  backend "azurerm" {
+  backend "local" {
+    path = "terraform.tfstate"
   }
 }
 terraform {
