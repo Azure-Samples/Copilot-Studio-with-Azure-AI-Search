@@ -2,8 +2,9 @@ locals {
   search_name = replace("ais${random_string.name.id}", "/[^a-z0-9-]/", "")
 }
 
-# checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
 resource "azurerm_search_service" "ai_search" {
+  # checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
+  # checkov:skip=CKV_AZURE_208: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
   name                          = local.search_name
   location                      = var.primary_location
   resource_group_name           = azurerm_resource_group.this.name
@@ -12,8 +13,8 @@ resource "azurerm_search_service" "ai_search" {
   public_network_access_enabled = var.ai_search_config.public_network_access_enabled
   replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
-  local_authentication_enabled  = true
-  authentication_failure_mode   = "http403"
+  # Enable key-based authentication for Power Platform and deployment scripts
+  local_authentication_enabled = true
 
   identity {
     type = "SystemAssigned"

@@ -8,7 +8,10 @@ variable "failover_vnet_name" {
   description = "The name of the failover Virtual Network to be used in connecting Power Platform to Azure. Note that failover networks are required for Power Platform's enterprise policy connection."
 }
 
-
+variable "billing_subscription_id" {
+  type        = string
+  description = "The ID of the billing subscription to be used for the Power Platform environment. This is required for managing billing and costs associated with the Power Platform resources."
+}
 
 variable "power_platform_environment" {
   type = object({
