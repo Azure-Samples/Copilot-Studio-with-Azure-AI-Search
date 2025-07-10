@@ -72,10 +72,14 @@ if ($AuthenticationMethod -eq "Auto") {
     if ($env:GITHUB_ACTIONS -eq "true") {
         Write-Output "INFO: GitHub Actions environment detected, using GitHub Federated authentication"
         $AuthenticationMethod = "GitHubFederated"
-    } else {
+    } elseif ($env:POWER_PLATFORM_CLIENT_SECRET) {
         Write-Output "INFO: Local environment detected, using ServicePrincipal authentication"
         $AuthenticationMethod = "ServicePrincipal"
+    } else {
+        Write-Output "INFO: No specific authentication method detected, defaulting to AzCli"
+        $AuthenticationMethod = "AzCli"
     }
+
 }
 
 # Create settings directory for storing solution settings
