@@ -96,7 +96,7 @@ jobs:
         working-directory: ./infra
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v3
+        uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: v0.49.0  # Specify a version (recommended)
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate limiting
@@ -126,7 +126,7 @@ jobs:
 
       - name: Run Checkov action
         id: checkov
-        uses: bridgecrewio/checkov-action@fb227c2654598beaba41394b7c657ab282d05e1b # v12.1347.0
+        uses: bridgecrewio/checkov-action@d1ecbbd991738bb77267c875eff09fe1f2c6e044 # v12.1347.0
         with: 
           framework: terraform
           download_external_modules: true
@@ -137,7 +137,7 @@ jobs:
 
       - name: Upload Checkov SARIF report
         if: success() || failure()  # Upload even if Checkov finds issues
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: checkov-results.sarif
           category: checkov
@@ -154,7 +154,7 @@ jobs:
         
       - name: Upload GitLeaks SARIF report
         if: success() || failure()  # Upload even if GitLeaks finds issues
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: gitleaks-report.sarif
           category: gitleaks

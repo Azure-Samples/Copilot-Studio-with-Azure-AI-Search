@@ -330,3 +330,7 @@ telemetry that helps us justify ongoing investment in maintaining and improving 
 Keeping this enabled supports the project and future feature development. To opt out of this
 telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appended to the
 `User-Agent` on requests made by the configured terraform providers.
+
+## Trademarks 
+
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft’s Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party’s policies.
