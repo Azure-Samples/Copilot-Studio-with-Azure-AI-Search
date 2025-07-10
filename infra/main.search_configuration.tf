@@ -29,8 +29,6 @@ resource "azurerm_storage_account" "deployment_container" {
   allow_nested_items_to_be_public = true
   # Ensure public network access is enabled for deployment scripts
   public_network_access_enabled = true
-  # Enable shared key access for deployment scripts
-  shared_access_key_enabled = true
   tags                      = var.tags
 
   # Explicit network rules with proper bypass for Azure services
@@ -58,7 +56,6 @@ resource "azapi_resource" "configure_search_index" {
     azurerm_storage_blob.upload_data_script,
     azurerm_storage_blob.fetch_data_script,
     azurerm_storage_blob.data_requirements,
-    azurerm_storage_blob.search_requirements,
     azurerm_storage_blob.search_index_utils,
     azurerm_storage_blob.search_common_utils,
     azurerm_storage_blob.document_data_source,
@@ -108,6 +105,10 @@ resource "azapi_resource" "configure_search_index" {
         echo "Search service: ${azurerm_search_service.ai_search.name}"
         echo "Repository URL: $GITHUB_REPO_URL"
         
+        # Wait for RBAC permissions to fully propagate (Azure can take time to propagate permissions)
+        echo "=== Waiting for RBAC permissions to propagate ==="
+        sleep 30
+        
         # Verify main storage account exists
         az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
         
@@ -121,7 +122,9 @@ resource "azapi_resource" "configure_search_index" {
         
         # Step 1: Fetch data files from source to local directory
         echo "=== Step 1: Fetching data files from $DATA_SOURCE_TYPE source ==="
-        cd data
+        
+        # First install requirements from the src/search directory where fetch_data.py is located
+        cd /tmp/scripts/src/search
         pip install -r requirements.txt
         
         # Create local data directory
@@ -137,6 +140,25 @@ resource "azapi_resource" "configure_search_index" {
         
         # Step 2: Upload fetched data files to main storage account
         echo "=== Step 2: Uploading data files to main storage account ==="
+        echo "Debug: MAIN_STORAGE_ACCOUNT_NAME = $MAIN_STORAGE_ACCOUNT_NAME"
+        echo "Debug: DATA_CONTAINER_NAME = $DATA_CONTAINER_NAME"
+        echo "Debug: AZURE_CLIENT_ID = $AZURE_CLIENT_ID"
+        
+        # Verify managed identity authentication works
+        echo "=== Testing Azure authentication ==="
+        az account show
+        echo "=== Testing storage account access ==="
+        az storage account show --name "$MAIN_STORAGE_ACCOUNT_NAME" --resource-group ${azurerm_resource_group.this.name} --output table
+        echo "=== Testing storage container list access ==="
+        az storage container list --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login --output table || echo "Container list failed"
+        echo "=== Testing specific container exists ==="
+        az storage container exists --name "$DATA_CONTAINER_NAME" --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login || echo "Container exists check failed"
+        
+        # Test creating container if it doesn't exist using Azure CLI (this should work if RBAC is correct)
+        echo "=== Testing container creation with Azure CLI ==="
+        az storage container create --name "$DATA_CONTAINER_NAME" --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login || echo "Container creation failed"
+        
+        # Run upload_data.py from the correct directory  
         python upload_data.py \
           --storage_account_name "$MAIN_STORAGE_ACCOUNT_NAME" \
           --container_name "$DATA_CONTAINER_NAME" \
@@ -145,8 +167,6 @@ resource "azapi_resource" "configure_search_index" {
         
         # Step 3: Configure search index
         echo "=== Step 3: Configuring search index ==="
-        cd ../src/search
-        pip install -r requirements.txt
         python index_utils.py \
           --aisearch_name ${azurerm_search_service.ai_search.name} \
           --base_index_name "default" \
@@ -216,7 +236,10 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.script_deployment_container_blob_owner,
     azurerm_role_assignment.script_deployment_container_file_owner,
     # Main storage permissions (write access needed for upload_data.py to upload data files)
+    azurerm_role_assignment.script_main_storage_queue_contributor,
+    azurerm_role_assignment.script_main_storage_table_contributor,
     azurerm_role_assignment.script_main_storage_blob_owner,
+    azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
@@ -264,11 +287,11 @@ resource "azurerm_storage_container" "scripts" {
 
 # Upload data directory files
 resource "azurerm_storage_blob" "upload_data_script" {
-  name                   = "data/upload_data.py"
+  name                   = "src/search/upload_data.py"
   storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
-  source                 = "${path.root}/../data/upload_data.py"
+  source                 = "${path.root}/../src/search/upload_data.py"
 
   depends_on = [
     azurerm_storage_container.scripts,
@@ -282,11 +305,11 @@ resource "azurerm_storage_blob" "upload_data_script" {
 }
 
 resource "azurerm_storage_blob" "fetch_data_script" {
-  name                   = "data/fetch_data.py"
+  name                   = "src/search/fetch_data.py"
   storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
-  source                 = "${path.root}/../data/fetch_data.py"
+  source                 = "${path.root}/../src/search/fetch_data.py"
 
   depends_on = [
     azurerm_storage_container.scripts,
@@ -300,25 +323,6 @@ resource "azurerm_storage_blob" "fetch_data_script" {
 }
 
 resource "azurerm_storage_blob" "data_requirements" {
-  name                   = "data/requirements.txt"
-  storage_account_name   = azurerm_storage_account.deployment_container.name
-  storage_container_name = azurerm_storage_container.scripts.name
-  type                   = "Block"
-  source                 = "${path.root}/../data/requirements.txt"
-
-  depends_on = [
-    azurerm_storage_container.scripts,
-    time_sleep.wait_for_rbac
-  ]
-
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
-}
-
-# Upload src/search directory files
-resource "azurerm_storage_blob" "search_requirements" {
   name                   = "src/search/requirements.txt"
   storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
@@ -450,7 +454,10 @@ resource "null_resource" "verify_rbac_propagation" {
   depends_on = [
     time_sleep.wait_for_rbac,
     # Storage permissions
+    azurerm_role_assignment.script_main_storage_queue_contributor,
+    azurerm_role_assignment.script_main_storage_table_contributor,
     azurerm_role_assignment.script_main_storage_blob_owner,
+    azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,
     azurerm_role_assignment.script_deployment_container_storage_owner,
     azurerm_role_assignment.script_deployment_container_blob_owner,

@@ -48,7 +48,7 @@ jobs:
           echo "Create a new virtual environment"
           python3 -m venv .copilot_venv
 
-      - name: Run `data/upload_data.py` script
+      - name: Run `search/upload_data.py` script
         run: |
           echo "Activate the virtual environment"
           source .copilot_venv/bin/activate

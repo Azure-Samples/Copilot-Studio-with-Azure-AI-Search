@@ -1,3 +1,28 @@
+# ============================================================================
+# PRIVATE DNS CONFIGURATION FOR STORAGE PRIVATE ENDPOINTS
+# ============================================================================
+
+# Private DNS zone for blob storage private endpoints
+resource "azurerm_private_dns_zone" "blob_storage" {
+  name                = "privatelink.blob.core.windows.net"
+  resource_group_name = azurerm_resource_group.this.name
+  tags                = var.tags
+}
+
+# Link the private DNS zone to the primary virtual network
+resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage_vnet_link" {
+  name                  = "blob-storage-vnet-link"
+  resource_group_name   = azurerm_resource_group.this.name
+  private_dns_zone_name = azurerm_private_dns_zone.blob_storage.name
+  virtual_network_id    = azurerm_virtual_network.primary_virtual_network.id
+  registration_enabled  = false
+  tags                  = var.tags
+}
+
+# ============================================================================
+# STORAGE ACCOUNT CONFIGURATION
+# ============================================================================
+
 # Wait for subnets to be fully provisioned before creating storage account
 resource "time_sleep" "wait_for_subnets" {
   depends_on = [
@@ -46,7 +71,8 @@ module "storage_account_and_container" {
     default_action = "Deny"
     virtual_network_subnet_ids = toset([
       azurerm_subnet.primary_subnet.id,
-      azurerm_subnet.deployment_script_container.id
+      azurerm_subnet.deployment_script_container.id,
+      azurerm_subnet.pe_primary_subnet.id
     ])
 
     logging = {
@@ -57,6 +83,8 @@ module "storage_account_and_container" {
       retention_policy_days = 10
     }
   }
+
+
 
   blob_properties = {
     delete_retention_policy = {
@@ -71,8 +99,19 @@ module "storage_account_and_container" {
     }
   }
 
+  private_endpoints = {
+    primary_blob = {
+      subnet_resource_id            = azurerm_subnet.pe_primary_subnet.id
+      subresource_name              = "blob"
+      private_dns_zone_resource_ids = [azurerm_private_dns_zone.blob_storage.id]
+      private_dns_zone_group_name   = "default"
+    }
+  }
+
   depends_on = [
-    null_resource.verify_subnet_readiness
+    null_resource.verify_subnet_readiness,
+    azurerm_private_dns_zone.blob_storage,
+    azurerm_private_dns_zone_virtual_network_link.blob_storage_vnet_link
   ]
 }
 

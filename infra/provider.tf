@@ -74,3 +74,4 @@ data "azurerm_client_config" "current" {}
 # Configure Power Platform provider
 provider "powerplatform" {}
 
+
