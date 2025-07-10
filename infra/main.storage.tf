@@ -1,15 +1,5 @@
 module "storage_account_and_container" {
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
-  # checkov:skip=CKV_AZURE_190: Public access is temporarily enabled for initial deployment
-  # checkov:skip=CKV_AZURE_244: Local users are required for application functionality
-  # checkov:skip=CKV_AZURE_33: Queue service logging not required for this use case
-  # checkov:skip=CKV_AZURE_206: Using standard replication for cost optimization
-  # checkov:skip=CKV_AZURE_36: Trusted Microsoft Services bypass is configured via network_rules
-  # checkov:skip=CKV_AZURE_35: Network access is restricted via network_rules when GitHub runner is deployed
-  # checkov:skip=CKV_AZURE_59: Public access is temporarily enabled for initial deployment
-  # checkov:skip=CKV2_AZURE_40: Shared key access is required for application functionality
-  # checkov:skip=CKV2_AZURE_47: Anonymous blob access is temporarily enabled for initial deployment
-  # checkov:skip=CKV2_AZURE_38: Soft delete will be configured in production environment
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "0.6.2"
   account_replication_type        = var.cps_storage_replication_type
