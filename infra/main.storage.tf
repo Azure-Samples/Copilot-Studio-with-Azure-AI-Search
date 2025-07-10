@@ -18,6 +18,7 @@ resource "null_resource" "verify_subnet_readiness" {
 
 module "storage_account_and_container" {
   # checkov:skip=CKV_AZURE_190: Not supported in the AVM.
+  # checkov:skip=CKV_AZURE_244: Not supported in the AVM.
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "0.6.2"
