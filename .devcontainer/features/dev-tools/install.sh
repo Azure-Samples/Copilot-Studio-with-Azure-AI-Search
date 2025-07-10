@@ -21,8 +21,4 @@ tar -xzf gitleaks.tar.gz -C /tmp/gitleaks gitleaks
 mv /tmp/gitleaks/gitleaks /usr/local/bin/
 rm -rf /tmp/gitleaks gitleaks.tar.gz
 
-# Install PowerApps CLI (Microsoft.PowerApps.CLI.Tool)
-echo "Installing PowerApps CLI..."
-dotnet tool install --global Microsoft.PowerApps.CLI.Tool
-
 echo "Development tools installation completed successfully!"
