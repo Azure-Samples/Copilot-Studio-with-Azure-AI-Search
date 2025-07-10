@@ -1,7 +1,3 @@
-# Copilot Instructions
-
-## Project Overview
-
 This repository implements an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search using Terraform infrastructure as code and Azure Developer CLI for deployment.
 
 We use Terraform with the Azure Provider for all infrastructure provisioning, following a modular structure with separate files for different service types (main.ai.tf, main.search.tf, main.network.tf, etc.).
@@ -36,11 +32,7 @@ We implement retry logic and exponential backoff for transient failures in Power
 
 We use GitHub Actions workflows with federated identity credentials for CI/CD, avoiding long-lived secrets.
 
-We name our feature branches using the following format: mcs/<github user name>/<issue number>-<short-description>
-
-## Coding Guidelines
-
-### Terraform Best Practices
+## Terraform Best Practices
 
 - Use `snake_case` for all variable, resource, and module names.
 - Use double quotes (`"`) for strings, not single quotes.
@@ -140,3 +132,4 @@ azd down             # Destroy all provisioned resources
 - Use remote state (e.g., Azure Storage backend) to avoid local state file conflicts.
 - Use `outputs.tf` to export values required by `azd` to deploy and configure services.
 - Reference service-level variables via `${azurerm_...}` resources in outputs for app service bindings.
+- We name our feature branches using the following format: mcs/<github user name>/<issue number>-<short-description>

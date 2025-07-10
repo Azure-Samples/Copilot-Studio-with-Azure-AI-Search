@@ -21,13 +21,8 @@ tar -xzf gitleaks.tar.gz -C /tmp/gitleaks gitleaks
 mv /tmp/gitleaks/gitleaks /usr/local/bin/
 rm -rf /tmp/gitleaks gitleaks.tar.gz
 
-# Install PowerApps CLI using alternative method
+# Install PowerApps CLI (Microsoft.PowerApps.CLI.Tool)
 echo "Installing PowerApps CLI..."
-# Try the new package name first, fallback to manual installation if needed
-if ! dotnet tool install --global Microsoft.PowerApps.CLI.Tool; then
-    echo "Fallback: Installing PAC CLI manually..."
-    # Download and install PAC CLI manually as backup
-    curl -L "https://aka.ms/PowerApps/PAC/Latest" -o pac-installer.msi || echo "Manual PAC install not available"
-fi
+dotnet tool install --global Microsoft.PowerApps.CLI.Tool
 
 echo "Development tools installation completed successfully!"

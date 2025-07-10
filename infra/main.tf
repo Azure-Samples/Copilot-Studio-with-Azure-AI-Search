@@ -32,9 +32,9 @@ module "copilot_studio" {
   resource_share_user = var.resource_share_user
   # Network inputs
   primary_vnet_name    = azurerm_virtual_network.primary_virtual_network.name
-  primary_subnet_name  = azurerm_subnet.primary_subnet.name
+  primary_subnet_name  = azurerm_subnet.ai_search_primary_subnet.name
   failover_vnet_name   = azurerm_virtual_network.failover_virtual_network.name
-  failover_subnet_name = azurerm_subnet.failover_subnet.name
+  failover_subnet_name = azurerm_subnet.ai_search_failover_subnet.name
 
   # Power Platform properties
   # Note: the Power Platform environment variables have default values that will
@@ -43,8 +43,6 @@ module "copilot_studio" {
   #  and the module will attempt to manage the existing environment instead.
   power_platform_environment         = var.power_platform_environment
   power_platform_managed_environment = var.power_platform_managed_environment
-
-  billing_subscription_id = data.azurerm_client_config.current.subscription_id
 }
 
 # Example tenant settings to support generative answers in Copilot.
