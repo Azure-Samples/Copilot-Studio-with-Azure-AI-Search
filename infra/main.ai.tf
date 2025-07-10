@@ -14,7 +14,7 @@ module "azure_open_ai" {
   cognitive_deployments              = var.cognitive_deployments
   public_network_access_enabled      = false
   outbound_network_access_restricted = true
-  fqdns = ["aoai${random_string.name.id}.openai.azure.com"]
+  fqdns                              = ["aoai${random_string.name.id}.openai.azure.com"]
 
   network_acls = {
     default_action = "Deny"
