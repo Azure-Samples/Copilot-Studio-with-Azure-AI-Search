@@ -3,7 +3,6 @@ $script:providerConfPath = Join-Path $script:infraDir "provider.conf.json"
 $script:providerTfPath = Join-Path $script:infraDir "provider.tf"
 
 function Initialize-LocalStorage {
-    Wait-Debugger
     Write-Host "Function 'Initialize-LocalStorage' called - Local state is enabled"
     
     try {
