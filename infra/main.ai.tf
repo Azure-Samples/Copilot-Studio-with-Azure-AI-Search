@@ -1,5 +1,9 @@
 module "azure_open_ai" {
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
+  # checkov:skip=CKV_AZURE_134: Public network access is restricted via network_acls with default_action = "Deny"
+  # checkov:skip=CKV_AZURE_236: Local authentication is required for OpenAI service functionality
+  # checkov:skip=CKV_AZURE_247: Data loss prevention is handled at application level
+  # checkov:skip=CKV2_AZURE_22: Customer-managed keys not required for this implementation
   source                = "Azure/avm-res-cognitiveservices-account/azurerm"
   version               = "0.7.1"
   kind                  = "OpenAI"

@@ -16,7 +16,7 @@ To enable secure automation and integration with Azure and Power Platform, you n
       pac admin create-service-principal --name "Azd Template Sample Copilot Agent Service"
       ```
 
-      **Note**: Remeber to save in a secure place `Application Id` and `Client Secret` generated as an output of this command. You will need it later.
+      **Note**: Remember to save in a secure place `Application Id` and `Client Secret` generated as an output of this command. You will need it later.
 
 1. Assign the following roles to the Service Principal in the Azure subscription where resources
 will be created:
