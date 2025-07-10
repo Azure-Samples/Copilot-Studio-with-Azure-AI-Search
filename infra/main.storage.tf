@@ -11,7 +11,7 @@ module "storage_account_and_container" {
   # checkov:skip=CKV2_AZURE_47: Anonymous blob access is temporarily enabled for initial deployment
   # checkov:skip=CKV2_AZURE_38: Soft delete will be configured in production environment
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
-  version                         = "0.6.2"
+  version                         = "0.6.3"
   account_replication_type        = var.cps_storage_replication_type
   account_tier                    = "Standard"
   account_kind                    = "StorageV2"
