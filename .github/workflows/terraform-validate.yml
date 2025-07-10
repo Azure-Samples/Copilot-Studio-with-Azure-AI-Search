@@ -7,16 +7,9 @@ on:
     paths:
       - 'infra/**'
       - '.github/workflows/terraform_validate.yml'
-  pull_request_target:
-    branches:
-      - main
-    paths:
-      - 'infra/provider.tf'
-      - 'infra/provider.conf.json'
-      - 'infra/.terraform.lock.hcl'
-      
 
 permissions:
+  actions: read # Needed for uploading SARIF reports
   contents: read
   security-events: write
   pull-requests: write  # Allow workflow to comment on PRs
@@ -124,6 +117,27 @@ jobs:
           fi
         working-directory: ./infra
 
+
+
+      - name: GitLeaks Scan
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        with:
+          verbosity: "info"
+          report-format: "sarif"
+          report-path: "./gitleaks-report.sarif"
+
+      - name: Upload GitLeaks SARIF report
+        if: success() || failure()  # Upload even if GitLeaks finds issues
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          directory: ./  # Ensure the report path is correct
+          sarif_file: results.sarif
+          category: gitleaks
+
       - name: Run Checkov action
         id: checkov
         uses: bridgecrewio/checkov-action@d1ecbbd991738bb77267c875eff09fe1f2c6e044 # v12.1347.0
@@ -138,26 +152,14 @@ jobs:
       - name: Upload Checkov SARIF report
         if: success() || failure()  # Upload even if Checkov finds issues
         uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: checkov-results.sarif
-          category: checkov
-
-      - name: GitLeaks Scan
-        id: gitleaks
-        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          verbosity: "info"
-          report-format: "sarif"
-          report-path: "gitleaks-report.sarif"
-        
-      - name: Upload GitLeaks SARIF report
-        if: success() || failure()  # Upload even if GitLeaks finds issues
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: gitleaks-report.sarif
-          category: gitleaks
+          sarif_file: checkov-results.sarif
+          category: checkov
+          wait-for-processing: true  # Wait for processing to complete before proceeding
+
+     
           
       - name: Summary
         if: always()  # Always run this step
