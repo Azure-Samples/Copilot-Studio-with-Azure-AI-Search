@@ -20,6 +20,8 @@ module "storage_account_and_container" {
   # checkov:skip=CKV_AZURE_190: Not supported in the AVM.
   # checkov:skip=CKV_AZURE_244: Not supported in the AVM.
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
+  # checkov:skip=CKV_AZURE_33: Logging is enabled.
+  # checkof:skip=CKV2_AZURE_38: Soft delete is enabled.
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
   version                         = "0.6.2"
   account_replication_type        = var.cps_storage_replication_type
