@@ -196,7 +196,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
     ```
 
     This will provision all the resources including building a search index based on the .pdf files found in `data` folder.
-      - You will be promted to select a location. One of the resource is Azure OpenAI resource, which is currently avaiable in a limited amout if regions. `East US` maybe be the best option for You. Check the [OpenAI model availability table](https://learn.microsoft.com/azure/cognitive-services/openai/concepts/models#model-summary-table-and-region-availability)
+      - You will be prompted to select a location. One of the resources is Azure OpenAI resource, which is currently available in a limited amount of regions. `East US` may be the best option for you. Check the [OpenAI model availability table](https://learn.microsoft.com/azure/cognitive-services/openai/concepts/models#model-summary-table-and-region-availability)
       - In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors.
       - If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify that the storage account's network access settings allow traffic from your IP address. You may need to whitelist your IP or temporarily enable public access, depending on your organization's policy.
 
