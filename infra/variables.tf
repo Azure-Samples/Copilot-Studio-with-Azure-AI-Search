@@ -137,6 +137,34 @@ variable "cps_container_name" {
   description = "The name of the storage container for the Copilot Studio bot's test data."
 }
 
+variable "data_source_type" {
+  type        = string
+  default     = "github"
+  description = "The type of data source for uploading files. Options: 'github' (GitHub repository), 'blob' (Azure Blob Storage), 'local' (local files)"
+  validation {
+    condition     = contains(["github", "blob", "local"], var.data_source_type)
+    error_message = "data_source_type must be one of: github, blob, local"
+  }
+}
+
+variable "data_source_url" {
+  type        = string
+  default     = "https://github.com/Azure-Samples/contoso-web.git"
+  description = "The URL for the data source. GitHub repository URL for 'github' type, Blob Storage URL for 'blob' type, ignored for 'local' type"
+}
+
+variable "data_source_path" {
+  type        = string
+  default     = "public/manuals"
+  description = "The path within the data source containing data files. For 'github': relative path in repo, for 'blob': container path prefix, for 'local': relative path"
+}
+
+variable "data_file_pattern" {
+  type        = string
+  default     = "*"
+  description = "File patterns to match when fetching data, comma-separated (e.g., '*.pdf,*.docx,*.txt,*.md'). Default: '*' (All files)"
+}
+
 variable "cps_storage_replication_type" {
   type        = string
   default     = "LRS"

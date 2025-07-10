@@ -1,51 +1,30 @@
 locals {
-  # Dynamically discover all PDF files in the data directory
-  data_pdf_files = fileset("${path.root}/../data", "*.pdf")
-
-  # Create a map of PDF files for for_each
-  pdf_files_map = {
-    for pdf_file in local.data_pdf_files :
-    replace(pdf_file, ".pdf", "") => pdf_file
-  }
-
   # Force recreation of Python scripts on each deployment
   # This ensures the latest versions are always uploaded
   deployment_timestamp = timestamp()
 }
 
-resource "azurerm_storage_account" "deployment_scripts" {
-  name                     = "deploy${random_string.name.id}"
-  resource_group_name      = azurerm_resource_group.this.name
-  location                 = azurerm_resource_group.this.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  # Allow blob public access for script uploads
-  allow_nested_items_to_be_public = true
-  # Ensure public network access is enabled for deployment scripts
-  public_network_access_enabled = true
-  # Enable shared key access for deployment scripts
-  shared_access_key_enabled = true
-  tags                      = var.tags
 
-  # Explicit network rules with proper bypass for Azure services
-  # This ensures Azure Deployment Scripts can access the storage account
-  network_rules {
-    default_action = "Allow"
-    bypass         = ["AzureServices", "Logging", "Metrics"]
-  }
-
-  # Ensure subnet timing is handled for main storage account dependencies
-  depends_on = [
-    time_sleep.wait_for_subnets
-  ]
-}
 
 resource "azurerm_storage_account" "deployment_container" {
+  # checkov:skip=CKV_AZURE_59: Required for deployment scripts to function with Azure Deployment Scripts service
+  # checkov:skip=CKV_AZURE_44: Using TLS 1.2 minimum, newer versions not yet supported by Deployment Scripts
+  # checkov:skip=CKV_AZURE_206: LRS sufficient for temporary deployment container storage
+  # checkov:skip=CKV_AZURE_190: Required for deployment scripts to access files
+  # checkov:skip=CKV_AZURE_35: Allow action required for Deployment Scripts service access
+  # checkov:skip=CKV_AZURE_33: Queue logging not needed for deployment container storage
+  # checkov:skip=CKV2_AZURE_41: SAS policy not needed for deployment container with managed identity
+  # checkov:skip=CKV2_AZURE_40: Shared key required for Azure Deployment Scripts service
+  # checkov:skip=CKV2_AZURE_33: Private endpoint not compatible with Deployment Scripts requirements
+  # checkov:skip=CKV2_AZURE_38: Soft delete not needed for temporary deployment container
+  # checkov:skip=CKV2_AZURE_47: Blob anonymous access required for deployment scripts
+  # checkov:skip=CKV2_AZURE_1: Customer managed encryption not needed for temporary deployment container
   name                     = "deploycontainer${random_string.name.id}"
   resource_group_name      = azurerm_resource_group.this.name
   location                 = azurerm_resource_group.this.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  min_tls_version          = "TLS1_2"
   # Allow blob public access for script uploads
   allow_nested_items_to_be_public = true
   # Ensure public network access is enabled for deployment scripts
@@ -72,12 +51,13 @@ resource "terraform_data" "force_script_update" {
   input = local.deployment_timestamp
 }
 
-resource "azapi_resource" "run_python_from_storage" {
+resource "azapi_resource" "configure_search_index" {
 
   # Ensure all script files are uploaded and RBAC is fully propagated before running
   depends_on = [
+    azurerm_storage_blob.upload_data_script,
+    azurerm_storage_blob.fetch_data_script,
     azurerm_storage_blob.data_requirements,
-    azurerm_storage_blob.data_upload_script,
     azurerm_storage_blob.search_requirements,
     azurerm_storage_blob.search_index_utils,
     azurerm_storage_blob.search_common_utils,
@@ -85,18 +65,16 @@ resource "azapi_resource" "run_python_from_storage" {
     azurerm_storage_blob.document_index,
     azurerm_storage_blob.document_indexer,
     azurerm_storage_blob.document_skillset,
-    azurerm_storage_blob.pdf_data_files, # PDF files
     null_resource.verify_rbac_propagation,
     time_sleep.wait_for_storage_network,
     time_sleep.wait_for_search_permissions, # Wait for Search Service permissions
-    azurerm_storage_account.deployment_scripts,
     azurerm_storage_account.deployment_container,
     module.storage_account_and_container,
     module.azure_open_ai
   ]
 
   type      = "Microsoft.Resources/deploymentScripts@2023-08-01"
-  name      = "run-python-from-github"
+  name      = "configure-search-index"
   parent_id = azurerm_resource_group.this.id
 
   identity {
@@ -125,27 +103,48 @@ resource "azapi_resource" "run_python_from_storage" {
       scriptContent = <<EOF
         set -euo pipefail
         
-        echo "=== Deployment Script Start ==="
-        echo "Storage accounts: $MAIN_STORAGE_ACCOUNT_NAME, $SCRIPT_STORAGE_ACCOUNT_NAME"
+        echo "=== Search Index Configuration Script Start ==="
+        echo "Storage account: $MAIN_STORAGE_ACCOUNT_NAME"
+        echo "Search service: ${azurerm_search_service.ai_search.name}"
+        echo "Repository URL: $GITHUB_REPO_URL"
         
-        # Verify storage accounts exist
+        # Verify main storage account exists
         az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
-        az storage account show --name $SCRIPT_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
         
         # Setup Python environment
         python3 -m venv /tmp/venv && source /tmp/venv/bin/activate
         pip install --upgrade pip
         
-        # Download scripts and data
+        # Download only the necessary scripts
         mkdir -p /tmp/scripts && cd /tmp/scripts
         az storage blob download-batch --destination . --source scripts --account-name $SCRIPT_STORAGE_ACCOUNT_NAME --auth-mode login
         
-        # Upload data files
+        # Step 1: Fetch data files from source to local directory
+        echo "=== Step 1: Fetching data files from $DATA_SOURCE_TYPE source ==="
         cd data
         pip install -r requirements.txt
-        python upload_data.py --storage_name $MAIN_STORAGE_ACCOUNT_NAME --container_name $DATA_CONTAINER_NAME
         
-        # Configure search index
+        # Create local data directory
+        mkdir -p /tmp/local_data
+        
+        # Fetch data using fetch_data.py
+        python fetch_data.py \
+          --source_type "$DATA_SOURCE_TYPE" \
+          --source_url "$DATA_SOURCE_URL" \
+          --source_path "$DATA_SOURCE_PATH" \
+          --output_dir "/tmp/local_data" \
+          --file_pattern "$DATA_FILE_PATTERN"
+        
+        # Step 2: Upload fetched data files to main storage account
+        echo "=== Step 2: Uploading data files to main storage account ==="
+        python upload_data.py \
+          --storage_account_name "$MAIN_STORAGE_ACCOUNT_NAME" \
+          --container_name "$DATA_CONTAINER_NAME" \
+          --data_path "/tmp/local_data" \
+          --file_pattern "$DATA_FILE_PATTERN"
+        
+        # Step 3: Configure search index
+        echo "=== Step 3: Configuring search index ==="
         cd ../src/search
         pip install -r requirements.txt
         python index_utils.py \
@@ -158,12 +157,12 @@ resource "azapi_resource" "run_python_from_storage" {
           --container_name $DATA_CONTAINER_NAME \
           --aisearch_key "$AI_SEARCH_ADMIN_KEY"
           
-        echo "=== Deployment script completed successfully ==="
+        echo "=== Search index configuration completed successfully ==="
       EOF
       environmentVariables = [
         {
           name  = "SCRIPT_STORAGE_ACCOUNT_NAME"
-          value = "${azurerm_storage_account.deployment_scripts.name}"
+          value = "${azurerm_storage_account.deployment_container.name}"
         },
         {
           name  = "MAIN_STORAGE_ACCOUNT_NAME"
@@ -180,6 +179,26 @@ resource "azapi_resource" "run_python_from_storage" {
         {
           name  = "AI_SEARCH_ADMIN_KEY"
           value = "${azurerm_search_service.ai_search.primary_key}"
+        },
+        {
+          name  = "DATA_SOURCE_TYPE"
+          value = var.data_source_type
+        },
+        {
+          name  = "DATA_SOURCE_URL"
+          value = var.data_source_url
+        },
+        {
+          name  = "DATA_SOURCE_PATH"
+          value = var.data_source_path
+        },
+        {
+          name  = "DATA_FILE_PATTERN"
+          value = var.data_file_pattern
+        },
+        {
+          name  = "GITHUB_REPO_URL"
+          value = var.data_source_url
         }
       ]
     }
@@ -190,37 +209,30 @@ resource "azapi_resource" "run_python_from_storage" {
 resource "time_sleep" "wait_for_rbac" {
   depends_on = [
     # Terraform storage access
-    azurerm_role_assignment.terraform_deployment_scripts_file_access,
     azurerm_role_assignment.terraform_deployment_container_storage_access,
     azurerm_role_assignment.terraform_deployment_container_file_access,
     # Script identity storage permissions
-    azurerm_role_assignment.script_deployment_scripts_storage_owner,
-    azurerm_role_assignment.script_deployment_scripts_blob_owner,
-    azurerm_role_assignment.script_deployment_scripts_file_owner,
     azurerm_role_assignment.script_deployment_container_storage_owner,
     azurerm_role_assignment.script_deployment_container_blob_owner,
     azurerm_role_assignment.script_deployment_container_file_owner,
-    # Main storage permissions
+    # Main storage permissions (write access needed for upload_data.py to upload data files)
     azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,
-    azurerm_role_assignment.script_main_storage_reader,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
     azurerm_role_assignment.script_search_index_data_contributor,
-    azurerm_role_assignment.script_search_index_data_reader,
     # Azure OpenAI permissions
     azurerm_role_assignment.script_cognitive_services_openai_user,
-    azurerm_role_assignment.script_cognitive_services_contributor,
     # Other permissions
     azurerm_role_assignment.script_container_apps_contributor
   ]
-  create_duration = "180s" # Increased to 3 minutes for better propagation of all roles including Search Service
+  create_duration = "30s"
 }
 
 # Additional time sleep for storage account to be fully ready for network access
 resource "time_sleep" "wait_for_storage_network" {
   depends_on = [
-    azurerm_storage_account.deployment_scripts,
+    azurerm_storage_account.deployment_container,
     time_sleep.wait_for_rbac
   ]
   create_duration = "30s"
@@ -231,46 +243,29 @@ resource "time_sleep" "wait_for_search_permissions" {
   depends_on = [
     azurerm_role_assignment.script_search_service_contributor,
     azurerm_role_assignment.script_search_index_data_contributor,
-    azurerm_role_assignment.script_search_index_data_reader,
     time_sleep.wait_for_rbac
   ]
-  create_duration = "60s" # Extra wait for Search Service permissions
+  create_duration = "30s"
 }
 
 # Upload scripts to storage for deployment script execution
 resource "azurerm_storage_container" "scripts" {
+  # checkov:skip=CKV_AZURE_34: Blob access required for deployment scripts to download files
+  # checkov:skip=CKV2_AZURE_21: Logging not needed for temporary deployment scripts container
   name                  = "scripts"
-  storage_account_id    = azurerm_storage_account.deployment_scripts.id
+  storage_account_id    = azurerm_storage_account.deployment_container.id
   container_access_type = "blob"
 
   depends_on = [
-    azurerm_storage_account.deployment_scripts,
+    azurerm_storage_account.deployment_container,
     time_sleep.wait_for_rbac # Ensure RBAC is ready for script execution
   ]
 }
 
 # Upload data directory files
-resource "azurerm_storage_blob" "data_requirements" {
-  name                   = "data/requirements.txt"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
-  storage_container_name = azurerm_storage_container.scripts.name
-  type                   = "Block"
-  source                 = "${path.root}/../data/requirements.txt"
-
-  depends_on = [
-    azurerm_storage_container.scripts,
-    time_sleep.wait_for_rbac # Only need RBAC propagation for script execution
-  ]
-
-  # Force recreation on each deployment to ensure latest version
-  lifecycle {
-    replace_triggered_by = [terraform_data.force_script_update]
-  }
-}
-
-resource "azurerm_storage_blob" "data_upload_script" {
+resource "azurerm_storage_blob" "upload_data_script" {
   name                   = "data/upload_data.py"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../data/upload_data.py"
@@ -286,10 +281,46 @@ resource "azurerm_storage_blob" "data_upload_script" {
   }
 }
 
+resource "azurerm_storage_blob" "fetch_data_script" {
+  name                   = "data/fetch_data.py"
+  storage_account_name   = azurerm_storage_account.deployment_container.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source                 = "${path.root}/../data/fetch_data.py"
+
+  depends_on = [
+    azurerm_storage_container.scripts,
+    time_sleep.wait_for_rbac
+  ]
+
+  # Force recreation on each deployment to ensure latest version
+  lifecycle {
+    replace_triggered_by = [terraform_data.force_script_update]
+  }
+}
+
+resource "azurerm_storage_blob" "data_requirements" {
+  name                   = "data/requirements.txt"
+  storage_account_name   = azurerm_storage_account.deployment_container.name
+  storage_container_name = azurerm_storage_container.scripts.name
+  type                   = "Block"
+  source                 = "${path.root}/../data/requirements.txt"
+
+  depends_on = [
+    azurerm_storage_container.scripts,
+    time_sleep.wait_for_rbac
+  ]
+
+  # Force recreation on each deployment to ensure latest version
+  lifecycle {
+    replace_triggered_by = [terraform_data.force_script_update]
+  }
+}
+
 # Upload src/search directory files
 resource "azurerm_storage_blob" "search_requirements" {
   name                   = "src/search/requirements.txt"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/requirements.txt"
@@ -307,7 +338,7 @@ resource "azurerm_storage_blob" "search_requirements" {
 
 resource "azurerm_storage_blob" "search_index_utils" {
   name                   = "src/search/index_utils.py"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_utils.py"
@@ -325,7 +356,7 @@ resource "azurerm_storage_blob" "search_index_utils" {
 
 resource "azurerm_storage_blob" "search_common_utils" {
   name                   = "src/search/common_utils.py"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/common_utils.py"
@@ -344,7 +375,7 @@ resource "azurerm_storage_blob" "search_common_utils" {
 # Upload index configuration files
 resource "azurerm_storage_blob" "document_data_source" {
   name                   = "src/search/index_config/documentDataSource.json"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentDataSource.json"
@@ -362,7 +393,7 @@ resource "azurerm_storage_blob" "document_data_source" {
 
 resource "azurerm_storage_blob" "document_index" {
   name                   = "src/search/index_config/documentIndex.json"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentIndex.json"
@@ -380,7 +411,7 @@ resource "azurerm_storage_blob" "document_index" {
 
 resource "azurerm_storage_blob" "document_indexer" {
   name                   = "src/search/index_config/documentIndexer.json"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentIndexer.json"
@@ -398,7 +429,7 @@ resource "azurerm_storage_blob" "document_indexer" {
 
 resource "azurerm_storage_blob" "document_skillset" {
   name                   = "src/search/index_config/documentSkillSet.json"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
+  storage_account_name   = azurerm_storage_account.deployment_container.name
   storage_container_name = azurerm_storage_container.scripts.name
   type                   = "Block"
   source                 = "${path.root}/../src/search/index_config/documentSkillSet.json"
@@ -414,22 +445,6 @@ resource "azurerm_storage_blob" "document_skillset" {
   }
 }
 
-# Upload all PDF data files to deployment script storage dynamically
-resource "azurerm_storage_blob" "pdf_data_files" {
-  for_each = local.pdf_files_map
-
-  name                   = "data/${each.value}"
-  storage_account_name   = azurerm_storage_account.deployment_scripts.name
-  storage_container_name = azurerm_storage_container.scripts.name
-  type                   = "Block"
-  source                 = "${path.root}/../data/${each.value}"
-
-  depends_on = [
-    azurerm_storage_container.scripts,
-    time_sleep.wait_for_rbac
-  ]
-}
-
 # Null resource to verify RBAC propagation before script execution
 resource "null_resource" "verify_rbac_propagation" {
   depends_on = [
@@ -437,19 +452,13 @@ resource "null_resource" "verify_rbac_propagation" {
     # Storage permissions
     azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_main_storage_file_contributor,
-    azurerm_role_assignment.script_main_storage_reader,
-    azurerm_role_assignment.script_deployment_scripts_storage_owner,
-    azurerm_role_assignment.script_deployment_scripts_blob_owner,
-    azurerm_role_assignment.script_deployment_scripts_file_owner,
     azurerm_role_assignment.script_deployment_container_storage_owner,
     azurerm_role_assignment.script_deployment_container_blob_owner,
     azurerm_role_assignment.script_deployment_container_file_owner,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
     azurerm_role_assignment.script_search_index_data_contributor,
-    azurerm_role_assignment.script_search_index_data_reader,
     # Azure OpenAI permissions
-    azurerm_role_assignment.script_cognitive_services_openai_user,
-    azurerm_role_assignment.script_cognitive_services_contributor
+    azurerm_role_assignment.script_cognitive_services_openai_user
   ]
 }
