@@ -43,6 +43,8 @@ module "copilot_studio" {
   #  and the module will attempt to manage the existing environment instead.
   power_platform_environment         = var.power_platform_environment
   power_platform_managed_environment = var.power_platform_managed_environment
+
+  billing_subscription_id = data.azurerm_client_config.current.subscription_id
 }
 
 # Example tenant settings to support generative answers in Copilot.
