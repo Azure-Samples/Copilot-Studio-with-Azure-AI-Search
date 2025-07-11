@@ -203,7 +203,7 @@ variable "use_billing_policy" {
 variable "power_platform_billing_policy" {
   type = object({
     should_create = optional(bool, false)
-    name     = string
+    name          = string
   })
   default = {
     name = "copilotStudioBillingPolicy"
