@@ -9,6 +9,21 @@ variable "failover_vnet_name" {
 }
 
 
+variable "power_platform_billing_policy" {
+  type = object({
+    should_create = optional(bool, false)
+    name     = string
+  })
+  description = <<DESCRIPTION
+  - `name`: The name of the Power Platform billing policy.
+  - `should_create`: If set to false, the billing policy will not be created. Defaults to false.
+DESCRIPTION
+}
+
+variable "subscription_id" {
+  description = "The Azure subscription ID to use for billing."
+  type        = string
+}
 
 variable "power_platform_environment" {
   type = object({
