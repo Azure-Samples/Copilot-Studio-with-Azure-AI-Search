@@ -16,7 +16,7 @@ resource "azurerm_storage_account" "deployment_container" {
   # checkov:skip=CKV2_AZURE_41: SAS policy not needed for deployment container with managed identity
   # checkov:skip=CKV2_AZURE_40: Shared key required for Azure Deployment Scripts service
   # checkov:skip=CKV2_AZURE_33: Private endpoint not compatible with Deployment Scripts requirements
-  # checkov:skip=CKV2_AZURE_38: Soft delete not needed for temporary deployment container
+  # checkov:skip=CKV2_AZURE_38: Enabling soft delete for deployment container protection
   # checkov:skip=CKV2_AZURE_47: Blob anonymous access required for deployment scripts
   # checkov:skip=CKV2_AZURE_1: Customer managed encryption not needed for temporary deployment container
   name                     = "deploycontainer${random_string.name.id}"
@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "deployment_container" {
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
   # Allow blob public access for script uploads
-  allow_nested_items_to_be_public = true
+  allow_nested_items_to_be_public = false
   # Ensure public network access is enabled for deployment scripts
   public_network_access_enabled = true
   tags                          = var.tags
@@ -36,6 +36,13 @@ resource "azurerm_storage_account" "deployment_container" {
   network_rules {
     default_action = "Allow"
     bypass         = ["AzureServices", "Logging", "Metrics"]
+  }
+
+  # Enable soft delete for blob protection and recovery
+  blob_properties {
+    delete_retention_policy {
+      days = 7
+    }
   }
 
   # Ensure subnet timing is handled for main storage account dependencies

@@ -112,7 +112,6 @@ def upload_data_files(
                 upload_count += 1
             except Exception as e:
                 logger.error(f"Exception uploading file name {file_name}: {e}")
-                raise from e
     
     logger.info(f"Successfully uploaded {upload_count} files matching patterns {file_patterns}.")
 

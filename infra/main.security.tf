@@ -122,12 +122,16 @@ resource "azurerm_role_assignment" "script_container_apps_contributor" {
 # TERRAFORM PRINCIPAL PERMISSIONS (for deployment-time operations)
 # ============================================================================
 
-
-
 resource "azurerm_role_assignment" "terraform_deployment_container_storage_access" {
   principal_id         = data.azurerm_client_config.current.object_id
   scope                = azurerm_storage_account.deployment_container.id
-  role_definition_name = "Storage Blob Data Contributor"
+  role_definition_name = "Storage Blob Data Owner"
+}
+
+resource "azurerm_role_assignment" "terraform_deployment_container_account_contributor" {
+  principal_id         = data.azurerm_client_config.current.object_id
+  scope                = azurerm_storage_account.deployment_container.id
+  role_definition_name = "Storage Account Contributor"
 }
 
 resource "azurerm_role_assignment" "terraform_deployment_container_file_access" {
