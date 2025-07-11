@@ -29,7 +29,7 @@ resource "azurerm_storage_account" "deployment_container" {
   allow_nested_items_to_be_public = true
   # Ensure public network access is enabled for deployment scripts
   public_network_access_enabled = true
-  tags                      = var.tags
+  tags                          = var.tags
 
   # Explicit network rules with proper bypass for Azure services
   # This ensures Azure Deployment Scripts can access the storage account
@@ -228,7 +228,7 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.terraform_deployment_container_storage_access,
     azurerm_role_assignment.terraform_deployment_container_file_access,
     # Script identity storage permissions
-    azurerm_role_assignment.script_deployment_container_storage_owner,
+    azurerm_role_assignment.script_deployment_container_storage_contributor,
     azurerm_role_assignment.script_deployment_container_blob_owner,
     azurerm_role_assignment.script_deployment_container_file_owner,
     # Main storage permissions (write access needed for upload_data.py to upload data files)
@@ -451,7 +451,7 @@ resource "null_resource" "verify_rbac_propagation" {
     azurerm_role_assignment.script_main_storage_queue_contributor,
     azurerm_role_assignment.script_main_storage_blob_owner,
     azurerm_role_assignment.script_main_storage_file_contributor,
-    azurerm_role_assignment.script_deployment_container_storage_owner,
+    azurerm_role_assignment.script_deployment_container_storage_contributor,
     azurerm_role_assignment.script_deployment_container_blob_owner,
     azurerm_role_assignment.script_deployment_container_file_owner,
     # AI Search permissions

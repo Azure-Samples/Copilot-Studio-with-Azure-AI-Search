@@ -215,53 +215,53 @@ resource "azurerm_network_security_group" "power_platform_primary_nsg" {
 
   # Allow outbound HTTPS for Power Platform services
   security_rule {
-    name                    = "Allow-PowerPlatform-Outbound"
-    priority                = 100
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_ranges = ["443", "80"]
-    source_address_prefixes = var.primary_subnet_address_spaces
+    name                       = "Allow-PowerPlatform-Outbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["443", "80"]
+    source_address_prefixes    = var.primary_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow Azure Storage access
   security_rule {
-    name                    = "Allow-Storage-Outbound"
-    priority                = 110
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.primary_subnet_address_spaces
+    name                       = "Allow-Storage-Outbound"
+    priority                   = 110
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.primary_subnet_address_spaces
     destination_address_prefix = "Storage"
   }
 
   # Allow Azure Cognitive Services access
   security_rule {
-    name                    = "Allow-CognitiveServices-Outbound"
-    priority                = 120
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.primary_subnet_address_spaces
+    name                       = "Allow-CognitiveServices-Outbound"
+    priority                   = 120
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.primary_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow inbound requests from deployment script subnet
   security_rule {
-    name                    = "Allow-DeploymentScript-Inbound"
-    priority                = 130
-    direction               = "Inbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "*"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                         = "Allow-DeploymentScript-Inbound"
+    priority                     = 130
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "Tcp"
+    source_port_range            = "*"
+    destination_port_range       = "*"
+    source_address_prefixes      = var.deployment_script_subnet_address_spaces
     destination_address_prefixes = var.primary_subnet_address_spaces
   }
 }
@@ -275,53 +275,53 @@ resource "azurerm_network_security_group" "power_platform_failover_nsg" {
 
   # Allow outbound HTTPS for Power Platform services
   security_rule {
-    name                    = "Allow-PowerPlatform-Outbound"
-    priority                = 100
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_ranges = ["443", "80"]
-    source_address_prefixes = var.failover_subnet_address_spaces
+    name                       = "Allow-PowerPlatform-Outbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["443", "80"]
+    source_address_prefixes    = var.failover_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow Azure Storage access
   security_rule {
-    name                    = "Allow-Storage-Outbound"
-    priority                = 110
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.failover_subnet_address_spaces
+    name                       = "Allow-Storage-Outbound"
+    priority                   = 110
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.failover_subnet_address_spaces
     destination_address_prefix = "Storage"
   }
 
   # Allow Azure Cognitive Services access
   security_rule {
-    name                    = "Allow-CognitiveServices-Outbound"
-    priority                = 120
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.failover_subnet_address_spaces
+    name                       = "Allow-CognitiveServices-Outbound"
+    priority                   = 120
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.failover_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow inbound requests from deployment script subnet (cross-region)
   security_rule {
-    name                    = "Allow-DeploymentScript-Inbound"
-    priority                = 130
-    direction               = "Inbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "*"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                         = "Allow-DeploymentScript-Inbound"
+    priority                     = 130
+    direction                    = "Inbound"
+    access                       = "Allow"
+    protocol                     = "Tcp"
+    source_port_range            = "*"
+    destination_port_range       = "*"
+    source_address_prefixes      = var.deployment_script_subnet_address_spaces
     destination_address_prefixes = var.failover_subnet_address_spaces
   }
 }
@@ -348,14 +348,14 @@ resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
 
   # Allow outbound from private endpoints to Azure services
   security_rule {
-    name                    = "Allow-PrivateEndpoint-Outbound"
-    priority                = 100
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.primary_pe_subnet_address_spaces
+    name                       = "Allow-PrivateEndpoint-Outbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.primary_pe_subnet_address_spaces
     destination_address_prefix = "*"
   }
 }
@@ -382,14 +382,14 @@ resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
 
   # Allow outbound from private endpoints to Azure services
   security_rule {
-    name                    = "Allow-PrivateEndpoint-Outbound"
-    priority                = 100
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.failover_pe_subnet_address_spaces
+    name                       = "Allow-PrivateEndpoint-Outbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.failover_pe_subnet_address_spaces
     destination_address_prefix = "*"
   }
 }
@@ -420,13 +420,13 @@ resource "azurerm_network_security_group" "github_runner_nsg" {
 
   # Allow outbound to Azure Container Registry
   security_rule {
-    name                    = "Allow-ACR-Outbound"
-    priority                = 110
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
+    name                   = "Allow-ACR-Outbound"
+    priority               = 110
+    direction              = "Outbound"
+    access                 = "Allow"
+    protocol               = "Tcp"
+    source_port_range      = "*"
+    destination_port_range = "443"
     source_address_prefixes = concat(
       var.primary_gh_runner_subnet_address_spaces,
       var.deploy_github_runner && var.enable_failover_github_runner ? var.failover_gh_runner_subnet_address_spaces : []
@@ -436,13 +436,13 @@ resource "azurerm_network_security_group" "github_runner_nsg" {
 
   # Allow Storage access for Container Apps
   security_rule {
-    name                    = "Allow-Storage-Outbound"
-    priority                = 120
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
+    name                   = "Allow-Storage-Outbound"
+    priority               = 120
+    direction              = "Outbound"
+    access                 = "Allow"
+    protocol               = "Tcp"
+    source_port_range      = "*"
+    destination_port_range = "443"
     source_address_prefixes = concat(
       var.primary_gh_runner_subnet_address_spaces,
       var.deploy_github_runner && var.enable_failover_github_runner ? var.failover_gh_runner_subnet_address_spaces : []
@@ -476,27 +476,27 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
 
   # Allow outbound HTTPS for Azure services and package downloads
   security_rule {
-    name                    = "Allow-Azure-Services-Outbound"
-    priority                = 100
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_ranges = ["443", "80"]
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-Azure-Services-Outbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["443", "80"]
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow Storage access for script downloads and data uploads
   security_rule {
-    name                    = "Allow-Storage-Outbound"
-    priority                = 110
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-Storage-Outbound"
+    priority                   = 110
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "Storage"
   }
 
@@ -515,92 +515,92 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
 
   # Allow Cognitive Services access for OpenAI and other AI services
   security_rule {
-    name                    = "Allow-CognitiveServices-Outbound"
-    priority                = 120
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-CognitiveServices-Outbound"
+    priority                   = 120
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow Git clone operations (GitHub)
   security_rule {
-    name                    = "Allow-Git-Outbound"
-    priority                = 130
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_ranges = ["443", "22"]
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-Git-Outbound"
+    priority                   = 130
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["443", "22"]
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow DNS resolution
   security_rule {
-    name                    = "Allow-DNS-Outbound"
-    priority                = 140
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Udp"
-    source_port_range       = "*"
-    destination_port_range  = "53"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-DNS-Outbound"
+    priority                   = 140
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Udp"
+    source_port_range          = "*"
+    destination_port_range     = "53"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "*"
   }
 
   # Allow Azure Resource Manager API access
   security_rule {
-    name                    = "Allow-AzureRM-Outbound"
-    priority                = 150
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-AzureRM-Outbound"
+    priority                   = 150
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "AzureResourceManager"
   }
 
   # Allow Azure Key Vault access
   security_rule {
-    name                    = "Allow-KeyVault-Outbound"
-    priority                = 160
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-KeyVault-Outbound"
+    priority                   = 160
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "AzureKeyVault"
   }
 
   # Allow Azure Active Directory access for managed identity authentication
   security_rule {
-    name                    = "Allow-AAD-Outbound"
-    priority                = 170
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Tcp"
-    source_port_range       = "*"
-    destination_port_range  = "443"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-AAD-Outbound"
+    priority                   = 170
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "AzureActiveDirectory"
   }
 
   # Allow NTP for time synchronization
   security_rule {
-    name                    = "Allow-NTP-Outbound"
-    priority                = 180
-    direction               = "Outbound"
-    access                  = "Allow"
-    protocol                = "Udp"
-    source_port_range       = "*"
-    destination_port_range  = "123"
-    source_address_prefixes = var.deployment_script_subnet_address_spaces
+    name                       = "Allow-NTP-Outbound"
+    priority                   = 180
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Udp"
+    source_port_range          = "*"
+    destination_port_range     = "123"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "*"
   }
 

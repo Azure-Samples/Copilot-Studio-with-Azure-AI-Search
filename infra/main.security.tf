@@ -93,7 +93,7 @@ resource "azurerm_role_assignment" "script_main_storage_account_contributor" {
 }
 
 # --- Deployment Container Storage Account ---
-resource "azurerm_role_assignment" "script_deployment_container_storage_owner" {
+resource "azurerm_role_assignment" "script_deployment_container_storage_contributor" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_storage_account.deployment_container.id
   role_definition_name = "Storage Account Contributor"

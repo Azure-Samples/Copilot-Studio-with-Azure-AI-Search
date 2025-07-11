@@ -13,7 +13,7 @@ resource "azurerm_search_service" "ai_search" {
   public_network_access_enabled = var.ai_search_config.public_network_access_enabled
   replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
-  
+
   # Enable both key-based and Entra ID authentication
   # Key-based auth for backward compatibility and Power Platform
   local_authentication_enabled = true
