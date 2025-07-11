@@ -17,7 +17,6 @@ from azure.search.documents.indexes.models import (
     SearchIndexerSkillset
 )
 from common_utils import absolute_url, valid_name
-import subprocess
 
 logger = logging.getLogger(__name__)
 
