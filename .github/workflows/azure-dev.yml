@@ -34,6 +34,7 @@ jobs:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
 
+
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
         uses: actions/checkout@v4
@@ -49,6 +50,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.0
+
 
       - name: Install TFLint
         uses: terraform-linters/setup-tflint@v4
@@ -83,16 +85,13 @@ jobs:
       - name: Install Checkov
         run: pip install checkov
 
+
       - name: Login to Azure with Federated Identity
         uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Authenticate with Azure Developer CLI
-        run: |
-          azd auth login --client-id ${{ vars.AZURE_CLIENT_ID }} --tenant-id ${{ vars.AZURE_TENANT_ID }} --federated-credential-provider "github"
 
       - name: Provision Infrastructure
         env:
@@ -135,7 +134,16 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG $env:GITHUB_RUNNER_IMAGE_TAG
           azd env set GITHUB_RUNNER_IMAGE_BRANCH $env:GITHUB_RUNNER_IMAGE_BRANCH
 
+
+          azd env set GITHUB_PAT $env:GITHUB_PAT
+          azd env set GITHUB_REPO_OWNER $env:GITHUB_REPO_OWNER
+          azd env set GITHUB_REPO_NAME $env:GITHUB_REPO_NAME
+          azd env set GITHUB_RUNNER_IMAGE_NAME $env:GITHUB_RUNNER_IMAGE_NAME
+          azd env set GITHUB_RUNNER_IMAGE_TAG $env:GITHUB_RUNNER_IMAGE_TAG
+          azd env set GITHUB_RUNNER_IMAGE_BRANCH $env:GITHUB_RUNNER_IMAGE_BRANCH
+
           azd provision --no-prompt
+
 
       - uses: actions/upload-artifact@v4
         if: success() || failure()
@@ -150,10 +158,12 @@ jobs:
         with:
           sarif_file: ./gitleaks-report.sarif
 
+
       - name: Upload Checkov SARIF Report to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
+
 
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
