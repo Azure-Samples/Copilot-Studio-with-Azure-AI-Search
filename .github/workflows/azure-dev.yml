@@ -37,23 +37,23 @@ jobs:
 
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.ref_name }}
 
       - name: Install azd
-        uses: Azure/setup-azd@v2
+        uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
         with:
           version: '1.17.2'  # Specify your desired azd version here
 
       - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: 1.9.0
 
 
       - name: Install TFLint
-        uses: terraform-linters/setup-tflint@v4
+        uses: terraform-linters/setup-tflint@90f302c255ef959cbfb4bd10581afecdb7ece3e6 # v4.1.1
         with:
           tflint_version: v0.49.0
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate
@@ -68,26 +68,27 @@ jobs:
           gitleaks version
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@55ec9447dda3d1cf6bd587150f3262f30ee10815 # v3.4.2
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install Power Platform CLI
-        run: |
-          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
-          pac help
+      - name: Install Power Platform Tools
+        uses: microsoft/powerplatform-actions/actions-install@51f663ea104eb227c3712215ceb2f82827d81c27 # v1.9.0
 
+      - name: Test Power Platform CLI
+        run: |
+          pac version
+          
       - name: Set Up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # 5.6.0
         with:
           python-version: "3.x"
 
       - name: Install Checkov
         run: pip install checkov
 
-
       - name: Login to Azure with Federated Identity
-        uses: azure/login@v2
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
@@ -134,7 +135,6 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG $env:GITHUB_RUNNER_IMAGE_TAG
           azd env set GITHUB_RUNNER_IMAGE_BRANCH $env:GITHUB_RUNNER_IMAGE_BRANCH
 
-
           azd env set GITHUB_PAT $env:GITHUB_PAT
           azd env set GITHUB_REPO_OWNER $env:GITHUB_REPO_OWNER
           azd env set GITHUB_REPO_NAME $env:GITHUB_REPO_NAME
@@ -144,8 +144,7 @@ jobs:
 
           azd provision --no-prompt
 
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: success() || failure()
         with:
           name: sarif-reports
@@ -154,13 +153,13 @@ jobs:
             ./checkov-results.sarif/results_sarif.sarif
 
       - name: Upload Gitleaks SARIF report to Github
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@9b02dc2f60288b463e7a66e39c78829b62780db7 # v2.22.1
         with:
           sarif_file: ./gitleaks-report.sarif
 
 
       - name: Upload Checkov SARIF Report to GitHub
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@9b02dc2f60288b463e7a66e39c78829b62780db7 # v2.22.1
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
 
