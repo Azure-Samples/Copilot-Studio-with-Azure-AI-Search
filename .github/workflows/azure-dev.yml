@@ -84,6 +84,7 @@ jobs:
           fi
           PAC_DIR=$(dirname "$PAC_PATH")
           echo "Found pac at $PAC_PATH"
+          export PATH="$PAC_DIR:$PATH"
           pac version
           
       - name: Set Up Python
