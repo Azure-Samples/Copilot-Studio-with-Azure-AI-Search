@@ -77,6 +77,13 @@ jobs:
 
       - name: Test Power Platform CLI
         run: |
+          PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
+          if [ -z "$PAC_PATH" ]; then
+            echo "PAC CLI not found!" >&2
+            exit 1
+          fi
+          PAC_DIR=$(dirname "$PAC_PATH")
+          echo "Found pac at $PAC_PATH"
           pac version
           
       - name: Set Up Python
