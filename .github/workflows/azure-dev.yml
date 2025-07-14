@@ -99,6 +99,7 @@ jobs:
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
+          secret: ${{ secrets.AZURE_CLIENT_SECRET }} #todo remove this
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
@@ -109,7 +110,7 @@ jobs:
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
 
-          ARM_USE_AZUREAD: "true"
+          #ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
          # ARM_USE_OIDC: "true"
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
