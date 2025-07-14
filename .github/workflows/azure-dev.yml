@@ -176,7 +176,7 @@ jobs:
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
 
-          ARM_USE_AZUREAD: "true"
+          #ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
          # ARM_USE_OIDC: "true"
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
