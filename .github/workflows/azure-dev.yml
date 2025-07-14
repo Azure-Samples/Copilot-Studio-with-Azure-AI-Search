@@ -104,21 +104,25 @@ jobs:
 
       - name: Provision Infrastructure
         env:
-          POWER_PLATFORM_USE_CLI: false
-          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
-          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
-          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
-          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
+          #POWER_PLATFORM_USE_CLI: false
+        #  POWER_PLATFORM_USE_OIDC: "true"
+          POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+
           ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
           ARM_USE_OIDC: "true"
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-          POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-          POWER_PLATFORM_USE_OIDC: "true"
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+          
+          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
+      
           GITHUB_PAT: ${{ secrets.MCS_RUNNER }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO_NAME: ${{ github.event.repository.name }}
@@ -130,18 +134,11 @@ jobs:
           azd config set auth.useAzCliAuth "true"
           azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
           azd env set RESOURCE_SHARE_USER "$env:RESOURCE_SHARE_USER"
-          azd env set POWER_PLATFORM_USE_CLI "false"
+          #azd env set POWER_PLATFORM_USE_CLI "false"
 
           azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
-
-          azd env set GITHUB_PAT $env:GITHUB_PAT
-          azd env set GITHUB_REPO_OWNER $env:GITHUB_REPO_OWNER
-          azd env set GITHUB_REPO_NAME $env:GITHUB_REPO_NAME
-          azd env set GITHUB_RUNNER_IMAGE_NAME $env:GITHUB_RUNNER_IMAGE_NAME
-          azd env set GITHUB_RUNNER_IMAGE_TAG $env:GITHUB_RUNNER_IMAGE_TAG
-          azd env set GITHUB_RUNNER_IMAGE_BRANCH $env:GITHUB_RUNNER_IMAGE_BRANCH
 
           azd env set GITHUB_PAT $env:GITHUB_PAT
           azd env set GITHUB_REPO_OWNER $env:GITHUB_REPO_OWNER
@@ -175,21 +172,24 @@ jobs:
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
-          POWER_PLATFORM_USE_CLI: false
-          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
-          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
-          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
-          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
+         # POWER_PLATFORM_USE_CLI: false
+          POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+
           ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
           ARM_USE_OIDC: "true"
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-          POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-          POWER_PLATFORM_USE_OIDC: "true"
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
+         
+         # POWER_PLATFORM_USE_OIDC: "true"
         shell: pwsh
         run: |
 
