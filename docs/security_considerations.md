@@ -31,6 +31,7 @@ The template provides a secure foundation, but users are responsible for:
 ⚠️ **Advanced Monitoring**: Configuring security-focused logging and alerting  
 ⚠️ **AI-Specific Protections**: Implementing prompt validation and content filtering  
 ⚠️ **Compliance Configuration**: Adding controls for specific regulatory requirements  
+⚠️ **Storage Configuration**: The Azure Storage resources are configured for evaluation and should be carefully reviewed
 
 ### Security Baseline
 
