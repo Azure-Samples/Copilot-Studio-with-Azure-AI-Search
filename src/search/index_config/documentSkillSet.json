@@ -20,8 +20,8 @@
                     "targetName": "chunks"
                 }
             ],
-            "maxChunkSize": 512,
-            "maxChunkCount": 1000
+            "maxChunkSize": 1024,
+            "maxChunkCount": 100
         },
         {
             "@odata.type": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",

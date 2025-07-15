@@ -446,6 +446,7 @@ terraform.rc
 *.sarif
 
 # Lint results
+# Lint results
 infra_lint_res.xml
 
 # Gitleaks
