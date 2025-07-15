@@ -26,7 +26,7 @@ This document explains the security controls implemented in the **Copilot Studio
 
 The template provides a secure foundation, but users are responsible for:
 
-⚠️ **Enhanced Network Security**: Adding Network Security Groups and additional private endpoints  
+⚠️ **Enhanced Network Security**: Basic Network Security Groups are provided, but they should be updated for your organization's specific security requirements
 ⚠️ **Secrets Management**: Implementing Azure Key Vault for centralized secret storage  
 ⚠️ **Advanced Monitoring**: Configuring security-focused logging and alerting  
 ⚠️ **AI-Specific Protections**: Implementing prompt validation and content filtering  
