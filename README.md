@@ -159,7 +159,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
 1. Login to your Power Platform:
 
     ```shell
-    pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID>
+    pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID> --accept-cleartext-caching
     export POWER_PLATFORM_USE_CLI="true"
     ```
 

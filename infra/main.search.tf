@@ -3,8 +3,8 @@ locals {
 }
 
 resource "azurerm_search_service" "ai_search" {
-  # checkov:skip=CKV_AZURE_209: Ensure that Azure Cognitive Search maintains SLA for search index queries
-  # checkov:skip=CKV_AZURE_208: Ensure that Azure Cognitive Search maintains SLA for index updates
+  # checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
+  # checkov:skip=CKV_AZURE_208: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
   name                          = local.search_name
   location                      = var.primary_location
   resource_group_name           = azurerm_resource_group.this.name
@@ -13,8 +13,11 @@ resource "azurerm_search_service" "ai_search" {
   public_network_access_enabled = var.ai_search_config.public_network_access_enabled
   replica_count                 = var.ai_search_config.replica_count
   tags                          = var.tags
-  local_authentication_enabled  = true
-  authentication_failure_mode   = "http403"
+
+  # Enable both key-based and Entra ID authentication
+  # Key-based auth for backward compatibility and Power Platform
+  local_authentication_enabled = true
+  authentication_failure_mode  = "http403"
 
   identity {
     type = "SystemAssigned"

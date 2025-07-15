@@ -2,10 +2,11 @@ kind: KnowledgeSourceConfiguration
 source:
   kind: AzureAISearchSource
   connectionReference: crf6d_aiSearchConnectionExample.cr.ERQq7Off
-  indexName: vector-1746811780576
+  indexName: default-index
   selectFields:
     - chunk_id
     - parent_id
     - chunk
     - title
     - text_vector
+  semanticConfigurationName: vector-default-index-semantic-configuration
