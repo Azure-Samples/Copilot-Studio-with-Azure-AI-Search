@@ -162,10 +162,6 @@ jobs:
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
 
-      - name: test
-        run: |
-          echo "Run AZD Down Input: ${{ github.event.inputs.run_azd_down }}"
-
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == 'true' }}
         env:
