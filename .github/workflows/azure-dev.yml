@@ -145,7 +145,6 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
 
-
           # Ensure PAC CLI is in PATH
           PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
           if [ -z "$PAC_PATH" ]; then
