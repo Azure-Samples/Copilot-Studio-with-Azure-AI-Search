@@ -24,6 +24,7 @@ on:
 
 permissions:
   actions: read # Needed for uploading SARIF reports
+  security-events: write  # Needed for uploading SARIF reports
   id-token: write
   contents: read
 
