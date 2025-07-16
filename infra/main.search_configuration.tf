@@ -278,7 +278,7 @@ resource "azurerm_storage_container" "scripts" {
   # checkov:skip=CKV2_AZURE_21: Logging not needed for temporary deployment scripts container
   name                  = "scripts"
   storage_account_id    = azurerm_storage_account.deployment_container.id
-  container_access_type = "blob"
+  container_access_type = "private"
 
   depends_on = [
     azurerm_storage_account.deployment_container,
