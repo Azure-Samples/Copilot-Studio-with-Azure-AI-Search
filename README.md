@@ -75,9 +75,17 @@ This architecture ensures that sensitive enterprise data never traverses public 
   - [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
   - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled  
 - **Power Platform licenses**. The designated user must have the following Power Platform licenses assigned:
-  - Microsoft Power Apps
-  - Power Automate  
-  - Copilot Studio
+    - **Microsoft Power Apps**
+    - **Power Automate**
+    - **Copilot Studio**
+
+    To simplify license management, you can use an Azure subscription with a Billing Policy instead of assigning licenses directly. Configure this by using the following flag:
+
+    ```shell
+    azd env set USE_BILLING_POLICY "true"
+    ```
+
+    **Note:** After creating the Billing Policy, navigate to the [Power Platform Admin Center](https://aka.ms/ppac) and ensure that the *Copilot Studio* product is selected. This is a known issue that will be addressed in future updates.
 
 ### User Configuration
 
@@ -161,7 +169,6 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     ```shell
     pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID> --accept-cleartext-caching
-    export POWER_PLATFORM_USE_CLI="true"
     ```
 
     *Note: the `pac auth create` command may return a warning about being unable to connect to a Dataverse organization. This is expected, and will not impact the deployment.*
