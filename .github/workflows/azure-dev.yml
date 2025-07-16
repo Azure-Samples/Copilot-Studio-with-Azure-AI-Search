@@ -185,10 +185,10 @@ jobs:
           
         shell: bash
         run: |
-          azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
-          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
-          azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
-          azd env set RESOURCE_SHARE_USER "$env:RESOURCE_SHARE_USER"
+          azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
+          azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
+          azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
+          azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
 
-          azd env select $env:AZURE_ENV_NAME
+          azd env select "$AZURE_ENV_NAME"
           azd down --no-prompt --force --purge
