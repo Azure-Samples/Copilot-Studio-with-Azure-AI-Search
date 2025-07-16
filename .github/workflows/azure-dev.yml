@@ -89,7 +89,7 @@ jobs:
       
       - name: Install Power Platform CLI
         run: |
-          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.44.2
           pac help
 
 
