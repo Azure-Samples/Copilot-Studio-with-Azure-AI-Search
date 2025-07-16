@@ -5,7 +5,7 @@ locals {
 resource "powerplatform_billing_policy" "this" {
   count = local.create_managed_environment && var.power_platform_billing_policy.should_create ? 1 : 0
 
-  name = "${var.power_platform_billing_policy.name}${var.unique_id}"
+  name     = "${var.power_platform_billing_policy.name}${var.unique_id}"
   location = var.power_platform_environment.location
   status   = "Enabled"
   billing_instrument = {
