@@ -23,6 +23,7 @@ on:
 # GitHub Actions workflow to deploy to Azure using azd
 
 permissions:
+  actions: read # Needed for uploading SARIF reports
   id-token: write
   contents: read
 
@@ -74,18 +75,6 @@ jobs:
 
       - name: Install Power Platform Tools
         uses: microsoft/powerplatform-actions/actions-install@51f663ea104eb227c3712215ceb2f82827d81c27 # v1.9.0
-
-      # - name: Test Power Platform CLI
-      #   run: |
-      #     PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
-      #     if [ -z "$PAC_PATH" ]; then
-      #       echo "PAC CLI not found!" >&2
-      #       exit 1
-      #     fi
-      #     PAC_DIR=$(dirname "$PAC_PATH")
-      #     echo "Found pac at $PAC_PATH"
-      #     export PATH="$PAC_DIR:$PATH"
-      #     pac help
       
       - name: Install Power Platform CLI
         run: |
@@ -150,16 +139,6 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_NAME "$GITHUB_RUNNER_IMAGE_NAME"
           azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
-
-          # # Ensure PAC CLI is in PATH
-          #   PAC_PATH=$(find /tmp -type f -name pac -executable 2>/dev/null | head -n 1)
-          #   if [ -z "$PAC_PATH" ]; then
-          #     echo "PAC CLI not found!" >&2
-          #     exit 1
-          #   fi
-          #   PAC_DIR=$(dirname "$PAC_PATH")
-          #   echo "Found pac at $PAC_PATH"
-          #   export PATH="$PAC_DIR:$PATH"
 
           azd provision --no-prompt
 
