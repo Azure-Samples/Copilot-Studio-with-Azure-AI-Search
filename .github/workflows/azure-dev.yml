@@ -99,20 +99,19 @@ jobs:
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
-          secret: ${{ secrets.AZURE_CLIENT_SECRET }} #todo remove this
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
       - name: Provision Infrastructure
         env:
           #POWER_PLATFORM_USE_CLI: false
-        #  POWER_PLATFORM_USE_OIDC: "true"
+          POWER_PLATFORM_USE_OIDC: "true"
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
 
-          #ARM_USE_AZUREAD: "true"
+          ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
-         # ARM_USE_OIDC: "true"
+          ARM_USE_OIDC: "true"
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
@@ -176,10 +175,11 @@ jobs:
          # POWER_PLATFORM_USE_CLI: false
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          POWER_PLATFORM_USE_OIDC: "true"
 
-          #ARM_USE_AZUREAD: "true"
+          ARM_USE_AZUREAD: "true"
           ARM_STORAGE_USE_AZUREAD: "true"
-         # ARM_USE_OIDC: "true"
+          ARM_USE_OIDC: "true"
           ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
@@ -189,11 +189,9 @@ jobs:
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
-         
-         # POWER_PLATFORM_USE_OIDC: "true"
+          
         shell: pwsh
         run: |
-
           azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
