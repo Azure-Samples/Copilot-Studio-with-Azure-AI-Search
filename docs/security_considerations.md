@@ -40,6 +40,7 @@ The template establishes a **security baseline** suitable for development and te
 ### Quick Start Security Checklist
 
 Before deploying to production:
+
 1. ✅ Review and implement network hardening recommendations
 2. ✅ Configure Azure Key Vault for secrets management  
 3. ✅ Set up enhanced monitoring and alerting
@@ -58,37 +59,39 @@ The Copilot Studio with Azure AI Search template implements a **secure-by-design
 graph TB
     subgraph "Internet"
         User[End User]
-        DevOps[DevOps Engineer]
         Maker[Copilot Developer]
+        DevOps[DevOps Engineer]
     end
     
-    subgraph "GitHub"
-        GH_Repo[Repository]
+    subgraph GH_Repo[GitHub Repository]
         GH_Actions[GitHub Actions]
-        GH_Runner[Self-Hosted Runner<br/>Optional]
+        GH_Runner[GitHub Runner<br/>*Self-Hosted Optional*]
+        GH_Terraform[Terraform]
     end
     
     subgraph AZS[Azure Subscription]
         subgraph "Resource Group"
             subgraph PVNET[Primary VNet]
+                PE1[Private Endpoint<br/>Primary]
                 PP_Subnet[Power Platform<br/>Subnet]
                 AIS_Subnet[AI Search<br/>Subnet] 
                 PE_Subnet[Private Endpoint<br/>Subnet]
-                GHR_Subnet[GitHub Runner<br/>Subnet<br/>Optional]
+                GHR_Subnet[GitHub Runner<br/>Subnet<br/>*Optional*]
             end
             
             subgraph FVNET[Failover VNet]
                 PP_Subnet_F[Power Platform<br/>Subnet]
                 AIS_Subnet_F[AI Search<br/>Subnet]
                 PE_Subnet_F[Private Endpoint<br/>Subnet]
-                GHR_Subnet_F[GitHub Runner<br/>Subnet<br/>Optional]
+                GHR_Subnet_F[GitHub Runner<br/>Subnet<br/>*Optional*]
+                PE2[Private Endpoint<br/>Failover]
             end
             
-            AOAI[Azure OpenAI<br/>System Assigned MI]
-            AIS[Azure AI Search<br/>System Assigned MI]
-            Storage[Storage Account<br/>System Assigned MI]
-            PE1[Private Endpoint<br/>Primary]
-            PE2[Private Endpoint<br/>Failover]
+            AOAI[Azure OpenAI]
+            AIS[Azure AI Search]
+            Storage[Storage Account]
+
+            
             DNS[Private DNS Zone]
             ACR[Container Registry<br/>Optional]
         end
@@ -101,7 +104,7 @@ graph TB
         end
         Channel[Channel]
         MCS[Copilot Studio]
-        subgraph PPEP[Power Platform Enterprise Policy]
+        subgraph PPEP[Enterprise Policy]
             NIP[Network Injection Policy]
         end
     end
@@ -109,29 +112,35 @@ graph TB
     subgraph "Microsoft Entra Tenant"
         ENTRA_SP[Service Principal]
     end
+
+    AZCLI[Azure CLI]
     
-    Maker --> MCS
+    Maker --> |🔒 Entra Id| MCS
     MCS --> PP_Env
-    User --> Channel
+    User --> |🔒 Entra Id| Channel
     Channel --> CS_Agent
     CS_Agent --> PP_Conn
     PP_Conn --> PE1
     PP_Conn --> PE2
-    PE1 --> AIS
-    PE2 --> AIS
-    AIS --> AOAI
-    AIS --> Storage
+    PE1 -->  |🔒 API Keys| AIS
+    PE2 --> |🔒 API Keys| AIS
+    AIS --> |🔒 System Assigned Managed Identity| AOAI
+    AIS --> |🔒 System Assigned Managed Identity| Storage
     
-    DevOps --> GH_Repo
-    GH_Actions --> AZS
-    GH_Actions --> ENTRA_SP
-    GH_Actions --> PP
+    DevOps --> |🔒 GitHub SSO| GH_Repo
+    DevOps --> AZCLI
+    AZCLI --> |🔒 OIDC <br> Preferred| ENTRA_SP
+    AZCLI --> |🔒 Client Id & Secret <br> Optional| ENTRA_SP
+    GH_Terraform --> |🎮 Azure RM <br> Control Plane| AZS
+    GH_Terraform --> |🎮 Power Platform APIs <br> Control Plane| PP
+    GH_Actions --> AZCLI
     GH_Runner --> GH_Actions
+
+    GH_Actions --> GH_Terraform
 
     NIP --> PVNET
     NIP --> FVNET
     PP_Env --> NIP
-    
 ```
 
 ## Threat Model and Risk Assessment
@@ -162,20 +171,18 @@ This is the flow when end users interact with your copilot:
 
 ```mermaid
 graph LR
-    User[End User] --> Channel[Channel<br/>Teams/Web/etc]
-    Channel --> |Power Platform Auth| Agent[Copilot Studio Agent]
-    Agent --> |API Key via Connector| AISearch[Azure AI Search]
-    AISearch --> |Managed Identity| OpenAI[Azure OpenAI]
-    AISearch --> |Managed Identity| Storage[Storage Account]
-    
-    classDef userFlow fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-    class User,Channel,Agent,AISearch,OpenAI,Storage userFlow
+    User[End User] --> | 🗝️ EntraID <br> 🔒 Channel Specific Auth <br> 🛜 Public Internet/Private Intranet | Channel[Channel<br/>Teams/Web/Direct To Engine/etc]
+    Channel --> Agent[Copilot Studio Agent]
+    Agent --> Connector[AI Search Connector]
+    Connector --> |🗝️ API Key via Connector <br> 🔒 Key Type: Admin <br> 🛜 Private Endpoint| AISearch[Azure AI Search]
+    AISearch --> |🗝️ Managed Identity <br> 🔒 RBAC: Cognitive Services OpenAI User <br> 🛜 Private Endpoint| OpenAI[Azure OpenAI]
+    AISearch --> |🗝️ Managed Identity <br> 🔒 RBAC: Storage Blob Data Reader <br> 🛜 Private Endpoint| Storage[Storage Account]
 ```
 
 | Trust Boundary | Authentication Method | Security Controls | What You Need to Know |
 |-----------------|----------------------|-------------------|----------------------|
 | **User to Copilot Studio Agent** | Channel-specific authentication (Teams, Web, etc.) | Channel security policies, user authentication | Users authenticate through their chosen channel (Teams, web chat, etc.) |
-| **Copilot Agent to AI Search** | API key authentication via AI Search Connector | DLP policies, private endpoints, network restrictions, query validation | Connection uses API keys stored securely in Power Platform |
+| **Copilot Agent to AI Search** | API key authentication via AI Search Connector | DLP policies, private endpoints, network restrictions, query validation | Connection uses API keys stored securely in Power Platform. Opt for Service Principal to harden security |
 | **AI Search to Azure OpenAI** | Managed identity authentication | Content filtering, token validation, private endpoints, VNet restrictions | AI Search uses its managed identity to access OpenAI models |
 | **AI Search to Storage Account** | Managed identity authentication | Private endpoints, blob permissions, audit logging | AI Search accesses documents using managed identity |
 
@@ -185,20 +192,17 @@ This is the flow when developers deploy and manage the infrastructure:
 
 ```mermaid
 graph LR
-    Developer[Developer] --> |GitHub Auth| GitHub[GitHub Repository]
-    GitHub --> |OIDC Federation| SP[Service Principal]
-    SP --> |Azure RBAC| AzureCP[Azure Control Plane]
-    SP --> |PP Service Auth| PPAPI[Power Platform APIs]
-    
+    Developer[Developer] --> |🗝️ GitHub Auth (SSO, MFA) <br> 🔒 Repository RBAC <br> 🛜 Public / SSL| GitHub[GitHub Repository]
+    GitHub --> Runner[GitHub Runner]
+    Runner --> |🗝️ Service Principal OIDC <br> 🔒 Contributor & Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
+    Runner --> |🗝️ Service Principal OIDC <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
+    Runner --> | 🗝️ Service Principal OIDC <br> 🔒 Storage Blob Data Contributor <br> 🛜 Public Default / Private Recommended | State[Terraform State Storage Account<br>*Data Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
-    DeployScript --> |Managed Identity| AISearch[Azure AI Search]
-    DeployScript --> |Managed Identity| Storage[Storage Account]
-    
-    PPAPI --> |Deploys| PPSolution[Power Platform Solution]
-    
-    classDef deployFlow fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    class Developer,GitHub,SP,AzureCP,PPAPI,AzureResources,DeployScript,AISearch,Storage,PPSolution deployFlow
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Search Service Contributor & Search Index Data Contributor & Search Index Data Reader <br> 🛜 Private VNET | AISearch[Azure AI Search]
+    DeployScript --> |🗝️ Managed Identity| Storage[Storage Account]
+
+    PPAPI --> |Deploys| PPSolution[Power Platform Resources]
 ```
 
 | Trust Boundary | Authentication Method | Security Controls | What You Need to Know |
@@ -213,6 +217,7 @@ graph LR
 ### Network Security Context
 
 **VNet Isolation**: AI Search connections from Power Platform use either:
+
 - **Primary VNet**: Main region private endpoint for normal operations
 - **Failover VNet**: Secondary region private endpoint for high availability
 
@@ -225,18 +230,21 @@ The template provides a secure foundation, but users must implement additional c
 ### Critical Actions (Required for Production)
 
 **Network Security**:
+
 - Deploy Network Security Groups (NSGs) with explicit allow/deny rules for each subnet
 - Add private endpoints for Azure OpenAI and Storage Account to eliminate all public access
 - Configure Azure DDoS Protection Standard for production workloads
 - Implement proper DNS resolution for all private endpoints
 
 **Identity and Access Management**:
+
 - Enable OIDC federation for GitHub Actions to eliminate long-lived secrets
 - Implement Privileged Identity Management (PIM) for administrative access
 - Configure conditional access policies for enhanced authentication
 - Review and minimize service principal permissions
 
 **Secrets and Key Management**:
+
 - Implement automated rotation for Azure AI Search admin keys
 - Monitor and audit all API key usage patterns
 - Plan migration path from API keys to managed identities when platform supports it
@@ -245,18 +253,21 @@ The template provides a secure foundation, but users must implement additional c
 ### Important Actions (Recommended)
 
 **AI-Specific Security**:
+
 - Configure advanced content filtering policies in Copilot Studio
 - Implement input validation and prompt injection protection
 - Set up rate limiting for AI Search queries
 - Monitor AI model usage and detect anomalous patterns
 
 **Monitoring and Response**:
+
 - Deploy Log Analytics workspace for security event correlation
 - Configure Microsoft Defender for Cloud for threat detection
 - Set up automated security alerts and response playbooks
 - Establish security incident response procedures
 
 **Governance and Compliance**:
+
 - Implement Azure Policy assignments for security baselines
 - Configure data classification and sensitivity labeling
 - Set up compliance monitoring for regulatory requirements
@@ -265,6 +276,7 @@ The template provides a secure foundation, but users must implement additional c
 ### Optional Enhancements
 
 **Advanced Security**:
+
 - Deploy Microsoft Sentinel for comprehensive SIEM capabilities
 - Implement Azure Purview for data governance
 - Configure advanced threat protection across all services
@@ -288,6 +300,7 @@ This document explains the security controls implemented in the Copilot Studio w
 ### What the Template Provides
 
 The template establishes a **secure foundation** with:
+
 - Network isolation through private endpoints and VNet segmentation
 - Identity security using system-assigned managed identities
 - Automated security scanning in deployment pipelines
@@ -296,6 +309,7 @@ The template establishes a **secure foundation** with:
 ### What Users Must Implement
 
 For production deployments, users are responsible for:
+
 - **Network Security**: Adding Network Security Groups and expanding private endpoints
 - **Secrets Management**: Implementing Azure Key Vault integration
 - **Enhanced Monitoring**: Configuring security-focused logging and alerting
