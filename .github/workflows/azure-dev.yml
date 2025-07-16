@@ -162,9 +162,12 @@ jobs:
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
 
+      - name: test
+        run: |
+          echo "Run AZD Down Input: ${{ github.event.inputs.run_azd_down }}"
 
       - name: Azd down
-        if: ${{ github.event.inputs.run_azd_down == true }}
+        if: ${{ github.event.inputs.run_azd_down == 'true' }}
         env:
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
