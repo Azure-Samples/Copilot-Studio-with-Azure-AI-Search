@@ -146,14 +146,14 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
 
           # Ensure PAC CLI is in PATH
-          PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
-          if [ -z "$PAC_PATH" ]; then
-            echo "PAC CLI not found!" >&2
-            exit 1
-          fi
-          PAC_DIR=$(dirname "$PAC_PATH")
-          echo "Found pac at $PAC_PATH"
-          export PATH="$PAC_DIR:$PATH"
+            PAC_PATH=$(find /tmp -type f -name pac -executable 2>/dev/null | head -n 1)
+            if [ -z "$PAC_PATH" ]; then
+              echo "PAC CLI not found!" >&2
+              exit 1
+            fi
+            PAC_DIR=$(dirname "$PAC_PATH")
+            echo "Found pac at $PAC_PATH"
+            export PATH="$PAC_DIR:$PATH"
 
           azd provision --no-prompt
 
