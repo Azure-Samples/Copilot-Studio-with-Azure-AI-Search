@@ -102,31 +102,8 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Debug Environment Variables and Inputs
-        shell: bash
-        run: |
-          echo "==== GitHub Inputs ===="
-          echo "azd_environment_name: ${{ github.event.inputs.azd_environment_name }}"
-          echo "azure_location: ${{ github.event.inputs.azure_location }}"
-          echo "run_azd_down: ${{ github.event.inputs.run_azd_down }}"
-          echo "==== GitHub Vars ===="
-          echo "AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}"
-          echo "AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}"
-          echo "AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}"
-          echo "RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}"
-          echo "RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}"
-          echo "RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}"
-          echo "RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}"
-          echo "==== GitHub Context ===="
-          echo "repository_owner: ${{ github.repository_owner }}"
-          echo "repository_name: ${{ github.event.repository.name }}"
-          echo "ref_name: ${{ github.ref_name }}"
-          echo "==== Environment Variables ===="
-          env | sort
-
       - name: Provision Infrastructure
         env:
-          #POWER_PLATFORM_USE_CLI: false
           POWER_PLATFORM_USE_OIDC: "true"
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
@@ -151,23 +128,33 @@ jobs:
           GITHUB_RUNNER_IMAGE_NAME: "github-runner"
           GITHUB_RUNNER_IMAGE_TAG: "latest"
           GITHUB_RUNNER_IMAGE_BRANCH: ${{ github.ref_name }}
-        shell: pwsh
+        shell: bash
         run: |
           azd config set auth.useAzCliAuth "true"
-          azd env new $env:AZURE_ENV_NAME --location $env:AZURE_LOCATION --no-prompt
-          azd env set RESOURCE_SHARE_USER "$env:RESOURCE_SHARE_USER"
-          #azd env set POWER_PLATFORM_USE_CLI "false"
+          azd env new "$AZURE_ENV_NAME" --location "$AZURE_LOCATION" --no-prompt
+          azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
 
-          azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
-          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
-          azd env set RS_RESOURCE_GROUP $env:RS_RESOURCE_GROUP
+          azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
+          azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
+          azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
 
-          azd env set GITHUB_PAT $env:GITHUB_PAT
-          azd env set GITHUB_REPO_OWNER $env:GITHUB_REPO_OWNER
-          azd env set GITHUB_REPO_NAME $env:GITHUB_REPO_NAME
-          azd env set GITHUB_RUNNER_IMAGE_NAME $env:GITHUB_RUNNER_IMAGE_NAME
-          azd env set GITHUB_RUNNER_IMAGE_TAG $env:GITHUB_RUNNER_IMAGE_TAG
-          azd env set GITHUB_RUNNER_IMAGE_BRANCH $env:GITHUB_RUNNER_IMAGE_BRANCH
+          azd env set GITHUB_PAT "$GITHUB_PAT"
+          azd env set GITHUB_REPO_OWNER "$GITHUB_REPO_OWNER"
+          azd env set GITHUB_REPO_NAME "$GITHUB_REPO_NAME"
+          azd env set GITHUB_RUNNER_IMAGE_NAME "$GITHUB_RUNNER_IMAGE_NAME"
+          azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
+          azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
+
+
+          # Ensure PAC CLI is in PATH
+          PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
+          if [ -z "$PAC_PATH" ]; then
+            echo "PAC CLI not found!" >&2
+            exit 1
+          fi
+          PAC_DIR=$(dirname "$PAC_PATH")
+          echo "Found pac at $PAC_PATH"
+          export PATH="$PAC_DIR:$PATH"
 
           azd provision --no-prompt
 
@@ -194,7 +181,6 @@ jobs:
       - name: Azd down
         if: ${{ github.event.inputs.run_azd_down == true }}
         env:
-         # POWER_PLATFORM_USE_CLI: false
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
           POWER_PLATFORM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           POWER_PLATFORM_USE_OIDC: "true"
@@ -212,7 +198,7 @@ jobs:
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
           
-        shell: pwsh
+        shell: bash
         run: |
           azd env set RS_STORAGE_ACCOUNT $env:RS_STORAGE_ACCOUNT
           azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
