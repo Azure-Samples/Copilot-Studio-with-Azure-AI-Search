@@ -75,18 +75,24 @@ jobs:
       - name: Install Power Platform Tools
         uses: microsoft/powerplatform-actions/actions-install@51f663ea104eb227c3712215ceb2f82827d81c27 # v1.9.0
 
-      - name: Test Power Platform CLI
+      # - name: Test Power Platform CLI
+      #   run: |
+      #     PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
+      #     if [ -z "$PAC_PATH" ]; then
+      #       echo "PAC CLI not found!" >&2
+      #       exit 1
+      #     fi
+      #     PAC_DIR=$(dirname "$PAC_PATH")
+      #     echo "Found pac at $PAC_PATH"
+      #     export PATH="$PAC_DIR:$PATH"
+      #     pac help
+      
+      - name: Install Power Platform CLI
         run: |
-          PAC_PATH=$(find /tmp -type f -name pac -executable | head -n 1)
-          if [ -z "$PAC_PATH" ]; then
-            echo "PAC CLI not found!" >&2
-            exit 1
-          fi
-          PAC_DIR=$(dirname "$PAC_PATH")
-          echo "Found pac at $PAC_PATH"
-          export PATH="$PAC_DIR:$PATH"
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
           pac help
-          
+
+
       - name: Set Up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # 5.6.0
         with:
