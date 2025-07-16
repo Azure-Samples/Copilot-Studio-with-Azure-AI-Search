@@ -84,8 +84,9 @@ function Initialize-RemoteStorage {
 {
     "storage_account_name": "`${RS_STORAGE_ACCOUNT}`",
     "container_name": "`${RS_CONTAINER_NAME}`",
-    "key": "azd/${AZURE_ENV_NAME}/terraform.tfstate",
-    "resource_group_name": "`${RS_RESOURCE_GROUP}`"
+    "key": "azd/`${AZURE_ENV_NAME}`/terraform.tfstate",
+    "resource_group_name": "`${RS_RESOURCE_GROUP}`",
+    "use_azuread_auth": "true"
 }
 "@
         Set-Content -Path $script:providerConfPath -Value $remoteStorageConfig -Encoding UTF8
