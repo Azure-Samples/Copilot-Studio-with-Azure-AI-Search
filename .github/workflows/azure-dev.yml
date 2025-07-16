@@ -102,6 +102,28 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+          - name: Debug Environment Variables and Inputs
+            shell: bash
+            run: |
+              echo "==== GitHub Inputs ===="
+              echo "azd_environment_name: ${{ github.event.inputs.azd_environment_name }}"
+              echo "azure_location: ${{ github.event.inputs.azure_location }}"
+              echo "run_azd_down: ${{ github.event.inputs.run_azd_down }}"
+              echo "==== GitHub Vars ===="
+              echo "AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}"
+              echo "AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}"
+              echo "AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}"
+              echo "RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}"
+              echo "RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}"
+              echo "RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}"
+              echo "RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}"
+              echo "==== GitHub Context ===="
+              echo "repository_owner: ${{ github.repository_owner }}"
+              echo "repository_name: ${{ github.event.repository.name }}"
+              echo "ref_name: ${{ github.ref_name }}"
+              echo "==== Environment Variables ===="
+              env | sort
+
       - name: Provision Infrastructure
         env:
           #POWER_PLATFORM_USE_CLI: false
