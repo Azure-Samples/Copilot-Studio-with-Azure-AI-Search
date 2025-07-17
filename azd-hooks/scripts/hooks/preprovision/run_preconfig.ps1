@@ -146,7 +146,7 @@ Write-Host "Checking if RS_CONTAINER_NAME environment variable exists..."
 try {
     Write-Host $LASTEXITCODE
     $rsContainerName = '$env:RS_CONTAINER_NAME'
-    if ($LASTEXITCODE -eq 0 -and $rsContainerName) {
+    if ($rsContainerName) {
         Write-Host "✓ RS_CONTAINER_NAME environment variable exists with value: $rsContainerName"
         
         # Check if the value is not empty or null
