@@ -145,7 +145,7 @@ Write-Host "Checking if RS_CONTAINER_NAME environment variable exists..."
 # Check if RS_CONTAINER_NAME azd environment variable exists
 try {
     Write-Host $LASTEXITCODE
-    $rsContainerName = '$env:RS_CONTAINER_NAME'
+    $rsContainerName = $env:RS_CONTAINER_NAME
     if ($rsContainerName) {
         Write-Host "✓ RS_CONTAINER_NAME environment variable exists with value: $rsContainerName"
         
