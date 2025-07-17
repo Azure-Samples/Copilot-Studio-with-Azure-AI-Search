@@ -56,7 +56,7 @@ param (
     [string]$AISearchConnectionId,
     
     [Parameter(Mandatory = $false)]
-    [bool]$RunSolutionChecker = $false,
+    [bool]$RunSolutionChecker = $true,
     
     [Parameter(Mandatory = $false)]
     [ValidateSet("ServicePrincipal", "GitHubFederated", "AzCli", "Auto")]
