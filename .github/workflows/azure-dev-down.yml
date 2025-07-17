@@ -65,6 +65,7 @@ jobs:
           
         shell: bash
         run: |
+          azd env new "$AZURE_ENV_NAME" --no-prompt --defaults
           azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
           azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
           azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
