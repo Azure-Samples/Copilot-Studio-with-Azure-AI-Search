@@ -144,8 +144,8 @@ terraform {
 Write-Host "Checking if RS_CONTAINER_NAME environment variable exists..."
 # Check if RS_CONTAINER_NAME azd environment variable exists
 try {
-    Write-Host $RS_CONTAINER_NAME
-    $rsContainerName = $RS_CONTAINER_NAME
+    Write-Host $LASTEXITCODE
+    $rsContainerName = '$env:RS_CONTAINER_NAME'
     if ($LASTEXITCODE -eq 0 -and $rsContainerName) {
         Write-Host "✓ RS_CONTAINER_NAME environment variable exists with value: $rsContainerName"
         
