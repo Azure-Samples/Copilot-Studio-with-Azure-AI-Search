@@ -9,6 +9,10 @@ on:
         description: "Name of the AZD Environment"
         required: true
         default: "CICDsbaydach"
+      azure_location:
+        description: "Azure location for the environment"
+        required: true
+        default: "eastus"
 
 permissions:
   id-token: write
@@ -20,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICDsbaydach' }}
+      AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
 
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
@@ -66,7 +71,7 @@ jobs:
         shell: bash
         run: |
           azd config set auth.useAzCliAuth "true"
-          azd env new "$AZURE_ENV_NAME" --no-prompt
+          azd env new "$AZURE_ENV_NAME" --location "$AZURE_LOCATION" --no-prompt
           azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
           azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
           azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
