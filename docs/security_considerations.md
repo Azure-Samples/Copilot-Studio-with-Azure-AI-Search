@@ -26,7 +26,7 @@ This document explains the security controls implemented in the **Copilot Studio
 
 The template provides a secure foundation, but users are responsible for:
 
-⚠️ **Enhanced Network Security**: Basic Network Security Groups are provided, but they should be updated for your organization's specific security requirements
+⚠️ **Enhanced Network Security**: Basic Network Security Groups are provided, but they should be updated for your organization's specific security requirements  
 ⚠️ **Secrets Management**: Implementing Azure Key Vault for centralized secret storage  
 ⚠️ **Advanced Monitoring**: Configuring security-focused logging and alerting  
 ⚠️ **AI-Specific Protections**: Implementing prompt validation and content filtering  
@@ -199,8 +199,8 @@ graph LR
     Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Search Service Contributor & Search Index Data Contributor & Search Index Data Reader <br> 🛜 Private Endpoint | AISearch[Azure AI Search]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor & Storage Blob Data Contributor & Storage File Data Privileged Contributor & Reader & Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor<br>🔒 Storage Blob Data Contributor<br>🔒 Storage File Data Privileged Contributor<br>🔒 Reader<br>🔒 Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor<br>🔒 Storage Blob Data Owner<br>🔒 Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
     DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor & Storage Blob Data Owner & Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
     PPAPI --> |Deploys| PPSolution[Power Platform Resources]
 ```
