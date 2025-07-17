@@ -6,8 +6,22 @@ locals {
   power_platform_environment_location = coalesce(var.power_platform_environment.location, powerplatform_environment.this[0].location)
 }
 
+resource "powerplatform_billing_policy" "this" {
+  count = var.power_platform_billing_policy.should_create && var.power_platform_environment.id == "" ? 1 : 0
+
+  name     = "${var.power_platform_billing_policy.name}${var.unique_id}"
+  location = var.power_platform_environment.location
+  status   = "Enabled"
+  billing_instrument = {
+    resource_group  = var.resource_group_name
+    subscription_id = var.subscription_id
+  }
+}
+
 resource "powerplatform_environment" "this" {
   count            = var.power_platform_environment.id == "" ? 1 : 0
+  
+  billing_policy_id = var.power_platform_billing_policy.should_create ? powerplatform_billing_policy.this[0].id : null
   location         = var.power_platform_environment.location
   display_name     = "${var.power_platform_environment.name} - ${var.unique_id}"
   environment_type = var.power_platform_environment.environment_type
