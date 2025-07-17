@@ -72,7 +72,7 @@ provider "azapi" {
 data "azurerm_client_config" "current" {}
 
 # Configure Power Platform provider
-provider "powerplatform" {}
-
-
-
+provider "powerplatform" {
+  # PowerPlatform provider will use the same credentials as Azure provider by default
+  use_cli = true
+}

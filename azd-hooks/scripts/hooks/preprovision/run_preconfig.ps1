@@ -1,3 +1,13 @@
+<#
+.SYNOPSIS
+Checks the existence of the RS_CONTAINER_NAME environment variable.
+
+.DESCRIPTION
+This script checks if the RS_CONTAINER_NAME environment variable is set. 
+The presence or absence of this variable is used to determine whether 
+local storage should be used or not.
+
+#>
 $script:infraDir = "infra"
 $script:providerConfPath = Join-Path $script:infraDir "provider.conf.json"
 $script:providerTfPath = Join-Path $script:infraDir "provider.tf"
@@ -82,10 +92,11 @@ function Initialize-RemoteStorage {
         
         $remoteStorageConfig = @"
 {
-    "storage_account_name": "${RS_STORAGE_ACCOUNT}",
-    "container_name": "${RS_CONTAINER_NAME}",
-    "key": "azd/${AZURE_ENV_NAME}/terraform.tfstate",
-    "resource_group_name": "${RS_RESOURCE_GROUP}"
+    "storage_account_name": "`${RS_STORAGE_ACCOUNT}`",
+    "container_name": "`${RS_CONTAINER_NAME}`",
+    "key": "azd/`${AZURE_ENV_NAME}`/terraform.tfstate",
+    "resource_group_name": "`${RS_RESOURCE_GROUP}`",
+    "use_azuread_auth": "true"
 }
 "@
         Set-Content -Path $script:providerConfPath -Value $remoteStorageConfig -Encoding UTF8
@@ -129,31 +140,30 @@ terraform {
     }
 }
 
-Write-Host "Checking if USE_LOCAL_STATE environment variable exists..."
 
-# Check if USE_LOCAL_STATE azd environment variable exists
+Write-Host "Checking if RS_CONTAINER_NAME environment variable exists..."
+# Check if RS_CONTAINER_NAME azd environment variable exists
 try {
 
-    $useLocalState = azd env get-value USE_LOCAL_STATE 2>$null
-    if ($LASTEXITCODE -eq 0 -and $useLocalState) {
-        Write-Host "✓ USE_LOCAL_STATE environment variable exists with value: $useLocalState"
+    $rsContainerName = azd env get-value RS_CONTAINER_NAME 2>$null
+    if ($LASTEXITCODE -eq 0 -and $rsContainerName) {
+        Write-Host "✓ RS_CONTAINER_NAME environment variable exists with value: $rsContainerName"
         
-        # Check if the value is set to true (case insensitive)
-        if ($useLocalState.ToLower() -eq "true") {
-            Write-Host "✓ Local state is enabled"
-            Initialize-LocalStorage
-        } else {
-            Write-Host "ℹ Local state is disabled (value: $useLocalState)"
+        # Check if the value is not empty or null
+        if (-not [string]::IsNullOrWhiteSpace($rsContainerName)) {
+            Write-Host "✓ RS_CONTAINER_NAME is set to a valid value"
             Initialize-RemoteStorage
+        } else {
+            Write-Host "ℹ RS_CONTAINER_NAME is empty or null"
+            Initialize-LocalStorage
         }
     } else {
-        Write-Host "✗ USE_LOCAL_STATE environment variable does not exist or is empty"
-        azd env set USE_LOCAL_STATE false
-        Initialize-RemoteStorage
-     
+        Write-Host "✗ RS_CONTAINER_NAME environment variable does not exist or is empty"
+        azd env set RS_CONTAINER_NAME ""
+        Initialize-LocalStorage
     }
 } catch {
-    Write-Host "✗ Error checking USE_LOCAL_STATE environment variable: $($_.Exception.Message)"
+    Write-Host "✗ Error checking RS_CONTAINER_NAME environment variable: $($_.Exception.Message)"
     Write-Host "ℹ Make sure you're in an azd environment directory"
     exit 1
 }
