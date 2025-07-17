@@ -56,7 +56,6 @@ jobs:
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
         shell: pwsh
         run: |
-          azd env set RS_CONTAINER_NAME $env:RS_CONTAINER_NAME
           ./azd-hooks/scripts/hooks/preprovision/run_preconfig.ps1
 
       - name: Azd down
