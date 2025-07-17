@@ -224,6 +224,26 @@ variable "location" {
   nullable    = false
 }
 
+variable "use_billing_policy" {
+  type        = bool
+  default     = false
+  description = "If true, the billing policy will be created. If false, the billing policy will not be created."
+}
+
+variable "power_platform_billing_policy" {
+  type = object({
+    should_create = optional(bool, false)
+    name          = string
+  })
+  default = {
+    name = "copilotStudioBillingPolicy"
+  }
+  description = <<DESCRIPTION
+  - `name`: The name of the Power Platform billing policy.
+  - `should_create`: If set to false, the billing policy will not be created. Defaults to false.
+DESCRIPTION
+}
+
 variable "power_platform_environment" {
   type = object({
     name              = string

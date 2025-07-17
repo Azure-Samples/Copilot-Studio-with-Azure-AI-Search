@@ -26,7 +26,7 @@
     ID of the Power Platform environment to deploy to
 
 .PARAMETER RunSolutionChecker
-    Whether to run solution checker after deployment (default: true)
+    Whether to run solution checker after deployment (default: false)
 
 .PARAMETER AISearchConnectionId
     Direct connection ID for the Azure AI Search connector (highest priority)

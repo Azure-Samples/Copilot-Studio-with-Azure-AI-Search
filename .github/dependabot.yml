@@ -7,7 +7,7 @@ updates:
     commit-message:
       prefix: "chore(deps):"
     groups:
-      all-dependencies:
+      devcontainer:
         patterns:
           - "*"
   - package-ecosystem: "terraform"
@@ -19,7 +19,7 @@ updates:
     commit-message:
       prefix: "chore(deps):"
     groups:
-      all-dependencies:
+      terraform-providers:
         patterns:
           - "*"
   - package-ecosystem: "github-actions"
@@ -29,6 +29,6 @@ updates:
     commit-message:
       prefix: "chore(deps):"
     groups:
-      all-dependencies:
+      github-actions:
         patterns:
           - "*"
