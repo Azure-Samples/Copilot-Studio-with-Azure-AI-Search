@@ -194,7 +194,7 @@ This is the flow when CI/CD deploys the infrastructure and application:
 
 ```mermaid
 graph LR
-    Developer[DevOps Engineer <br> AZD CLI]
+    Developer[DevOps Engineer]
     Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Contributor & Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
     Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
@@ -209,15 +209,15 @@ This is the flow when a DevOps engineer deploys the infrastructure and applicati
 
 ```mermaid
 graph LR
-    Developer[Developer] --> |🗝️ GitHub Auth SSO, MFA <br> 🔒 Repository RBAC <br> 🛜 Public / SSL| GitHub[GitHub Repository]
+    Developer[DevOps Engineer<br>AZD CLI] --> |🗝️ GitHub Auth SSO, MFA <br> 🔒 Repository RBAC <br> 🛜 Public / SSL| GitHub[GitHub Repository]
     GitHub --> Runner[GitHub Runner]
-    Runner --> |🗝️ Service Principal OIDC <br> 🔒 Contributor & Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
+    Runner --> |🗝️ Service Principal OIDC <br>🔒 Contributor <br>🔒 Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
     Runner --> |🗝️ Service Principal OIDC <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
     Runner --> | 🗝️ Service Principal OIDC <br> 🔒 Storage Blob Data Contributor <br> 🛜 Public Default / Private Recommended | State[Terraform State Storage Account<br>*Data Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor & Storage Blob Data Contributor & Storage File Data Privileged Contributor & Reader & Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor & Storage Blob Data Owner & Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor<br>🔒 Storage Blob Data Contributor<br>🔒 Storage File Data Privileged Contributor<br>🔒 Reader<br>🔒 Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor<br>🔒 Storage Blob Data Owner<br>🔒 Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
 
     PPAPI --> |Deploys| PPSolution[Power Platform Resources]
 ```
