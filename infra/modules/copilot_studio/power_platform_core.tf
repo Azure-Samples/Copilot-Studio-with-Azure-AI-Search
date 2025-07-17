@@ -19,12 +19,12 @@ resource "powerplatform_billing_policy" "this" {
 }
 
 resource "powerplatform_environment" "this" {
-  count            = var.power_platform_environment.id == "" ? 1 : 0
-  
+  count = var.power_platform_environment.id == "" ? 1 : 0
+
   billing_policy_id = var.power_platform_billing_policy.should_create ? powerplatform_billing_policy.this[0].id : null
-  location         = var.power_platform_environment.location
-  display_name     = "${var.power_platform_environment.name} - ${var.unique_id}"
-  environment_type = var.power_platform_environment.environment_type
+  location          = var.power_platform_environment.location
+  display_name      = "${var.power_platform_environment.name} - ${var.unique_id}"
+  environment_type  = var.power_platform_environment.environment_type
   dataverse = {
     language_code     = var.power_platform_environment.language_code
     currency_code     = var.power_platform_environment.currency_code
