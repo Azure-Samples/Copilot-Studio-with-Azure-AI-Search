@@ -65,6 +65,7 @@ jobs:
           
         shell: bash
         run: |
+          azd config set auth.useAzCliAuth "true"
           azd env new "$AZURE_ENV_NAME" --no-prompt
           azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
           azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
