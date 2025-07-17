@@ -75,9 +75,9 @@ Set the following environment variables for GitHub runner deployment:
     # GitHub configuration
     ### Set the remote state configurations (reusing variables from step 5):
 
-        azd env set RS_STORAGE_ACCOUNT $STORAGE_ACCOUNT_NAME
-        azd env set RS_CONTAINER_NAME $CONTAINER_NAME
-        azd env set RS_RESOURCE_GROUP $RESOURCE_GROUP_NAME
+    azd env set RS_STORAGE_ACCOUNT $STORAGE_ACCOUNT_NAME
+    azd env set RS_CONTAINER_NAME $CONTAINER_NAME
+    azd env set RS_RESOURCE_GROUP $RESOURCE_GROUP_NAME
     azd env set GITHUB_RUNNER_IMAGE_BRANCH "<branch-containing-docker-file>"  # optional, defaults to "main"
     azd env set GITHUB_RUNNER_GROUP "<github-runner-group>"  # optional, defaults to "default"
 
