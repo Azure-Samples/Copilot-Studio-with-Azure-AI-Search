@@ -195,7 +195,7 @@ This is the flow when CI/CD deploys the infrastructure and application:
 ```mermaid
 graph LR
     Developer[DevOps Engineer]
-    Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Contributor & Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
+    Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Contributor<br> 🔒 Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
     Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
