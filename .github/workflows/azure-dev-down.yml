@@ -1,11 +1,14 @@
 name: "CI Destroy Resources"
 on:
+  push:
+    branches:
+      - "sbaidachni/azddown"
   workflow_dispatch:
     inputs:
       azd_environment_name:
         description: "Name of the AZD Environment"
         required: true
-        default: "CICD"
+        default: "CICDsbaydach"
 
 permissions:
   id-token: write
