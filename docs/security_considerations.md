@@ -151,13 +151,13 @@ The template addresses **infrastructure-level risks** effectively but requires u
 
 | Threat ID | Category | Template Mitigation | Status | Suggested Hardening |
 |-----------|----------|-------------------|--------|---------------------|
-| **T1.1** | Network Attacks | Private endpoints for AI Search, VNet isolation | ✅ Implemented | Add NSGs, expand private endpoints |
-| **T1.2** | Identity Compromise | System-assigned managed identities, RBAC | ✅ Implemented | Enable PIM, conditional access |
+| **T1.1** | Network Attacks | Private endpoints, VNet isolation | ✅ Implemented | Add NSGs, expand private endpoints |
+| **T1.2** | Identity Compromise | System-assigned managed identities, OIDC, RBAC | ✅ Implemented | Enable PIM, conditional access, implement secret rotation for any service principals not using OIDC |
 | **T1.3** | Data Exfiltration | Private endpoints, network restrictions | ✅ Partially | DLP controls |
 | **T2.1** | Platform Compromise | Environment isolation, network injection | ✅ Implemented | Configure governance policies |
 | **T2.2** | AI Model Abuse | [Copilot Studio Runtime Protection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-agent-runtime-view) | ⚠️ Limited | Implement advanced filtering, AI red teaming |
 | **T3.1** | Supply Chain | Security scanning (GitHub Advanced security & Gitleaks), AVM usage, Dependabot | ✅ Implemented | Monitor dependency updates |
-| **T3.2** | Credential Exposure | OIDC support, managed identities | ⚠️ Limited | Migrate API keys to managed identities when supported by AI Search connector |
+| **T3.2** | Credential Exposure | OIDC support, managed identities | ⚠️ Limited | Migrate AI Search API keys to service principal (preferred), implement key rotation for API keys |
 
 **Legend**: ✅ Fully Implemented | ⚠️ Basic Implementation | ❌ User Responsibility
 
@@ -179,6 +179,8 @@ graph LR
     AISearch --> |🗝️ Managed Identity <br> 🔒 RBAC: Storage Blob Data Reader <br> 🛜 Private Endpoint| Storage[Storage Account]
 ```
 
+**Legend**: 🗝️ Identity | 🔒 Access | 🛜 Network
+
 | Trust Boundary | Authentication Method | Security Controls | What You Need to Know |
 |-----------------|----------------------|-------------------|----------------------|
 | **User to Copilot Studio Agent** | Channel-specific authentication (Teams, Web, etc.) | Channel security policies, user authentication | Users authenticate through their chosen channel (Teams, web chat, etc.) |
@@ -188,22 +190,39 @@ graph LR
 
 ### Deployment Security Context
 
-This is the flow when developers deploy and manage the infrastructure:
+This is the flow when CI/CD deploys the infrastructure and application:
 
 ```mermaid
 graph LR
-    Developer[Developer] --> |🗝️ GitHub Auth (SSO, MFA) <br> 🔒 Repository RBAC <br> 🛜 Public / SSL| GitHub[GitHub Repository]
+    Developer[DevOps Engineer <br> AZD CLI]
+    Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Contributor & Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
+    Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
+    AzureCP --> |Deploys| AzureResources[Azure Resources]
+    AzureCP --> |Creates| DeployScript[Deployment Scripts]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Search Service Contributor & Search Index Data Contributor & Search Index Data Reader <br> 🛜 Private Endpoint | AISearch[Azure AI Search]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor & Storage Blob Data Contributor & Storage File Data Privileged Contributor & Reader & Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor & Storage Blob Data Owner & Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
+    PPAPI --> |Deploys| PPSolution[Power Platform Resources]
+```
+
+This is the flow when a DevOps engineer deploys the infrastructure and application using the CLI:
+
+```mermaid
+graph LR
+    Developer[Developer] --> |🗝️ GitHub Auth SSO, MFA <br> 🔒 Repository RBAC <br> 🛜 Public / SSL| GitHub[GitHub Repository]
     GitHub --> Runner[GitHub Runner]
     Runner --> |🗝️ Service Principal OIDC <br> 🔒 Contributor & Role Based Access Control Administrator <br> 🛜 Public / SSL | AzureCP[Azure Resource Manager APIs<br>*Control Plane*]
     Runner --> |🗝️ Service Principal OIDC <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
     Runner --> | 🗝️ Service Principal OIDC <br> 🔒 Storage Blob Data Contributor <br> 🛜 Public Default / Private Recommended | State[Terraform State Storage Account<br>*Data Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Search Service Contributor & Search Index Data Contributor & Search Index Data Reader <br> 🛜 Private VNET | AISearch[Azure AI Search]
-    DeployScript --> |🗝️ Managed Identity| Storage[Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor & Storage Blob Data Contributor & Storage File Data Privileged Contributor & Reader & Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor & Storage Blob Data Owner & Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
 
     PPAPI --> |Deploys| PPSolution[Power Platform Resources]
 ```
+
+**Legend**: 🗝️ Identity | 🔒 Access | 🛜 Network
 
 | Trust Boundary | Authentication Method | Security Controls | What You Need to Know |
 |-----------------|----------------------|-------------------|----------------------|
@@ -231,10 +250,10 @@ The template provides a secure foundation, but users must implement additional c
 
 **Network Security**:
 
-- Deploy Network Security Groups (NSGs) with explicit allow/deny rules for each subnet
-- Add private endpoints for Azure OpenAI and Storage Account to eliminate all public access
+- Update Network Security Groups (NSGs) with explicit allow/deny rules for each subnet
+- Consider implementing a private endpoint for Deployment Script Storage Account to eliminate all public access
 - Configure Azure DDoS Protection Standard for production workloads
-- Implement proper DNS resolution for all private endpoints
+- Review DNS resolution for all private endpoints
 
 **Identity and Access Management**:
 
