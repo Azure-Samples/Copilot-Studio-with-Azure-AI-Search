@@ -5,7 +5,7 @@ metadata:
 infra:
   provider: terraform
 hooks:
-  prerestore:
+  prepackage:
     - shell: pwsh
       continueOnError: false
       interactive: false
