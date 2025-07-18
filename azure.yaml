@@ -5,6 +5,11 @@ metadata:
 infra:
   provider: terraform
 hooks:
+  prerestore:
+    - shell: pwsh
+      continueOnError: false
+      interactive: false
+      run: azd-hooks/scripts/hooks/preprovision/run_preconfig.ps1
   preprovision:
     - shell: pwsh
       continueOnError: false
