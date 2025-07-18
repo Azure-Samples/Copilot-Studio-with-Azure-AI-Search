@@ -43,11 +43,6 @@ hooks:
       continueOnError: false
       interactive: false
       run: azd-hooks/scripts/hooks/postdeploy/postdeploy.ps1
-  prepackage:
-    - shell: pwsh
-      continueOnError: false
-      interactive: false
-      run: azd-hooks/scripts/hooks/prepackage/prepackage.ps1
   postpackage:
     - shell: pwsh
       continueOnError: false
