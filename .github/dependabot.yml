@@ -6,18 +6,29 @@ updates:
       interval: "daily"
     commit-message:
       prefix: "chore(deps):"
-    open-pull-requests-limit: 7
+    groups:
+      devcontainer:
+        patterns:
+          - "*"
   - package-ecosystem: "terraform"
-    directory: "/infra"
+    directories: 
+    - "/infra"
+    - "/infra/modules/*"
     schedule:
       interval: "daily"
     commit-message:
       prefix: "chore(deps):"
-    open-pull-requests-limit: 7
+    groups:
+      terraform-providers:
+        patterns:
+          - "*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     commit-message:
       prefix: "chore(deps):"
-    open-pull-requests-limit: 7
+    groups:
+      github-actions:
+        patterns:
+          - "*"

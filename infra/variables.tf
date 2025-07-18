@@ -67,10 +67,11 @@ variable "cognitive_deployments" {
       version = string
     })
     scale = object({
+      capacity = number
       type     = string
-      capacity = optional(number)
     })
-    rai_policy_name = string
+    rai_policy_name            = string
+    dynamic_throttling_enabled = bool
   }))
   default = {
     "gpt-4" = {
@@ -81,10 +82,11 @@ variable "cognitive_deployments" {
         version = "1"
       }
       scale = {
-        type     = "Standard"
         capacity = 100
+        type     = "Standard"
       }
-      rai_policy_name = "Microsoft.DefaultV2"
+      rai_policy_name            = "Microsoft.DefaultV2"
+      dynamic_throttling_enabled = true
     }
   }
   description = <<DESCRIPTION
@@ -135,9 +137,37 @@ variable "cps_container_name" {
   description = "The name of the storage container for the Copilot Studio bot's test data."
 }
 
+variable "data_source_type" {
+  type        = string
+  default     = "github"
+  description = "The type of data source for uploading files. Options: 'github' (GitHub repository), 'blob' (Azure Blob Storage), 'local' (local files)"
+  validation {
+    condition     = contains(["github", "blob", "local"], var.data_source_type)
+    error_message = "data_source_type must be one of: github, blob, local"
+  }
+}
+
+variable "data_source_url" {
+  type        = string
+  default     = "https://github.com/Azure-Samples/contoso-web.git"
+  description = "The URL for the data source. GitHub repository URL for 'github' type, Blob Storage URL for 'blob' type, ignored for 'local' type"
+}
+
+variable "data_source_path" {
+  type        = string
+  default     = "public/manuals"
+  description = "The path within the data source containing data files. For 'github': relative path in repo, for 'blob': container path prefix, for 'local': relative path"
+}
+
+variable "data_file_pattern" {
+  type        = string
+  default     = "*"
+  description = "File patterns to match when fetching data, comma-separated (e.g., '*.pdf,*.docx,*.txt,*.md'). Default: '*' (All files)"
+}
+
 variable "cps_storage_replication_type" {
   type        = string
-  default     = "LRS"
+  default     = "GRS"
   description = "The replication type to use for the storage account the CPS bot's AI Search resource's datasource will connect to"
 }
 
@@ -151,11 +181,11 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
-variable "failover_ai_search_subnet_address_spaces" {
-  type        = list(string)
-  default     = ["10.2.0.0/24"]
-  description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-}
+# variable "failover_ai_search_subnet_address_spaces" {
+#   type        = list(string)
+#   default     = ["10.2.0.0/24"]
+#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
+# }
 
 variable "failover_location" {
   type        = string
@@ -192,6 +222,26 @@ variable "location" {
   default     = "eastus"
   description = "Region where the resources should be deployed."
   nullable    = false
+}
+
+variable "use_billing_policy" {
+  type        = bool
+  default     = false
+  description = "If true, the billing policy will be created. If false, the billing policy will not be created."
+}
+
+variable "power_platform_billing_policy" {
+  type = object({
+    should_create = optional(bool, false)
+    name          = string
+  })
+  default = {
+    name = "copilotStudioBillingPolicy"
+  }
+  description = <<DESCRIPTION
+  - `name`: The name of the Power Platform billing policy.
+  - `should_create`: If set to false, the billing policy will not be created. Defaults to false.
+DESCRIPTION
 }
 
 variable "power_platform_environment" {
@@ -249,11 +299,11 @@ variable "power_platform_managed_environment" {
   description = "Configuration for the Power Platform managed environment"
 }
 
-variable "primary_ai_search_subnet_address_spaces" {
-  type        = list(string)
-  default     = ["10.1.7.0/24"]
-  description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-}
+# variable "primary_ai_search_subnet_address_spaces" {
+#   type        = list(string)
+#   default     = ["10.1.7.0/24"]
+#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
+# }
 
 variable "primary_location" {
   type        = string
@@ -341,7 +391,15 @@ variable "failover_pe_subnet_address_spaces" {
   type        = list(string)
   default     = ["10.2.8.0/24"]
 }
+    
+variable "deployment_script_subnet_address_spaces" {
+  type        = list(string)
+  default     = ["10.1.9.0/24"]
+  description = "Deployment script container subnet address spaces."
 
+}
+
+# GITHUB RUNNER VARIABLES ACA
 variable "github_runner_config" {
   type = object({
     image_name                 = string
@@ -440,4 +498,5 @@ variable "github_runner_os_type" {
     condition     = contains(["linux"], var.github_runner_os_type)
     error_message = "OS type must be 'linux'. Other OS types are not supported yet."
   }
-}
+
+

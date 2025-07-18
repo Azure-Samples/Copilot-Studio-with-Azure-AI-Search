@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.ref_name }}
 
@@ -48,7 +48,7 @@ jobs:
           echo "Create a new virtual environment"
           python3 -m venv .copilot_venv
 
-      - name: Run `data/upload_data.py` script
+      - name: Run `search/upload_data.py` script
         run: |
           echo "Activate the virtual environment"
           source .copilot_venv/bin/activate
@@ -110,7 +110,7 @@ jobs:
         continue-on-error: true # Continue even if tests fail to ensure artifacts are uploaded
 
       - name: Upload test results as workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: (!cancelled()) # Upload artifacts even if tests fail
         with:
           name: pytest-test-results
@@ -120,7 +120,7 @@ jobs:
           retention-days: 30
 
       - name: Publish pytest test results
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@dc3a92680fcc15842eef52e8c4606ea7ce6bd3f3 # v2.1.1
         if: (!cancelled()) # Run even if tests fail
         with:
           name: Azure AI Search E2E Tests

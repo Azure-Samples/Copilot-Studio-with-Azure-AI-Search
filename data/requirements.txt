@@ -1,2 +1,0 @@
-azure-storage-blob>=12.19.0
-azure-identity>=1.16.1
