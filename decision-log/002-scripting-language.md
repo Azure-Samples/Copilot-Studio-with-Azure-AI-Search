@@ -37,6 +37,10 @@ We will use **PowerShell Core (`pwsh`)** as the standard scripting language for 
 - All scripts follow PowerShell best practices including proper parameter binding and verbose logging
 - If bash compatibility is required for specific use cases, GitHub Copilot or other LLMs can easily translate our PowerShell scripts to bash
 
+## Exemptions
+
+**GitHub Workflows**: Bash may be used in GitHub Actions workflows since those will always run from Ubuntu runners where bash is the default and standard shell. However, we should still consider and prefer PowerShell where its benefits (particularly native JSON parsing, structured error handling, and Azure integration) are important for the specific workflow tasks.
+
 ## Alternatives Considered
 
 - **Bash + PowerShell**: Maintaining both bash and PowerShell versions would require duplicate effort and risk functional inconsistencies
