@@ -156,13 +156,13 @@ The template addresses **infrastructure-level risks** effectively but requires u
 
 | Threat ID | Category | Template Mitigation | Status | Suggested Hardening |
 |-----------|----------|-------------------|--------|---------------------|
-| **T1.1** | Network Attacks | Private endpoints, VNet isolation | ✅ Implemented | Add NSGs, expand private endpoints |
-| **T1.2** | Identity Compromise | System-assigned managed identities, OIDC, RBAC | ✅ Implemented | Enable PIM, conditional access, implement secret rotation for any service principals not using OIDC |
+| **T1.1** | Network Attacks | Private endpoints, VNet isolation, Basic NSGs | ✅ Partially | Review NSGs, Copilot Studio channel security |
+| **T1.2** | Identity Compromise | System-assigned managed identities, OIDC, RBAC | ✅ Partially | Enable PIM, conditional access, secret rotation for any service principals not using OIDC |
 | **T1.3** | Data Exfiltration | Private endpoints, network restrictions | ✅ Partially | DLP controls |
 | **T2.1** | Platform Compromise | Environment isolation, network injection | ✅ Implemented | Configure governance policies |
 | **T2.2** | AI Model Abuse | [Copilot Studio Runtime Protection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-agent-runtime-view) | ⚠️ Limited | Implement advanced filtering, AI red teaming |
 | **T3.1** | Supply Chain | Security scanning (GitHub Advanced security & Gitleaks), AVM usage, Dependabot | ✅ Implemented | Monitor dependency updates |
-| **T3.2** | Credential Exposure | OIDC support, managed identities | ⚠️ Limited | Migrate AI Search API keys to service principal (preferred), implement key rotation for API keys |
+| **T3.2** | Credential Exposure | OIDC support, managed identities | ⚠️ Limited | Migrate AI Search API keys to service principal (preferred) or implement key rotation for API keys |
 
 **Legend**: ✅ Fully Implemented | ⚠️ Basic Implementation | ❌ User Responsibility
 
