@@ -498,5 +498,5 @@ variable "github_runner_os_type" {
     condition     = contains(["linux"], var.github_runner_os_type)
     error_message = "OS type must be 'linux'. Other OS types are not supported yet."
   }
-
+}
 
