@@ -75,9 +75,17 @@ This architecture ensures that sensitive enterprise data never traverses public 
   - [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
   - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled  
 - **Power Platform licenses**. The designated user must have the following Power Platform licenses assigned:
-  - Microsoft Power Apps
-  - Power Automate  
-  - Copilot Studio
+    - **Microsoft Power Apps**
+    - **Power Automate**
+    - **Copilot Studio**
+
+    To simplify license management, you can use an Azure subscription with a Billing Policy instead of assigning licenses directly. Configure this by using the following flag:
+
+    ```shell
+    azd env set USE_BILLING_POLICY "true"
+    ```
+
+    **Note:** After creating the Billing Policy, navigate to the [Power Platform Admin Center](https://aka.ms/ppac) and ensure that the *Copilot Studio* product is selected. This is a known issue that will be addressed in future updates.
 
 ### User Configuration
 
@@ -125,6 +133,7 @@ A related option is VS Code Dev Containers, which will open the project in your 
 
 1. Install the required tools:
 
+    - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest&pivots=winget) - Required for managing Azure resources and authentication
     - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd) - Platform-specific installers available via package managers or direct download
     - [PowerShell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.5) - Required for non-Windows systems; Windows users may use built-in PowerShell
     - [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) - Includes .NET CLI, runtime, and development tools
@@ -149,7 +158,7 @@ A related option is VS Code Dev Containers, which will open the project in your 
 
 The steps below will provision Azure and Power Platform resources and will deploy Copilot Studio bot.
 
-1. Login to you Azure and config azd to use Az CLI authentication:
+1. Login to your Azure account and config azd to use Az CLI authentication:
 
     ```shell
     az login --service-principal --username <SP_CLIENT_ID> --password <SP_SECRET> --tenant <TENANT_ID>
@@ -160,7 +169,6 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     ```shell
     pac auth create --name az-cli-auth --applicationId <SP_CLIENT_ID> --clientSecret <SP_SECRET> --tenant <TENANT_ID> --accept-cleartext-caching
-    export POWER_PLATFORM_USE_CLI="true"
     ```
 
     *Note: the `pac auth create` command may return a warning about being unable to connect to a Dataverse organization. This is expected, and will not impact the deployment.*
