@@ -1,6 +1,6 @@
 # Decision Log 002: PowerShell as the Standard Scripting Language for AZD Hooks
 
-**Date:** 2025-01-27  
+**Date:** 2025-07-17  
 **Status:** Approved
 
 ## Context
@@ -13,6 +13,8 @@ The azd hooks in our solution include:
 - **predeploy/postdeploy**: Application deployment lifecycle management
 - **prepackage/postpackage**: Solution packaging and preparation
 
+Our solution requires integration with Azure services, Power Platform CLI (PAC CLI), and enterprise environments that demand robust error handling, logging, and parameter validation capabilities.
+
 ## Decision
 
 We will use **PowerShell Core (`pwsh`)** as the standard scripting language for implementing all Azure Developer CLI hook scripts in this repository.
@@ -23,11 +25,11 @@ We will use **PowerShell Core (`pwsh`)** as the standard scripting language for 
 
 2. **Single Script Maintenance**: Using PowerShell exclusively eliminates the need to maintain duplicate scripts in both PowerShell and bash, reducing maintenance overhead and preventing functional divergence between platform-specific implementations.
 
-3. **Azure Integration**: PowerShell provides excellent integration with Azure services through native cmdlets and the Azure PowerShell module, making it particularly well-suited for Azure-focused infrastructure operations.
+3. **Superior Azure Integration**: PowerShell provides native cmdlets and the Azure PowerShell module with object-oriented output, offering better integration than bash with Azure CLI's JSON parsing requirements.
 
-4. **Power Platform CLI Compatibility**: The Power Platform CLI (PAC CLI) integrates seamlessly with PowerShell, and our solution includes automated Power Platform solution deployment that benefits from this native integration.
+4. **Native Power Platform CLI Integration**: The Power Platform CLI (PAC CLI) provides first-class PowerShell cmdlets, eliminating the need for complex JSON parsing and error handling required when using bash.
 
-5. **Enterprise Standards**: PowerShell is widely adopted in enterprise environments and provides robust error handling, logging, and parameter validation capabilities that align with enterprise deployment requirements.
+5. **Enhanced Error Handling**: PowerShell's structured exception handling and built-in error objects provide more robust error management compared to bash's exit codes and string-based error handling.
 
 6. **Developer Experience**: Using a single scripting language reduces the cognitive overhead for developers who need to understand, modify, or troubleshoot deployment scripts.
 
@@ -37,6 +39,7 @@ We will use **PowerShell Core (`pwsh`)** as the standard scripting language for 
 - Hook scripts are located in `azd-hooks/scripts/hooks/` with appropriate subdirectories
 - Scripts include comprehensive error handling and parameter validation
 - All scripts follow PowerShell best practices including proper parameter binding and verbose logging
+- If bash compatibility is required for specific use cases, GitHub Copilot or other LLMs can easily translate our PowerShell scripts to bash
 
 ## Alternatives Considered
 
