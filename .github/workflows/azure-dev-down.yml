@@ -49,6 +49,15 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Run Predown PowerShell Script
+        env:
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+        shell: pwsh
+        run: |
+          ./azd-hooks/scripts/hooks/preprovision/run_preconfig.ps1
+
       - name: Azd down
         env:
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
