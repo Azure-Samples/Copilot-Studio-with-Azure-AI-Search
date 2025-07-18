@@ -25,13 +25,9 @@ We will use **PowerShell Core (`pwsh`)** as the standard scripting language for 
 
 2. **Single Script Maintenance**: Using PowerShell exclusively eliminates the need to maintain duplicate scripts in both PowerShell and bash, reducing maintenance overhead and preventing functional divergence between platform-specific implementations.
 
-3. **Superior Azure Integration**: PowerShell provides native cmdlets and the Azure PowerShell module with object-oriented output, offering better integration than bash with Azure CLI's JSON parsing requirements.
+3. **Native JSON Parsing**: PowerShell ships with ConvertFrom-Json/ConvertTo-Json, so scripts can parse and emit JSON out-of-the-box, whereas robust JSON handling in Bash usually requires installing jq or another external tool which adds to first time setup.
 
-4. **Native Power Platform CLI Integration**: The Power Platform CLI (PAC CLI) provides first-class PowerShell cmdlets, eliminating the need for complex JSON parsing and error handling required when using bash.
-
-5. **Enhanced Error Handling**: PowerShell's structured exception handling and built-in error objects provide more robust error management compared to bash's exit codes and string-based error handling.
-
-6. **Developer Experience**: Using a single scripting language reduces the cognitive overhead for developers who need to understand, modify, or troubleshoot deployment scripts.
+4. **Enhanced Error Handling**: PowerShell's structured exception handling and built-in error objects provide more robust error management compared to bash's exit codes and string-based error handling.
 
 ## Implementation Details
 
@@ -44,7 +40,7 @@ We will use **PowerShell Core (`pwsh`)** as the standard scripting language for 
 ## Alternatives Considered
 
 - **Bash + PowerShell**: Maintaining both bash and PowerShell versions would require duplicate effort and risk functional inconsistencies
-- **Bash Only**: Would not provide optimal integration with Azure services and Power Platform CLI, and would require additional tooling on Windows environments
+- **Bash Only**: Would require additional tooling and setup challenges on Windows environments
 
 ## References
 
