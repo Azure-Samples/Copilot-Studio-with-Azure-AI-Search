@@ -56,92 +56,97 @@ The Copilot Studio with Azure AI Search template implements a **secure-by-design
 ### Architecture Diagram
 
 ```mermaid
-graph TB
-    subgraph "Internet"
-        User[End User]
-        Maker[Copilot Developer]
-        DevOps[DevOps Engineer]
-    end
-    
-    subgraph GH_Repo[GitHub Repository]
-        GH_Actions[GitHub Actions]
-        GH_Runner[GitHub Runner<br/>*Self-Hosted Optional*]
-        GH_Terraform[Terraform]
-    end
-    
-    subgraph AZS[Azure Subscription]
-        subgraph "Resource Group"
-            subgraph PVNET[Primary VNet]
-                PE1[Private Endpoint<br/>Primary]
-                PP_Subnet[Power Platform<br/>Subnet]
-                AIS_Subnet[AI Search<br/>Subnet] 
-                PE_Subnet[Private Endpoint<br/>Subnet]
-                GHR_Subnet[GitHub Runner<br/>Subnet<br/>*Optional*]
-            end
-            
-            subgraph FVNET[Failover VNet]
-                PP_Subnet_F[Power Platform<br/>Subnet]
-                AIS_Subnet_F[AI Search<br/>Subnet]
-                PE_Subnet_F[Private Endpoint<br/>Subnet]
-                GHR_Subnet_F[GitHub Runner<br/>Subnet<br/>*Optional*]
-                PE2[Private Endpoint<br/>Failover]
-            end
-            
-            AOAI[Azure OpenAI]
-            AIS[Azure AI Search]
-            Storage[Storage Account]
-
-            
-            DNS[Private DNS Zone]
-            ACR[Container Registry<br/>Optional]
-        end
-    end
-    
+flowchart TB
     subgraph PP[Power Platform Tenant]
+        direction TB
         subgraph PP_Env[Power Platform Environment]
+            direction TB
             CS_Agent[Copilot Studio<br/>Agent]
             PP_Conn[AI Search<br/>Connection]
+            ME[Managed Environment]
+
         end
-        Channel[Channel]
-        MCS[Copilot Studio]
-        subgraph PPEP[Enterprise Policy]
+        PPEP[Enterprise Policy]
+        BP[Billing Policy]
+        PP_Env --> PPEP
+        PP_Env --> BP
+        
+    end
+    subgraph AZS[Azure Subscription]
+        subgraph RG[Resource Group]
+            subgraph DNS[Private DNS Zones]
+                DNS_AIS[AI Search DNS]
+                DNS_AOAI[OpenAI DNS]
+                DNS_Blob[Blob Storage DNS]
+            end
+            subgraph PVNET[Primary & Secondary VNets]
+                direction LR
+
+                subgraph PP_Subnet[Power Platform Subnet]
+                    PP_NSG[Power Platform NSG]
+                    PP_Delegation[Power Platform<br/>Delegation]
+                    PP_NSG -.-> PP_Delegation
+                end
+                subgraph DS_Subnet[Deployment Subnet]
+                    DS_NSG[Deployment Script NSG]
+                    DS_Delegation[ACI Delegation]
+                    DS_NSG -.-> DS_Delegation
+                end
+                subgraph GHR_Subnet[GitHub Runner Subnet<br/>*Optional*]
+                    GHR_NSG[GitHub Runner NSG<br/>*Optional*]
+                    GHR_Delegation[ACA Environment Delegatio]
+                    GHR_NSG -.-> GHR_Delegation
+                end
+                subgraph PE_Subnet[Private Endpoint<br/>Subnet]
+                    PE_NSG[Private Endpoint NSG]
+                    PE_AOAI[Private Endpoint<br/>Azure OpenAI]
+                    PE_AIS[Private Endpoint<br/>AI Search]
+                    PE_Storage[Private Endpoint<br/>Storage]
+                    PE_ACR[Private Endpoint<br/>Container Registry]
+                    PE_NSG -.-> PE_AOAI
+                    PE_NSG -.-> PE_AIS
+                    PE_NSG -.-> PE_Storage
+                    PE_NSG -.-> PE_ACR
+                end
+            end
+            
+            subgraph Resources[ ]
+                AOAI[Azure OpenAI]
+                AIS[Azure AI Search]
+                Storage[Main Storage Account]
+                DSStorage[Deployment Storage Account]
+                AppInsights[Application Insights<br/>*Optional*]
+                ACR[Container Registry<br/>*Optional*]
+                
+                Runner[ACA GitHub Runner<br/>*Optional*]
+                NAT[NAT Gateway]
+                NATIP[NAT Gateway Public IP]
+                DS[Deployment Scripts]
+                DSMI[Deployment Script Managed Identity]
+                AISMI[AI Search Managed Identity]
+                RunnerLog[GitHub Runner Log Analytics<br/>*Optional*]
+            end
             NIP[Network Injection Policy]
         end
     end
     
-    subgraph "Microsoft Entra Tenant"
-        ENTRA_SP[Service Principal]
-    end
 
-    AZCLI[Azure CLI]
-    
-    Maker --> |🔒 Entra Id| MCS
-    MCS --> PP_Env
-    User --> |🔒 Entra Id| Channel
-    Channel --> CS_Agent
-    CS_Agent --> PP_Conn
-    PP_Conn --> PE1
-    PP_Conn --> PE2
-    PE1 -->  |🔒 API Keys| AIS
-    PE2 --> |🔒 API Keys| AIS
-    AIS --> |🔒 System Assigned Managed Identity| AOAI
-    AIS --> |🔒 System Assigned Managed Identity| Storage
-    
-    DevOps --> |🔒 GitHub SSO| GH_Repo
-    DevOps --> AZCLI
-    AZCLI --> |🔒 OIDC <br> Preferred| ENTRA_SP
-    AZCLI --> |🔒 Client Id & Secret <br> Optional| ENTRA_SP
-    GH_Terraform --> |🎮 Azure RM <br> Control Plane| AZS
-    GH_Terraform --> |🎮 Power Platform APIs <br> Control Plane| PP
-    GH_Actions --> AZCLI
-    GH_Runner --> GH_Actions
 
-    GH_Actions --> GH_Terraform
+    PP ~~~ AZS
+    PP_Subnet ~~~ PE_Subnet ~~~ GHR_Subnet ~~~ DS_Subnet
+    NIP -.-> PVNET ~~~ Resources
+    DNS ~~~ PVNET
+    AIS --> AISMI
+    AISMI --> Storage
+    AISMI --> AOAI
+    DS --> DSMI --> DSStorage
+    Runner --> ACR
+    Runner --> RunnerLog
+    NAT --> NATIP
 
-    NIP --> PVNET
-    NIP --> FVNET
-    PP_Env --> NIP
 ```
+
+The architecture diagram shows a simplified view for clarity - while the template deploys primary and secondary VNets and NAT gateways for high availability, these redundant components are not illustrated to maintain diagram readability.
 
 ## Threat Model and Risk Assessment
 
