@@ -8,7 +8,7 @@ on:
       azd_environment_name:
         description: "Name of the AZD Environment"
         required: true
-        default: "CICDsbaydach"
+        default: "CICD"
       azure_location:
         description: "Azure location for the environment"
         required: true
@@ -23,7 +23,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICDsbaydach' }}
+      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
 
     steps:
