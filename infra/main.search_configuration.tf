@@ -244,7 +244,7 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.script_main_storage_file_contributor,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
-    azurerm_role_assignment.script_search_index_data_contributor,
+    # azurerm_role_assignment.script_search_index_data_contributor,
     # Azure OpenAI permissions
     azurerm_role_assignment.script_cognitive_services_openai_user,
     # Other permissions
@@ -266,7 +266,7 @@ resource "time_sleep" "wait_for_storage_network" {
 resource "time_sleep" "wait_for_search_permissions" {
   depends_on = [
     azurerm_role_assignment.script_search_service_contributor,
-    azurerm_role_assignment.script_search_index_data_contributor,
+    # azurerm_role_assignment.script_search_index_data_contributor,
     time_sleep.wait_for_rbac
   ]
   create_duration = "30s"
@@ -463,7 +463,7 @@ resource "null_resource" "verify_rbac_propagation" {
     azurerm_role_assignment.script_deployment_container_file_owner,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
-    azurerm_role_assignment.script_search_index_data_contributor,
+    # azurerm_role_assignment.script_search_index_data_contributor,
     # Azure OpenAI permissions
     azurerm_role_assignment.script_cognitive_services_openai_user
   ]
