@@ -55,6 +55,12 @@ resource "azurerm_role_assignment" "script_main_storage_blob_owner" {
   role_definition_name = "Storage Blob Data Contributor"
 }
 
+resource "azurerm_role_assignment" "script_main_storage_reader" {
+  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
+  scope                = module.storage_account_and_container.resource_id
+  role_definition_name = "Reader"
+}
+
 # --- Deployment Container Storage Account ---
 resource "azurerm_role_assignment" "script_deployment_container_blob_contributor" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
