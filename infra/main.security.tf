@@ -68,7 +68,7 @@ resource "azurerm_role_assignment" "script_deployment_container_blob_contributor
   role_definition_name = "Storage Blob Data Contributor"
 }
 
-resource "azurerm_role_assignment" "script_deployment_container_file_contributo" {
+resource "azurerm_role_assignment" "script_deployment_container_file_contributor" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_storage_account.deployment_container.id
   role_definition_name = "Storage File Data Privileged Contributor"
