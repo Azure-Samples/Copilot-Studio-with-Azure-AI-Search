@@ -1,8 +1,7 @@
+# This workflow allows you to destroy the deployed resources using azd down command.
+# It is triggered manually via the GitHub UI.
 name: "CI Destroy Resources"
 on:
-  push:
-    branches:
-      - "sbaidachni/azddown"
   workflow_dispatch:
     inputs:
       azd_environment_name:

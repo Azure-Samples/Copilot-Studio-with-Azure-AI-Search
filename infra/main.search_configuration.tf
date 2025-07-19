@@ -236,7 +236,7 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.terraform_deployment_container_file_access,
     # Script identity storage permissions
     azurerm_role_assignment.script_deployment_container_blob_contributor,
-    azurerm_role_assignment.script_deployment_container_file_contributo,
+    azurerm_role_assignment.script_deployment_container_file_contributor,
     # Main storage permissions (write access needed for upload_data.py to upload data files)
     azurerm_role_assignment.script_main_storage_blob_contributor,
     # AI Search permissions
