@@ -52,25 +52,7 @@ resource "azurerm_role_assignment" "script_search_service_contributor" {
 resource "azurerm_role_assignment" "script_main_storage_blob_owner" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = module.storage_account_and_container.resource_id
-  role_definition_name = "Storage Blob Data Owner"
-}
-
-resource "azurerm_role_assignment" "script_main_storage_file_contributor" {
-  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
-  scope                = module.storage_account_and_container.resource_id
-  role_definition_name = "Storage File Data Privileged Contributor"
-}
-
-resource "azurerm_role_assignment" "script_main_storage_reader" {
-  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
-  scope                = module.storage_account_and_container.resource_id
-  role_definition_name = "Reader"
-}
-
-resource "azurerm_role_assignment" "script_main_storage_account_contributor" {
-  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
-  scope                = module.storage_account_and_container.resource_id
-  role_definition_name = "Storage Account Contributor"
+  role_definition_name = "Storage Blob Data Contributor"
 }
 
 # --- Deployment Container Storage Account ---
@@ -84,13 +66,6 @@ resource "azurerm_role_assignment" "script_deployment_container_file_owner" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_storage_account.deployment_container.id
   role_definition_name = "Storage File Data Privileged Contributor"
-}
-
-# --- Other Permissions ---
-resource "azurerm_role_assignment" "script_container_apps_contributor" {
-  principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
-  scope                = azurerm_resource_group.this.id
-  role_definition_name = "Container Apps Contributor"
 }
 
 # ============================================================================
