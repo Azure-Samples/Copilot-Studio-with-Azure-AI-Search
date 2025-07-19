@@ -2,9 +2,6 @@
 # It is triggered manually via the GitHub UI.
 name: "CI Destroy Resources"
 on:
-  push:
-    branches:
-      - sbaidachni/azddown
   workflow_dispatch:
     inputs:
       azd_environment_name:
@@ -79,6 +76,6 @@ jobs:
           azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
           azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
 
-          azd package
+          azd package # trigger prepackage hook to setup terraform provider
           azd provision --preview  # https://github.com/Azure/azure-dev/issues/4317
           azd down --no-prompt --force --purge
