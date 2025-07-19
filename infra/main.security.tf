@@ -49,7 +49,7 @@ resource "azurerm_role_assignment" "script_search_service_contributor" {
 }
 
 # --- Main Storage Account Permissions ---
-resource "azurerm_role_assignment" "script_main_storage_blob_owner" {
+resource "azurerm_role_assignment" "script_main_storage_blob_contributor" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = module.storage_account_and_container.resource_id
   role_definition_name = "Storage Blob Data Contributor"
@@ -68,7 +68,7 @@ resource "azurerm_role_assignment" "script_deployment_container_blob_contributor
   role_definition_name = "Storage Blob Data Contributor"
 }
 
-resource "azurerm_role_assignment" "script_deployment_container_file_owner" {
+resource "azurerm_role_assignment" "script_deployment_container_file_contributo" {
   principal_id         = azurerm_user_assigned_identity.script_identity.principal_id
   scope                = azurerm_storage_account.deployment_container.id
   role_definition_name = "Storage File Data Privileged Contributor"

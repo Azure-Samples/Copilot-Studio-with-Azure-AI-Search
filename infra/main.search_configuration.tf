@@ -235,22 +235,16 @@ resource "time_sleep" "wait_for_rbac" {
     azurerm_role_assignment.terraform_deployment_container_storage_access,
     azurerm_role_assignment.terraform_deployment_container_file_access,
     # Script identity storage permissions
-    # azurerm_role_assignment.script_deployment_container_storage_contributor,
     azurerm_role_assignment.script_deployment_container_blob_contributor,
-    azurerm_role_assignment.script_deployment_container_file_owner,
+    azurerm_role_assignment.script_deployment_container_file_contributo,
     # Main storage permissions (write access needed for upload_data.py to upload data files)
-    # azurerm_role_assignment.script_main_storage_queue_contributor,
-    azurerm_role_assignment.script_main_storage_blob_owner,
-    # azurerm_role_assignment.script_main_storage_file_contributor,
+    azurerm_role_assignment.script_main_storage_blob_contributor,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
-    # azurerm_role_assignment.script_search_index_data_contributor,
     # Azure OpenAI permissions
     azurerm_role_assignment.script_cognitive_services_openai_user,
-    # Other permissions
-    # azurerm_role_assignment.script_container_apps_contributor
   ]
-  create_duration = "30s"
+  create_duration = "60s"
 }
 
 # Additional time sleep for storage account to be fully ready for network access
@@ -455,15 +449,12 @@ resource "null_resource" "verify_rbac_propagation" {
   depends_on = [
     time_sleep.wait_for_rbac,
     # Storage permissions
-    # azurerm_role_assignment.script_main_storage_queue_contributor,
-    azurerm_role_assignment.script_main_storage_blob_owner,
-    # azurerm_role_assignment.script_main_storage_file_contributor,
-    # azurerm_role_assignment.script_deployment_container_storage_contributor,
+    azurerm_role_assignment.script_main_storage_reader,
+    azurerm_role_assignment.script_main_storage_blob_contributor,
     azurerm_role_assignment.script_deployment_container_blob_contributor,
-    azurerm_role_assignment.script_deployment_container_file_owner,
+    azurerm_role_assignment.script_deployment_container_file_contributor,
     # AI Search permissions
     azurerm_role_assignment.script_search_service_contributor,
-    # azurerm_role_assignment.script_search_index_data_contributor,
     # Azure OpenAI permissions
     azurerm_role_assignment.script_cognitive_services_openai_user
   ]
