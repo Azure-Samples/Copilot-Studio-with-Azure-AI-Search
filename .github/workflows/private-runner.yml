@@ -1,0 +1,13 @@
+name: Private Runner
+on:
+ push:
+   branches:
+     - mattdot/private-runner    
+ workflow_dispatch:
+ 
+jobs: 
+  test:
+    runs-on: [ self-hosted, 1ES.Pool=cswaas]
+    steps:
+      - name: Hello
+        run: "echo hello private runner"
