@@ -14,7 +14,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage_vnet_link
   name                  = "blob-storage-vnet-link"
   resource_group_name   = azurerm_resource_group.this.name
   private_dns_zone_name = azurerm_private_dns_zone.blob_storage.name
-  virtual_network_id    = azurerm_virtual_network.primary_virtual_network.id
+  virtual_network_id    = local.primary_virtual_network_id
   registration_enabled  = false
   tags                  = var.tags
 }
@@ -26,9 +26,9 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage_vnet_link
 # Wait for subnets to be fully provisioned before creating storage account
 resource "time_sleep" "wait_for_subnets" {
   depends_on = [
-    azurerm_subnet.primary_subnet,
+    azurerm_subnet.primary_subnet[0],
     azurerm_subnet_nat_gateway_association.primary_subnet_nat,
-    azurerm_subnet.deployment_script_container_subnet,
+    azurerm_subnet.deployment_script_container_subnet[0],
     azurerm_subnet_nat_gateway_association.deployment_script_nat
   ]
   create_duration = "90s" # Wait for subnets to exit 'Updating' state
@@ -70,9 +70,9 @@ module "storage_account_and_container" {
     bypass         = ["AzureServices", "Logging", "Metrics"]
     default_action = "Deny"
     virtual_network_subnet_ids = toset([
-      azurerm_subnet.primary_subnet.id,
-      azurerm_subnet.deployment_script_container_subnet.id,
-      azurerm_subnet.pe_primary_subnet.id
+      local.primary_subnet_id,
+      local.deployment_script_container_subnet_id,
+      local.pe_primary_subnet_id
     ])
 
     logging = {
@@ -101,7 +101,7 @@ module "storage_account_and_container" {
 
   private_endpoints = {
     primary_blob = {
-      subnet_resource_id            = azurerm_subnet.pe_primary_subnet.id
+      subnet_resource_id            = local.pe_primary_subnet_id
       subresource_name              = "blob"
       private_dns_zone_resource_ids = [azurerm_private_dns_zone.blob_storage.id]
       private_dns_zone_group_name   = "default"

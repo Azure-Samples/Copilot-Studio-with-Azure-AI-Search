@@ -1,11 +1,26 @@
 locals {
-  byon = var.bring_your_own_network.primary_virtual_network.id != "" ? true : false
+  byon = var.bring_your_own_network.primary_virtual_network.id != null ? true : false
+  primary_virtual_network_id = coalesce(var.bring_your_own_network.primary_virtual_network.id, azurerm_virtual_network.primary_virtual_network[0].id)
+  primary_virtual_network_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.primary_virtual_network_id]).name, azurerm_virtual_network.primary_virtual_network[0].name)
+
+  failover_virtual_network_id = coalesce(var.bring_your_own_network.failover_virtual_network.id, azurerm_virtual_network.failover_virtual_network[0].id)
+  failover_virtual_network_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_virtual_network_id]).name, azurerm_virtual_network.failover_virtual_network[0].name)
+  failover_virtual_network_location = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_virtual_network_id]).location, azurerm_virtual_network.failover_virtual_network[0].location)
+
+  primary_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.primary_subnet_id, azurerm_subnet.primary_subnet[0].id)
+  primary_subnet_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.primary_subnet_id]).name, azurerm_subnet.primary_subnet[0].name)
+
+  failover_subnet_id = coalesce(var.bring_your_own_network.failover_virtual_network.failover_subnet_id, azurerm_subnet.failover_subnet[0].id)
+  failover_subnet_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_subnet_id]).name, azurerm_subnet.failover_subnet[0].name)
+
+  pe_primary_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.pe_primary_subnet_id, azurerm_subnet.pe_primary_subnet[0].id)
+  pe_failover_subnet_id = coalesce(var.bring_your_own_network.failover_virtual_network.pe_failover_subnet_id, azurerm_subnet.pe_failover_subnet[0].id)
+  deployment_script_container_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.deployment_script_container_subnet_id, azurerm_subnet.deployment_script_container_subnet[0].id)
 }
 
 data "azurerm_resources" "vnets" {
   type = "Microsoft.Network/virtualNetworks"
 }
-
 
 
 # Create virtual networks directly instead of using AVMs - necessary due to timing issues when a first-class resource dependency is unavailable.
@@ -36,7 +51,7 @@ resource "azurerm_subnet" "primary_subnet" {
 
   name                 = var.primary_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
 
@@ -52,7 +67,7 @@ resource "azurerm_subnet" "primary_subnet" {
 resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
   count          = local.byon ? 0 : 1
 
-  subnet_id      = azurerm_subnet.primary_subnet.id
+  subnet_id      = azurerm_subnet.primary_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
@@ -63,7 +78,7 @@ resource "azurerm_subnet" "failover_subnet" {
 
   name                 = var.failover_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
 
@@ -79,7 +94,7 @@ resource "azurerm_subnet" "failover_subnet" {
 resource "azurerm_subnet_nat_gateway_association" "failover_subnet_nat" {
   count          = local.byon ? 0 : 1
 
-  subnet_id      = azurerm_subnet.failover_subnet.id
+  subnet_id      = azurerm_subnet.failover_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
@@ -90,7 +105,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "pe-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_pe_subnet_address_spaces
   service_endpoints    = ["Microsoft.CognitiveServices", "Microsoft.Storage"]
 
@@ -104,7 +119,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
 
   name                 = "pe-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_pe_subnet_address_spaces
   service_endpoints    = ["Microsoft.CognitiveServices"]
 
@@ -120,7 +135,7 @@ resource "azurerm_subnet" "github_runner_primary_subnet" {
 
   name                 = "github-runner-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_gh_runner_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage"]
 
@@ -147,7 +162,7 @@ resource "azurerm_subnet" "github_runner_failover_subnet" {
 
   name                 = "github-runner-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_gh_runner_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage"]
 
@@ -215,7 +230,7 @@ resource "azurerm_subnet" "deployment_script_container_subnet" {
 
   name                 = "deploymentscript-subnet"
   resource_group_name  = azurerm_resource_group.this.name
-  virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
+  virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.deployment_script_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
   delegation {
@@ -232,7 +247,7 @@ resource "azurerm_subnet" "deployment_script_container_subnet" {
 resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
   count          = local.byon ? 0 : 1
 
-  subnet_id      = azurerm_subnet.deployment_script_container_subnet.id
+  subnet_id      = azurerm_subnet.deployment_script_container_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
@@ -670,32 +685,32 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
 resource "azurerm_subnet_network_security_group_association" "primary_subnet_nsg" {
   count                     = local.byon ? 0 : 1
 
-  subnet_id                 = azurerm_subnet.primary_subnet.id
-  network_security_group_id = azurerm_network_security_group.power_platform_primary_nsg.id
+  subnet_id                 = azurerm_subnet.primary_subnet[0].id
+  network_security_group_id = azurerm_network_security_group.power_platform_primary_nsg[0].id
 }
 
 # Associate Power Platform failover NSG with failover subnet
 resource "azurerm_subnet_network_security_group_association" "failover_subnet_nsg" {
   count                     = local.byon ? 0 : 1
 
-  subnet_id                 = azurerm_subnet.failover_subnet.id
-  network_security_group_id = azurerm_network_security_group.power_platform_failover_nsg.id
+  subnet_id                 = azurerm_subnet.failover_subnet[0].id
+  network_security_group_id = azurerm_network_security_group.power_platform_failover_nsg[0].id
 }
 
 # Associate Private Endpoint NSG with primary PE subnet
 resource "azurerm_subnet_network_security_group_association" "pe_primary_subnet_nsg" {
   count                     = local.byon ? 0 : 1
 
-  subnet_id                 = azurerm_subnet.pe_primary_subnet.id
-  network_security_group_id = azurerm_network_security_group.private_endpoint_primary_nsg.id
+  subnet_id                 = azurerm_subnet.pe_primary_subnet[0].id
+  network_security_group_id = azurerm_network_security_group.private_endpoint_primary_nsg[0].id
 }
 
 # Associate Private Endpoint NSG with failover PE subnet
 resource "azurerm_subnet_network_security_group_association" "pe_failover_subnet_nsg" {
   count                     = local.byon ? 0 : 1
 
-  subnet_id                 = azurerm_subnet.pe_failover_subnet.id
-  network_security_group_id = azurerm_network_security_group.private_endpoint_failover_nsg.id
+  subnet_id                 = azurerm_subnet.pe_failover_subnet[0].id
+  network_security_group_id = azurerm_network_security_group.private_endpoint_failover_nsg[0].id
 }
 
 # Associate GitHub Runner NSG with primary GitHub runner subnet (conditional)
@@ -716,6 +731,6 @@ resource "azurerm_subnet_network_security_group_association" "github_runner_fail
 resource "azurerm_subnet_network_security_group_association" "deployment_script_subnet_nsg" {
   count                     = local.byon ? 0 : 1
 
-  subnet_id                 = azurerm_subnet.deployment_script_container_subnet.id
-  network_security_group_id = azurerm_network_security_group.deployment_script_nsg.id
+  subnet_id                 = azurerm_subnet.deployment_script_container_subnet[0].id
+  network_security_group_id = azurerm_network_security_group.deployment_script_nsg[0].id
 }
