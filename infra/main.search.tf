@@ -31,7 +31,7 @@ resource "azurerm_private_endpoint" "primary_endpoint" {
   location            = azurerm_search_service.ai_search.location
   name                = "private-endpoint-primary-${local.search_name}"
   resource_group_name = azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.pe_primary_subnet.id
+  subnet_id           = local.pe_primary_subnet_id
   tags                = var.tags
 
   private_service_connection {
@@ -46,10 +46,10 @@ resource "azurerm_private_endpoint" "primary_endpoint" {
 
 # Failover region private endpoint
 resource "azurerm_private_endpoint" "failover_endpoint" {
-  location            = azurerm_virtual_network.failover_virtual_network.location
+  location            = local.failover_virtual_network_location
   name                = "private-endpoint-failover-${local.search_name}"
   resource_group_name = azurerm_resource_group.this.name
-  subnet_id           = azurerm_subnet.pe_failover_subnet.id
+  subnet_id           = local.pe_failover_subnet_id
   tags                = var.tags
 
   private_service_connection {
@@ -71,8 +71,8 @@ resource "azurerm_private_dns_zone" "aisearch_dns" {
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns_links" {
   for_each = {
-    primary  = azurerm_virtual_network.primary_virtual_network.id
-    failover = azurerm_virtual_network.failover_virtual_network.id
+    primary  = local.primary_virtual_network_id
+    failover = local.failover_virtual_network_id
   }
 
   name                  = "${each.key}-link"
