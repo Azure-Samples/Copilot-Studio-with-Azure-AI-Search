@@ -28,7 +28,7 @@ resource "time_sleep" "wait_for_subnets" {
   depends_on = [
     azurerm_subnet.primary_subnet,
     azurerm_subnet_nat_gateway_association.primary_subnet_nat,
-    azurerm_subnet.deployment_script_container,
+    azurerm_subnet.deployment_script_container_subnet,
     azurerm_subnet_nat_gateway_association.deployment_script_nat
   ]
   create_duration = "90s" # Wait for subnets to exit 'Updating' state
@@ -71,7 +71,7 @@ module "storage_account_and_container" {
     default_action = "Deny"
     virtual_network_subnet_ids = toset([
       azurerm_subnet.primary_subnet.id,
-      azurerm_subnet.deployment_script_container.id,
+      azurerm_subnet.deployment_script_container_subnet.id,
       azurerm_subnet.pe_primary_subnet.id
     ])
 

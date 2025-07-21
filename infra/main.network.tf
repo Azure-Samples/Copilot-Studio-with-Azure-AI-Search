@@ -1,5 +1,17 @@
+locals {
+  byon = var.bring_your_own_network.primary_virtual_network.id != "" ? true : false
+}
+
+data "azurerm_resources" "vnets" {
+  type = "Microsoft.Network/virtualNetworks"
+}
+
+
+
 # Create virtual networks directly instead of using AVMs - necessary due to timing issues when a first-class resource dependency is unavailable.
 resource "azurerm_virtual_network" "primary_virtual_network" {
+  count = local.byon ? 0 : 1
+
   name                = "power-platform-primary-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
   location            = var.primary_location
@@ -8,6 +20,8 @@ resource "azurerm_virtual_network" "primary_virtual_network" {
 }
 
 resource "azurerm_virtual_network" "failover_virtual_network" {
+  count = local.byon ? 0 : 1
+
   name                = "power-platform-failover-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
   location            = var.failover_location
@@ -18,6 +32,8 @@ resource "azurerm_virtual_network" "failover_virtual_network" {
 # Create primary subnets as first-class resources
 resource "azurerm_subnet" "primary_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
+  count                = local.byon ? 0 : 1
+
   name                 = var.primary_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -34,6 +50,8 @@ resource "azurerm_subnet" "primary_subnet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
+  count          = local.byon ? 0 : 1
+
   subnet_id      = azurerm_subnet.primary_subnet.id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
@@ -41,6 +59,8 @@ resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
 # Create failover subnets as first-class resources
 resource "azurerm_subnet" "failover_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
+  count                = local.byon ? 0 : 1
+
   name                 = var.failover_subnet_name
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -57,12 +77,16 @@ resource "azurerm_subnet" "failover_subnet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "failover_subnet_nat" {
+  count          = local.byon ? 0 : 1
+
   subnet_id      = azurerm_subnet.failover_subnet.id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
 # Create dedicated private endpoint subnets without delegations
 resource "azurerm_subnet" "pe_primary_subnet" {
+  count                = local.byon ? 0 : 1
+
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "pe-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
@@ -76,6 +100,8 @@ resource "azurerm_subnet" "pe_primary_subnet" {
 
 resource "azurerm_subnet" "pe_failover_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
+  count                = local.byon ? 0 : 1
+
   name                 = "pe-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -90,7 +116,8 @@ resource "azurerm_subnet" "pe_failover_subnet" {
 
 resource "azurerm_subnet" "github_runner_primary_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
-  count                = var.deploy_github_runner ? 1 : 0
+  count                = var.deploy_github_runner && local.byon == false ? 1 : 0
+
   name                 = "github-runner-primary-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -108,14 +135,16 @@ resource "azurerm_subnet" "github_runner_primary_subnet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "github_runner_primary_subnet_nat" {
-  count          = var.deploy_github_runner ? 1 : 0
+  count          = var.deploy_github_runner && local.byon == false ? 1 : 0
+
   subnet_id      = azurerm_subnet.github_runner_primary_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
 resource "azurerm_subnet" "github_runner_failover_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
-  count                = var.deploy_github_runner ? 1 : 0
+  count                = var.deploy_github_runner && local.byon == false ? 1 : 0
+
   name                 = "github-runner-failover-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network.name
@@ -133,14 +162,15 @@ resource "azurerm_subnet" "github_runner_failover_subnet" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "github_runner_failover_subnet_nat" {
-  count          = var.deploy_github_runner ? 1 : 0
+  count          = var.deploy_github_runner && local.byon == false ? 1 : 0
+
   subnet_id      = azurerm_subnet.github_runner_failover_subnet[0].id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["failover"].id
 }
 
 # Create public IP addresses for NAT gateways
 resource "azurerm_public_ip" "nat_gateway_ips" {
-  for_each = {
+  for_each = local.byon ? {} : {
     primary  = var.primary_location
     failover = var.failover_location
   }
@@ -154,7 +184,7 @@ resource "azurerm_public_ip" "nat_gateway_ips" {
 }
 
 resource "azurerm_nat_gateway" "nat_gateways" {
-  for_each = {
+  for_each = local.byon ? {} : {
     primary  = var.primary_location
     failover = var.failover_location
   }
@@ -171,7 +201,7 @@ resource "azurerm_nat_gateway" "nat_gateways" {
 
 # Associate public IP addresses with NAT gateways
 resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_associations" {
-  for_each = {
+  for_each = local.byon ? {} : {
     primary  = var.primary_location
     failover = var.failover_location
   }
@@ -180,7 +210,9 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_association
   public_ip_address_id = azurerm_public_ip.nat_gateway_ips[each.key].id
 }
 
-resource "azurerm_subnet" "deployment_script_container" {
+resource "azurerm_subnet" "deployment_script_container_subnet" {
+  count               = local.byon ? 0 : 1
+
   name                 = "deploymentscript-subnet"
   resource_group_name  = azurerm_resource_group.this.name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network.name
@@ -198,7 +230,9 @@ resource "azurerm_subnet" "deployment_script_container" {
 }
 
 resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
-  subnet_id      = azurerm_subnet.deployment_script_container.id
+  count          = local.byon ? 0 : 1
+
+  subnet_id      = azurerm_subnet.deployment_script_container_subnet.id
   nat_gateway_id = azurerm_nat_gateway.nat_gateways["primary"].id
 }
 
@@ -208,6 +242,8 @@ resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
 
 # NSG for Power Platform primary subnet
 resource "azurerm_network_security_group" "power_platform_primary_nsg" {
+  count               = local.byon ? 0 : 1
+
   name                = "power-platform-primary-nsg-${random_string.name.id}"
   location            = var.primary_location
   resource_group_name = azurerm_resource_group.this.name
@@ -268,6 +304,8 @@ resource "azurerm_network_security_group" "power_platform_primary_nsg" {
 
 # NSG for Power Platform failover subnet
 resource "azurerm_network_security_group" "power_platform_failover_nsg" {
+  count               = local.byon ? 0 : 1
+
   name                = "power-platform-failover-nsg-${random_string.name.id}"
   location            = var.failover_location
   resource_group_name = azurerm_resource_group.this.name
@@ -328,6 +366,8 @@ resource "azurerm_network_security_group" "power_platform_failover_nsg" {
 
 # NSG for Private Endpoint subnets - Primary
 resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
+  count               = local.byon ? 0 : 1
+
   name                = "private-endpoint-primary-nsg-${random_string.name.id}"
   location            = var.primary_location
   resource_group_name = azurerm_resource_group.this.name
@@ -362,6 +402,8 @@ resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
 
 # NSG for Private Endpoint subnets - Failover
 resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
+  count               = local.byon ? 0 : 1
+
   name                = "private-endpoint-failover-nsg-${random_string.name.id}"
   location            = var.failover_location
   resource_group_name = azurerm_resource_group.this.name
@@ -396,7 +438,7 @@ resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
 
 # NSG for GitHub Runner subnets (Container Apps)
 resource "azurerm_network_security_group" "github_runner_nsg" {
-  count               = var.deploy_github_runner ? 1 : 0
+  count               = var.deploy_github_runner && local.byon == false ? 1 : 0
   name                = "github-runner-nsg-${random_string.name.id}"
   location            = var.primary_location
   resource_group_name = azurerm_resource_group.this.name
@@ -469,6 +511,8 @@ resource "azurerm_network_security_group" "github_runner_nsg" {
 
 # NSG for Deployment Script Container subnet - Enhanced with comprehensive rules
 resource "azurerm_network_security_group" "deployment_script_nsg" {
+  count               = local.byon ? 0 : 1
+
   name                = "deployment-script-nsg-${random_string.name.id}"
   location            = var.primary_location
   resource_group_name = azurerm_resource_group.this.name
@@ -624,44 +668,54 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
 
 # Associate Power Platform primary NSG with primary subnet
 resource "azurerm_subnet_network_security_group_association" "primary_subnet_nsg" {
+  count                     = local.byon ? 0 : 1
+
   subnet_id                 = azurerm_subnet.primary_subnet.id
   network_security_group_id = azurerm_network_security_group.power_platform_primary_nsg.id
 }
 
 # Associate Power Platform failover NSG with failover subnet
 resource "azurerm_subnet_network_security_group_association" "failover_subnet_nsg" {
+  count                     = local.byon ? 0 : 1
+
   subnet_id                 = azurerm_subnet.failover_subnet.id
   network_security_group_id = azurerm_network_security_group.power_platform_failover_nsg.id
 }
 
 # Associate Private Endpoint NSG with primary PE subnet
 resource "azurerm_subnet_network_security_group_association" "pe_primary_subnet_nsg" {
+  count                     = local.byon ? 0 : 1
+
   subnet_id                 = azurerm_subnet.pe_primary_subnet.id
   network_security_group_id = azurerm_network_security_group.private_endpoint_primary_nsg.id
 }
 
 # Associate Private Endpoint NSG with failover PE subnet
 resource "azurerm_subnet_network_security_group_association" "pe_failover_subnet_nsg" {
+  count                     = local.byon ? 0 : 1
+
   subnet_id                 = azurerm_subnet.pe_failover_subnet.id
   network_security_group_id = azurerm_network_security_group.private_endpoint_failover_nsg.id
 }
 
 # Associate GitHub Runner NSG with primary GitHub runner subnet (conditional)
 resource "azurerm_subnet_network_security_group_association" "github_runner_primary_subnet_nsg" {
-  count                     = var.deploy_github_runner ? 1 : 0
+  count                     = var.deploy_github_runner  && local.byon == false ? 1 : 0
   subnet_id                 = azurerm_subnet.github_runner_primary_subnet[0].id
   network_security_group_id = azurerm_network_security_group.github_runner_nsg[0].id
 }
 
 # Associate GitHub Runner NSG with failover GitHub runner subnet (conditional)
 resource "azurerm_subnet_network_security_group_association" "github_runner_failover_subnet_nsg" {
-  count                     = var.deploy_github_runner && var.enable_failover_github_runner ? 1 : 0
+  count                     = var.deploy_github_runner && var.enable_failover_github_runner && local.byon == false ? 1 : 0
   subnet_id                 = azurerm_subnet.github_runner_failover_subnet[0].id
   network_security_group_id = azurerm_network_security_group.github_runner_nsg[0].id
 }
 
 # Associate Deployment Script NSG with deployment script subnet
 resource "azurerm_subnet_network_security_group_association" "deployment_script_subnet_nsg" {
-  subnet_id                 = azurerm_subnet.deployment_script_container.id
+  count                     = local.byon ? 0 : 1
+
+  subnet_id                 = azurerm_subnet.deployment_script_container_subnet.id
   network_security_group_id = azurerm_network_security_group.deployment_script_nsg.id
 }

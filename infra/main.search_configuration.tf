@@ -100,7 +100,7 @@ resource "azapi_resource" "configure_search_index" {
       containerSettings = {
         subnetIds = [
           {
-            id = "${azurerm_subnet.deployment_script_container.id}"
+            id = "${azurerm_subnet.deployment_script_container_subnet.id}"
           }
         ]
       }
