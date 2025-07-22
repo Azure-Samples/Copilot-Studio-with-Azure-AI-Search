@@ -3,8 +3,8 @@ locals {
 }
 
 resource "azurerm_search_service" "ai_search" {
-  # checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
-  # checkov:skip=CKV_AZURE_208: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
+  # checkov:skip=CKV_AZURE_209: This template uses minimal infrastructure for evaluation purposes. For production scenarios, increase partition_count and replica_count to meet SLA requirements. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV_AZURE_208: This template uses minimal infrastructure for evaluation purposes. For production scenarios, increase partition_count and replica_count to meet SLA requirements. See docs/security_considerations.md for hardening guidance.
   name                          = local.search_name
   location                      = var.primary_location
   resource_group_name           = azurerm_resource_group.this.name
