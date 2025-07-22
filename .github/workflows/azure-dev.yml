@@ -70,12 +70,12 @@ jobs:
           gitleaks version
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@55ec9447dda3d1cf6bd587150f3262f30ee10815 # v3.4.2
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: '8.0.x'
 
       - name: Install Power Platform Tools
-        uses: microsoft/powerplatform-actions/actions-install@51f663ea104eb227c3712215ceb2f82827d81c27 # v1.9.0
+        uses: microsoft/powerplatform-actions/actions-install@6c7b538671a040d11afd8ab94d77bfe3b3ed87e6 # v1.9.1
       
       - name: Install Power Platform CLI
         run: |
