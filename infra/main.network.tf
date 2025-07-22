@@ -1,21 +1,47 @@
 locals {
   byon = var.bring_your_own_network.primary_virtual_network.id != null ? true : false
-  primary_virtual_network_id = coalesce(var.bring_your_own_network.primary_virtual_network.id, azurerm_virtual_network.primary_virtual_network[0].id)
-  primary_virtual_network_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.primary_virtual_network_id]).name, azurerm_virtual_network.primary_virtual_network[0].name)
+  primary_virtual_network_id = coalesce(var.bring_your_own_network.primary_virtual_network.id, local.byon ? null : azurerm_virtual_network.primary_virtual_network[0].id)
+  
+  # Get matching primary VNets from data source
+  primary_vnet_matches = [for r in data.azurerm_resources.vnets.resources : r if r.id == local.primary_virtual_network_id]
+  
+  primary_virtual_network_name = coalesce(
+    length(local.primary_vnet_matches) > 0 ? local.primary_vnet_matches[0].name : null,
+    local.byon ? null : azurerm_virtual_network.primary_virtual_network[0].name
+  )
 
-  failover_virtual_network_id = coalesce(var.bring_your_own_network.failover_virtual_network.id, azurerm_virtual_network.failover_virtual_network[0].id)
-  failover_virtual_network_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_virtual_network_id]).name, azurerm_virtual_network.failover_virtual_network[0].name)
-  failover_virtual_network_location = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_virtual_network_id]).location, azurerm_virtual_network.failover_virtual_network[0].location)
+  failover_virtual_network_id = coalesce(var.bring_your_own_network.failover_virtual_network.id, local.byon ? null : azurerm_virtual_network.failover_virtual_network[0].id)
+  
+  # Get matching failover VNets from data source
+  failover_vnet_matches = [for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_virtual_network_id]
+  
+  failover_virtual_network_name = coalesce(
+    length(local.failover_vnet_matches) > 0 ? local.failover_vnet_matches[0].name : null,
+    local.byon ? null : azurerm_virtual_network.failover_virtual_network[0].name
+  )
+  failover_virtual_network_location = coalesce(
+    length(local.failover_vnet_matches) > 0 ? local.failover_vnet_matches[0].location : null,
+    local.byon ? null : azurerm_virtual_network.failover_virtual_network[0].location
+  )
 
-  primary_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.primary_subnet_id, azurerm_subnet.primary_subnet[0].id)
-  primary_subnet_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.primary_subnet_id]).name, azurerm_subnet.primary_subnet[0].name)
+  primary_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.primary_subnet_id, local.byon ? null : azurerm_subnet.primary_subnet[0].id)
+  
+  # Get matching primary subnets from data source (subnets are not in the VNets data source, so we'll use a simpler approach)
+  primary_subnet_name = coalesce(
+    var.bring_your_own_network.primary_virtual_network.primary_subnet_id != null ? split("/", var.bring_your_own_network.primary_virtual_network.primary_subnet_id)[length(split("/", var.bring_your_own_network.primary_virtual_network.primary_subnet_id)) - 1] : null,
+    local.byon ? null : azurerm_subnet.primary_subnet[0].name
+  )
 
-  failover_subnet_id = coalesce(var.bring_your_own_network.failover_virtual_network.failover_subnet_id, azurerm_subnet.failover_subnet[0].id)
-  failover_subnet_name = coalesce(one([for r in data.azurerm_resources.vnets.resources : r if r.id == local.failover_subnet_id]).name, azurerm_subnet.failover_subnet[0].name)
+  failover_subnet_id = coalesce(var.bring_your_own_network.failover_virtual_network.failover_subnet_id, local.byon ? null : azurerm_subnet.failover_subnet[0].id)
+  
+  failover_subnet_name = coalesce(
+    var.bring_your_own_network.failover_virtual_network.failover_subnet_id != null ? split("/", var.bring_your_own_network.failover_virtual_network.failover_subnet_id)[length(split("/", var.bring_your_own_network.failover_virtual_network.failover_subnet_id)) - 1] : null,
+    local.byon ? null : azurerm_subnet.failover_subnet[0].name
+  )
 
-  pe_primary_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.pe_primary_subnet_id, azurerm_subnet.pe_primary_subnet[0].id)
-  pe_failover_subnet_id = coalesce(var.bring_your_own_network.failover_virtual_network.pe_failover_subnet_id, azurerm_subnet.pe_failover_subnet[0].id)
-  deployment_script_container_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.deployment_script_container_subnet_id, azurerm_subnet.deployment_script_container_subnet[0].id)
+  pe_primary_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.pe_primary_subnet_id, local.byon ? null : azurerm_subnet.pe_primary_subnet[0].id)
+  pe_failover_subnet_id = coalesce(var.bring_your_own_network.failover_virtual_network.pe_failover_subnet_id, local.byon ? null : azurerm_subnet.pe_failover_subnet[0].id)
+  deployment_script_container_subnet_id = coalesce(var.bring_your_own_network.primary_virtual_network.deployment_script_container_subnet_id, local.byon ? null : azurerm_subnet.deployment_script_container_subnet[0].id)
 }
 
 data "azurerm_resources" "vnets" {
@@ -734,3 +760,4 @@ resource "azurerm_subnet_network_security_group_association" "deployment_script_
   subnet_id                 = azurerm_subnet.deployment_script_container_subnet[0].id
   network_security_group_id = azurerm_network_security_group.deployment_script_nsg[0].id
 }
+
