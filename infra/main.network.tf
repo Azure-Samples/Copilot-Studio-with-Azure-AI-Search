@@ -1,7 +1,11 @@
 locals {
-  byon = var.bring_your_own_network.primary_virtual_network.id != null ? true : false
+  byon = var.bring_your_own_network.primary_virtual_network.id != null && length(var.bring_your_own_network.primary_virtual_network.id) > 0 ? true : false
   primary_virtual_network_id = coalesce(var.bring_your_own_network.primary_virtual_network.id, local.byon ? null : azurerm_virtual_network.primary_virtual_network[0].id)
-  
+  primary_virtual_network_resource_group = coalesce(
+    length(local.primary_vnet_matches) > 0 ? local.primary_vnet_matches[0].resource_group_name : null, 
+    local.byon ? null : azurerm_resource_group.this.name
+  )
+
   # Get matching primary VNets from data source
   primary_vnet_matches = [for r in data.azurerm_resources.vnets.resources : r if r.id == local.primary_virtual_network_id]
   
