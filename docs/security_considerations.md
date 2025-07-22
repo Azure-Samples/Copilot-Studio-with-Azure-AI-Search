@@ -204,9 +204,9 @@ graph LR
     Developer --> |🗝️ Service Principal ID/Secret <br> 🔒 Admin Management Application <br> 🛜 Public / SSL | PPAPI[Power Platform APIs<br>*Control Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Search Service Contributor <br>🔒 Search Index Data Contributor <br>🔒 Search Index Data Reader <br> 🛜 Private Endpoint | AISearch[Azure AI Search]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor<br>🔒 Storage Blob Data Contributor<br>🔒 Storage File Data Privileged Contributor<br>🔒 Reader<br>🔒 Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor<br>🔒 Storage Blob Data Owner<br>🔒 Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br>🔒 Search Service Contributor 🛜 Private Endpoint | AISearch[Azure AI Search]
+    DeployScript --> |🗝️ Managed Identity <br>🔒 Storage Blob Data Contributor <br> 🔒 Reader<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br>🔒 Storage Blob Data Contributor<br>🔒 Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
     PPAPI --> |Deploys| PPSolution[Power Platform Resources]
 ```
 
@@ -221,9 +221,9 @@ graph LR
     Runner --> | 🗝️ Service Principal OIDC <br> 🔒 Storage Blob Data Contributor <br> 🛜 Public Default / Private Recommended | State[Terraform State Storage Account<br>*Data Plane*]
     AzureCP --> |Deploys| AzureResources[Azure Resources]
     AzureCP --> |Creates| DeployScript[Deployment Scripts]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Search Service Contributor <br>🔒 Search Index Data Contributor <br>🔒 Search Index Data Reader <br> 🛜 Private Endpoint | AISearch[Azure AI Search]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Queue Data Contributor<br>🔒 Storage Blob Data Contributor<br>🔒 Storage File Data Privileged Contributor<br>🔒 Reader<br>🔒 Storage Account Contributor<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
-    DeployScript --> |🗝️ Managed Identity <br> 🔒 Storage Account Contributor<br>🔒 Storage Blob Data Owner<br>🔒 Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br>🔒 Search Service Contributor 🛜 Private Endpoint | AISearch[Azure AI Search]
+    DeployScript --> |🗝️ Managed Identity <br>🔒 Storage Blob Data Contributor <br> 🔒 Reader<br> 🛜 Private Endpoint| Storage[Search Data Storage Account]
+    DeployScript --> |🗝️ Managed Identity <br>🔒 Storage Blob Data Contributor<br>🔒 Storage File Data Privileged Contributor<br> 🛜 Public Endpoint| DSStorage[Deployment Scripts Storage Account]
 
     PPAPI --> |Deploys| PPSolution[Power Platform Resources]
 ```
