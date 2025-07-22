@@ -10,4 +10,4 @@ jobs:
     runs-on: [ self-hosted, 1ES.Pool=cswaas]
     steps:
       - name: Hello
-        run: "echo hello private runner"
+        run: echo "hello private runner"
