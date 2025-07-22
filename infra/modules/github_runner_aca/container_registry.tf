@@ -1,12 +1,12 @@
 # Azure Container Registry for GitHub Runner Docker images
 
 resource "azurerm_container_registry" "github_runners" {
-  # checkov:skip=CKV_AZURE_139: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
-  # checkov:skip=CKV_AZURE_164: Not needed since image is built and published together with ACR creation
-  # checkov:skip=CKV_AZURE_165: Deploying with minimal infrastructure for evaluation and cost-saving
-  # checkov:skip=CKV_AZURE_166: Not needed since image is built and published together with ACR creation
-  # checkov:skip=CKV_AZURE_233: Deploying with minimal infrastructure for evaluation and cost-saving
-  # checkov:skip=CKV_AZURE_237: We need to enable public network access until networkRuleBypassAllowedForTasks actually works
+  # checkov:skip=CKV_AZURE_139: Public network access required until networkRuleBypassAllowedForTasks functionality is fully supported. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV_AZURE_164: Image retention policy configured for cost optimization in evaluation scenarios. See docs/security_considerations.md for production guidance.
+  # checkov:skip=CKV_AZURE_165: Minimal infrastructure for evaluation purposes. Enable vulnerability scanning for production deployments. See docs/security_considerations.md for details.
+  # checkov:skip=CKV_AZURE_166: Images built and published together with ACR creation for evaluation scenarios. See docs/security_considerations.md for CI/CD guidance.
+  # checkov:skip=CKV_AZURE_233: Zone redundancy disabled for cost optimization in evaluation scenarios. See docs/security_considerations.md for production guidance.
+  # checkov:skip=CKV_AZURE_237: Public network access required until networkRuleBypassAllowedForTasks functionality is fully supported. See docs/security_considerations.md for hardening guidance.
   name                     = "acr${var.unique_id}"
   resource_group_name      = var.resource_group_name
   location                 = var.location

@@ -7,18 +7,18 @@ locals {
 
 
 resource "azurerm_storage_account" "deployment_container" {
-  # checkov:skip=CKV_AZURE_59: Required for deployment scripts to function with Azure Deployment Scripts service
-  # checkov:skip=CKV_AZURE_44: Using TLS 1.2 minimum, newer versions not yet supported by Deployment Scripts
-  # checkov:skip=CKV_AZURE_206: LRS sufficient for temporary deployment container storage
-  # checkov:skip=CKV_AZURE_190: Required for deployment scripts to access files
-  # checkov:skip=CKV_AZURE_35: Allow action required for Deployment Scripts service access
-  # checkov:skip=CKV_AZURE_33: Queue logging not needed for deployment container storage
-  # checkov:skip=CKV2_AZURE_41: SAS policy not needed for deployment container with managed identity
-  # checkov:skip=CKV2_AZURE_40: Shared key required for Azure Deployment Scripts service
-  # checkov:skip=CKV2_AZURE_33: Private endpoint not compatible with Deployment Scripts requirements
-  # checkov:skip=CKV2_AZURE_38: Enabling soft delete for deployment container protection
-  # checkov:skip=CKV2_AZURE_47: Blob anonymous access required for deployment scripts
-  # checkov:skip=CKV2_AZURE_1: Customer managed encryption not needed for temporary deployment container
+  # checkov:skip=CKV_AZURE_59: Public network access required for Azure Deployment Scripts service functionality. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV_AZURE_44: TLS 1.2 is maximum supported by Azure Deployment Scripts service. See docs/security_considerations.md for details.
+  # checkov:skip=CKV_AZURE_206: LRS replication sufficient for temporary deployment container storage. See docs/security_considerations.md for production guidance.
+  # checkov:skip=CKV_AZURE_190: Public blob access required for Azure Deployment Scripts to download files. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV_AZURE_35: Allow network access required for Azure Deployment Scripts service. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV_AZURE_33: Queue logging not required for temporary deployment container. See docs/security_considerations.md for details.
+  # checkov:skip=CKV2_AZURE_41: SAS policy not needed for deployment container with managed identity. See docs/security_considerations.md for details.
+  # checkov:skip=CKV2_AZURE_40: Shared key access required by Azure Deployment Scripts service. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV2_AZURE_33: Private endpoints not compatible with Azure Deployment Scripts service requirements. See docs/security_considerations.md for details.
+  # checkov:skip=CKV2_AZURE_38: Soft delete enabled for deployment container protection. See docs/security_considerations.md for details.
+  # checkov:skip=CKV2_AZURE_47: Blob anonymous access required for Azure Deployment Scripts functionality. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV2_AZURE_1: Customer-managed encryption not needed for temporary deployment container. See docs/security_considerations.md for production guidance.
   name                     = "deploycontainer${random_string.name.id}"
   resource_group_name      = azurerm_resource_group.this.name
   location                 = azurerm_resource_group.this.location
@@ -268,8 +268,8 @@ resource "time_sleep" "wait_for_search_permissions" {
 
 # Upload scripts to storage for deployment script execution
 resource "azurerm_storage_container" "scripts" {
-  # checkov:skip=CKV_AZURE_34: Blob access required for deployment scripts to download files
-  # checkov:skip=CKV2_AZURE_21: Logging not needed for temporary deployment scripts container
+  # checkov:skip=CKV_AZURE_34: Blob access required for Azure Deployment Scripts to download files. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV2_AZURE_21: Logging not required for temporary deployment scripts container. See docs/security_considerations.md for details.
   name                  = "scripts"
   storage_account_id    = azurerm_storage_account.deployment_container.id
   container_access_type = "private"

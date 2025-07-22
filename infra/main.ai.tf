@@ -1,6 +1,6 @@
 module "azure_open_ai" {
-  # checkov:skip=CKV2_AZURE_22: Customer-managed keys should be added in production usage but are not included here for simplicity.
-  # checkov:skip=CKV_AZURE_236: The Power Platform AI Search connector only supports service principal, API key, or interactive auth. 
+  # checkov:skip=CKV2_AZURE_22: This template uses default encryption for evaluation purposes. For production, implement customer-managed encryption keys. See docs/security_considerations.md for hardening guidance.
+  # checkov:skip=CKV_AZURE_236: Power Platform AI Search connector requires local authentication (service principal, API key, or interactive auth). See docs/security_considerations.md for details.
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                             = "Azure/avm-res-cognitiveservices-account/azurerm"
   version                            = "0.8.0"
