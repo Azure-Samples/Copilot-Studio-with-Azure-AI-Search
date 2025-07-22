@@ -167,7 +167,7 @@ To set up a federated identity credential in Azure, follow these steps:
 You can use a predefined network infrustructure when using this module. You can check the `\infra\main.network.tf` file to see what resources will be created if network is created automatically togheter with
 the rest of the resources.
 
-Here are the requried variables when doing so:
+Here are the required variables when doing so:
 
     ```shell
     azd env set PRIMARY_VNET_ID "<your-primary-virtual-network-id>"
