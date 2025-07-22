@@ -1,4 +1,6 @@
 name: Private Runner
+permissions:
+  contents: read
 on:
  push:
    branches:
