@@ -21,7 +21,7 @@ module "azure_open_ai" {
     bypass         = "AzureServices"
     virtual_network_rules = [
       {
-        subnet_id =  local.primary_subnet_id
+        subnet_id = local.primary_subnet_id
       },
       {
         subnet_id = local.failover_subnet_id
