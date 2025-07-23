@@ -255,6 +255,12 @@ Keeping this enabled supports the project and future feature development. To opt
 telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appended to the
 `User-Agent` on requests made by the configured terraform providers.
 
+## Responsible AI
+
+Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled 
+systems to ensure ethical, safe, and inclusive AI practices. Learn more at 
+https://www.microsoft.com/en-us/ai/responsible-ai.
+
 ## Getting help
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
