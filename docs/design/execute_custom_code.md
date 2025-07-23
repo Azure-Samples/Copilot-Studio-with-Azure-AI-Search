@@ -254,8 +254,7 @@ To update an image in Azure Container Registry, you may utilize a dedicated GitH
 
 See a detailed implementation example [here](https://github.com/Azure-Samples/Copilot-Studio-with-Azure-AI-Search/tree/main/infra/modules/github_runner_aca).
 
-**Advantages:** This approach is 
-scalable, using resources only when required for workflows. Most tasks can run on these instances. While Docker has limitations, workflows needing image builds can use the acr tool instead.
+**Advantages:** This approach is scalable, using resources only when required for workflows. Most tasks can run on these instances, and while Docker has limitations, workflows needing image builds can use the acr tool instead.
 
 **Disadvantages:** Updating the image for ACA involves an extra workflow. The infrastructure may appear complex to users with less experience. Organizational policies may restrict automation of this process.
 
