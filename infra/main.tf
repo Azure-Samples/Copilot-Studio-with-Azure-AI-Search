@@ -31,10 +31,10 @@ module "copilot_studio" {
   # Authentication inputs
   resource_share_user = var.resource_share_user
   # Network inputs
-  primary_vnet_name    = azurerm_virtual_network.primary_virtual_network.name
-  primary_subnet_name  = azurerm_subnet.primary_subnet.name
-  failover_vnet_name   = azurerm_virtual_network.failover_virtual_network.name
-  failover_subnet_name = azurerm_subnet.failover_subnet.name
+  primary_vnet_name  = azurerm_virtual_network.primary_virtual_network.name
+  primary_subnet_id  = azurerm_subnet.primary_subnet.id
+  failover_vnet_name = azurerm_virtual_network.failover_virtual_network.name
+  failover_subnet_id = azurerm_subnet.failover_subnet.id
 
   # Power Platform properties
   # Note: the Power Platform environment variables have default values that will

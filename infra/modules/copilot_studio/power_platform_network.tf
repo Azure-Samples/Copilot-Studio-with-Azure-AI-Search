@@ -15,6 +15,12 @@ data "azurerm_resource_group" "this" {
   name = var.resource_group_name
 }
 
+# Extract subnet names from subnet IDs
+locals {
+  primary_subnet_name  = element(split("/", var.primary_subnet_id), length(split("/", var.primary_subnet_id)) - 1)
+  failover_subnet_name = element(split("/", var.failover_subnet_id), length(split("/", var.failover_subnet_id)) - 1)
+}
+
 # Create enterprise policy to allow Power Platform to connect to the relevant subnets
 resource "azapi_resource" "network_injection_policy" {
   type = "Microsoft.PowerPlatform/enterprisePolicies@2020-10-30-preview"
@@ -25,13 +31,13 @@ resource "azapi_resource" "network_injection_policy" {
           {
             id = data.azurerm_virtual_network.primary_vnet.id
             subnet = {
-              name = var.primary_subnet_name
+              name = local.primary_subnet_name
             }
           },
           {
             id = data.azurerm_virtual_network.failover_vnet.id
             subnet = {
-              name = var.failover_subnet_name
+              name = local.failover_subnet_name
             }
           }
         ]
@@ -44,6 +50,9 @@ resource "azapi_resource" "network_injection_policy" {
   name                      = "PowerPlatformPrimaryPolicy-${var.unique_id}"
   parent_id                 = data.azurerm_resource_group.this.id
   schema_validation_enabled = false
+
+  # Since we reference the subnet IDs directly through variables, 
+  # Terraform will automatically understand the dependency
 }
 
 #---- 2 - Set EP access using RBAC ----
