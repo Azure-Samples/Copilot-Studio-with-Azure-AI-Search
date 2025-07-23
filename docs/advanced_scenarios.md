@@ -161,25 +161,3 @@ To set up a federated identity credential in Azure, follow these steps:
    - `GITHUB_PAT`: GitHub personal access token.
 
 *Note: Client secret is not needed if using federated identity.*
-
-## Bring Your Own Network
-
-You can use a predefined network infrastructure when using this module. You can check the `\infra\main.network.tf` file to see what resources will be created if network is created automatically together with
-the rest of the resources.
-
-Here are the required variables when doing so:
-
-    ```shell
-    azd env set PRIMARY_VNET_ID "<your-primary-virtual-network-id>"
-    azd env set PRIMARY_SUBNET_ID "<your-primary-subnet-id>"
-    azd env set PE_PRIMARY_SUBNET_ID "<your-primary-private-endpoint-subnet-id>"
-    azd env set DEPLOYMENT_SCRIPT_CONTAINER_SUBNET_ID "<your-deployment-script-container-subnet-id>"
-    # this value should be used only if you plan to use GitHub runners
-    azd env set GITHUB_RUNNER_PRIMARY_SUBNET_ID "<your-github-runner-primary-subnet-id>"
-
-    azd env set FAILOVER_VNET_ID "<your-failover-virtual-network-id>"
-    azd env set FAILOVER_SUBNET_ID "<your-failover-subnet-id>"
-    azd env set PE_FAILOVER_SUBNET_ID "<your-failover-private-endpoint-subnet-id>"
-    # this value should be used only if you plan to use GitHub runners
-    azd env set GITHUB_RUNNER_FAILOVER_SUBNET_ID "<your-github-runner-failover-subnet-id>"
-    ```
