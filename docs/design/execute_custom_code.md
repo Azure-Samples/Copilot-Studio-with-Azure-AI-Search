@@ -28,7 +28,7 @@ A sample of using Azure Deployment Script to run Python for creating Azure AI Se
 
 In order to have access to all latest features in Azure Deployment Script we would recommend to use AzAPI provider:
 
-```json
+```hcl
 azapi = {
     source = "Azure/azapi"
     version = "~>2.0"
