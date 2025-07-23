@@ -189,14 +189,6 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     Set this value to the Azure Entra ID object ID of the primary administrator or developer who will manage and modify the deployed solution resources in the future. This user will be granted administrative access to the Power Platform resources (such as bot ownership and environment management) and will have visibility into the Azure resources provisioned by this deployment. Replace `entraid_user_object_id` with the actual object ID of the intended admin or developer.
 
-1. Use local state storage for terraform:
-  
-    ```shell
-    azd env set USE_LOCAL_STATE true
-    ```
-
-    To simplify deployment, Terraform state will be stored in terraform.state file locally in your hard drive/docker container. This way of managing Terraform state file is for testing purposes only. For Pipeline/Production use, you should save state remotely. You can [check out advanced scenarios guide](/docs/advanced_scenarios.md) for more guidance.
-
 1. Deploy your infrastructure
 
     ```shell

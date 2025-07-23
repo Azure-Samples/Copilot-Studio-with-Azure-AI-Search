@@ -21,10 +21,10 @@ module "azure_open_ai" {
     bypass         = "AzureServices"
     virtual_network_rules = [
       {
-        subnet_id = azurerm_subnet.primary_subnet.id
+        subnet_id = local.primary_subnet_id
       },
       {
-        subnet_id = azurerm_subnet.failover_subnet.id
+        subnet_id = local.failover_subnet_id
       }
     ]
   }
@@ -33,7 +33,7 @@ module "azure_open_ai" {
     pe_endpoint = {
       name                            = "pe_endpoint_${random_string.name.id}"
       private_service_connection_name = "pe_endpoint_connection"
-      subnet_resource_id              = azurerm_subnet.pe_primary_subnet.id
+      subnet_resource_id              = local.pe_primary_subnet_id
     }
   }
   managed_identities = {
@@ -52,8 +52,8 @@ resource "azurerm_private_dns_zone" "aoai_dns" {
 # Link the Azure OpenAI DNS zone to both VNets
 resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
   for_each = {
-    primary  = azurerm_virtual_network.primary_virtual_network.id
-    failover = azurerm_virtual_network.failover_virtual_network.id
+    primary  = local.primary_virtual_network_id
+    failover = local.failover_virtual_network_id
   }
 
   name                  = "aoai-${each.key}-link"
