@@ -3,7 +3,7 @@ module "azure_open_ai" {
   # checkov:skip=CKV_AZURE_236: The Power Platform AI Search connector only supports service principal, API key, or interactive auth. 
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                             = "Azure/avm-res-cognitiveservices-account/azurerm"
-  version                            = "0.7.1"
+  version                            = "0.8.0"
   kind                               = "OpenAI"
   location                           = var.location
   name                               = "aoai${random_string.name.id}"
