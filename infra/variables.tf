@@ -224,7 +224,7 @@ variable "location" {
   nullable    = false
 }
 
-variable "bring_your_own_network" {
+variable "networking" {
   type = object({
     primary_virtual_network = object({
       id = string
