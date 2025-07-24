@@ -161,3 +161,16 @@ To set up a federated identity credential in Azure, follow these steps:
    - `GITHUB_PAT`: GitHub personal access token.
 
 *Note: Client secret is not needed if using federated identity.*
+
+## Alternative access to Azure AI Search
+
+By default access key is used to connect ai search and Copilot Studio agent. You can use pre-existing service principal instead.
+You service service prinicipal will get `Search Index Data Reader` and 'Reader' roles assigned and will be used in Power Platform connection.
+
+When choosing this option, service principal used for module deployment need to have `User Access Administrator` role assigned.
+
+    ```bash
+    azd env set AZURE_AI_SEARCH_SERVICE_PRINCIPAL_CLIENT_ID "<Client-ID>"
+    azd env set AZURE_AI_SEARCH_ENTERPRISE_APPLICATION_OBJECT_ID "<Object-ID>"
+    azd env set AZURE_AI_SEARCH_SERVICE_PRINCIPAL_CLIENT_SECRET "<Client-Secret>"
+    ```
