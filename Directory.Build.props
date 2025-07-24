@@ -1,0 +1,21 @@
+<Project>
+  
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1503</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Common package versions -->
+    <MicrosoftAgentsCopilotStudioClientVersion>1.0.0</MicrosoftAgentsCopilotStudioClientVersion>
+    <MicrosoftNETTestSdkVersion>17.8.0</MicrosoftNETTestSdkVersion>
+    <XunitVersion>2.4.2</XunitVersion>
+    <XunitRunnerVersion>2.4.5</XunitRunnerVersion>
+    <CoverletVersion>6.0.0</CoverletVersion>
+  </PropertyGroup>
+
+</Project>

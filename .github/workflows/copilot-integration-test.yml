@@ -1,0 +1,174 @@
+name: "End-to-End Copilot Test"
+
+on:
+  workflow_dispatch:
+    inputs:
+      azd_environment_name:
+        description: "Name of the AZD Environment to test against"
+        required: true
+        default: "CICD"
+      azure_location:
+        description: "Azure location of the environment"
+        required: true
+        default: "eastus"
+
+permissions:
+  actions: read
+  security-events: write
+  id-token: write
+  contents: read
+
+jobs:
+  copilot-integration-test:
+    runs-on: ubuntu-latest
+    env:
+      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
+      AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install azd
+        uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
+        with:
+          version: '1.17.2'
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Login to Azure with Federated Identity
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get AZD Environment Outputs
+        env:
+          # Authentication for azd
+          ARM_USE_AZUREAD: "true"
+          ARM_STORAGE_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          
+          # Remote state configuration
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+          RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
+        run: |
+          # Set up azd environment
+          azd config set auth.useAzCliAuth "true"
+          azd env select "$AZURE_ENV_NAME" --location "$AZURE_LOCATION"
+          
+          azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
+          azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
+          azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
+          azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
+          
+          # Get outputs from azd
+          echo "Getting infrastructure outputs..."
+          
+          # Get Power Platform Environment ID
+          POWER_PLATFORM_ENVIRONMENT_ID=$(azd env get-values --output json | jq -r '.POWER_PLATFORM_ENVIRONMENT_ID // empty')
+          if [ -z "$POWER_PLATFORM_ENVIRONMENT_ID" ]; then
+            echo "ERROR: POWER_PLATFORM_ENVIRONMENT_ID not found in azd outputs"
+            exit 1
+          fi
+          echo "POWER_PLATFORM_ENVIRONMENT_ID=$POWER_PLATFORM_ENVIRONMENT_ID" >> $GITHUB_ENV
+          
+          # Get Copilot Studio Endpoint (from terraform outputs)
+          COPILOT_STUDIO_ENDPOINT=$(azd env get-values --output json | jq -r '.COPILOT_STUDIO_ENDPOINT // "https://api.copilotstudio.microsoft.com"')
+          echo "COPILOT_STUDIO_ENDPOINT=$COPILOT_STUDIO_ENDPOINT" >> $GITHUB_ENV
+          
+          # Get Copilot Studio Agent ID (from terraform outputs)
+          COPILOT_STUDIO_AGENT_ID=$(azd env get-values --output json | jq -r '.COPILOT_STUDIO_AGENT_ID // "crf6d_aiSearchConnectionExample"')
+          echo "COPILOT_STUDIO_AGENT_ID=$COPILOT_STUDIO_AGENT_ID" >> $GITHUB_ENV
+          
+          # Set Azure authentication for tests
+          echo "AZURE_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+
+      - name: Restore .NET Packages
+        run: |
+          echo "Restoring .NET packages..."
+          dotnet restore tests/CopilotResponse/CopilotResponse.csproj
+
+      - name: Run Copilot Integration Test
+        env:
+          # Azure authentication (using GitHub federated identity variables)
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          # Note: AZURE_CLIENT_SECRET must be added as a GitHub secret for this test to work
+          # This is required because Copilot Studio API requires service principal authentication
+          # and cannot use federated identity tokens directly
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          
+          # Power Platform configuration (from azd outputs)
+          POWER_PLATFORM_ENVIRONMENT_ID: ${{ env.POWER_PLATFORM_ENVIRONMENT_ID }}
+          COPILOT_STUDIO_ENDPOINT: ${{ env.COPILOT_STUDIO_ENDPOINT }}
+          COPILOT_STUDIO_AGENT_ID: ${{ env.COPILOT_STUDIO_AGENT_ID }}
+        run: |
+          echo "=== Starting Copilot Studio Integration Test ==="
+          echo "Testing against environment: $POWER_PLATFORM_ENVIRONMENT_ID"
+          echo "Copilot Studio endpoint: $COPILOT_STUDIO_ENDPOINT"
+          echo "Agent ID: $COPILOT_STUDIO_AGENT_ID"
+          echo "=================================================="
+          
+          # Run the test with verbose output
+          dotnet test tests/CopilotResponse/CopilotResponse.csproj \
+            --logger "console;verbosity=detailed" \
+            --logger "trx;LogFileName=copilot-test-results.trx" \
+            --results-directory ./test-results \
+            --configuration Release \
+            --no-restore
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: copilot-test-results-${{ env.AZURE_ENV_NAME }}
+          path: |
+            ./test-results/copilot-test-results.trx
+            ./test-results/*.xml
+          retention-days: 30
+
+      - name: Test Results Summary
+        if: always()
+        run: |
+          echo "=== Test Execution Summary ==="
+          if [ -f "./test-results/copilot-test-results.trx" ]; then
+            echo "✅ Test results file generated successfully"
+            echo "📊 Test results have been uploaded as artifacts"
+          else
+            echo "❌ Test results file not found"
+          fi
+          echo "=============================="
+
+  notify-results:
+    runs-on: ubuntu-latest
+    needs: copilot-integration-test
+    if: always()
+    steps:
+      - name: Notify Success
+        if: needs.copilot-integration-test.result == 'success'
+        run: |
+          echo "🎉 Copilot Studio integration test completed successfully!"
+          echo "✅ The Copilot agent is responding correctly to queries"
+          echo "📈 End-to-end integration is working as expected"
+
+      - name: Notify Failure
+        if: needs.copilot-integration-test.result == 'failure'
+        run: |
+          echo "❌ Copilot Studio integration test failed!"
+          echo "🔍 Please check the test results and logs for details"
+          echo "🛠️  This may indicate issues with:"
+          echo "    - Copilot Studio agent deployment"
+          echo "    - Azure AI Search integration"
+          echo "    - Authentication configuration"
+          echo "    - Network connectivity"

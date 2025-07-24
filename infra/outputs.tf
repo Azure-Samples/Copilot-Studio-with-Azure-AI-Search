@@ -47,3 +47,23 @@ output "openai_endpoint" {
   description = "The endpoint URL for the Azure OpenAI service"
   value       = module.azure_open_ai.endpoint
 }
+
+output "copilot_studio_endpoint" {
+  description = "The endpoint URL for Copilot Studio API"
+  value       = "https://api.copilotstudio.microsoft.com"
+}
+
+output "copilot_studio_agent_id" {
+  description = "The ID of the deployed Copilot Studio agent (placeholder - to be extracted from deployment)"
+  value       = "crf6d_aiSearchConnectionExample"  # This should match the bot name from the solution
+}
+
+output "azure_tenant_id" {
+  description = "The Azure tenant ID"
+  value       = data.azurerm_client_config.current.tenant_id
+}
+
+output "azure_subscription_id" {
+  description = "The Azure subscription ID"
+  value       = data.azurerm_client_config.current.subscription_id
+}
