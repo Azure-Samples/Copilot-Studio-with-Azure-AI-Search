@@ -24,17 +24,9 @@ locals {
         "value" : var.azure_ai_search_service_principal.client_secret
       }
     }
-  }) : jsonencode(
-    {
-      "name" : "adminkey",
-      "values" : {
-        "ConnectionEndpoint" : {
-          "value" :  local.search_endpoint_url
-        },
-        "AdminKey" : {
-          "value" : azurerm_search_service.ai_search.primary_key
-        }
-      }
+  }) : jsonencode({
+    ConnectionEndpoint = local.search_endpoint_url,
+    AdminKey           = azurerm_search_service.ai_search.primary_key
   })
 }
 
@@ -45,24 +37,26 @@ resource "powerplatform_connection" "ai_search_connection" {
   display_name   = local.search_connection_display_name
   # PowerPlatform connection resource doesn't accept connector_name directly
   
-  connection_parameters_set = local.ai_search_authentication
+  connection_parameters_set =  local.use_service_principal ? local.ai_search_authentication : null
+  connection_parameters = local.use_service_principal ? null : local.ai_search_authentication
 
   lifecycle {
     ignore_changes = [
-      connection_parameters_set
+      connection_parameters_set,
+      connection_parameters
     ]
   }
 }
 
-# # Share the connection with an interactive user for direct administration (if specified)
-# resource "powerplatform_connection_share" "share_ai_search_connection" {
-#   for_each = var.resource_share_user
+# Share the connection with an interactive user for direct administration (if specified). Sharing works only if connection authentication type is using Access Key.
+resource "powerplatform_connection_share" "share_ai_search_connection" {
+  count = local.use_service_principal ? 0 : length(var.resource_share_user)
 
-#   environment_id = module.copilot_studio.power_platform_environment_id
-#   connector_name = local.search_connector_name
-#   connection_id  = powerplatform_connection.ai_search_connection.id
-#   role_name      = "CanEdit"
-#   principal = {
-#     entra_object_id = each.value
-#   }
-# }
+  environment_id = module.copilot_studio.power_platform_environment_id
+  connector_name = local.search_connector_name
+  connection_id  = powerplatform_connection.ai_search_connection.id
+  role_name      = "CanEdit"
+  principal = {
+    entra_object_id = tolist(var.resource_share_user)[count.index]
+  }
+}
