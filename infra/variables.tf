@@ -439,8 +439,8 @@ variable "azure_ai_search_service_principal" {
   sensitive   = true
   default = {
     enterprise_application_object_id = null
-    client_id = null
-    client_secret = null
+    client_id                        = null
+    client_secret                    = null
   }
 }
 

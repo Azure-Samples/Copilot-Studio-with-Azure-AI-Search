@@ -24,7 +24,7 @@ locals {
         "value" : var.azure_ai_search_service_principal.client_secret
       }
     }
-  }) : jsonencode({
+    }) : jsonencode({
     ConnectionEndpoint = local.search_endpoint_url,
     AdminKey           = azurerm_search_service.ai_search.primary_key
   })
@@ -36,9 +36,9 @@ resource "powerplatform_connection" "ai_search_connection" {
   name           = local.search_connection_name
   display_name   = local.search_connection_display_name
   # PowerPlatform connection resource doesn't accept connector_name directly
-  
-  connection_parameters_set =  local.use_service_principal ? local.ai_search_authentication : null
-  connection_parameters = local.use_service_principal ? null : local.ai_search_authentication
+
+  connection_parameters_set = local.use_service_principal ? local.ai_search_authentication : null
+  connection_parameters     = local.use_service_principal ? null : local.ai_search_authentication
 
   lifecycle {
     ignore_changes = [
