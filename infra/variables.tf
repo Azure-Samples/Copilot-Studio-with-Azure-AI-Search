@@ -398,7 +398,7 @@ variable "azure_ai_search_service_principal" {
     client_id                        = string
     client_secret                    = string
   })
-  description = "Service principal credentials for Azure AI Search service. Used to authenticate the AI Search service. If not provided, API Key will be used for authentication. SPN will get 'Search Index Data Reader' role assigned to the AI Search service."
+  description = "Service principal credentials for Azure AI Search service. Used to authenticate the AI Search service. If not provided, API Key will be used for authentication. The SPN will be assigned the 'Search Index Data Reader' Role to the AI Search service."
   sensitive   = true
   default = {
     enterprise_application_object_id = null
