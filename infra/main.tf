@@ -31,10 +31,10 @@ module "copilot_studio" {
   # Authentication inputs
   resource_share_user = var.resource_share_user
   # Network inputs
-  primary_vnet_name    = local.primary_virtual_network_name
-  primary_subnet_name  = local.primary_subnet_name
-  failover_vnet_name   = local.failover_virtual_network_name
-  failover_subnet_name = local.failover_subnet_name
+  primary_vnet_name  = local.primary_virtual_network_name
+  primary_subnet_id  = local.primary_subnet_id
+  failover_vnet_name = local.failover_virtual_network_name
+  failover_subnet_id = local.failover_subnet_id
 
   # Power Platform properties
   # Note: the Power Platform environment variables have default values that will
