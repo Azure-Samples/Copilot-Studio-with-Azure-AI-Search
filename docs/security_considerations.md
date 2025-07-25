@@ -165,7 +165,7 @@ The template addresses **infrastructure-level risks** effectively but requires u
 | **T2.1** | Platform Compromise | Environment isolation, network injection | ✅ Implemented | Configure governance policies |
 | **T2.2** | AI Model Abuse | [Copilot Studio Runtime Protection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-agent-runtime-view) | ⚠️ Limited | Implement advanced filtering, AI red teaming |
 | **T3.1** | Supply Chain | Security scanning (GitHub Advanced security & Gitleaks), AVM usage, Dependabot | ✅ Implemented | Monitor dependency updates |
-| **T3.2** | Credential Exposure | OIDC support, managed identities, optional service principal authentication for AI Search | ✅ Partially | Use service principal authentication for AI Search (preferred) or implement key rotation for API keys |
+| **T3.2** | Credential Exposure | OIDC support, managed identities, optional service principal authentication for AI Search (recommended) | ✅ Partially | Implement key rotation for AI Search API keys if not using service principal |
 
 **Legend**: ✅ Fully Implemented | ⚠️ Basic Implementation | ❌ User Responsibility
 
