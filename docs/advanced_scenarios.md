@@ -164,8 +164,18 @@ To set up a federated identity credential in Azure, follow these steps:
 
 ## Alternative Access to Azure AI Search
 
-By default, an access key is used to connect AI Search and the Copilot Studio agent. Alternatively, you can use a pre-existing service principal.
-Your service principal will be assigned the `Search Index Data Reader` and `Reader` roles, which will be used in the Power Platform connection.
+### Configuring Azure AI Search Access with a Service Principal
+
+By default, an access key is used to establish the connection between Azure AI Search and the Copilot Studio agent. Alternatively, you can configure the connection to use a pre-existing service principal for enhanced security and role-based access control.
+
+When using a service principal, ensure it is assigned the following roles:
+
+- **Search Index Data Reader**: Grants read access to the search index.
+- **Reader**: Provides read-only access to the Azure resource.
+
+These roles will be utilized in the Power Platform connection to enable secure integration.
+
+> **Note**: In Copilot Studio, the connection status may display an error. This behavior is expected because the service principal authentication is not shared with any end user logged into the web interface.
 
 When choosing this option, the service principal used for module deployment must have the `User Access Administrator` role assigned.
 

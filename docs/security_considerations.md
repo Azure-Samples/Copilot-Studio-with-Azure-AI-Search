@@ -274,15 +274,7 @@ The template supports two authentication methods for Azure AI Search connections
 
 **Security Recommendation**: Use service principal authentication for production deployments to eliminate long-lived API keys and leverage Azure AD security controls.
 
-To configure service principal authentication, set the following environment variables:
-
-```bash
-azd env set AZURE_AI_SEARCH_SERVICE_PRINCIPAL_CLIENT_ID "<Client-ID>"
-azd env set AZURE_AI_SEARCH_ENTERPRISE_APPLICATION_OBJECT_ID "<Object-ID>"
-azd env set AZURE_AI_SEARCH_SERVICE_PRINCIPAL_CLIENT_SECRET "<Client-Secret>"
-```
-
-When these variables are configured, the template automatically:
+When configured, the template automatically:
 
 - Disables local authentication on the AI Search service
 - Assigns necessary RBAC roles to the service principal
