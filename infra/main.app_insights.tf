@@ -4,9 +4,9 @@ resource "azurerm_application_insights" "insights" {
   count = var.include_app_insights ? 1 : 0
 
   application_type    = "web"
-  location            = azurerm_resource_group.this.location
+  location            = local.resource_group_location
   name                = "${var.resource_prefix}-appinsights-${var.resource_suffix}"
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
 }
 
 resource "azurerm_application_insights_workbook" "workbook" {
@@ -35,7 +35,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "queryType" : 0,
           "resourceType" : "microsoft.insights/components",
           "crossComponentResources" : [
-            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
+            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.resource_group_name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
           "visualization" : var.app_insights_sections["section_1"].chart
         },
@@ -53,7 +53,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "queryType" : 0,
           "resourceType" : "microsoft.insights/components",
           "crossComponentResources" : [
-            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
+            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.resource_group_name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
           "visualization" : var.app_insights_sections["section_2"].chart
         },
@@ -71,7 +71,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "queryType" : 0,
           "resourceType" : "microsoft.insights/components",
           "crossComponentResources" : [
-            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
+            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.resource_group_name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
           "visualization" : var.app_insights_sections["section_3"].chart
         },
@@ -89,7 +89,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "queryType" : 0,
           "resourceType" : "microsoft.insights/components",
           "crossComponentResources" : [
-            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
+            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.resource_group_name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
           "visualization" : var.app_insights_sections["section_4"].chart
         },
@@ -107,7 +107,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "queryType" : 0,
           "resourceType" : "microsoft.insights/components",
           "crossComponentResources" : [
-            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
+            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.resource_group_name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
           "visualization" : var.app_insights_sections["section_5"].chart
         },
@@ -125,7 +125,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
           "queryType" : 0,
           "resourceType" : "microsoft.insights/components",
           "crossComponentResources" : [
-            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_resource_group.this.name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
+            "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.resource_group_name}/providers/Microsoft.Insights/components/${azurerm_application_insights.insights[0].name}"
           ],
           "visualization" : var.app_insights_sections["section_6"].chart
         },
@@ -138,7 +138,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
     "$schema" : "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
   })
   display_name        = "Azure Monitor Workbook"
-  location            = azurerm_resource_group.this.location
+  location            = local.resource_group_location
   name                = random_uuid.uid.result
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
 }
