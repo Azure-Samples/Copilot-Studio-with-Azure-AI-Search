@@ -192,7 +192,7 @@ graph LR
 | Trust Boundary | Authentication Method | Security Controls | What You Need to Know |
 |-----------------|----------------------|-------------------|----------------------|
 | **User to Copilot Studio Agent** | Channel-specific authentication (Teams, Web, etc.) | Channel security policies, user authentication | Users authenticate through their chosen channel (Teams, web chat, etc.) |
-| **Copilot Agent to AI Search** | API key authentication (default) or Service Principal OAuth authentication (optional) | DLP policies, private endpoints, network restrictions, query validation, RBAC roles | Connection supports both API keys and service principal authentication. Service principal provides enhanced security with RBAC controls |
+| **Copilot Agent to AI Search** | API key authentication (default) or Service Principal authentication (optional) | DLP policies, private endpoints, network restrictions, query validation, RBAC roles | Connection supports either API keys or service principal authentication. Service principal provides enhanced security with RBAC controls |
 | **AI Search to Azure OpenAI** | Managed identity authentication | Content filtering, token validation, private endpoints, VNet restrictions | AI Search uses its managed identity to access OpenAI models |
 | **AI Search to Storage Account** | Managed identity authentication | Private endpoints, blob permissions, audit logging | AI Search accesses documents using managed identity |
 
