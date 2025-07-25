@@ -85,7 +85,7 @@ Set the following environment variables for GitHub runner deployment:
     azd env set WORKLOAD_PROFILE_TYPE "D4"  # optional, defaults to "D4"
     ```
 
-### Set the remote state configurations (reusing variables from step 5):
+### Set the remote state configurations (reusing variables from step 5)
 
     ``` bash
     azd env set RS_STORAGE_ACCOUNT $STORAGE_ACCOUNT_NAME
