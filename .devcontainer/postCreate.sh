@@ -19,9 +19,9 @@ if [ -f "Directory.Build.props" ]; then
     echo ".NET packages restored successfully!"
 else
     # Fallback to individual project restore
-    if [ -f "tests/CopilotResponse/CopilotResponse.csproj" ]; then
-        dotnet restore tests/CopilotResponse/CopilotResponse.csproj
-        echo "CopilotResponse project packages restored successfully!"
+    if [ -f "tests/Copilot/CopilotTests.csproj" ]; then
+        dotnet restore tests/Copilot/CopilotTests.csproj
+        echo "Copilot project packages restored successfully!"
     else
         echo "No .NET projects found, skipping package restore"
     fi

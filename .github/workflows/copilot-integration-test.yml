@@ -97,7 +97,7 @@ jobs:
       - name: Restore .NET Packages
         run: |
           echo "Restoring .NET packages..."
-          dotnet restore tests/CopilotResponse/CopilotResponse.csproj
+          dotnet restore tests/Copilot/CopilotTests.csproj
 
       - name: Run Copilot Integration Test
         env:
@@ -121,7 +121,7 @@ jobs:
           echo "=================================================="
           
           # Run the test with verbose output
-          dotnet test tests/CopilotResponse/CopilotResponse.csproj \
+          dotnet test tests/Copilot/CopilotTests.csproj \
             --logger "console;verbosity=detailed" \
             --logger "trx;LogFileName=copilot-test-results.trx" \
             --results-directory ./test-results \
