@@ -162,12 +162,12 @@ To set up a federated identity credential in Azure, follow these steps:
 
 *Note: Client secret is not needed if using federated identity.*
 
-## Alternative access to Azure AI Search
+## Alternative Access to Azure AI Search
 
-By default access key is used to connect ai search and Copilot Studio agent. You can use pre-existing service principal instead.
-You service service prinicipal will get `Search Index Data Reader` and 'Reader' roles assigned and will be used in Power Platform connection.
+By default, an access key is used to connect AI Search and the Copilot Studio agent. Alternatively, you can use a pre-existing service principal.
+Your service principal will be assigned the `Search Index Data Reader` and `Reader` roles, which will be used in the Power Platform connection.
 
-When choosing this option, service principal used for module deployment need to have `User Access Administrator` role assigned.
+When choosing this option, the service principal used for module deployment must have the `User Access Administrator` role assigned.
 
     ```bash
     azd env set AZURE_AI_SEARCH_SERVICE_PRINCIPAL_CLIENT_ID "<Client-ID>"
