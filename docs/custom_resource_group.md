@@ -1,6 +1,6 @@
 # Custom Resource Group Name
 
-This template creates a resource group with a randomly generated name by default. You can override this behavior by specifying a custom resource group name during deployment.
+This template creates a resource group with a randomly generated name by default. You can override this behavior by specifying pre-created resource group during deployment.
 
 ## Required Variables
 
