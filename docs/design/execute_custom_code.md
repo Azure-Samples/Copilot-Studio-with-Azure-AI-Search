@@ -37,7 +37,7 @@ azapi = {
 
 After defining the provider, configure the required infrastructure components, beginning with the subnet:
 
-```json
+```hcl
 resource "azurerm_subnet" "main" {
  name                 = "main-subnet"
  resource_group_name  = azurerm_resource_group.example.name
