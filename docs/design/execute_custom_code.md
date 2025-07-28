@@ -122,7 +122,7 @@ You can set the subnet ID, storage, and script type (AzureCLI for Linux, PowerSh
 
 A key point from the code above is the use of an identity block. This should be a user-assigned identity with permissions to run code from ACI. At minimum, it needs Storage Blob Data Contributor and Storage File Data Privileged roles for ACI storage access:
 
-```json
+```hcl
 resource "azurerm_user_assigned_identity" "script_identity" {
     name                = "deployment-script-identity"
     resource_group_name = azurerm_resource_group.example.name
