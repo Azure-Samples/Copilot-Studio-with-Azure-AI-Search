@@ -178,7 +178,7 @@ To initiate manual creation, the Actions->Runners tab within the repository sett
 
 **Step 1.** Generate the runner token. The token can be created using the GitHub REST API according to [this documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository). For example, use GitHub CLI for this task:
 
-```bash
+```shell
 # GitHub CLI api
 # https://cli.github.com/manual/gh_api
 
