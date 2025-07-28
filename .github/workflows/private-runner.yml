@@ -9,7 +9,7 @@ on:
  
 jobs: 
   test:
-    runs-on: [ self-hosted, 1ES.Pool=cswaas]
+    runs-on: ${{ fromJson(vars.RUNNER_NAME || '["ubuntu-latest"]') }}
     steps:
       - name: Hello
         run: echo "hello private runner"
