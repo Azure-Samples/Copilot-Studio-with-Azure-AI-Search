@@ -11,6 +11,17 @@ variable "azd_environment_name" {
   type        = string
 }
 
+variable "resource_group_name" {
+  type        = string
+  default     = null
+  description = "The name of an existing resource group to deploy resources into. If not provided, a new resource group will be created."
+
+  validation {
+    condition     = var.resource_group_name == null || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
+    error_message = "Resource group name must contain only alphanumeric characters, periods, underscores, hyphens, and parentheses."
+  }
+}
+
 variable "app_insights_sections" {
   type = map(object({
     query = string

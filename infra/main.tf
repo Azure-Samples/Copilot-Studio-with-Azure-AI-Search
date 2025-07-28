@@ -3,6 +3,17 @@
 locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
   env_tags            = { azd-env-name : var.azd_environment_name }
+
+  # Resource group logic - use existing or create new
+  use_existing_resource_group = var.resource_group_name != null
+  resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
+  resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
+}
+
+# Data source to validate existing resource group exists
+data "azurerm_resource_group" "existing" {
+  count = local.use_existing_resource_group ? 1 : 0
+  name  = var.resource_group_name
 }
 
 # The unique ID that will be included in most resources managed by this module
@@ -13,8 +24,9 @@ resource "random_string" "name" {
   upper   = false
 }
 
-# The Resource Group that will contain the resources managed by this module
+# The Resource Group that will contain the resources managed by this module (only created if not using existing)
 resource "azurerm_resource_group" "this" {
+  count    = local.use_existing_resource_group ? 0 : 1
   location = var.location
   name     = "rg-${random_string.name.id}"
   tags     = merge(var.tags, local.env_tags)

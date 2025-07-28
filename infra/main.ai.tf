@@ -7,7 +7,7 @@ module "azure_open_ai" {
   kind                               = "OpenAI"
   location                           = var.location
   name                               = "aoai${random_string.name.id}"
-  resource_group_name                = azurerm_resource_group.this.name
+  resource_group_name                = local.resource_group_name
   enable_telemetry                   = true
   sku_name                           = "S0"
   local_auth_enabled                 = true
@@ -45,7 +45,7 @@ module "azure_open_ai" {
 # Private DNS zone for Azure OpenAI private endpoint resolution
 resource "azurerm_private_dns_zone" "aoai_dns" {
   name                = "privatelink.openai.azure.com"
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 }
 
@@ -58,7 +58,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
 
   name                  = "aoai-${each.key}-link"
   private_dns_zone_name = azurerm_private_dns_zone.aoai_dns.name
-  resource_group_name   = azurerm_resource_group.this.name
+  resource_group_name   = local.resource_group_name
   virtual_network_id    = each.value
   tags                  = var.tags
 }
@@ -68,7 +68,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
 resource "azurerm_private_dns_a_record" "aoai_dns_record" {
   name                = module.azure_open_ai.resource.name
   zone_name           = azurerm_private_dns_zone.aoai_dns.name
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   ttl                 = 10
   records             = [module.azure_open_ai.private_endpoints["pe_endpoint"].private_service_connection[0].private_ip_address]
   tags                = var.tags
