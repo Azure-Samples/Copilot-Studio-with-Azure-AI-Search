@@ -220,7 +220,7 @@ This approach presumes the use of Azure Container Application (ACA) as a GitHub 
 
 To enable ACA, several key components must be in place: an Azure Container Registry integrated with your Virtual Network; a process for creating and deploying the initial image to the Azure Container Registry; ACA itself, together with related services such as Log Analytics Workspace, Azure Container Environment, and the necessary managed identities. Among these, the component responsible for building and pushing images to the registry within a VNET is less commonly encountered. In Terraform, the AzureRM Container Registry Task can facilitate this process as part of your deployment workflow:
 
-```json
+```hcl
 resource "azurerm_container_registry_task" "github_runner_build" {
     name                  = "build-github-runner"
     container_registry_id = azurerm_container_registry.github_runners.id
