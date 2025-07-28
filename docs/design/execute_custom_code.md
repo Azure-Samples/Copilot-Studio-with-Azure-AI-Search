@@ -195,7 +195,7 @@ The simplest way to log into the API is a personal access token according to [th
 
 **Step 3.** Configure VM to be a self-hosted runner. The next step involves creating a script to configure the runner on the virtual machine (VM), utilizing the token obtained in step 1 as a parameter. This script should download the GitHub runner code, configure the runner with the provided token, and perform any necessary preparatory tasks on the VM. For instance, it may set up Docker if it is required for future GitHub Actions, or install additional components such as PowerShell for Linux. A key distinction from the manual setup process lies in how the runner is started; ideally, it should operate as a service rather than being executed directly from the console. Additionally, the runner must be capable of restarting automatically following a VM reboot. The GitHub runner code facilitates these requirements through the built-in .svc utility. More details about this utility can be found [here](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/configuring-the-self-hosted-runner-application-as-a-service). Only two commands need to be executed:
 
-```bash
+```shell
 sudo ./svc.sh install
 sudo ./svc.sh start
 ```
