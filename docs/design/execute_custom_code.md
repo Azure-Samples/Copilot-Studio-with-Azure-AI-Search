@@ -60,7 +60,7 @@ Please ensure that the subnet is configured to delegate permissions to Azure Con
 
 Next, create a storage account for the Azure Deployment Script. The easiest way is to create an account that blocks all traffic, not just from a specific VNET:
 
-```json
+```hcl
 resource "azurerm_storage_account" "example" {
     name                     = var.storage_account_name
     resource_group_name      = azurerm_resource_group.example.name
