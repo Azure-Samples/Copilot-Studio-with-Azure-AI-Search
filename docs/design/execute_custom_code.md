@@ -79,7 +79,7 @@ resource "azurerm_storage_account_network_rules" "example" {
 
 Finally, it’s possible to use the Azure Deployment Script component itself to execute the desired code:
 
-```json
+```hcl
 resource "azapi_resource" "run_python_from_github" {
     type = "Microsoft.Resources/deploymentScripts@2023-08-01"
     name                = "run-python-from-github"
