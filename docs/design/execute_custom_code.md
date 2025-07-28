@@ -152,7 +152,7 @@ One important consideration is how to obtain the required Python code within ACI
 
 This option utilises the Virtual Machine Extension, which enables the execution of custom scripts on newly created Virtual Machines, including those created within a VNET. As a result, these scripts can access required resources under the VM's identity.
 
-```json
+```hcl
 resource "azurerm_virtual_machine_extension" "github_runner" {
     name                 = "install-github-runner"
     virtual_machine_id   = azurerm_linux_virtual_machine.github_runner[0].id
