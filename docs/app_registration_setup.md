@@ -23,6 +23,9 @@ will be created:
    - *Contributor*: Grants permission to create and manage Azure resources.
    - *Role Based Access Control Administrator*: Grants permission to assign RBAC roles, which is
    required when using managed identities.
+   - *User Access Administrator*: Grants the ability to manage user access to resources, including assigning and revoking permissions.
+
+   **Note**: You can specify those permissions on a resource group level to limit their scope. See [providing your own resource group documentation](./custom_resource_group.md) for more details.
 
 1. Grant **admin consent** for all delegated permissions assigned to the app. This can be done in the [Azure portal](portal.azure.com) under **App registrations** > **API permissions** > **Grant admin consent**.
 

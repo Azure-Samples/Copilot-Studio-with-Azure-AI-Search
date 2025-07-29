@@ -20,7 +20,7 @@ output "aisearch_connection_id" {
 
 output "resource_group_name" {
   description = "The name of the resource group containing all resources"
-  value       = azurerm_resource_group.this.name
+  value       = local.resource_group_name
 }
 
 output "container_app_environment_id" {
