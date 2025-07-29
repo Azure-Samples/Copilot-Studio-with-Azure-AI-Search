@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ${{ fromJson(vars.RUNNER_NAME || '["ubuntu-latest"]') }}
+    runs-on: ${{ fromJson(vars.ACTIONS_RUNNER_NAME || '["ubuntu-latest"]') }}
     env:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
