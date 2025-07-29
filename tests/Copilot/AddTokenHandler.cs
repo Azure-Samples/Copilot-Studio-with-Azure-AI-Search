@@ -41,7 +41,10 @@ namespace CopilotTests
                 // Username/Password authentication
                 if (_publicClientApplication == null)
                 {
-                    _publicClientApplication = PublicClientApplicationBuilder.Create(settings.AppClientId)
+                    // Use default Power Platform CLI client ID if none provided
+                    string clientId = settings.AppClientId;
+                    
+                    _publicClientApplication = PublicClientApplicationBuilder.Create(clientId)
                         .WithAuthority(AzureCloudInstance.AzurePublic, settings.TenantId)
                         .Build();
                 }
