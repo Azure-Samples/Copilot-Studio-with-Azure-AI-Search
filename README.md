@@ -75,9 +75,9 @@ This architecture ensures that sensitive enterprise data never traverses public 
   - [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
   - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled  
 - **Power Platform licenses**. The designated user must have the following Power Platform licenses assigned:
-    - **Microsoft Power Apps**
-    - **Power Automate**
-    - **Copilot Studio**
+  - **Microsoft Power Apps**
+  - **Power Automate**
+  - **Copilot Studio**
 
     To simplify license management, you can use an Azure subscription with a Billing Policy instead of assigning licenses directly. Configure this by using the following flag:
 
@@ -189,14 +189,6 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     Set this value to the Azure Entra ID object ID of the primary administrator or developer who will manage and modify the deployed solution resources in the future. This user will be granted administrative access to the Power Platform resources (such as bot ownership and environment management) and will have visibility into the Azure resources provisioned by this deployment. Replace `entraid_user_object_id` with the actual object ID of the intended admin or developer.
 
-1. Use local state storage for terraform:
-  
-    ```shell
-    azd env set USE_LOCAL_STATE true
-    ```
-
-    To simplify deployment, Terraform state will be stored in terraform.state file locally in your hard drive/docker container. This way of managing Terraform state file is for testing purposes only. For Pipeline/Production use, you should save state remotely. You can [check out advanced scenarios guide](/docs/advanced_scenarios.md) for more guidance.
-
 1. Deploy your infrastructure
 
     ```shell
@@ -262,6 +254,11 @@ telemetry that helps us justify ongoing investment in maintaining and improving 
 Keeping this enabled supports the project and future feature development. To opt out of this
 telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appended to the
 `User-Agent` on requests made by the configured terraform providers.
+
+## Responsible AI
+
+Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled
+systems to ensure ethical, safe, and inclusive AI practices. Learn more at <https://www.microsoft.com/en-us/ai/responsible-ai>.
 
 ## Getting help
 
