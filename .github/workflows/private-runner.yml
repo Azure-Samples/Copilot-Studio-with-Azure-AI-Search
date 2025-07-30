@@ -30,6 +30,10 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
 
+      - name: Install Unzip
+        run: sudo apt-get update && sudo apt-get install unzip
+
+
       - name: Install azd
         uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
         with:
