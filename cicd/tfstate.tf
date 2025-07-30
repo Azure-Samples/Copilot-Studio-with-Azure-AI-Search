@@ -8,7 +8,7 @@ data "azurerm_client_config" "current" {}
 
 # Local values for common configurations
 locals {
-  location            = "East US"
+  location            = var.location
   resource_group_name = "rg-tfstate-${random_id.suffix.hex}"
   storage_name        = "sttfstate${random_id.suffix.hex}"
   vnet_name           = "vnet-tfstate-${random_id.suffix.hex}"
@@ -124,7 +124,7 @@ resource "azurerm_storage_container" "tfstate" {
   #checkov:skip=CKV2_AZURE_21:Blob service logging is properly configured via azurerm_monitor_diagnostic_setting.storage_blob with StorageRead, StorageWrite, and StorageDelete enabled
 
   name                  = "tfstate"
-  storage_account_name  = azurerm_storage_account.tfstate.name
+  storage_account_id    = azurerm_storage_account.tfstate.id
   container_access_type = "private"
 
   # Ensure role assignments exist before container creation
