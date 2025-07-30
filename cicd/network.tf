@@ -281,8 +281,21 @@ resource "azurerm_network_security_group" "github_runner" {
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_ranges    = ["8080", "8443", "9000-9999"]
+    destination_port_ranges    = ["8080", "8443", "9000-9999", "32768-65535"]
     source_address_prefix      = "*"
+    destination_address_prefix = "Internet"
+  }
+
+  # Allow all outbound to internet (NAT Gateway will handle routing)
+  security_rule {
+    name                       = "AllowInternetOutbound"
+    priority                   = 210
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "10.0.2.0/24"
     destination_address_prefix = "Internet"
   }
 
@@ -298,10 +311,54 @@ resource "azurerm_network_security_group" "github_runner" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  # Deny all other outbound traffic (explicit deny)
+  security_rule {
+    name                       = "DenyAllOtherOutbound"
+    priority                   = 4096
+    direction                  = "Outbound"
+    access                     = "Deny"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 # Associate NSG with GitHub Runner Subnet
 resource "azurerm_subnet_network_security_group_association" "github_runner" {
   subnet_id                 = azurerm_subnet.github_runner.id
   network_security_group_id = azurerm_network_security_group.github_runner.id
+}
+
+# Create Public IP for NAT Gateway
+resource "azurerm_public_ip" "github_runner_nat_ip" {
+  name                = "pip-github-runner-nat-${random_id.suffix.hex}"
+  location            = azurerm_resource_group.tfstate.location
+  resource_group_name = azurerm_resource_group.tfstate.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  tags                = local.common_tags
+}
+
+# Create NAT Gateway
+resource "azurerm_nat_gateway" "github_runner" {
+  name                = "nat-github-runner-${random_id.suffix.hex}"
+  location            = azurerm_resource_group.tfstate.location
+  resource_group_name = azurerm_resource_group.tfstate.name
+  sku_name            = "Standard"
+  tags                = local.common_tags
+}
+
+# Associate Public IP with NAT Gateway
+resource "azurerm_nat_gateway_public_ip_association" "github_runner" {
+  nat_gateway_id       = azurerm_nat_gateway.github_runner.id
+  public_ip_address_id = azurerm_public_ip.github_runner_nat_ip.id
+}
+
+# Associate NAT Gateway with Subnet
+resource "azurerm_subnet_nat_gateway_association" "github_runner" {
+  subnet_id      = azurerm_subnet.github_runner.id
+  nat_gateway_id = azurerm_nat_gateway.github_runner.id
 }
