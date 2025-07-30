@@ -493,3 +493,7 @@ power_platform_deployment_settings
 *_env/
 *_venv/
 *.venv/
+
+# Ignore environment files
+.env
+.env.*

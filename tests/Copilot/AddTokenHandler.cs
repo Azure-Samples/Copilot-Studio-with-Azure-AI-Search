@@ -24,37 +24,37 @@ namespace CopilotTests
 
             AuthenticationResult authResponse;
 
-            if (settings.UseS2SConnection)
+            try
             {
-                // Service Principal (Client Credentials) authentication
-                if (_confidentialClientApplication == null)
+                if (settings.UseS2SConnection)
                 {
-                    _confidentialClientApplication = ConfidentialClientApplicationBuilder.Create(settings.AppClientId)
-                        .WithAuthority(AzureCloudInstance.AzurePublic, settings.TenantId)
-                        .WithClientSecret(settings.AppClientSecret)
-                        .Build();
+                    // Service Principal (Client Credentials) authentication
+                    if (_confidentialClientApplication == null)
+                    {
+                        _confidentialClientApplication = ConfidentialClientApplicationBuilder.Create(settings.AppClientId)
+                            .WithAuthority(AzureCloudInstance.AzurePublic, settings.TenantId)
+                            .WithClientSecret(settings.AppClientSecret)
+                            .Build();
+                    }
+                    authResponse = await _confidentialClientApplication.AcquireTokenForClient(_scopes).ExecuteAsync(ct);
                 }
-                authResponse = await _confidentialClientApplication.AcquireTokenForClient(_scopes).ExecuteAsync(ct);
-            }
-            else
-            {
-                // Username/Password authentication
-                if (_publicClientApplication == null)
+                else
                 {
-                    // Use default Power Platform CLI client ID if none provided
-                    string clientId = settings.AppClientId;
-                    
-                    _publicClientApplication = PublicClientApplicationBuilder.Create(clientId)
+                    // Username/Password authentication                  
+                    _publicClientApplication ??= PublicClientApplicationBuilder.Create(settings.AppClientId)
                         .WithAuthority(AzureCloudInstance.AzurePublic, settings.TenantId)
                         .Build();
+
+                    authResponse = await _publicClientApplication
+                        .AcquireTokenByUsernamePassword(_scopes, settings.Username, settings.Password)
+                        .ExecuteAsync(ct);
                 }
-
-                authResponse = await _publicClientApplication
-                    .AcquireTokenByUsernamePassword(_scopes, settings.Username, settings.Password)
-                    .ExecuteAsync(ct);
             }
-
-            return authResponse;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Authentication failed: {ex.GetType().Name}");
+                throw;
+            }
         }
 
         /// <summary>
