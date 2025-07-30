@@ -34,7 +34,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install unzip
 
       - name: Install NodeJS
-        run: sudo apt update && sudo apt install nodejs
+        run: sudo apt update && sudo apt install -y nodejs
 
       - name: Install Azure CLI
         run: |
