@@ -65,6 +65,51 @@ jobs:
       - name: Hello
         run: echo "hello private runner"
 
+      - name: Test Azure Blob Storage Connection
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+        shell: bash
+        run: |
+          echo "Testing Azure Blob Storage connection..."
+          
+          # Set subscription context
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+          
+          # Test storage account access
+          echo "Checking storage account access: ${{ vars.RS_STORAGE_ACCOUNT_TEST }}"
+          az storage account show \
+            --name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
+            --resource-group "${{ vars.RS_RESOURCE_GROUP_TEST }}" \
+            --output table
+          
+          # Test container access
+          echo "Checking container access: ${{ vars.RS_CONTAINER_NAME_TEST }}"
+          az storage container show \
+            --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
+            --name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --auth-mode login \
+            --output table
+          
+          # Test blob operations - list blobs in container
+          echo "Testing blob list operation..."
+          az storage blob list \
+            --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
+            --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --auth-mode login \
+            --output table
+          
+          # Test write permission by creating a test blob
+          echo "Testing write permission with test blob..."
+          echo "test-connection-$(date +%s)" | az storage blob upload \
+            --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
+            --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --name "connection-test-$(date +%s).txt" \
+            --file /dev/stdin \
+            --auth-mode login \
+            --overwrite
+          
+          echo "Azure Blob Storage connection test completed successfully!"
+
       - name: Test Terraform State Connection
         env:
           ARM_USE_AZUREAD: "true"
