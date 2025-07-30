@@ -25,6 +25,7 @@ resource "powerplatform_environment" "this" {
   location          = var.power_platform_environment.location
   display_name      = "${var.power_platform_environment.name} - ${var.unique_id}"
   environment_type  = var.power_platform_environment.environment_type
+  azure_region      = var.power_platform_azure_region
   dataverse = {
     language_code     = var.power_platform_environment.language_code
     currency_code     = var.power_platform_environment.currency_code

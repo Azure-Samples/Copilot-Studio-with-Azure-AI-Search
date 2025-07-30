@@ -59,7 +59,7 @@ resource "azurerm_virtual_network" "primary_virtual_network" {
 
   name                = "power-platform-primary-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
-  location            = var.primary_location
+  location            = local.primary_azure_region
   address_space       = var.primary_vnet_address_spaces
   tags                = var.tags
 }
@@ -69,7 +69,7 @@ resource "azurerm_virtual_network" "failover_virtual_network" {
 
   name                = "power-platform-failover-vnet-${random_string.name.id}"
   resource_group_name = azurerm_resource_group.this.name
-  location            = var.failover_location
+  location            = local.secondary_azure_region
   address_space       = var.failover_vnet_address_spaces
   tags                = var.tags
 }
@@ -216,8 +216,8 @@ resource "azurerm_subnet_nat_gateway_association" "github_runner_failover_subnet
 # Create public IP addresses for NAT gateways
 resource "azurerm_public_ip" "nat_gateway_ips" {
   for_each = local.create_network_infrastructure ? {} : {
-    primary  = var.primary_location
-    failover = var.failover_location
+    primary  = local.primary_azure_region
+    failover = local.secondary_azure_region
   }
 
   name                = "${each.key}-nat-gateway-ip"
@@ -230,8 +230,8 @@ resource "azurerm_public_ip" "nat_gateway_ips" {
 
 resource "azurerm_nat_gateway" "nat_gateways" {
   for_each = local.create_network_infrastructure ? {} : {
-    primary  = var.primary_location
-    failover = var.failover_location
+    primary  = local.primary_azure_region
+    failover = local.secondary_azure_region
   }
 
   location            = each.value
@@ -247,8 +247,8 @@ resource "azurerm_nat_gateway" "nat_gateways" {
 # Associate public IP addresses with NAT gateways
 resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_associations" {
   for_each = local.create_network_infrastructure ? {} : {
-    primary  = var.primary_location
-    failover = var.failover_location
+    primary  = local.primary_azure_region
+    failover = local.secondary_azure_region
   }
 
   nat_gateway_id       = azurerm_nat_gateway.nat_gateways[each.key].id
@@ -290,7 +290,7 @@ resource "azurerm_network_security_group" "power_platform_primary_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "power-platform-primary-nsg-${random_string.name.id}"
-  location            = var.primary_location
+  location            = local.primary_azure_region
   resource_group_name = azurerm_resource_group.this.name
   tags                = var.tags
 
@@ -352,7 +352,7 @@ resource "azurerm_network_security_group" "power_platform_failover_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "power-platform-failover-nsg-${random_string.name.id}"
-  location            = var.failover_location
+  location            = local.secondary_azure_region
   resource_group_name = azurerm_resource_group.this.name
   tags                = var.tags
 
@@ -414,7 +414,7 @@ resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "private-endpoint-primary-nsg-${random_string.name.id}"
-  location            = var.primary_location
+  location            = local.primary_azure_region
   resource_group_name = azurerm_resource_group.this.name
   tags                = var.tags
 
@@ -450,7 +450,7 @@ resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "private-endpoint-failover-nsg-${random_string.name.id}"
-  location            = var.failover_location
+  location            = local.secondary_azure_region
   resource_group_name = azurerm_resource_group.this.name
   tags                = var.tags
 
@@ -485,7 +485,7 @@ resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
 resource "azurerm_network_security_group" "github_runner_nsg" {
   count               = var.deploy_github_runner && local.create_network_infrastructure == false ? 1 : 0
   name                = "github-runner-nsg-${random_string.name.id}"
-  location            = var.primary_location
+  location            = local.primary_azure_region
   resource_group_name = azurerm_resource_group.this.name
   tags                = var.tags
 
@@ -559,7 +559,7 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "deployment-script-nsg-${random_string.name.id}"
-  location            = var.primary_location
+  location            = local.primary_azure_region
   resource_group_name = azurerm_resource_group.this.name
   tags                = var.tags
 

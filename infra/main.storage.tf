@@ -54,7 +54,7 @@ module "storage_account_and_container" {
   account_replication_type        = var.cps_storage_replication_type
   account_tier                    = "Standard"
   account_kind                    = "StorageV2"
-  location                        = var.location
+  location                        = local.primary_azure_region
   name                            = replace("cps${random_string.name.id}", "/[^a-z0-9-]/", "")
   resource_group_name             = azurerm_resource_group.this.name
   min_tls_version                 = "TLS1_2"

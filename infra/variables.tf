@@ -181,18 +181,6 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
-# variable "failover_ai_search_subnet_address_spaces" {
-#   type        = list(string)
-#   default     = ["10.2.0.0/24"]
-#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-# }
-
-variable "failover_location" {
-  type        = string
-  default     = "westus"
-  description = "Failover region for deployment."
-}
-
 variable "failover_subnet_address_spaces" {
   type        = list(string)
   default     = ["10.2.1.0/24"]
@@ -219,9 +207,13 @@ variable "include_app_insights" {
 
 variable "location" {
   type        = string
-  default     = "eastus"
-  description = "Region where the resources should be deployed."
+  description = "Region where the resources should be deployed. Must be a valid Power Platform region name (e.g., 'unitedstates', 'europe', 'asia'). This will be validated against available Power Platform locations."
   nullable    = false
+
+  validation {
+    condition     = contains(data.powerplatform_locations.all_powerplatform_locations.locations[*].name, var.location)
+    error_message = "The location '${var.location}' is not a valid Power Platform location. Valid locations are: ${join(", ", data.powerplatform_locations.all_powerplatform_locations.locations[*].name)}"
+  }
 }
 
 variable "networking" {
@@ -334,18 +326,6 @@ variable "power_platform_managed_environment" {
     maker_onboarding_url       = ""
   }
   description = "Configuration for the Power Platform managed environment"
-}
-
-# variable "primary_ai_search_subnet_address_spaces" {
-#   type        = list(string)
-#   default     = ["10.1.7.0/24"]
-#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-# }
-
-variable "primary_location" {
-  type        = string
-  default     = "eastus"
-  description = "Primary region for deployment."
 }
 
 variable "primary_subnet_address_spaces" {

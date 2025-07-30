@@ -1,9 +1,36 @@
 # Basic usage of the Copilot Studio module. Assumes the usage of AVMs to initialize minimal prerequisite resources.
-
 locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
   env_tags            = { azd-env-name : var.azd_environment_name }
+
+  search_power_platform_location = lookup(
+    { for location in data.powerplatform_locations.all_powerplatform_locations.locations : location.name => location },
+    var.location,
+    null
+  )
+  # We are picking the first Azure region from the Power Platform location, **there may be multiple regions available and the first one may not be the best one**
+  primary_azure_region = local.search_power_platform_location.azure_regions[0]
+  search_secondary_azure_region = lookup(
+    { for azure_location in data.azapi_resource_list.all_azure_locations.output.value : azure_location.name => azure_location.metadata},
+    local.primary_azure_region,
+    null
+  )
+  # Secondary Azure region is picked based of primary found in Power Platform location
+  secondary_azure_region = local.search_secondary_azure_region.pairedRegion[0].name
 }
+
+data "powerplatform_locations" "all_powerplatform_locations" {
+}
+
+
+data "azapi_resource_list" "all_azure_locations" {
+  type      =  "Microsoft.Resources/subscriptions/locations@2022-12-01"
+  parent_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  query_parameters = {
+    "includeExtendedLocations" = ["true"]
+  }
+}
+
 
 # The unique ID that will be included in most resources managed by this module
 resource "random_string" "name" {
@@ -13,9 +40,10 @@ resource "random_string" "name" {
   upper   = false
 }
 
+
 # The Resource Group that will contain the resources managed by this module
 resource "azurerm_resource_group" "this" {
-  location = var.location
+  location = local.primary_azure_region
   name     = "rg-${random_string.name.id}"
   tags     = merge(var.tags, local.env_tags)
 }
@@ -42,6 +70,7 @@ module "copilot_studio" {
   #  prefer to manage instead, specify the environment IDs in the variable objects
   #  and the module will attempt to manage the existing environment instead.
   power_platform_environment         = var.power_platform_environment
+  power_platform_azure_region        = local.primary_azure_region
   power_platform_managed_environment = var.power_platform_managed_environment
 
   # Power Platform billing policy configuration

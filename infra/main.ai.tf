@@ -5,7 +5,7 @@ module "azure_open_ai" {
   source                             = "Azure/avm-res-cognitiveservices-account/azurerm"
   version                            = "0.8.0"
   kind                               = "OpenAI"
-  location                           = var.location
+  location                           = local.primary_azure_region
   name                               = "aoai${random_string.name.id}"
   resource_group_name                = azurerm_resource_group.this.name
   enable_telemetry                   = true
