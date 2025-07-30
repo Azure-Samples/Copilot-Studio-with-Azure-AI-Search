@@ -9,7 +9,7 @@ provider "azurerm" {
   storage_use_azuread = true
 }
 
-# Configure the GitHub Provider
-provider "github" {
-  owner = var.github_owner
-}
+# # Configure the GitHub Provider
+# provider "github" {
+#   owner = var.github_owner
+# }

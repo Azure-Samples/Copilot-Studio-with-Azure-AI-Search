@@ -14,14 +14,14 @@ variable "location" {
 
 # Variables for GitHub integration
 
-variable "github_owner" {
-  description = "The GitHub organization or user account owner"
-  type        = string
-  default     = "Azure-Samples"
-}
+# variable "github_owner" {
+#   description = "The GitHub organization or user account owner"
+#   type        = string
+#   default     = "Azure-Samples"
+# }
 
-variable "github_repository" {
-  description = "The GitHub repository name"
-  type        = string
-  default     = "Copilot-Studio-with-Azure-AI-Search"
-}
+# variable "github_repository" {
+#   description = "The GitHub repository name"
+#   type        = string
+#   default     = "Copilot-Studio-with-Azure-AI-Search"
+# }
