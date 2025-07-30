@@ -8,3 +8,8 @@ provider "azurerm" {
   # Use Azure AD authentication for storage operations
   storage_use_azuread = true
 }
+
+# Configure the GitHub Provider
+provider "github" {
+  owner = var.github_owner
+}

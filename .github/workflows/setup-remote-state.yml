@@ -1,0 +1,82 @@
+name: "Deploy CICD Infrastructure"
+
+on:
+  workflow_dispatch:
+    inputs:
+      location:
+        description: "Azure location for the infrastructure"
+        required: true
+        default: "eastus"
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+  variables: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./cicd
+    
+    steps:
+      - name: Checkout the branch ${{ github.ref_name }}
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.9.0
+
+      - name: Login to Azure with Federated Identity
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform Environment Variables
+        env:
+          ARM_USE_AZUREAD: "true"
+          ARM_STORAGE_USE_AZUREAD: "true"
+          ARM_USE_OIDC: "true"
+          ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          TF_VAR_location: ${{ github.event.inputs.location }}
+          TF_VAR_github_owner: ${{ github.repository_owner }}
+          TF_VAR_github_repository: ${{ github.event.repository.name }}
+          TF_VAR_github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Export environment variables for subsequent steps
+          echo "ARM_USE_AZUREAD=true" >> $GITHUB_ENV
+          echo "ARM_STORAGE_USE_AZUREAD=true" >> $GITHUB_ENV
+          echo "ARM_USE_OIDC=true" >> $GITHUB_ENV
+          echo "ARM_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+          echo "ARM_SUBSCRIPTION_ID=${{ vars.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "TF_VAR_subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "TF_VAR_location=${{ github.event.inputs.location }}" >> $GITHUB_ENV
+          echo "TF_VAR_github_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+          echo "TF_VAR_github_repository=${{ github.event.repository.name }}" >> $GITHUB_ENV
+          echo "TF_VAR_github_token=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+      - name: Terraform Output
+        run: terraform output
