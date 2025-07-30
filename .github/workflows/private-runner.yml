@@ -60,9 +60,9 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           
-          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
-          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
-          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT_TEST }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME_TEST }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP_TEST }}
           
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
         shell: bash
