@@ -1,7 +1,7 @@
 # Create Virtual Network
 resource "azurerm_virtual_network" "tfstate" {
   name                = local.vnet_name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = ["10.100.0.0/16"]
   location            = azurerm_resource_group.tfstate.location
   resource_group_name = azurerm_resource_group.tfstate.name
   tags                = local.common_tags
@@ -12,7 +12,7 @@ resource "azurerm_subnet" "storage" {
   name                 = local.subnet_name
   resource_group_name  = azurerm_resource_group.tfstate.name
   virtual_network_name = azurerm_virtual_network.tfstate.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = ["10.100.1.0/24"]
 
   # Disable service endpoints since we're using private endpoints
   service_endpoints = []
@@ -37,8 +37,8 @@ resource "azurerm_network_security_group" "storage" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "443"
-    source_address_prefix      = "10.0.1.0/24"
-    destination_address_prefix = "10.0.1.0/24"
+    source_address_prefix      = "10.100.1.0/24"
+    destination_address_prefix = "10.100.1.0/24"
   }
 
   # Deny all other inbound traffic
@@ -63,7 +63,7 @@ resource "azurerm_network_security_group" "storage" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "443"
-    source_address_prefix      = "10.0.1.0/24"
+    source_address_prefix      = "10.100.1.0/24"
     destination_address_prefix = "*"
   }
 
@@ -130,7 +130,7 @@ resource "azurerm_subnet" "github_runner" {
   name                 = "snet-github-runner-${random_id.suffix.hex}"
   resource_group_name  = azurerm_resource_group.tfstate.name
   virtual_network_name = azurerm_virtual_network.tfstate.name
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = ["10.100.2.0/24"]
 
   # GitHub runners don't need private endpoint policies
   private_endpoint_network_policies = "Disabled"
@@ -243,8 +243,8 @@ resource "azurerm_network_security_group" "github_runner" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "10.0.2.0/24"
-    destination_address_prefix = "10.0.2.0/24"
+    source_address_prefix      = "10.100.2.0/24"
+    destination_address_prefix = "10.100.2.0/24"
   }
 
   # Allow outbound communication within the subnet
@@ -256,8 +256,8 @@ resource "azurerm_network_security_group" "github_runner" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "10.0.2.0/24"
-    destination_address_prefix = "10.0.2.0/24"
+    source_address_prefix      = "10.100.2.0/24"
+    destination_address_prefix = "10.100.2.0/24"
   }
 
   # Allow access to Azure Storage (for accessing terraform state)
@@ -295,7 +295,7 @@ resource "azurerm_network_security_group" "github_runner" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "10.0.2.0/24"
+    source_address_prefix      = "10.100.2.0/24"
     destination_address_prefix = "Internet"
   }
 
