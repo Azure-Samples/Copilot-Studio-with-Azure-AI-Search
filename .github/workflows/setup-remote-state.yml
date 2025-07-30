@@ -17,6 +17,7 @@ permissions:
   actions: write
 
 concurrency:
+  group: "tfstate"
   cancel-in-progress: false # Do not cancel in-progress terraform runs
 
 jobs:
