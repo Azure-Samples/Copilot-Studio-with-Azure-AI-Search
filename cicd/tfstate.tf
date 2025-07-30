@@ -83,6 +83,13 @@ resource "azurerm_role_assignment" "storage_blob_data_contributor" {
   principal_id         = data.azurerm_client_config.current.object_id
 }
 
+# Assign Storage Account Contributor role for container management
+resource "azurerm_role_assignment" "storage_account_contributor" {
+  scope                = azurerm_storage_account.tfstate.id
+  role_definition_name = "Storage Account Contributor"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 # Create Log Analytics Workspace for storage logging
 resource "azurerm_log_analytics_workspace" "storage" {
   name                = "law-${local.storage_name}"
@@ -110,25 +117,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_blob" {
   enabled_log {
     category = "StorageDelete"
   }
-
-  enabled_log {
-    category = "Transaction"
-  }
-}
-
-# Configure diagnostic settings for storage account itself
-resource "azurerm_monitor_diagnostic_setting" "storage_account" {
-  name                       = "diag-${local.storage_name}"
-  target_resource_id         = azurerm_storage_account.tfstate.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.storage.id
-
-  enabled_log {
-    category = "Transaction"
-  }
-
-  enabled_log {
-    category = "Capacity"
-  }
 }
 
 # Create storage container for Terraform state
@@ -139,6 +127,9 @@ resource "azurerm_storage_container" "tfstate" {
   storage_account_name  = azurerm_storage_account.tfstate.name
   container_access_type = "private"
 
-  # Ensure role assignment exists before container creation
-  depends_on = [azurerm_role_assignment.storage_blob_data_contributor]
+  # Ensure role assignments exist before container creation
+  depends_on = [
+    azurerm_role_assignment.storage_blob_data_contributor,
+    azurerm_role_assignment.storage_account_contributor
+  ]
 }
