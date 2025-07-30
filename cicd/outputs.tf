@@ -33,3 +33,8 @@ output "backend_config" {
     subscription_id      = var.subscription_id
   }
 }
+
+output "github_runner_subnet_id" {
+  description = "ID of the GitHub runner subnet"
+  value       = azurerm_subnet.github_runner.id
+}
