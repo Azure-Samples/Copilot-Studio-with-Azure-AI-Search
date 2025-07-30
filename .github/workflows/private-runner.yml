@@ -72,6 +72,27 @@ jobs:
         run: |
           echo "Testing Azure Blob Storage connection..."
           
+          # Test DNS resolution for private endpoint
+          echo "Testing DNS resolution for private endpoint..."
+          PRIVATE_ENDPOINT_FQDN="${{ vars.RS_STORAGE_ACCOUNT_TEST }}.blob.core.windows.net"
+          echo "Resolving FQDN: $PRIVATE_ENDPOINT_FQDN"
+
+          # Test DNS resolution using nslookup
+          echo "Running nslookup for storage account:"
+          nslookup "$PRIVATE_ENDPOINT_FQDN"
+
+          # Check if the resolved IP is in private range (10.x.x.x, 172.16-31.x.x, or 192.168.x.x)
+          RESOLVED_IP=$(nslookup "$PRIVATE_ENDPOINT_FQDN" | grep -A1 "Name:" | grep "Address:" | tail -1 | awk '{print $2}')
+          echo "Resolved IP: $RESOLVED_IP"
+
+          if [[ $RESOLVED_IP =~ ^10\. ]] || [[ $RESOLVED_IP =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] || [[ $RESOLVED_IP =~ ^192\.168\. ]]; then
+            echo "✓ Private endpoint DNS resolution successful - IP is in private range"
+          else
+            echo "⚠ Warning: Resolved IP appears to be public - private endpoint may not be configured correctly"
+          fi
+
+          echo "DNS resolution test completed."
+
           # Set subscription context
           az account set --subscription "$AZURE_SUBSCRIPTION_ID"
           
