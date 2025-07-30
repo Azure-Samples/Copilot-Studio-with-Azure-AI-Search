@@ -1,6 +1,9 @@
 name: "Deploy CICD Infrastructure"
 
 on:
+  push:
+    branches:
+      - mattdot/private-runner
   workflow_dispatch:
     inputs:
       location:
