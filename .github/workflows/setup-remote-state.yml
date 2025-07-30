@@ -1,4 +1,4 @@
-name: "Deploy CICD Infrastructure"
+name: "Deploy Terraform Remote State Infrastructure"
 
 on:
   push:
@@ -14,8 +14,7 @@ on:
 permissions:
   id-token: write
   contents: read
-  actions: read
-  variables: write
+  actions: write
 
 jobs:
   terraform:
