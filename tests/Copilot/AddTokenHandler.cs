@@ -55,6 +55,8 @@ namespace CopilotTests
                 Console.WriteLine($"Authentication failed: {ex.GetType().Name}");
                 throw;
             }
+
+            return authResponse;
         }
 
         /// <summary>
