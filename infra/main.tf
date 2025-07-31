@@ -19,7 +19,9 @@ data "azurerm_resource_group" "existing" {
 # Generate unique names for resources
 resource "azurecaf_name" "names" {
   name          = var.org_naming.workload_name
-  resource_type = "azurerm_resource_group"
+  resource_types = [
+    "azurerm_resource_group"
+  ]
   prefixes      = [var.org_naming.prefix]
   suffixes      = [var.org_naming.environment, var.org_naming.suffix]
   random_length = 4
