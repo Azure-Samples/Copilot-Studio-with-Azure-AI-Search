@@ -18,7 +18,7 @@ data "powerplatform_locations" "all_powerplatform_locations" {
 
 
 data "azapi_resource_list" "all_azure_locations" {
-  type      =  "Microsoft.Resources/subscriptions/locations@2022-12-01"
+  type = "Microsoft.Resources/subscriptions/locations@2022-12-01"
   parent_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
   query_parameters = {
     "includeExtendedLocations" = ["true"]
