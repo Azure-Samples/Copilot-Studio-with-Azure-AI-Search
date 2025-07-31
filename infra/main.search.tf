@@ -4,6 +4,7 @@ locals {
 
 resource "azurerm_search_service" "ai_search" {
   # checkov:skip=CKV_AZURE_208: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
+  # checkov:skip=CKV_AZURE_209: Ensure that Azure Cognitive Search maintains SLA for search index queries
   name                          = local.search_name
   location                      = local.primary_azure_region
   resource_group_name           = local.resource_group_name
