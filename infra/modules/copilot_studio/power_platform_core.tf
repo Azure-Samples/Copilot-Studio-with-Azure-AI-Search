@@ -4,6 +4,26 @@
 locals {
   power_platform_environment_id       = coalesce(var.power_platform_environment.id, powerplatform_environment.this[0].id)
   power_platform_environment_location = coalesce(var.power_platform_environment.location, powerplatform_environment.this[0].location)
+
+  # Create a flattened list of azure_region -> location mappings
+  power_platform_azure_mappings = flatten([
+    for location in data.powerplatform_locations.all_powerplatform_locations.locations : [
+      for azure_region in location.azure_regions : {
+        azure_region = azure_region
+        location     = location
+      }
+    ]
+  ])
+
+  # Find the first mapping that matches the provided environment location based on azure_region 
+  search_power_platform_location = lookup(
+    { for mapping in local.power_platform_azure_mappings : mapping.azure_region => mapping.location... },
+    var.power_platform_azure_region,
+    "No Power Platform location for azure region '${var.power_platform_azure_region}' found."
+  )
+}
+
+data "powerplatform_locations" "all_powerplatform_locations" {
 }
 
 resource "powerplatform_billing_policy" "this" {
@@ -18,11 +38,13 @@ resource "powerplatform_billing_policy" "this" {
   }
 }
 
+# When created, predefined azure_region is used to determine the location of the Power Platform environment.
 resource "powerplatform_environment" "this" {
   count = var.power_platform_environment.id == "" ? 1 : 0
 
   billing_policy_id = var.power_platform_billing_policy.should_create ? powerplatform_billing_policy.this[0].id : null
-  location          = var.power_platform_environment.location
+  #todo we should test giving params from json 
+  location          = var.power_platform_environment.location != "" && var.power_platform_environment.location != null ? var.power_platform_environment.location : local.search_power_platform_location[0].name
   display_name      = "${var.power_platform_environment.name} - ${var.unique_id}"
   environment_type  = var.power_platform_environment.environment_type
   azure_region      = var.power_platform_azure_region

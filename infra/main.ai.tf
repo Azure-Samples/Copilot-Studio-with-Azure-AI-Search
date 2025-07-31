@@ -40,6 +40,8 @@ module "azure_open_ai" {
     system_assigned = true
   }
   tags = var.tags
+
+  depends_on = [module.copilot_studio]
 }
 
 # Private DNS zone for Azure OpenAI private endpoint resolution

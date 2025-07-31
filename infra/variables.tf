@@ -209,11 +209,18 @@ variable "location" {
   type        = string
   description = "Region where the resources should be deployed. Must be a valid Power Platform region name (e.g., 'unitedstates', 'europe', 'asia'). This will be validated against available Power Platform locations."
   nullable    = false
+}
 
-  validation {
-    condition     = contains(data.powerplatform_locations.all_powerplatform_locations.locations[*].name, var.location)
-    error_message = "The location '${var.location}' is not a valid Power Platform location. Valid locations are: ${join(", ", data.powerplatform_locations.all_powerplatform_locations.locations[*].name)}"
-  }
+locals {
+  power_platform_azure_mappings = flatten([
+    for location in data.powerplatform_locations.all_powerplatform_locations.locations : [
+      for azure_region in location.azure_regions : {
+        azure_region = azure_region
+        location     = location
+      }
+    ]
+  ])
+
 }
 
 variable "networking" {
@@ -283,15 +290,6 @@ variable "power_platform_environment" {
     environment_type  = string
     location          = string
   })
-  default = {
-    name              = "Copilot Studio + Azure AI"
-    id                = ""                                     # Optional. If provided, the module will attempt to use the existing environment. If left blank, a new environment will be created.
-    language_code     = 1033                                   # English
-    security_group_id = "00000000-0000-0000-0000-000000000000" # Optional. If provided, the module will attempt to expose the environment to the specified security group.
-    currency_code     = "USD"
-    environment_type  = "Sandbox"
-    location          = "unitedstates"
-  }
   description = <<DESCRIPTION
   - `name`: The name of the Power Platform environment to be managed.
   - `language_code`: The language code for the Power Platform environment.

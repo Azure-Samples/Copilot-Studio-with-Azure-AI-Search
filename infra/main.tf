@@ -3,13 +3,7 @@ locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
   env_tags            = { azd-env-name : var.azd_environment_name }
 
-  search_power_platform_location = lookup(
-    { for location in data.powerplatform_locations.all_powerplatform_locations.locations : location.name => location },
-    var.location,
-    null
-  )
-  # We are picking the first Azure region from the Power Platform location, **there may be multiple regions available and the first one may not be the best one**
-  primary_azure_region = local.search_power_platform_location.azure_regions[0]
+  primary_azure_region = var.location
   search_secondary_azure_region = lookup(
     { for azure_location in data.azapi_resource_list.all_azure_locations.output.value : azure_location.name => azure_location.metadata},
     local.primary_azure_region,
