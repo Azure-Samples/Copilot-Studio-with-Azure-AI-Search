@@ -16,6 +16,16 @@ data "azurerm_resource_group" "existing" {
   name  = var.resource_group_name
 }
 
+# Generate unique names for resources
+resource "azurecaf_name" "names" {
+  name          = var.org_naming.workload_name
+  resource_type = "azurerm_resource_group"
+  prefixes      = [var.org_naming.prefix]
+  suffixes      = [var.org_naming.environment, var.org_naming.suffix]
+  random_length = 4
+  clean_input   = true
+}
+
 # The unique ID that will be included in most resources managed by this module
 resource "random_string" "name" {
   length  = 5
@@ -28,7 +38,7 @@ resource "random_string" "name" {
 resource "azurerm_resource_group" "this" {
   count    = local.use_existing_resource_group ? 0 : 1
   location = var.location
-  name     = "rg-${random_string.name.id}"
+  name     = azurecaf_name.names.results["azurerm_resource_group"]
   tags     = merge(var.tags, local.env_tags)
 }
 

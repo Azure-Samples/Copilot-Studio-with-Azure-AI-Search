@@ -22,6 +22,23 @@ variable "resource_group_name" {
   }
 }
 
+# Parameters to work with dynamic names for resources using azurecaf Terraform provider
+variable "org_naming" {
+  type = object({
+    workload_name   = string
+    org_prefix      = string
+    org_suffix      = string
+    org_environment = string
+  })
+  default = {
+    workload_name   = "csaiseach"
+    org_prefix      = "azd"
+    org_suffix      = ""
+    org_environment = "dev"
+  }
+  description = "Organizational naming parameters for azurecaf_name resource: workload name, prefix, suffix, and environment."
+}
+
 variable "app_insights_sections" {
   type = map(object({
     query = string
