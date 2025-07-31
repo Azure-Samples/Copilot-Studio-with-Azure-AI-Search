@@ -5,14 +5,14 @@
 # Private DNS zone for blob storage private endpoints
 resource "azurerm_private_dns_zone" "blob_storage" {
   name                = "privatelink.blob.core.windows.net"
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 }
 
 # Link the private DNS zone to the primary virtual network
 resource "azurerm_private_dns_zone_virtual_network_link" "blob_storage_vnet_link" {
   name                  = "blob-storage-vnet-link"
-  resource_group_name   = azurerm_resource_group.this.name
+  resource_group_name   = local.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.blob_storage.name
   virtual_network_id    = local.primary_virtual_network_id
   registration_enabled  = false
@@ -56,7 +56,7 @@ module "storage_account_and_container" {
   account_kind                    = "StorageV2"
   location                        = local.primary_azure_region
   name                            = replace("cps${random_string.name.id}", "/[^a-z0-9-]/", "")
-  resource_group_name             = azurerm_resource_group.this.name
+  resource_group_name             = local.resource_group_name
   min_tls_version                 = "TLS1_2"
   shared_access_key_enabled       = false
   public_network_access_enabled   = false

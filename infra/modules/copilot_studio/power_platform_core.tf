@@ -44,10 +44,10 @@ resource "powerplatform_environment" "this" {
 
   billing_policy_id = var.power_platform_billing_policy.should_create ? powerplatform_billing_policy.this[0].id : null
   #todo we should test giving params from json 
-  location          = var.power_platform_environment.location != "" && var.power_platform_environment.location != null ? var.power_platform_environment.location : local.search_power_platform_location[0].name
-  display_name      = "${var.power_platform_environment.name} - ${var.unique_id}"
-  environment_type  = var.power_platform_environment.environment_type
-  azure_region      = var.power_platform_azure_region
+  location         = var.power_platform_environment.location != "" && var.power_platform_environment.location != null ? var.power_platform_environment.location : local.search_power_platform_location[0].name
+  display_name     = "${var.power_platform_environment.name} - ${var.unique_id}"
+  environment_type = var.power_platform_environment.environment_type
+  azure_region     = var.power_platform_azure_region
   dataverse = {
     language_code     = var.power_platform_environment.language_code
     currency_code     = var.power_platform_environment.currency_code

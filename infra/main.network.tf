@@ -3,7 +3,7 @@ locals {
   primary_virtual_network_id    = coalesce(var.networking.primary_virtual_network.id, local.create_network_infrastructure ? null : azurerm_virtual_network.primary_virtual_network[0].id)
   primary_virtual_network_resource_group = coalesce(
     length(local.primary_vnet_matches) > 0 ? local.primary_vnet_matches[0].resource_group_name : null,
-    local.create_network_infrastructure ? null : azurerm_resource_group.this.name
+    local.create_network_infrastructure ? null : local.resource_group_name
   )
 
   # Get matching primary VNets from data source
@@ -58,7 +58,7 @@ resource "azurerm_virtual_network" "primary_virtual_network" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "power-platform-primary-vnet-${random_string.name.id}"
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   location            = local.primary_azure_region
   address_space       = var.primary_vnet_address_spaces
   tags                = var.tags
@@ -68,7 +68,7 @@ resource "azurerm_virtual_network" "failover_virtual_network" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                = "power-platform-failover-vnet-${random_string.name.id}"
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   location            = local.secondary_azure_region
   address_space       = var.failover_vnet_address_spaces
   tags                = var.tags
@@ -80,7 +80,7 @@ resource "azurerm_subnet" "primary_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                 = var.primary_subnet_name
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
@@ -107,7 +107,7 @@ resource "azurerm_subnet" "failover_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                 = var.failover_subnet_name
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
@@ -134,7 +134,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
 
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   name                 = "pe-primary-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_pe_subnet_address_spaces
   service_endpoints    = ["Microsoft.CognitiveServices", "Microsoft.Storage"]
@@ -148,7 +148,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                 = "pe-failover-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_pe_subnet_address_spaces
   service_endpoints    = ["Microsoft.CognitiveServices"]
@@ -164,7 +164,7 @@ resource "azurerm_subnet" "github_runner_primary_subnet" {
   count = var.deploy_github_runner && local.create_network_infrastructure == false ? 1 : 0
 
   name                 = "github-runner-primary-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_gh_runner_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage"]
@@ -191,7 +191,7 @@ resource "azurerm_subnet" "github_runner_failover_subnet" {
   count = var.deploy_github_runner && local.create_network_infrastructure == false ? 1 : 0
 
   name                 = "github-runner-failover-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_gh_runner_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage"]
@@ -222,7 +222,7 @@ resource "azurerm_public_ip" "nat_gateway_ips" {
 
   name                = "${each.key}-nat-gateway-ip"
   location            = each.value
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
   tags                = var.tags
@@ -236,7 +236,7 @@ resource "azurerm_nat_gateway" "nat_gateways" {
 
   location            = each.value
   name                = "${each.key}-nat-gateway"
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   sku_name            = "Standard"
   tags                = var.tags
 
@@ -259,7 +259,7 @@ resource "azurerm_subnet" "deployment_script_container_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
   name                 = "deploymentscript-subnet"
-  resource_group_name  = azurerm_resource_group.this.name
+  resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.deployment_script_subnet_address_spaces
   service_endpoints    = ["Microsoft.Storage", "Microsoft.CognitiveServices"]
@@ -291,7 +291,7 @@ resource "azurerm_network_security_group" "power_platform_primary_nsg" {
 
   name                = "power-platform-primary-nsg-${random_string.name.id}"
   location            = local.primary_azure_region
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 
   # Allow outbound HTTPS for Power Platform services
@@ -353,7 +353,7 @@ resource "azurerm_network_security_group" "power_platform_failover_nsg" {
 
   name                = "power-platform-failover-nsg-${random_string.name.id}"
   location            = local.secondary_azure_region
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 
   # Allow outbound HTTPS for Power Platform services
@@ -415,7 +415,7 @@ resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
 
   name                = "private-endpoint-primary-nsg-${random_string.name.id}"
   location            = local.primary_azure_region
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 
   # Allow inbound traffic from VNet to private endpoints
@@ -451,7 +451,7 @@ resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
 
   name                = "private-endpoint-failover-nsg-${random_string.name.id}"
   location            = local.secondary_azure_region
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 
   # Allow inbound traffic from VNet to private endpoints
@@ -486,7 +486,7 @@ resource "azurerm_network_security_group" "github_runner_nsg" {
   count               = var.deploy_github_runner && local.create_network_infrastructure == false ? 1 : 0
   name                = "github-runner-nsg-${random_string.name.id}"
   location            = local.primary_azure_region
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 
   # Allow outbound HTTPS for GitHub and container registry access
@@ -560,7 +560,7 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
 
   name                = "deployment-script-nsg-${random_string.name.id}"
   location            = local.primary_azure_region
-  resource_group_name = azurerm_resource_group.this.name
+  resource_group_name = local.resource_group_name
   tags                = var.tags
 
   # Allow outbound HTTPS for Azure services and package downloads
