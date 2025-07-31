@@ -13,22 +13,27 @@ locals {
   secondary_azure_region = local.search_secondary_azure_region.pairedRegion[0].name
 
   # Resource group logic - use existing or create new
-  use_existing_resource_group = var.resource_group_name != null
+  use_existing_resource_group = var.resource_group_name != null && var.resource_group_name != ""
   resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
-  resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
+  #resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
+}
+
+# The Resource Group that will contain the resources managed by this module (only created if not using existing)
+resource "azurerm_resource_group" "this" {
+  count    = local.use_existing_resource_group ? 0 : 1
+  location = local.primary_azure_region
+  name     = "rg-${random_string.name.id}"
+  tags     = merge(var.tags, local.env_tags)
 }
 
 # Data source to validate existing resource group exists
 data "azurerm_resource_group" "existing" {
   count = local.use_existing_resource_group ? 1 : 0
   name  = var.resource_group_name
-
-
 }
 
 data "powerplatform_locations" "all_powerplatform_locations" {
 }
-
 
 data "azapi_resource_list" "all_azure_locations" {
   type      = "Microsoft.Resources/subscriptions/locations@2022-12-01"
@@ -38,22 +43,12 @@ data "azapi_resource_list" "all_azure_locations" {
   }
 }
 
-
 # The unique ID that will be included in most resources managed by this module
 resource "random_string" "name" {
   length  = 5
   numeric = false
   special = false
   upper   = false
-}
-
-
-# The Resource Group that will contain the resources managed by this module (only created if not using existing)
-resource "azurerm_resource_group" "this" {
-  count    = local.use_existing_resource_group ? 0 : 1
-  location = local.primary_azure_region
-  name     = "rg-${random_string.name.id}"
-  tags     = merge(var.tags, local.env_tags)
 }
 
 module "copilot_studio" {
