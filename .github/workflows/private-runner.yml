@@ -70,16 +70,16 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         shell: bash
         run: |
-          log "Running network diagnostics..."
+          echo "Running network diagnostics..."
 
           # Check basic network configuration
-          log "Network interfaces:"
+          echo "Network interfaces:"
           ip addr show
           
-          log "Routing table:"
+          echo "Routing table:"
           ip route show
           
-          log "DNS configuration:"
+          echo "DNS configuration:"
           cat /etc/resolv.conf
           echo "Testing Azure Blob Storage connection..."
           
