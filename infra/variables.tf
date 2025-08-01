@@ -11,6 +11,17 @@ variable "azd_environment_name" {
   type        = string
 }
 
+variable "resource_group_name" {
+  type        = string
+  default     = null
+  description = "The name of an existing resource group to deploy resources into. If not provided, a new resource group will be created."
+
+  validation {
+    condition     = var.resource_group_name == null || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
+    error_message = "Resource group name must contain only alphanumeric characters, periods, underscores, hyphens, and parentheses."
+  }
+}
+
 variable "app_insights_sections" {
   type = map(object({
     query = string
@@ -222,6 +233,43 @@ variable "location" {
   default     = "eastus"
   description = "Region where the resources should be deployed."
   nullable    = false
+}
+
+variable "networking" {
+  type = object({
+    primary_virtual_network = object({
+      id = string
+
+      primary_subnet_id                     = string
+      pe_primary_subnet_id                  = string
+      github_runner_primary_subnet_id       = string
+      deployment_script_container_subnet_id = string
+    })
+    failover_virtual_network = object({
+      id = string
+
+      failover_subnet_id               = string
+      pe_failover_subnet_id            = string
+      github_runner_failover_subnet_id = string
+    })
+  })
+  default = {
+    primary_virtual_network = {
+      id                                    = null
+      primary_subnet_id                     = null
+      pe_primary_subnet_id                  = null
+      github_runner_primary_subnet_id       = null
+      deployment_script_container_subnet_id = null
+    }
+    failover_virtual_network = {
+      id                               = null
+      failover_subnet_id               = null
+      pe_failover_subnet_id            = null
+      github_runner_failover_subnet_id = null
+    }
+
+  }
+  description = "Configuration for bring-your-own-network setup, including primary and failover virtual networks and their associated subnets."
 }
 
 variable "use_billing_policy" {
