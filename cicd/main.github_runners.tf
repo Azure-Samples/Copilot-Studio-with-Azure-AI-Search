@@ -21,7 +21,7 @@ module "github_runner_aca_primary" {
 # Only deploy when enable_vm_github_runner is true
 module "github_runner_vm" {
   count  = (var.deploy_github_runner && var.enable_vm_github_runner) ? 1 : 0
-  source = "./modules/github_runner_vm"
+  source = "./github_runner_vm"
 
   vm_github_runner_config = var.vm_github_runner_config
   github_runner_vm_size   = var.github_runner_vm_size
@@ -30,7 +30,7 @@ module "github_runner_vm" {
   resource_group_name     = azurerm_resource_group.this.name
   unique_id               = random_string.name.id
   subnet_id               = azurerm_subnet.github_runner_primary_subnet[0].id
-  tags                    = merge(var.tags, local.env_tags)
+  tags                    = merge(var.tags)
 }
 
 resource "azurerm_role_assignment" "runner_storage_blob_data_contributor" {
@@ -58,22 +58,22 @@ resource "azurerm_role_assignment" "runner_search_index_data_contributor" {
 
 # Conditionally deployed based on deploy_github_runner, enable_failover_github_runner, and enable_vm_github_runner variables
 # Only deploy when enable_vm_github_runner is false
-module "github_runner_aca_failover" {
-  count  = (var.deploy_github_runner && var.enable_failover_github_runner && !var.enable_vm_github_runner) ? 1 : 0
-  source = "./modules/github_runner_aca"
+# module "github_runner_aca_failover" {
+#   count  = (var.deploy_github_runner && var.enable_failover_github_runner && !var.enable_vm_github_runner) ? 1 : 0
+#   source = "./github_runner_aca"
 
-  environment_name           = "${var.azd_environment_name}-failover"
-  unique_id                  = "${random_string.name.id}-fo"
-  location                   = var.failover_location
-  resource_group_name        = local.resource_group_name
-  infrastructure_subnet_id   = azurerm_subnet.github_runner_failover_subnet[0].id
-  private_endpoint_subnet_id = local.pe_failover_subnet_id
-  virtual_network_id         = local.failover_virtual_network_id
-  github_runner_config       = var.github_runner_config
-  openai_endpoint            = module.azure_open_ai.endpoint
+#   environment_name           = "${var.azd_environment_name}-failover"
+#   unique_id                  = "${random_string.name.id}-fo"
+#   location                   = var.failover_location
+#   resource_group_name        = local.resource_group_name
+#   infrastructure_subnet_id   = azurerm_subnet.github_runner_failover_subnet[0].id
+#   private_endpoint_subnet_id = local.pe_failover_subnet_id
+#   virtual_network_id         = local.failover_virtual_network_id
+#   github_runner_config       = var.github_runner_config
+#   openai_endpoint            = module.azure_open_ai.endpoint
 
-  tags = merge(var.tags, local.env_tags)
-}
+#   tags = merge(var.tags, local.env_tags)
+# }
 
 resource "azurerm_role_assignment" "runner_failover_storage_blob_data_contributor" {
   count                = (var.deploy_github_runner && var.enable_failover_github_runner && !var.enable_vm_github_runner) ? 1 : 0
