@@ -5,6 +5,7 @@ This directory contains Terraform configuration to create Azure infrastructure f
 ## Overview
 
 This configuration creates:
+
 - Azure Storage Account with private access only
 - Storage Container for Terraform state files
 - Virtual Network with private endpoint for secure access

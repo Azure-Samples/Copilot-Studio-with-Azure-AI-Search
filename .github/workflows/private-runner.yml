@@ -70,6 +70,17 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         shell: bash
         run: |
+          log "Running network diagnostics..."
+
+          # Check basic network configuration
+          log "Network interfaces:"
+          ip addr show
+          
+          log "Routing table:"
+          ip route show
+          
+          log "DNS configuration:"
+          cat /etc/resolv.conf
           echo "Testing Azure Blob Storage connection..."
           
           # Test DNS resolution for private endpoint
@@ -80,6 +91,9 @@ jobs:
           # Test DNS resolution using nslookup
           echo "Running nslookup for storage account:"
           nslookup "$PRIVATE_ENDPOINT_FQDN"
+
+          echo "Checking if the resolved IP is in private range..."
+          nslookup privatelink.blob.core.windows.net
 
           # Check if the resolved IP is in private range (10.x.x.x, 172.16-31.x.x, or 192.168.x.x)
           RESOLVED_IP=$(nslookup "$PRIVATE_ENDPOINT_FQDN" | grep -A1 "Name:" | grep "Address:" | tail -1 | awk '{print $2}')
@@ -110,11 +124,25 @@ jobs:
             --name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
             --auth-mode login \
             --output table
+
+          az storage container show \
+            --account-name "privatelink" \
+            --name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --auth-mode login \
+            --output table
           
           # Test blob operations - list blobs in container
           echo "Testing blob list operation..."
           az storage blob list \
             --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
+            --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --auth-mode login \
+            --output table
+          
+          # Test blob operations - list blobs in container
+          echo "Testing blob list operation..."
+          az storage blob list \
+            --account-name "privatelink" \
             --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
             --auth-mode login \
             --output table
