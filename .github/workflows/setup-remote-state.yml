@@ -89,3 +89,7 @@ jobs:
 
       - name: Terraform Output
         run: terraform output
+      
+      - name: Terraform Destroy
+        if: always()
+        run: terraform destroy -auto-approve
