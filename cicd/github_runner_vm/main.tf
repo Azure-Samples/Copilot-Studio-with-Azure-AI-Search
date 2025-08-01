@@ -8,10 +8,10 @@ resource "azurerm_network_security_group" "github_runner" {
 }
 
 # Network Security Group Association
-resource "azurerm_subnet_network_security_group_association" "github_runner" {
-  subnet_id                 = var.subnet_id
-  network_security_group_id = azurerm_network_security_group.github_runner.id
-}
+#resource "azurerm_subnet_network_security_group_association" "github_runner" {
+#  subnet_id                 = var.subnet_id
+#  network_security_group_id = azurerm_network_security_group.github_runner.id
+#}
 
 # Network Interface for GitHub Runner VM
 resource "azurerm_network_interface" "github_runner" {
