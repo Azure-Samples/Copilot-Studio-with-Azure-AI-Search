@@ -9,7 +9,7 @@ variable "subscription_id" {
 variable "location" {
   description = "The Azure region where the Terraform state infrastructure will be deployed"
   type        = string
-  default     = "West US 2"
+  default     = "westus2"
 }
 
 

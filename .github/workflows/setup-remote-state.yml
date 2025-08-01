@@ -9,7 +9,7 @@ on:
       location:
         description: "Azure location for the infrastructure"
         required: true
-        default: "eastus"
+        default: "westus2"
 
 permissions:
   id-token: write
@@ -54,7 +54,7 @@ jobs:
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          TF_VAR_location: ${{ github.event.inputs.location || 'eastus' }}
+          TF_VAR_location: ${{ github.event.inputs.location || 'westus2' }}
           TF_VAR_github_owner: ${{ github.repository_owner }}
           TF_VAR_github_repository: ${{ github.event.repository.name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
           echo "ARM_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" >> $GITHUB_ENV
           echo "ARM_SUBSCRIPTION_ID=${{ vars.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
           echo "TF_VAR_subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
-          echo "TF_VAR_location=${{ github.event.inputs.location || 'eastus' }}" >> $GITHUB_ENV
+          echo "TF_VAR_location=${{ github.event.inputs.location || 'westus2' }}" >> $GITHUB_ENV
           echo "TF_VAR_github_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
           echo "TF_VAR_github_repository=${{ github.event.repository.name }}" >> $GITHUB_ENV
           echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
