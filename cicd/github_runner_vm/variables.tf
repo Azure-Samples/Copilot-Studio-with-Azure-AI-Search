@@ -1,21 +1,3 @@
-# Variables for Terraform state infrastructure
-
-variable "subscription_id" {
-  description = "The Azure subscription ID where the Terraform state infrastructure will be deployed"
-  type        = string
-  sensitive   = false
-}
-
-variable "location" {
-  description = "The Azure region where the Terraform state infrastructure will be deployed"
-  type        = string
-  default     = "East US"
-}
-
-
-
-# Variables for GitHub Runner VM
-
 variable "vm_github_runner_config" {
   type = object({
     github_runner_name    = string
@@ -29,8 +11,8 @@ variable "vm_github_runner_config" {
     github_runner_name    = "azure-runner"
     github_runner_token   = ""
     github_runner_url     = ""
-    github_repo_owner     = "Azure-Samples"
-    github_repo_name      = "Copilot-Studio-with-Azure-AI-Search"
+    github_repo_owner     = ""
+    github_repo_name      = ""
     github_runner_group   = "default"
   }
   description = "Configuration object for GitHub runner VM deployment (sensitive data only)"
@@ -51,4 +33,30 @@ variable "github_runner_os_type" {
     condition     = contains(["linux"], var.github_runner_os_type)
     error_message = "OS type must be 'linux'. Other OS types are not supported yet"
   }
+}
+
+variable "location" {
+  type        = string
+  description = "Azure region where resources will be deployed"
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "Name of the resource group"
+}
+
+variable "unique_id" {
+  type        = string
+  description = "Unique identifier for resource naming"
+}
+
+variable "subnet_id" {
+  type        = string
+  description = "ID of the subnet where the GitHub runner VM will be deployed"
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Tags to apply to all resources"
 }
