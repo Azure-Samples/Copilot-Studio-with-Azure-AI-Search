@@ -58,6 +58,8 @@ jobs:
           TF_VAR_github_owner: ${{ github.repository_owner }}
           TF_VAR_github_repository: ${{ github.event.repository.name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_RUNNER_TOKEN: ${{ vars.RUNNER_TOKEN }}
+          GITHUB_RUNNER_URL: ${{ vars.RUNNER_URL }}
         run: |
           # Export environment variables for subsequent steps
           echo "ARM_USE_AZUREAD=true" >> $GITHUB_ENV
@@ -71,7 +73,8 @@ jobs:
           echo "TF_VAR_github_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
           echo "TF_VAR_github_repository=${{ github.event.repository.name }}" >> $GITHUB_ENV
           echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-
+          echo "GITHUB_RUNNER_TOKEN=${{ vars.RUNNER_TOKEN }}" >> $GITHUB_ENV
+          echo "GITHUB_RUNNER_URL=${{ vars.RUNNER_URL }}" >> $GITHUB_ENV
       - name: Terraform Init
         run: terraform init
 
