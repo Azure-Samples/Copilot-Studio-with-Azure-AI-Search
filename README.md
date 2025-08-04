@@ -271,11 +271,11 @@ Before running AI Search tests, you must complete the following configuration:
    - Go to **Networking** → **Firewalls and virtual networks**
    - Select **All networks** or add the test runner's IP to **Selected IP addresses**
 
-2. **Assign RBAC Role**: The user or service principal running the tests must have the **Search Index Data Contributor** role:
-   - Navigate to your AI Search service in the Azure portal
-   - Go to **Access control (IAM)** → **Add role assignment**
-   - Select **Search Index Data Contributor** role
-   - Assign to the user or service principal that will execute the tests
+2. **Assign RBAC Roles**: The user or service principal running the tests must have the following roles:
+  - Navigate to your AI Search service in the Azure portal
+  - Go to **Access control (IAM)** → **Add role assignment**
+  - Select **Search Index Data Contributor** role and assign to the user or service principal that will execute the tests
+  - Add another role assignment for **Search Service Contributor** role to the same user or service principal
 
 #### Running AI Search Tests Locally
 
