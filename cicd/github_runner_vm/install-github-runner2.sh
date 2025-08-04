@@ -9,6 +9,8 @@ set -e
 GITHUB_URL="${github_url}"
 GITHUB_TOKEN="${github_token}"
 
+echo "Github URL: $GITHUB_URL"
+
 # Create a folder
 mkdir actions-runner && cd actions-runner # Download the latest runner package
 curl -o actions-runner-linux-x64-2.327.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.327.1/actions-runner-linux-x64-2.327.1.tar.gz # Optional: Validate the hash
