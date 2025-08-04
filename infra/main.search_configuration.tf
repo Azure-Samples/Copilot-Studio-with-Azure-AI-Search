@@ -20,8 +20,8 @@ resource "azurerm_storage_account" "deployment_container" {
   # checkov:skip=CKV2_AZURE_47: Blob anonymous access required for deployment scripts
   # checkov:skip=CKV2_AZURE_1: Customer managed encryption not needed for temporary deployment container
   name                     = "deploycontainer${random_string.name.id}"
-  resource_group_name      = azurerm_resource_group.this.name
-  location                 = azurerm_resource_group.this.location
+  resource_group_name      = local.resource_group_name
+  location                 = local.resource_group_location
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
@@ -79,7 +79,7 @@ resource "azapi_resource" "configure_search_index" {
 
   type      = "Microsoft.Resources/deploymentScripts@2023-08-01"
   name      = "configure-search-index"
-  parent_id = azurerm_resource_group.this.id
+  parent_id = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].id : azurerm_resource_group.this[0].id
 
   identity {
     type         = "UserAssigned"
@@ -88,7 +88,7 @@ resource "azapi_resource" "configure_search_index" {
 
   body = {
     kind     = "AzureCLI"
-    location = azurerm_resource_group.this.location
+    location = local.resource_group_location
     properties = {
       azCliVersion      = "2.45.0"
       retentionInterval = "P1D"          # Keep logs for 1 day for debugging
@@ -117,7 +117,7 @@ resource "azapi_resource" "configure_search_index" {
         sleep 30
         
         # Verify main storage account exists
-        az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${azurerm_resource_group.this.name} --output table
+        az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${local.resource_group_name} --output table
         
         # Setup Python environment
         python3 -m venv /tmp/venv && source /tmp/venv/bin/activate
@@ -155,7 +155,7 @@ resource "azapi_resource" "configure_search_index" {
         echo "=== Testing Azure authentication ==="
         az account show
         echo "=== Testing storage account access ==="
-        az storage account show --name "$MAIN_STORAGE_ACCOUNT_NAME" --resource-group ${azurerm_resource_group.this.name} --output table
+        az storage account show --name "$MAIN_STORAGE_ACCOUNT_NAME" --resource-group ${local.resource_group_name} --output table
         echo "=== Testing storage container list access ==="
         az storage container list --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login --output table || echo "Container list failed"
         echo "=== Testing specific container exists ==="
@@ -179,7 +179,7 @@ resource "azapi_resource" "configure_search_index" {
           --base_index_name "${var.ai_search_base_index_name}" \
           --openai_api_base ${module.azure_open_ai.endpoint} \
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
-          --resource_group_name ${azurerm_resource_group.this.name} \
+          --resource_group_name ${local.resource_group_name} \
           --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
           --container_name $DATA_CONTAINER_NAME \
           --client_id "$AZURE_CLIENT_ID"

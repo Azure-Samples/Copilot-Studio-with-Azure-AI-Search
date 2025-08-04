@@ -78,9 +78,9 @@ This architecture ensures that sensitive enterprise data never traverses public 
   - [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
   - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled  
 - **Power Platform licenses**. The designated user must have the following Power Platform licenses assigned:
-    - **Microsoft Power Apps**
-    - **Power Automate**
-    - **Copilot Studio**
+  - **Microsoft Power Apps**
+  - **Power Automate**
+  - **Copilot Studio**
 
     To simplify license management, you can use an Azure subscription with a Billing Policy instead of assigning licenses directly. Configure this by using the following flag:
 
@@ -328,9 +328,8 @@ telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appende
 
 ## Responsible AI
 
-Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled 
-systems to ensure ethical, safe, and inclusive AI practices. Learn more at 
-https://www.microsoft.com/en-us/ai/responsible-ai.
+Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled
+systems to ensure ethical, safe, and inclusive AI practices. Learn more at <https://www.microsoft.com/en-us/ai/responsible-ai>.
 
 ## Getting help
 
