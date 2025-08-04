@@ -6,7 +6,7 @@ module "azure_open_ai" {
   version                            = "0.7.1"
   kind                               = "OpenAI"
   location                           = var.location
-  name                               = "aoai${random_string.name.id}"
+  name                               = "${azurecaf_name.names.results["azurerm_search_service"]}"
   resource_group_name                = local.resource_group_name
   enable_telemetry                   = true
   sku_name                           = "S0"
@@ -14,7 +14,7 @@ module "azure_open_ai" {
   cognitive_deployments              = var.cognitive_deployments
   public_network_access_enabled      = false
   outbound_network_access_restricted = true
-  fqdns                              = ["aoai${random_string.name.id}.openai.azure.com"]
+  fqdns                              = ["${azurecaf_name.names.results["azurerm_search_service"]}.openai.azure.com"]
 
   network_acls = {
     default_action = "Deny"
@@ -31,7 +31,7 @@ module "azure_open_ai" {
 
   private_endpoints = {
     pe_endpoint = {
-      name                            = "pe_endpoint_${random_string.name.id}"
+      name                            = "pe_endpoint_${azurecaf_name.names.results["azurerm_search_service"]}"
       private_service_connection_name = "pe_endpoint_connection"
       subnet_resource_id              = local.pe_primary_subnet_id
     }
