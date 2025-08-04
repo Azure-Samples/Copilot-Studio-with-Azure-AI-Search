@@ -33,7 +33,7 @@ variable "org_naming" {
   default = {
     workload_name   = "csaisearch"
     org_prefix      = "azd"
-    org_suffix      = ""
+    org_suffix      = "v1"
     org_environment = "dev"
   }
   description = "Organizational naming parameters for azurecaf_name resource: workload name, prefix, suffix, and environment."
