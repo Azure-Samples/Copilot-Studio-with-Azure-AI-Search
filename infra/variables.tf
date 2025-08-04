@@ -17,7 +17,7 @@ variable "resource_group_name" {
   description = "The name of an existing resource group to deploy resources into. If not provided, a new resource group will be created."
 
   validation {
-    condition     = var.resource_group_name == null || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
+    condition     = var.resource_group_name == null || length(var.resource_group_name) == 0 || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
     error_message = "Resource group name must contain only alphanumeric characters, periods, underscores, hyphens, and parentheses."
   }
 }
