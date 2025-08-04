@@ -18,18 +18,18 @@ variable "location" {
 
 variable "vm_github_runner_config" {
   type = object({
-    github_runner_name  = string
-    github_runner_token = string
-    github_repo_owner   = string
-    github_repo_name    = string
-    github_runner_group = string
+    runner_name  = string
+    runner_token = string
+    repo_owner   = string
+    repo_name    = string
+    runner_group = string
   })
   default = {
-    github_runner_name  = "azure-runner"
-    github_runner_token = ""
-    github_repo_owner   = ""
-    github_repo_name    = ""
-    github_runner_group = "default"
+    runner_name  = "azure-runner"
+    runner_token = ""
+    repo_owner   = ""
+    repo_name    = ""
+    runner_group = "default"
   }
   description = "Configuration object for GitHub runner VM deployment (sensitive data only)"
   sensitive   = true

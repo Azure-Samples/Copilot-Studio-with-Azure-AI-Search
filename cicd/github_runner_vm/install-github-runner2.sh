@@ -7,14 +7,18 @@ set -e
 
 # Variables passed from Terraform
 RUNNER_NAME="${runner_name}"
+RUNNER_GROUP="${runner_group}"
+RUNNER_WORK_FOLDER="${runner_work_folder}"
 REPO_NAME="${repo_name}"
 REPO_OWNER="${repo_owner}"
-GITHUB_RUNNER_TOKEN="${github_runner_token}"
+RUNNER_TOKEN="${runner_token}"
 
 echo "Runner Name: '$RUNNER_NAME'"
 echo "Repo Name: '$REPO_NAME'"
 echo "Repo Owner: '$REPO_OWNER'"
-echo "GitHub Runner Token: '$GITHUB_RUNNER_TOKEN'"
+echo "Runner Group: '$RUNNER_GROUP'"
+echo "Runner Work Folder: '$RUNNER_WORK_FOLDER'"
+echo "GitHub Runner Token: '$RUNNER_TOKEN'"
 
 # Create a folder
 mkdir actions-runner && cd actions-runner # Download the latest runner package
@@ -22,5 +26,14 @@ curl -o actions-runner-linux-x64-2.327.1.tar.gz -L https://github.com/actions/ru
 echo "d68ac1f500b747d1271d9e52661c408d56cffd226974f68b7dc813e30b9e0575  actions-runner-linux-x64-2.327.1.tar.gz" | shasum -a 256 -c # Extract the installer
 tar xzf ./actions-runner-linux-x64-2.327.1.tar.gz
 
-sudo RUNNER_ALLOW_RUNASROOT=true ./config.sh --url $GITHUB_URL --token $GITHUB_RUNNER_TOKEN
-#./run.sh
+export RUNNER_ALLOW_RUNASROOT=1
+./config.sh --url $GITHUB_URL --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER
+
+# Add autostart for ./run.sh
+#echo "Adding run.sh to autostart"
+#echo "@reboot $(pwd)/run.sh" | sudo tee -a /etc/crontab
+# Start the runner
+echo "Starting the runner"
+./run.sh
+
+
