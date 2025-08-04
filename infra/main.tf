@@ -53,6 +53,32 @@ resource "azurecaf_name" "failover_names" {
   clean_input   = true
 }
 
+# Generate unique names for primary private endpoint subnet
+resource "azurecaf_name" "main_pe_subnet_names" {
+  name          = var.org_naming.workload_name
+  resource_types = [
+    "azurerm_subnet"
+  ]
+  prefixes      = contact(["pe"], local.org_prefix)
+  suffixes      = concat(local.org_suffix, ["primary"])
+  random_length = 4
+  # use_slug = false
+  clean_input   = true
+}
+
+# Generate unique names for failover private endpoint subnet
+resource "azurecaf_name" "failover_pe_subnet_names" {
+  name          = var.org_naming.workload_name
+  resource_types = [
+    "azurerm_subnet"
+  ]
+  prefixes      = contact(["pe"], local.org_prefix)
+  suffixes      = concat(local.org_suffix, ["failover"])
+  random_length = 4
+  # use_slug = false
+  clean_input   = true
+}
+
 # Generate unique names for Azure Deployment Script related resources
 resource "azurecaf_name" "deployment_script_names" {
   name          = var.org_naming.workload_name

@@ -133,7 +133,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
-  name                 = "pe-primary-subnet"
+  name                 = "${azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]}"
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_pe_subnet_address_spaces
@@ -147,7 +147,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                 = "pe-failover-subnet"
+  name                 = "${azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]}"
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_pe_subnet_address_spaces
@@ -413,7 +413,7 @@ resource "azurerm_network_security_group" "power_platform_failover_nsg" {
 resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "private-endpoint-primary-nsg-${random_string.name.id}"
+  name                = "${azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]}"
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -449,7 +449,7 @@ resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
 resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "private-endpoint-failover-nsg-${random_string.name.id}"
+  name                = "${azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]}"
   location            = var.failover_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
