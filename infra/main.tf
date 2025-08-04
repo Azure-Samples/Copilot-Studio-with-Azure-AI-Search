@@ -58,7 +58,9 @@ resource "azurecaf_name" "deployment_script_names" {
   name          = var.org_naming.workload_name
   resource_types = [
     "azurerm_storage_account",
-    "azurerm_network_security_group"
+    "azurerm_network_security_group",
+    "azurerm_subnet",
+    "azurerm_user_assigned_identity"
   ]
   prefixes      = local.org_prefix
   suffixes      = concat(local.org_suffix, ["script"])

@@ -258,7 +258,7 @@ resource "azurerm_nat_gateway_public_ip_association" "nat_gateway_ip_association
 resource "azurerm_subnet" "deployment_script_container_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                 = "deploymentscript-subnet"
+  name                 = "${azurecaf_name.deployment_script_names.results["azurerm_subnet"]}"
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.deployment_script_subnet_address_spaces

@@ -31,7 +31,7 @@ module "azure_open_ai" {
 
   private_endpoints = {
     pe_endpoint = {
-      name                            = "pe_endpoint_${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
+      name                            = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
       private_service_connection_name = "pe_endpoint_connection"
       subnet_resource_id              = local.pe_primary_subnet_id
     }
