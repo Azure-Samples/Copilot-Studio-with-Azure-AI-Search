@@ -21,17 +21,33 @@ data "azurerm_resource_group" "existing" {
   name  = var.resource_group_name
 }
 
-# Generate unique names for resources
-resource "azurecaf_name" "names" {
+# Generate unique names for primary resources
+resource "azurecaf_name" "main_names" {
   name          = var.org_naming.workload_name
   resource_types = [
     "azurerm_resource_group",
     "azurerm_storage_account",
     "azurerm_search_service",
-    "azurerm_cognitive_account"
+    "azurerm_cognitive_account",
+    "azurerm_virtual_network",
+    "azurerm_network_security_group"
   ]
   prefixes      = local.org_prefix
   suffixes      = local.org_suffix
+  random_length = 4
+  # use_slug = false
+  clean_input   = true
+}
+
+# Generate unique names for failover resources
+resource "azurecaf_name" "failover_names" {
+  name          = var.org_naming.workload_name
+  resource_types = [
+    "azurerm_virtual_network",
+    "azurerm_network_security_group"
+  ]
+  prefixes      = local.org_prefix
+  suffixes      = concat(local.org_suffix, ["failover"])
   random_length = 4
   # use_slug = false
   clean_input   = true
@@ -42,6 +58,7 @@ resource "azurecaf_name" "deployment_script_names" {
   name          = var.org_naming.workload_name
   resource_types = [
     "azurerm_storage_account",
+    "azurerm_network_security_group"
   ]
   prefixes      = local.org_prefix
   suffixes      = concat(local.org_suffix, ["script"])
@@ -62,7 +79,7 @@ resource "random_string" "name" {
 resource "azurerm_resource_group" "this" {
   count    = local.use_existing_resource_group ? 0 : 1
   location = var.location
-  name     = azurecaf_name.names.results["azurerm_resource_group"]
+  name     = azurecaf_name.main_names.results["azurerm_resource_group"]
   tags     = merge(var.tags, local.env_tags)
 }
 

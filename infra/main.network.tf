@@ -57,7 +57,7 @@ data "azurerm_resources" "vnets" {
 resource "azurerm_virtual_network" "primary_virtual_network" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "power-platform-primary-vnet-${random_string.name.id}"
+  name                = "${azurecaf_name.main_names.results["azurerm_virtual_network"]}"
   resource_group_name = local.resource_group_name
   location            = var.primary_location
   address_space       = var.primary_vnet_address_spaces
@@ -67,7 +67,7 @@ resource "azurerm_virtual_network" "primary_virtual_network" {
 resource "azurerm_virtual_network" "failover_virtual_network" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "power-platform-failover-vnet-${random_string.name.id}"
+  name                = "${azurecaf_name.failover_names.results["azurerm_virtual_network"]}"
   resource_group_name = local.resource_group_name
   location            = var.failover_location
   address_space       = var.failover_vnet_address_spaces
@@ -289,7 +289,7 @@ resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
 resource "azurerm_network_security_group" "power_platform_primary_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "power-platform-primary-nsg-${random_string.name.id}"
+  name                = "${azurecaf_name.main_names.results["azurerm_network_security_group"]}"
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -351,7 +351,7 @@ resource "azurerm_network_security_group" "power_platform_primary_nsg" {
 resource "azurerm_network_security_group" "power_platform_failover_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "power-platform-failover-nsg-${random_string.name.id}"
+  name                = "${azurecaf_name.failover_names.results["azurerm_network_security_group"]}"
   location            = var.failover_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -558,7 +558,7 @@ resource "azurerm_network_security_group" "github_runner_nsg" {
 resource "azurerm_network_security_group" "deployment_script_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "deployment-script-nsg-${random_string.name.id}"
+  name                = "${azurecaf_name.deployment_script_names.results["azurerm_network_security_group"]}"
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   tags                = var.tags

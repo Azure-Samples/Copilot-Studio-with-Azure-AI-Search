@@ -55,7 +55,7 @@ module "storage_account_and_container" {
   account_tier                    = "Standard"
   account_kind                    = "StorageV2"
   location                        = var.location
-  name                            = azurecaf_name.names.results["azurerm_storage_account"]
+  name                            = azurecaf_name.main_names.results["azurerm_storage_account"]
   resource_group_name             = local.resource_group_name
   min_tls_version                 = "TLS1_2"
   shared_access_key_enabled       = false
