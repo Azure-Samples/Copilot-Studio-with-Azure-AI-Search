@@ -65,7 +65,7 @@ output "copilot_studio_endpoint" {
 
 output "copilot_studio_agent_id" {
   description = "The ID of the deployed Copilot Studio agent (placeholder - to be extracted from deployment)"
-  value       = "crf6d_aiSearchConnectionExample"  # This should match the bot name from the solution
+  value       = "crf6d_aiSearchConnectionExample" # This should match the bot name from the solution
 }
 
 output "azure_tenant_id" {
