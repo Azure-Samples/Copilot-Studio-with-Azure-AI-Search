@@ -37,7 +37,7 @@ resource "azurecaf_name" "deployment_script_names" {
     "azurerm_storage_account",
   ]
   prefixes      = [var.org_naming.org_prefix]
-  suffixes      = [var.org_naming.org_environment, "deployscript"]
+  suffixes      = [var.org_naming.org_environment, "script"]
   random_length = 4
   use_slug = false
   clean_input   = true

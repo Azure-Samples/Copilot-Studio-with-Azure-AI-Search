@@ -31,7 +31,7 @@ variable "org_naming" {
     org_environment = string
   })
   default = {
-    workload_name   = "csaisearch"
+    workload_name   = "cs"
     org_prefix      = "azd"
     org_suffix      = "v1"
     org_environment = "dev"
