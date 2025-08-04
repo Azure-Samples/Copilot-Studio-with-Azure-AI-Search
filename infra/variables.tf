@@ -32,7 +32,7 @@ variable "org_naming" {
   })
   default = {
     workload_name   = "cs"
-    org_prefix      = "azd"
+    org_prefix      = ""
     org_suffix      = "v1"
     org_environment = "dev"
   }
