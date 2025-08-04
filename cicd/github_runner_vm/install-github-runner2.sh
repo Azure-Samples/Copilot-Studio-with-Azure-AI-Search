@@ -16,7 +16,7 @@ echo "Repo Name: '$REPO_NAME'"
 echo "Repo Owner: '$REPO_OWNER'"
 
 # Get registration token
-registration_resp=$(curl --request POST \
+$registration_resp=$(curl --request POST \
     --url "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/runners/registration-token" \
     --header "Accept: application/vnd.github+json" \
     --header "Authorization: Bearer $GITHUB_TOKEN" \
@@ -30,7 +30,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Extract the token from the response
-github_runner_token=$(echo "$registration_resp" | jq -r '.token')
+$github_runner_token=$(echo "$registration_resp" | jq -r '.token')
 echo "GitHub Runner Token: '$github_runner_token'"
 
 # Create a folder
