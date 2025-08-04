@@ -15,6 +15,14 @@ echo "Runner Name: '$RUNNER_NAME'"
 echo "Repo Name: '$REPO_NAME'"
 echo "Repo Owner: '$REPO_OWNER'"
 
+echo "Fetching registration token for GitHub Actions runner..."
+curl --request POST \
+    --url "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/runners/registration-token" \
+    --header "Accept: application/vnd.github+json" \
+    --header "Authorization: Bearer $GITHUB_TOKEN" \
+    --header "X-GitHub-Api-Version: 2022-11-28"
+
+echo "Fetching registration token for GitHub Actions runner...2"
 # Get registration token
 registration_resp=$$(curl --request POST \
     --url "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/runners/registration-token" \
