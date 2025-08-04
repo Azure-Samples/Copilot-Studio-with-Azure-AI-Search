@@ -1,13 +1,13 @@
 variable "vm_github_runner_config" {
   type = object({
-    github_token        = string
-    github_runner_name    = string
-    github_repo_owner     = string
-    github_repo_name      = string
-    github_runner_group   = string
+    github_runner_token = string
+    github_runner_name  = string
+    github_repo_owner   = string
+    github_repo_name    = string
+    github_runner_group = string
   })
   default = {
-    github_token        = ""
+    github_runner_token = ""
     github_runner_name  = "azure-runner"
     github_repo_owner   = ""
     github_repo_name    = ""

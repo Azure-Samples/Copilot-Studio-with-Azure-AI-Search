@@ -58,7 +58,7 @@ jobs:
           TF_VAR_vm_github_runner_config: >
             {
               "github_runner_name": "azure-runner1",
-              "github_token": "${{ secrets.GITHUB_TOKEN }}",
+              "github_runner_token": "${{ vars.GITHUB_RUNNER_TOKEN }}",
               "github_repo_owner": "${{ github.repository_owner }}",
               "github_repo_name": "${{ github.event.repository.name }}",
               "github_runner_group": "default"
