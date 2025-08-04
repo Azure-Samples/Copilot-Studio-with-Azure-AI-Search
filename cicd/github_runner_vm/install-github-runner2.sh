@@ -29,11 +29,26 @@ tar xzf ./actions-runner-linux-x64-2.327.1.tar.gz
 export RUNNER_ALLOW_RUNASROOT=1
 ./config.sh --url $GITHUB_URL --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER
 
-# Add autostart for ./run.sh
-#echo "Adding run.sh to autostart"
-#echo "@reboot $(pwd)/run.sh" | sudo tee -a /etc/crontab
+#register ./run.sh as a systemd service
+# echo "[Unit]
+# Description=GitHub Actions Runner
+# After=network.target
+
+# [Service]
+# ExecStart=$(pwd)/run.sh
+# User=azureuser
+# WorkingDirectory=$(pwd)
+# Restart=always
+# RestartSec=5
+
+# [Install]
+# WantedBy=multi-user.target
+# " | sudo tee /etc/systemd/system/github-runner.service
+
+# sudo systemctl enable github-runner.service
+
 # Start the runner
-echo "Starting the runner"
+#echo "Starting the runner"
 ./run.sh
 
 
