@@ -14,22 +14,6 @@ REPO_NAME="${repo_name}"
 REPO_OWNER="${repo_owner}"
 GITHUB_URL="https://github.com/${repo_owner}/${repo_name}"
 
-echo "Runner Name: $RUNNER_NAME"
-echo "Runner Work Folder: $RUNNER_WORK_FOLDER"
-echo "Runner Group: $RUNNER_GROUP"
-echo "Runner Labels: $RUNNER_LABELS"
-echo "Repository Name: $REPO_NAME"
-echo "Repository Owner: $REPO_OWNER"
-echo "GitHub URL: $GITHUB_URL"
-
-#mine
-# RUNNER_NAME="${runner_name}"
-# RUNNER_GROUP="${runner_group}"
-# RUNNER_WORK_FOLDER="${runner_work_folder}"
-# REPO_NAME="${repo_name}"
-# REPO_OWNER="${repo_owner}"
-# RUNNER_TOKEN="${runner_token}"
-exit 1
 # Logging function
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
