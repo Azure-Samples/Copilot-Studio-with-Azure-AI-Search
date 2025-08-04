@@ -86,6 +86,7 @@ jobs:
           #echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
           #echo "GITHUB_RUNNER_TOKEN=${{ vars.RUNNER_TOKEN }}" >> $GITHUB_ENV
           #echo "GITHUB_RUNNER_URL=${{ vars.RUNNER_URL }}" >> $GITHUB_ENV
+          echo "TF_VAR_vm_github_runner_config=($TF_VAR_vm_github_runner_config | jq .)" >> $GITHUB_ENV
       - name: Terraform Init
         run: terraform init
 
