@@ -20,11 +20,13 @@ data "azurerm_resource_group" "existing" {
 resource "azurecaf_name" "names" {
   name          = var.org_naming.workload_name
   resource_types = [
-    "azurerm_resource_group"
+    "azurerm_resource_group",
+    "azurerm_storage_account",
   ]
-  prefixes      = [var.org_naming.prefix]
-  suffixes      = [var.org_naming.environment, var.org_naming.suffix]
+  prefixes      = [var.org_naming.org_prefix]
+  suffixes      = [var.org_naming.org_environment, var.org_naming.org_suffix]
   random_length = 4
+  use_slag = false
   clean_input   = true
 }
 
