@@ -92,13 +92,13 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
   settings = jsonencode({
     script = base64encode(templatefile("${path.module}/install-github-runner2.sh", {
-      github_runner_token       = var.vm_github_runner_config.github_runner_token
-      runner_name        = "${var.vm_github_runner_config.github_runner_name}-${var.unique_id}"
-      runner_work_folder = "_work"
-      runner_group       = var.vm_github_runner_config.github_runner_group
-      runner_labels      = "self-hosted,vm,${var.resource_group_name},${var.location},${var.unique_id}"
-      repo_name          = var.vm_github_runner_config.github_repo_name
-      repo_owner         = var.vm_github_runner_config.github_repo_owner
+      github_runner_token = var.vm_github_runner_config.github_runner_token
+      runner_name         = "${var.vm_github_runner_config.github_runner_name}-${var.unique_id}"
+      runner_work_folder  = "_work"
+      runner_group        = var.vm_github_runner_config.github_runner_group
+      runner_labels       = "self-hosted,vm,${var.resource_group_name},${var.location},${var.unique_id}"
+      repo_name           = var.vm_github_runner_config.github_repo_name
+      repo_owner          = var.vm_github_runner_config.github_repo_owner
     }))
   })
 
@@ -109,6 +109,7 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
 resource "null_resource" "deregister_runner" {
   triggers = {
+    pat    = var.vm_github_runner_config.github_runner_token
     owner  = var.vm_github_runner_config.github_repo_owner
     repo   = var.vm_github_runner_config.github_repo_name
     runner = "${var.vm_github_runner_config.github_runner_name}-${var.unique_id}"
