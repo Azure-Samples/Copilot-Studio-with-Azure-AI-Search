@@ -26,7 +26,20 @@ resource "azurecaf_name" "names" {
   prefixes      = [var.org_naming.org_prefix]
   suffixes      = [var.org_naming.org_environment, var.org_naming.org_suffix]
   random_length = 4
-  use_slag = false
+  use_slug = false
+  clean_input   = true
+}
+
+# Generate unique names for Azure Deployment Script related resources
+resource "azurecaf_name" "deployment_script_names" {
+  name          = var.org_naming.workload_name
+  resource_types = [
+    "azurerm_storage_account",
+  ]
+  prefixes      = [var.org_naming.org_prefix]
+  suffixes      = [var.org_naming.org_environment, "deployscript"]
+  random_length = 4
+  use_slug = false
   clean_input   = true
 }
 
