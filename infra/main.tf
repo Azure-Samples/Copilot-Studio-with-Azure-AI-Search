@@ -30,8 +30,8 @@ resource "azurecaf_name" "names" {
     "azurerm_search_service",
     "azurerm_cognitive_account"
   ]
-  prefixes      = ${locals.org_prefix}
-  suffixes      = ${local.org_suffix}
+  prefixes      = local.org_prefix
+  suffixes      = local.org_suffix
   random_length = 4
   # use_slug = false
   clean_input   = true
@@ -43,8 +43,8 @@ resource "azurecaf_name" "deployment_script_names" {
   resource_types = [
     "azurerm_storage_account",
   ]
-  prefixes      = ${locals.org_prefix}
-  suffixes      = concat(${local.org_suffix}, ["script"])
+  prefixes      = local.org_prefix
+  suffixes      = concat(local.org_suffix, ["script"])
   random_length = 4
   # use_slug = false
   clean_input   = true
