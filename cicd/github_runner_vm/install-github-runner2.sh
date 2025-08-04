@@ -27,5 +27,5 @@ curl -o actions-runner-linux-x64-2.327.1.tar.gz -L https://github.com/actions/ru
 echo "d68ac1f500b747d1271d9e52661c408d56cffd226974f68b7dc813e30b9e0575  actions-runner-linux-x64-2.327.1.tar.gz" | shasum -a 256 -c # Extract the installer
 tar xzf ./actions-runner-linux-x64-2.327.1.tar.gz
 
-sudo RUNNER_ALLOW_RUNASROOT=true ./config.sh --url $GITHUB_URL --token $GITHUB_RUNNER_TOKEN
-./run.sh
+# sudo RUNNER_ALLOW_RUNASROOT=true ./config.sh --url $GITHUB_URL --token $GITHUB_RUNNER_TOKEN
+# ./run.sh
