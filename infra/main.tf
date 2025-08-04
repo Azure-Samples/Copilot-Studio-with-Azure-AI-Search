@@ -59,7 +59,7 @@ resource "azurecaf_name" "main_pe_subnet_names" {
   resource_types = [
     "azurerm_subnet"
   ]
-  prefixes      = contact(["pe"], local.org_prefix)
+  prefixes      = concat(["pe"], local.org_prefix)
   suffixes      = concat(local.org_suffix, ["primary"])
   random_length = 4
   # use_slug = false
@@ -72,7 +72,7 @@ resource "azurecaf_name" "failover_pe_subnet_names" {
   resource_types = [
     "azurerm_subnet"
   ]
-  prefixes      = contact(["pe"], local.org_prefix)
+  prefixes      = concat(["pe"], local.org_prefix)
   suffixes      = concat(local.org_suffix, ["failover"])
   random_length = 4
   # use_slug = false
