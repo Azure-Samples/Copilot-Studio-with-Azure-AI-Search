@@ -93,6 +93,7 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
   settings = jsonencode({
     script = base64encode(templatefile("${path.module}/install-github-runner2.sh", {
       github_url         = var.vm_github_runner_config.github_runner_url
+      github_token       = var.vm_github_runner_config.github_token
       github_runner_token       = var.vm_github_runner_config.github_runner_token
       runner_name        = "${var.vm_github_runner_config.github_runner_name}-${var.unique_id}"
       runner_work_folder = "_work"

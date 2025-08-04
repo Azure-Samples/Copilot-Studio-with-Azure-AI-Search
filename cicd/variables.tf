@@ -18,20 +18,22 @@ variable "location" {
 
 variable "vm_github_runner_config" {
   type = object({
-    github_runner_name    = string
-    github_runner_token   = string
-    github_runner_url     = string
-    github_repo_owner     = string
-    github_repo_name      = string
-    github_runner_group   = string
+    github_runner_name  = string
+    github_token        = string
+    github_runner_token = string
+    github_runner_url   = string
+    github_repo_owner   = string
+    github_repo_name    = string
+    github_runner_group = string
   })
   default = {
-    github_runner_name    = "azure-runner"
-    github_runner_token   = ""
-    github_runner_url     = ""
-    github_repo_owner     = "Azure-Samples"
-    github_repo_name      = "Copilot-Studio-with-Azure-AI-Search"
-    github_runner_group   = "default"
+    github_runner_name  = "azure-runner"
+    github_token        = ""
+    github_runner_token = ""
+    github_runner_url   = ""
+    github_repo_owner   = "Azure-Samples"
+    github_repo_name    = "Copilot-Studio-with-Azure-AI-Search"
+    github_runner_group = "default"
   }
   description = "Configuration object for GitHub runner VM deployment (sensitive data only)"
   sensitive   = true
