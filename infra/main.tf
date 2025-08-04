@@ -5,7 +5,7 @@ locals {
   env_tags            = { azd-env-name : var.azd_environment_name }
 
   # Resource group logic - use existing or create new
-  use_existing_resource_group = var.resource_group_name != null && trim(var.resource_group_name) != ""
+  use_existing_resource_group = var.resource_group_name != null && trim(var.resource_group_name," ") != ""
   resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
   resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
 }
