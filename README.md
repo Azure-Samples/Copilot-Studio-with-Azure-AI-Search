@@ -229,13 +229,11 @@ Located in `tests/Copilot/`, this test validates:
 - **Conversation Flow**: End-to-end conversation test with the deployed agent
 - **Integration**: Validation that Copilot Studio can successfully query Azure AI Search
 
-Currently, [the Copilot Studio Client in the Agent SDK does not support the use of Service Principals for authentication](https://github.com/microsoft/Agents/blob/main/samples/basic/copilotstudio-client/dotnet/README.md#create-an-application-registration-in-entra-id---service-principal-login), and testing requires a cloud-native app registration as well as a test account with MFA turned off.
+Currently, [the Copilot Studio Client in the Agent SDK does not support the use of Service Principals for authentication](https://github.com/microsoft/Agents/blob/main/samples/basic/copilotstudio-client/dotnet/README.md#create-an-application-registration-in-entra-id---service-principal-login), and testing requires a cloud-native app registration as well as a test account with MFA turned off. The test user account must have access to the Power Platform environment containing the agent as well as access to the agent itself.
 
 #### Running Tests After Local Deployment Execution
 
 After a successful local deployment execution, the local .env file contains most of the information needed to run the end-to-end Copilot Studio test. Alternatively, any test input can be set directly through environment variables.
-
-
 
 Run the commands below to execute the test after a deployment.
 
