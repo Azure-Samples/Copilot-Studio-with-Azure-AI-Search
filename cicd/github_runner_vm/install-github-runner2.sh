@@ -28,6 +28,8 @@ tar xzf ./actions-runner-linux-x64-2.327.1.tar.gz
 
 export RUNNER_ALLOW_RUNASROOT=1
 echo "./config.sh --url $GITHUB_URL --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER"
+
+exit 1
 #./config.sh --url $GITHUB_URL --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER
 
 #register ./run.sh as a systemd service
@@ -50,6 +52,6 @@ echo "./config.sh --url $GITHUB_URL --token $RUNNER_TOKEN --runnergroup $RUNNER_
 
 # Start the runner
 #echo "Starting the runner"
-./run.sh
+#./run.sh
 
 
