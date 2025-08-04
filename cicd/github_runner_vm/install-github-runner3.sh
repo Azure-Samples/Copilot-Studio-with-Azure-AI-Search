@@ -14,6 +14,14 @@ REPO_NAME="${repo_name}"
 REPO_OWNER="${repo_owner}"
 GITHUB_URL="https://github.com/${repo_owner}/${repo_name}"
 
+echo "Runner Name: $RUNNER_NAME"
+echo "Runner Work Folder: $RUNNER_WORK_FOLDER"
+echo "Runner Group: $RUNNER_GROUP"
+echo "Runner Labels: $RUNNER_LABELS"
+echo "Repository Name: $REPO_NAME"
+echo "Repository Owner: $REPO_OWNER"
+echo "GitHub URL: $GITHUB_URL"
+
 #mine
 # RUNNER_NAME="${runner_name}"
 # RUNNER_GROUP="${runner_group}"
