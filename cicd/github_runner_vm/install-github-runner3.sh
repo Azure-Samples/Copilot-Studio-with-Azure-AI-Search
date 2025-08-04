@@ -13,6 +13,7 @@ RUNNER_LABELS="${runner_name}"
 REPO_NAME="${repo_name}"
 REPO_OWNER="${repo_owner}"
 GITHUB_URL="https://github.com/${repo_owner}/${repo_name}"
+RUNNER_TOKEN="${runner_token}"
 
 # Logging function
 log() {
