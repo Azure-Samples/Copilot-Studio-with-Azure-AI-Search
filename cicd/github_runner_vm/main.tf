@@ -109,7 +109,6 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
 resource "null_resource" "deregister_runner" {
   triggers = {
-    pat    = var.vm_github_runner_config.github_runner_token
     owner  = var.vm_github_runner_config.github_repo_owner
     repo   = var.vm_github_runner_config.github_repo_name
     runner = "${var.vm_github_runner_config.github_runner_name}-${var.unique_id}"

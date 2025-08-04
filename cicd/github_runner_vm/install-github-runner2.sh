@@ -16,13 +16,13 @@ echo "Repo Name: '$REPO_NAME'"
 echo "Repo Owner: '$REPO_OWNER'"
 
 # Get registration token
-registration_resp=$(curl --request POST \
+registration_resp=$$(curl --request POST \
     --url "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/runners/registration-token" \
     --header "Accept: application/vnd.github+json" \
     --header "Authorization: Bearer $GITHUB_TOKEN" \
     --header "X-GitHub-Api-Version: 2022-11-28")
 
-echo "Response: ${registration_resp}"
+echo "Response: $${registration_resp}"
 
 if [ $? -ne 0 ]; then
     echo "Failed to get registration token"
@@ -30,8 +30,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Extract the token from the response
-github_runner_token=$(echo "$registration_resp" | jq -r '.token')
-echo "GitHub Runner Token: '$github_runner_token'"
+runner_token=$$(echo "$${registration_resp}" | jq -r '.token')
+echo "GitHub Runner Token: '$${runner_token}'"
 
 # Create a folder
 mkdir actions-runner && cd actions-runner # Download the latest runner package
