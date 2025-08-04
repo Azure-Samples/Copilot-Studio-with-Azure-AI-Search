@@ -6,8 +6,6 @@
 set -e
 
 # Variables passed from Terraform
-#
-#GITHUB_TOKEN="${github_token}"
 RUNNER_NAME="${runner_name}"
 RUNNER_WORK_FOLDER="${runner_work_folder}"
 RUNNER_GROUP="${runner_group}"
