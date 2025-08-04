@@ -22,11 +22,12 @@ resource "azurecaf_name" "names" {
   resource_types = [
     "azurerm_resource_group",
     "azurerm_storage_account",
+    "azurerm_search_service"
   ]
   prefixes      = [var.org_naming.org_prefix]
   suffixes      = [var.org_naming.org_environment, var.org_naming.org_suffix]
   random_length = 4
-  use_slug = false
+  # use_slug = false
   clean_input   = true
 }
 
@@ -39,7 +40,7 @@ resource "azurecaf_name" "deployment_script_names" {
   prefixes      = [var.org_naming.org_prefix]
   suffixes      = [var.org_naming.org_environment, "script"]
   random_length = 4
-  use_slug = false
+  # use_slug = false
   clean_input   = true
 }
 
