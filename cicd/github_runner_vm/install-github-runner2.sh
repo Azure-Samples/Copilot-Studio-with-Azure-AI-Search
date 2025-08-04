@@ -27,30 +27,28 @@ echo "d68ac1f500b747d1271d9e52661c408d56cffd226974f68b7dc813e30b9e0575  actions-
 tar xzf ./actions-runner-linux-x64-2.327.1.tar.gz
 
 export RUNNER_ALLOW_RUNASROOT=1
-echo "./config.sh --url https://github.com/$REPO_OWNER/$REPO_NAME --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER"
-
 ./config.sh --url https://github.com/$REPO_OWNER/$REPO_NAME --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER > github-runner-config.log 2>&1
-exit 1
-#register ./run.sh as a systemd service
-# echo "[Unit]
-# Description=GitHub Actions Runner
-# After=network.target
 
-# [Service]
-# ExecStart=$(pwd)/run.sh
-# User=azureuser
-# WorkingDirectory=$(pwd)
-# Restart=always
-# RestartSec=5
+#register ./run.sh as a systemd service for automatic start on reboot
+echo "[Unit]
+Description=GitHub Actions Runner
+After=network.target
 
-# [Install]
-# WantedBy=multi-user.target
-# " | sudo tee /etc/systemd/system/github-runner.service
+[Service]
+ExecStart=$(pwd)/run.sh
+User=azureuser
+WorkingDirectory=$(pwd)
+Restart=always
+RestartSec=5
 
-# sudo systemctl enable github-runner.service
+[Install]
+WantedBy=multi-user.target
+" | sudo tee /etc/systemd/system/github-runner.service
 
-# Start the runner
-#echo "Starting the runner"
-#./run.sh
+# Enable and start the GitHub runner service
+sudo systemctl enable github-runner.service
+# Start the GitHub runner service
+sudo systemctl start github-runner.service
+
 
 
