@@ -176,7 +176,7 @@ resource "azapi_resource" "configure_search_index" {
         echo "=== Step 3: Configuring search index ==="
         python index_utils.py \
           --aisearch_name ${azurerm_search_service.ai_search.name} \
-          --base_index_name "default" \
+          --base_index_name "${var.ai_search_base_index_name}" \
           --openai_api_base ${module.azure_open_ai.endpoint} \
           --subscription_id ${data.azurerm_client_config.current.subscription_id} \
           --resource_group_name ${azurerm_resource_group.this.name} \

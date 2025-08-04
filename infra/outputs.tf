@@ -3,6 +3,16 @@ output "ai_search_resource_name" {
   value       = azurerm_search_service.ai_search.name
 }
 
+output "ai_search_endpoint" {
+  description = "The endpoint URL of the AI Search service"
+  value       = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
+}
+
+output "ai_search_base_index_name" {
+  description = "The base name used for AI Search resources"
+  value       = var.ai_search_base_index_name
+}
+
 output "app_insights_instrumentation_key" {
   sensitive = true
   value     = var.include_app_insights ? azurerm_application_insights.insights[0].instrumentation_key : null
