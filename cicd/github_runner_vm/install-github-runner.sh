@@ -6,14 +6,14 @@
 set -e
 
 # Variables passed from Terraform
-GITHUB_URL="${github_url}"
-GITHUB_TOKEN="${github_token}"
 RUNNER_NAME="${runner_name}"
 RUNNER_WORK_FOLDER="${runner_work_folder}"
 RUNNER_GROUP="${runner_group}"
-RUNNER_LABELS="${runner_labels}"
+RUNNER_LABELS="${runner_name}"
 REPO_NAME="${repo_name}"
 REPO_OWNER="${repo_owner}"
+GITHUB_URL="https://github.com/${repo_owner}/${repo_name}"
+RUNNER_TOKEN="${runner_token}"
 
 # Logging function
 log() {
@@ -190,35 +190,8 @@ rm "$${RUNNER_TARBALL}"
 # Set ownership
 chown -R github-runner:github-runner "$RUNNER_DIR"
 
-# Configure the runner
-log "Generating runner registration token..."
-
-API_REGISTRATION_URL="https://api.github.com/repos/$${REPO_OWNER}/$${REPO_NAME}/actions/runners/registration-token"
-
-# Get registration token with error handling
-log "Requesting registration token from GitHub API..."
-API_RESPONSE=$(curl -s \
-  -X POST \
-  -H "Authorization: token $GITHUB_TOKEN" \
-  -H "Accept: application/vnd.github.v3+json" \
-  "$API_REGISTRATION_URL")
-
-if [ $? -ne 0 ]; then
-    log "ERROR: Failed to call GitHub API"
-    exit 1
-fi
-
-REG_TOKEN=$(echo "$API_RESPONSE" | jq -r '.token // empty')
-
-if [ -z "$REG_TOKEN" ] || [ "$REG_TOKEN" == "null" ]; then
-log "ERROR: Could not obtain runner registration token."
-exit 1
-fi
-
-log "Successfully obtained runner registration token."
-
 log "Configuring GitHub Actions runner..."
-sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh --url '$GITHUB_URL' --token '$REG_TOKEN' --name '$RUNNER_NAME' --work '$RUNNER_WORK_FOLDER' --labels '$RUNNER_LABELS' --unattended --replace"
+sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh --url '$GITHUB_URL' --token '$RUNNER_TOKEN' --name '$RUNNER_NAME' --work '$RUNNER_WORK_FOLDER' --labels '$RUNNER_LABELS' --unattended --replace"
 
 # Install the runner as a service
 log "Installing runner as a service..."
