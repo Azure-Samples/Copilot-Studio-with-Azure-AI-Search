@@ -26,10 +26,11 @@ curl -o actions-runner-linux-x64-2.327.1.tar.gz -L https://github.com/actions/ru
 echo "d68ac1f500b747d1271d9e52661c408d56cffd226974f68b7dc813e30b9e0575  actions-runner-linux-x64-2.327.1.tar.gz" | shasum -a 256 -c # Extract the installer
 tar xzf ./actions-runner-linux-x64-2.327.1.tar.gz
 
+# TODO create new user for the runner instead of running as root
 export RUNNER_ALLOW_RUNASROOT=1
 ./config.sh --url https://github.com/$REPO_OWNER/$REPO_NAME --token $RUNNER_TOKEN --runnergroup $RUNNER_GROUP --name $RUNNER_NAME --labels $RUNNER_NAME --work $RUNNER_WORK_FOLDER > github-runner-config.log 2>&1
 
-#register ./run.sh as a systemd service for automatic start on reboot
+# Register ./run.sh as a systemd service for automatic start on reboot
 echo "[Unit]
 Description=GitHub Actions Runner
 After=network.target
