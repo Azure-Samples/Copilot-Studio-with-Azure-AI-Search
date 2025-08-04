@@ -11,6 +11,7 @@ GITHUB_URL="${github_url}"
 GITHUB_RUNNER_TOKEN="${github_runner_token}"
 REPO_NAME="${repo_name}"
 REPO_OWNER="${repo_owner}"
+GITHUB_TOKEN="${github_token}"
 
 echo "Runner Name: '$RUNNER_NAME'"
 echo "Github URL: '$GITHUB_URL'"
@@ -19,7 +20,7 @@ echo "Repo Name: '$REPO_NAME'"
 echo "Repo Owner: '$REPO_OWNER'"
 
 
-echo "GITHUB_TOKEN1 environment variable: '${github_token}'"
+echo "GITHUB_TOKEN1 environment variable: '$GITHUB_TOKEN'"
 
 # Create a folder
 mkdir actions-runner && cd actions-runner # Download the latest runner package
