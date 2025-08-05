@@ -35,8 +35,7 @@ jobs:
     env:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
-
-
+      
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
