@@ -30,7 +30,9 @@ resource "azurecaf_name" "main_names" {
     "azurerm_search_service",
     "azurerm_cognitive_account",
     "azurerm_virtual_network",
-    "azurerm_network_security_group"
+    "azurerm_network_security_group",
+    "azurerm_virtual_network_gateway",
+    "azurerm_public_ip"
   ]
   prefixes      = local.org_prefix
   suffixes      = local.org_suffix
@@ -44,7 +46,9 @@ resource "azurecaf_name" "failover_names" {
   name          = var.org_naming.workload_name
   resource_types = [
     "azurerm_virtual_network",
-    "azurerm_network_security_group"
+    "azurerm_network_security_group",
+    "azurerm_virtual_network_gateway",
+    "azurerm_public_ip"
   ]
   prefixes      = local.org_prefix
   suffixes      = concat(local.org_suffix, ["failover"])
