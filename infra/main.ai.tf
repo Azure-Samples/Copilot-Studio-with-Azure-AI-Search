@@ -6,7 +6,7 @@ module "azure_open_ai" {
   version                            = "0.7.1"
   kind                               = "OpenAI"
   location                           = var.location
-  name                               = "${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
+  name                               = azurecaf_name.main_names.results["azurerm_cognitive_account"]
   resource_group_name                = local.resource_group_name
   enable_telemetry                   = true
   sku_name                           = "S0"

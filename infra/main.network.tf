@@ -57,7 +57,7 @@ data "azurerm_resources" "vnets" {
 resource "azurerm_virtual_network" "primary_virtual_network" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.main_names.results["azurerm_virtual_network"]}"
+  name                = azurecaf_name.main_names.results["azurerm_virtual_network"]
   resource_group_name = local.resource_group_name
   location            = var.primary_location
   address_space       = var.primary_vnet_address_spaces
@@ -67,7 +67,7 @@ resource "azurerm_virtual_network" "primary_virtual_network" {
 resource "azurerm_virtual_network" "failover_virtual_network" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.failover_names.results["azurerm_virtual_network"]}"
+  name                = azurecaf_name.failover_names.results["azurerm_virtual_network"]
   resource_group_name = local.resource_group_name
   location            = var.failover_location
   address_space       = var.failover_vnet_address_spaces
@@ -133,7 +133,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
-  name                 = "${azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]}"
+  name                 = azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.primary_pe_subnet_address_spaces
@@ -147,7 +147,7 @@ resource "azurerm_subnet" "pe_failover_subnet" {
   # checkov:skip=CKV2_AZURE_31:"Ensure VNET subnet is configured with a Network Security Group (NSG)
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                 = "${azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]}"
+  name                 = azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.failover_virtual_network[0].name
   address_prefixes     = var.failover_pe_subnet_address_spaces
@@ -216,7 +216,7 @@ resource "azurerm_subnet_nat_gateway_association" "github_runner_failover_subnet
 # Create public IP addresses for NAT gateways
 resource "azurerm_public_ip" "primary_nat_gateway_ip" {
   count               = local.create_network_infrastructure ? 0 : 1
-  name                = "${azurecaf_name.main_names.results["azurerm_public_ip"]}"
+  name                = azurecaf_name.main_names.results["azurerm_public_ip"]
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   allocation_method   = "Static"
@@ -226,7 +226,7 @@ resource "azurerm_public_ip" "primary_nat_gateway_ip" {
 
 resource "azurerm_public_ip" "failover_nat_gateway_ip" {
   count               = local.create_network_infrastructure ? 0 : 1
-  name                = "${azurecaf_name.failover_names.results["azurerm_public_ip"]}"
+  name                = azurecaf_name.failover_names.results["azurerm_public_ip"]
   location            = var.failover_location
   resource_group_name = local.resource_group_name
   allocation_method   = "Static"
@@ -237,7 +237,7 @@ resource "azurerm_public_ip" "failover_nat_gateway_ip" {
 resource "azurerm_nat_gateway" "primary_nat_gateway" {
   count               = local.create_network_infrastructure ? 0 : 1
   location            = var.primary_location
-  name                = "${azurecaf_name.main_names.results["azurerm_virtual_network_gateway"]}"
+  name                = azurecaf_name.main_names.results["azurerm_virtual_network_gateway"]
   resource_group_name = local.resource_group_name
   sku_name            = "Standard"
   tags                = var.tags
@@ -249,7 +249,7 @@ resource "azurerm_nat_gateway" "primary_nat_gateway" {
 resource "azurerm_nat_gateway" "failover_nat_gateway" {
   count               = local.create_network_infrastructure ? 0 : 1
   location            = var.failover_location
-  name                = "${azurecaf_name.failover_names.results["azurerm_virtual_network_gateway"]}"
+  name                = azurecaf_name.failover_names.results["azurerm_virtual_network_gateway"]
   resource_group_name = local.resource_group_name
   sku_name            = "Standard"
   tags                = var.tags
@@ -260,21 +260,21 @@ resource "azurerm_nat_gateway" "failover_nat_gateway" {
 
 # Associate public IP addresses with NAT gateways
 resource "azurerm_nat_gateway_public_ip_association" "primary_nat_gateway_ip_association" {
-  count              = local.create_network_infrastructure ? 0 : 1
-  nat_gateway_id     = azurerm_nat_gateway.primary_nat_gateway[0].id
+  count                = local.create_network_infrastructure ? 0 : 1
+  nat_gateway_id       = azurerm_nat_gateway.primary_nat_gateway[0].id
   public_ip_address_id = azurerm_public_ip.primary_nat_gateway_ip[0].id
 }
 
 resource "azurerm_nat_gateway_public_ip_association" "failover_nat_gateway_ip_association" {
-  count              = local.create_network_infrastructure ? 0 : 1
-  nat_gateway_id     = azurerm_nat_gateway.failover_nat_gateway[0].id
+  count                = local.create_network_infrastructure ? 0 : 1
+  nat_gateway_id       = azurerm_nat_gateway.failover_nat_gateway[0].id
   public_ip_address_id = azurerm_public_ip.failover_nat_gateway_ip[0].id
 }
 
 resource "azurerm_subnet" "deployment_script_container_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                 = "${azurecaf_name.deployment_script_names.results["azurerm_subnet"]}"
+  name                 = azurecaf_name.deployment_script_names.results["azurerm_subnet"]
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
   address_prefixes     = var.deployment_script_subnet_address_spaces
@@ -305,7 +305,7 @@ resource "azurerm_subnet_nat_gateway_association" "deployment_script_nat" {
 resource "azurerm_network_security_group" "power_platform_primary_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.main_names.results["azurerm_network_security_group"]}"
+  name                = azurecaf_name.main_names.results["azurerm_network_security_group"]
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -367,7 +367,7 @@ resource "azurerm_network_security_group" "power_platform_primary_nsg" {
 resource "azurerm_network_security_group" "power_platform_failover_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.failover_names.results["azurerm_network_security_group"]}"
+  name                = azurecaf_name.failover_names.results["azurerm_network_security_group"]
   location            = var.failover_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -429,7 +429,7 @@ resource "azurerm_network_security_group" "power_platform_failover_nsg" {
 resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]}"
+  name                = azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -465,7 +465,7 @@ resource "azurerm_network_security_group" "private_endpoint_primary_nsg" {
 resource "azurerm_network_security_group" "private_endpoint_failover_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]}"
+  name                = azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]
   location            = var.failover_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
@@ -574,7 +574,7 @@ resource "azurerm_network_security_group" "github_runner_nsg" {
 resource "azurerm_network_security_group" "deployment_script_nsg" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  name                = "${azurecaf_name.deployment_script_names.results["azurerm_network_security_group"]}"
+  name                = azurecaf_name.deployment_script_names.results["azurerm_network_security_group"]
   location            = var.primary_location
   resource_group_name = local.resource_group_name
   tags                = var.tags
