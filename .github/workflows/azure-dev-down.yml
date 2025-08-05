@@ -32,7 +32,7 @@ jobs:
           ref: ${{ github.ref_name }}
 
       - name: Install azd
-        uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
+        uses: Azure/setup-azd@cf638ffd167fc81e1851241a478a723c05fa9cb3 # v2.2.0
         with:
           version: '1.17.2'  # Specify your desired azd version here
 
