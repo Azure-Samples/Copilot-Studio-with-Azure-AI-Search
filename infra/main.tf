@@ -8,10 +8,10 @@ locals {
   use_existing_resource_group = var.resource_group_name != null && length(var.resource_group_name) > 0
   resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
   resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
-
-  # Organization suffiexes and prefixes are optional, and we need to form an array of non-empty values only
-  org_prefix = compact([var.org_naming.org_prefix])
-  org_suffix = compact([var.org_naming.org_environment, var.org_naming.org_suffix])
+  
+  # Organization suffixes and prefixes are optional, and we need to form an array of non-empty values only
+  org_prefix                  = compact([var.org_naming.org_prefix])
+  org_suffix                  = compact([var.org_naming.org_environment, var.org_naming.org_suffix])
 }
 
 
