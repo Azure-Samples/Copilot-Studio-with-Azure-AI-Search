@@ -17,9 +17,26 @@ variable "resource_group_name" {
   description = "The name of an existing resource group to deploy resources into. If not provided, a new resource group will be created."
 
   validation {
-    condition     = var.resource_group_name == null || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
+    condition     = var.resource_group_name == null || var.resource_group_name == "" || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
     error_message = "Resource group name must contain only alphanumeric characters, periods, underscores, hyphens, and parentheses."
   }
+}
+
+# Parameters to work with dynamic names for resources using azurecaf Terraform provider
+variable "org_naming" {
+  type = object({
+    workload_name   = string
+    org_prefix      = string
+    org_suffix      = string
+    org_environment = string
+  })
+  default = {
+    workload_name   = "cs"
+    org_prefix      = ""
+    org_suffix      = "v1"
+    org_environment = "dev"
+  }
+  description = "Organizational naming parameters for azurecaf_name resource: workload name, prefix, suffix, and environment."
 }
 
 variable "app_insights_sections" {
