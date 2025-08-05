@@ -7,8 +7,8 @@ data "azurerm_subscription" "current" {}
 
 resource "azurerm_user_assigned_identity" "script_identity" {
   name                = "deployment-script-identity"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
+  resource_group_name = local.resource_group_name
+  location            = local.resource_group_location
   tags                = var.tags
 }
 
