@@ -218,8 +218,9 @@ variable "include_app_insights" {
 
 variable "location" {
   type        = string
-  description = "Region where the resources should be deployed. Must be a valid Power Platform region name (e.g., 'unitedstates', 'europe', 'asia'). This will be validated against available Power Platform locations."
+  description = "Azure Region where the resources should be deployed. Must be azure region where Power Platform is available."
   nullable    = false
+  default     = "eastus"
 }
 
 locals {

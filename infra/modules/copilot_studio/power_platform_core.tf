@@ -19,7 +19,7 @@ locals {
   search_power_platform_location = lookup(
     { for mapping in local.power_platform_azure_mappings : mapping.azure_region => mapping.location... },
     var.power_platform_azure_region,
-    "No Power Platform location for azure region '${var.power_platform_azure_region}' found."
+    "no_value_found"
   )
 }
 
@@ -43,7 +43,7 @@ resource "powerplatform_environment" "this" {
   count = var.power_platform_environment.id == "" ? 1 : 0
 
   billing_policy_id = var.power_platform_billing_policy.should_create ? powerplatform_billing_policy.this[0].id : null
-  location          = var.power_platform_environment.location != "" && var.power_platform_environment.location != null ? var.power_platform_environment.location : local.search_power_platform_location[0].name
+  location          = var.power_platform_environment.location != "" && var.power_platform_environment.location != null ? var.power_platform_environment.location : (local.search_power_platform_location != "no_value_found" ? local.search_power_platform_location[0].name : "")
   display_name      = "${var.power_platform_environment.name} - ${var.unique_id}"
   environment_type  = var.power_platform_environment.environment_type
   azure_region      = var.power_platform_azure_region
@@ -51,6 +51,13 @@ resource "powerplatform_environment" "this" {
     language_code     = var.power_platform_environment.language_code
     currency_code     = var.power_platform_environment.currency_code
     security_group_id = var.power_platform_environment.security_group_id
+  }
+
+  lifecycle {
+    precondition {
+      condition     = (var.power_platform_environment.location == "" || var.power_platform_environment.location == null) && local.search_power_platform_location != "no_value_found"
+      error_message = "`${var.power_platform_azure_region}` is not a valid Azure region for Power Platform. Please check the provided region."
+    }
   }
 }
 
