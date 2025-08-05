@@ -237,7 +237,7 @@ resource "azurerm_public_ip" "failover_nat_gateway_ip" {
 resource "azurerm_nat_gateway" "primary_nat_gateway" {
   count               = local.create_network_infrastructure ? 0 : 1
   location            = var.primary_location
-  name                = "${azurecaf_name.main_names.results["azurerm_nat_gateway"]}"
+  name                = "${azurecaf_name.main_names.results["azurerm_virtual_network_gateway"]}"
   resource_group_name = local.resource_group_name
   sku_name            = "Standard"
   tags                = var.tags
@@ -249,7 +249,7 @@ resource "azurerm_nat_gateway" "primary_nat_gateway" {
 resource "azurerm_nat_gateway" "failover_nat_gateway" {
   count               = local.create_network_infrastructure ? 0 : 1
   location            = var.failover_location
-  name                = "${azurecaf_name.failover_names.results["azurerm_nat_gateway"]}"
+  name                = "${azurecaf_name.failover_names.results["azurerm_virtual_network_gateway"]}"
   resource_group_name = local.resource_group_name
   sku_name            = "Standard"
   tags                = var.tags
