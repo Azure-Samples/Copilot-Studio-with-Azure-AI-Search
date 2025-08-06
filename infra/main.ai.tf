@@ -3,10 +3,10 @@ module "azure_open_ai" {
   # checkov:skip=CKV_AZURE_236: The Power Platform AI Search connector only supports service principal, API key, or interactive auth. 
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                             = "Azure/avm-res-cognitiveservices-account/azurerm"
-  version                            = "0.8.0"
+  version                            = "0.7.1"
   kind                               = "OpenAI"
   location                           = var.location
-  name                               = "aoai${random_string.name.id}"
+  name                               = azurecaf_name.main_names.results["azurerm_cognitive_account"]
   resource_group_name                = local.resource_group_name
   enable_telemetry                   = true
   sku_name                           = "S0"
@@ -14,7 +14,7 @@ module "azure_open_ai" {
   cognitive_deployments              = var.cognitive_deployments
   public_network_access_enabled      = false
   outbound_network_access_restricted = true
-  fqdns                              = ["aoai${random_string.name.id}.openai.azure.com"]
+  fqdns                              = ["${azurecaf_name.main_names.results["azurerm_cognitive_account"]}.openai.azure.com"]
 
   network_acls = {
     default_action = "Deny"
@@ -31,7 +31,7 @@ module "azure_open_ai" {
 
   private_endpoints = {
     pe_endpoint = {
-      name                            = "pe_endpoint_${random_string.name.id}"
+      name                            = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
       private_service_connection_name = "pe_endpoint_connection"
       subnet_resource_id              = local.pe_primary_subnet_id
     }
