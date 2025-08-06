@@ -591,3 +591,4 @@ class TestSearchPipelineIntegration:
         print(f"  - Skillset: {skillset_name}")
         print(f"  - Indexer: {indexer_name}")
         print(f"  - Search functionality: Working")
+        

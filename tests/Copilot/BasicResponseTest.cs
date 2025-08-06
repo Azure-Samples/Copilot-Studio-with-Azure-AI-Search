@@ -27,19 +27,19 @@ namespace CopilotTests
             var envVariable = Environment.GetEnvironmentVariable(key);
             if (!string.IsNullOrEmpty(envVariable))
             {
-            return envVariable;
+                return envVariable;
             }
-            
+
             // Fall back to azd .env file
             var envFromFile = ReadFromAzdEnvFile(key);
             if (!string.IsNullOrEmpty(envFromFile))
             {
-            return envFromFile;
+                return envFromFile;
             }
-            
+
             return defaultValue;
         }
-        
+
         /// <summary>
         /// Reads configuration from azd environment .env file
         /// </summary>
@@ -50,12 +50,12 @@ namespace CopilotTests
                 // Look for .azure directory in current or parent directories
                 var currentDir = Directory.GetCurrentDirectory();
                 var azureDir = FindAzureDirectory(currentDir);
-                
+
                 if (azureDir == null)
                 {
                     return null;
                 }
-                
+
                 // Find the environment directory (should contain .env file)
                 var envDirs = Directory.GetDirectories(azureDir);
                 foreach (var envDir in envDirs)
@@ -75,10 +75,10 @@ namespace CopilotTests
             {
                 // Silently fail and fall back to environment variables
             }
-            
+
             return null;
         }
-        
+
         /// <summary>
         /// Finds the .azure directory by walking up the directory tree
         /// </summary>
@@ -92,14 +92,14 @@ namespace CopilotTests
                 {
                     return azureDir;
                 }
-                
+
                 var parent = Directory.GetParent(currentDir);
                 currentDir = parent?.FullName;
             }
-            
+
             return null;
         }
-        
+
         /// <summary>
         /// Reads a specific key value from an .env file
         /// </summary>
@@ -107,31 +107,31 @@ namespace CopilotTests
         {
             try
             {
-            var lines = File.ReadAllLines(filePath);
-            foreach (var line in lines)
-            {
-                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
-                continue;
-                
-                var parts = line.Split('=', 2);
-                if (parts.Length == 2 && string.Equals(parts[0].Trim(), key, StringComparison.OrdinalIgnoreCase))
+                var lines = File.ReadAllLines(filePath);
+                foreach (var line in lines)
                 {
-                var value = parts[1].Trim();
-                // Remove quotes if present
-                if ((value.StartsWith("\"") && value.EndsWith("\"")) ||
-                    (value.StartsWith("'") && value.EndsWith("'")))
-                {
-                    value = value.Substring(1, value.Length - 2);
+                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                        continue;
+
+                    var parts = line.Split('=', 2);
+                    if (parts.Length == 2 && string.Equals(parts[0].Trim(), key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var value = parts[1].Trim();
+                        // Remove quotes if present
+                        if ((value.StartsWith("\"") && value.EndsWith("\"")) ||
+                            (value.StartsWith("'") && value.EndsWith("'")))
+                        {
+                            value = value.Substring(1, value.Length - 2);
+                        }
+                        return value;
+                    }
                 }
-                return value;
-                }
-            }
             }
             catch (Exception)
             {
-            // Silently fail and return null
+                // Silently fail and return null
             }
-            
+
             return null;
         }
 

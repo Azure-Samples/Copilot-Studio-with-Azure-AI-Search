@@ -69,8 +69,9 @@ namespace CopilotTests
         {
             var authResponse = await AuthenticateAsync(cancellationToken);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResponse.AccessToken);
-            
+
             return await base.SendAsync(request, cancellationToken);
         }
     }
 }
+

@@ -19,7 +19,7 @@ namespace CopilotTests
         /// Tenant ID for creating the authentication for the connection
         /// </summary>
         public string? TenantId { get; set; }
-        
+
         /// <summary>
         /// Application ID for creating the authentication for the connection
         /// </summary>
@@ -64,3 +64,4 @@ namespace CopilotTests
         }
     }
 }
+
