@@ -16,13 +16,13 @@ data "powerplatform_security_roles" "all_roles" {
 locals {
   # Create a map of security role names to IDs
   security_role_id = { for item in data.powerplatform_security_roles.all_roles.security_roles : item.name => item.role_id }
-  
+
   # Filter to only include roles that actually exist in the environment
   available_roles = [for name in var.pp_environment_user_security_role : name if contains(keys(local.security_role_id), name)]
-  
+
   # Get the role IDs for the available roles
   security_role_ids = [for name in local.available_roles : local.security_role_id[name]]
-  
+
   # Calculate missing roles for debugging
   missing_roles = [for name in var.pp_environment_user_security_role : name if !contains(keys(local.security_role_id), name)]
 }
