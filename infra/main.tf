@@ -5,10 +5,11 @@ locals {
   env_tags            = { azd-env-name : var.azd_environment_name }
 
   # Resource group logic - use existing or create new
-  use_existing_resource_group = var.resource_group_name != null
+  use_existing_resource_group = var.resource_group_name != null && length(var.resource_group_name) > 0
   resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
   resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
 }
+
 
 # Data source to validate existing resource group exists
 data "azurerm_resource_group" "existing" {
@@ -28,7 +29,7 @@ resource "random_string" "name" {
 resource "azurerm_resource_group" "this" {
   count    = local.use_existing_resource_group ? 0 : 1
   location = var.location
-  name     = "rg-${random_string.name.id}"
+  name     = azurecaf_name.main_names.results["azurerm_resource_group"]
   tags     = merge(var.tags, local.env_tags)
 }
 

@@ -24,7 +24,7 @@ resource "azurerm_role_assignment" "search_service_index_data_reader" {
 resource "azurerm_search_service" "ai_search" {
   # checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
   # checkov:skip=CKV_AZURE_208: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
-  name                          = local.search_name
+  name                          = azurecaf_name.main_names.results["azurerm_search_service"]
   location                      = var.primary_location
   resource_group_name           = local.resource_group_name
   sku                           = var.ai_search_config.sku
@@ -46,14 +46,14 @@ resource "azurerm_search_service" "ai_search" {
 # Primary region private endpoint
 resource "azurerm_private_endpoint" "primary_endpoint" {
   location            = azurerm_search_service.ai_search.location
-  name                = "private-endpoint-primary-${local.search_name}"
+  name                = "pe-primary-${azurecaf_name.main_names.results["azurerm_search_service"]}"
   resource_group_name = local.resource_group_name
   subnet_id           = local.pe_primary_subnet_id
   tags                = var.tags
 
   private_service_connection {
     is_manual_connection           = false
-    name                           = "private-connection-primary-${local.search_name}"
+    name                           = "pc-primary-${azurecaf_name.main_names.results["azurerm_search_service"]}"
     private_connection_resource_id = azurerm_search_service.ai_search.id
     subresource_names              = ["searchService"]
   }
@@ -64,14 +64,14 @@ resource "azurerm_private_endpoint" "primary_endpoint" {
 # Failover region private endpoint
 resource "azurerm_private_endpoint" "failover_endpoint" {
   location            = local.failover_virtual_network_location
-  name                = "private-endpoint-failover-${local.search_name}"
+  name                = "pe-failover-${azurecaf_name.main_names.results["azurerm_search_service"]}"
   resource_group_name = local.resource_group_name
   subnet_id           = local.pe_failover_subnet_id
   tags                = var.tags
 
   private_service_connection {
     is_manual_connection           = false
-    name                           = "private-connection-failover-${local.search_name}"
+    name                           = "pc-failover-${azurecaf_name.main_names.results["azurerm_search_service"]}"
     private_connection_resource_id = azurerm_search_service.ai_search.id
     subresource_names              = ["searchService"]
   }
