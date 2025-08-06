@@ -249,6 +249,36 @@ export TEST_CLIENT_ID="native-app-guid-here"
 dotnet test --logger "console;verbosity=detailed"
 ```
 
+#### Running Tests with Manual Environment Variable Configuration
+
+If you prefer to set environment variables manually or need to override specific values, you can configure all required variables explicitly:
+
+```bash
+# Navigate to the test directory
+cd tests/Copilot
+
+# Power Platform authentication
+export POWER_PLATFORM_USERNAME="your-test-user@domain.com"
+export POWER_PLATFORM_PASSWORD="your-test-password"
+export POWER_PLATFORM_TENANT_ID="your-tenant-id"
+export POWER_PLATFORM_ENVIRONMENT_ID="your-environment-id"
+
+# Native client application ID
+export TEST_CLIENT_ID="your-native-app-client-id"
+
+# Copilot Studio configuration
+export COPILOT_STUDIO_ENDPOINT="https://api.copilotstudio.microsoft.com"
+export COPILOT_STUDIO_AGENT_ID="crfXX_agentName"
+
+# Run the test
+dotnet test --logger "console;verbosity=detailed"
+```
+
+**Important Notes:**
+- The test account must have **MFA disabled** for automated authentication
+- The user must have access to the Power Platform environment and the Copilot Studio agent
+- Environment variables take precedence over values from azd .env files
+
 ### AI Search Test (Optional)
 
 Located in `tests/AISearch/`, this test validates:
