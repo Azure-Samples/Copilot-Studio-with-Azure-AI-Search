@@ -37,7 +37,7 @@ azapi = {
 
 After defining the provider, configure the required infrastructure components, beginning with the subnet:
 
-```json
+```hcl
 resource "azurerm_subnet" "main" {
  name                 = "main-subnet"
  resource_group_name  = azurerm_resource_group.example.name
@@ -60,7 +60,7 @@ Please ensure that the subnet is configured to delegate permissions to Azure Con
 
 Next, create a storage account for the Azure Deployment Script. The easiest way is to create an account that blocks all traffic, not just from a specific VNET:
 
-```json
+```hcl
 resource "azurerm_storage_account" "example" {
     name                     = var.storage_account_name
     resource_group_name      = azurerm_resource_group.example.name
@@ -79,7 +79,7 @@ resource "azurerm_storage_account_network_rules" "example" {
 
 Finally, it’s possible to use the Azure Deployment Script component itself to execute the desired code:
 
-```json
+```hcl
 resource "azapi_resource" "run_python_from_github" {
     type = "Microsoft.Resources/deploymentScripts@2023-08-01"
     name                = "run-python-from-github"
@@ -122,7 +122,7 @@ You can set the subnet ID, storage, and script type (AzureCLI for Linux, PowerSh
 
 A key point from the code above is the use of an identity block. This should be a user-assigned identity with permissions to run code from ACI. At minimum, it needs Storage Blob Data Contributor and Storage File Data Privileged roles for ACI storage access:
 
-```json
+```hcl
 resource "azurerm_user_assigned_identity" "script_identity" {
     name                = "deployment-script-identity"
     resource_group_name = azurerm_resource_group.example.name
@@ -152,7 +152,7 @@ One important consideration is how to obtain the required Python code within ACI
 
 This option utilises the Virtual Machine Extension, which enables the execution of custom scripts on newly created Virtual Machines, including those created within a VNET. As a result, these scripts can access required resources under the VM's identity.
 
-```json
+```hcl
 resource "azurerm_virtual_machine_extension" "github_runner" {
     name                 = "install-github-runner"
     virtual_machine_id   = azurerm_linux_virtual_machine.github_runner[0].id
@@ -178,7 +178,7 @@ To initiate manual creation, the Actions->Runners tab within the repository sett
 
 **Step 1.** Generate the runner token. The token can be created using the GitHub REST API according to [this documentation](https://docs.github.com/en/rest/actions/self-hosted-runners?apiVersion=2022-11-28#create-a-registration-token-for-a-repository). For example, use GitHub CLI for this task:
 
-```bash
+```shell
 # GitHub CLI api
 # https://cli.github.com/manual/gh_api
 
@@ -195,7 +195,7 @@ The simplest way to log into the API is a personal access token according to [th
 
 **Step 3.** Configure VM to be a self-hosted runner. The next step involves creating a script to configure the runner on the virtual machine (VM), utilizing the token obtained in step 1 as a parameter. This script should download the GitHub runner code, configure the runner with the provided token, and perform any necessary preparatory tasks on the VM. For instance, it may set up Docker if it is required for future GitHub Actions, or install additional components such as PowerShell for Linux. A key distinction from the manual setup process lies in how the runner is started; ideally, it should operate as a service rather than being executed directly from the console. Additionally, the runner must be capable of restarting automatically following a VM reboot. The GitHub runner code facilitates these requirements through the built-in .svc utility. More details about this utility can be found [here](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/configuring-the-self-hosted-runner-application-as-a-service). Only two commands need to be executed:
 
-```bash
+```shell
 sudo ./svc.sh install
 sudo ./svc.sh start
 ```
@@ -220,7 +220,7 @@ This approach presumes the use of Azure Container Application (ACA) as a GitHub 
 
 To enable ACA, several key components must be in place: an Azure Container Registry integrated with your Virtual Network; a process for creating and deploying the initial image to the Azure Container Registry; ACA itself, together with related services such as Log Analytics Workspace, Azure Container Environment, and the necessary managed identities. Among these, the component responsible for building and pushing images to the registry within a VNET is less commonly encountered. In Terraform, the AzureRM Container Registry Task can facilitate this process as part of your deployment workflow:
 
-```json
+```hcl
 resource "azurerm_container_registry_task" "github_runner_build" {
     name                  = "build-github-runner"
     container_registry_id = azurerm_container_registry.github_runners.id
