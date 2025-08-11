@@ -8,7 +8,7 @@ data "azurerm_subscription" "current" {}
 resource "azurerm_user_assigned_identity" "script_identity" {
   name                = azurecaf_name.deployment_script_names.results["azurerm_user_assigned_identity"]
   resource_group_name = local.resource_group_name
-  location            = local.resource_group_location
+  location            = local.primary_azure_region
   tags                = var.tags
 }
 
