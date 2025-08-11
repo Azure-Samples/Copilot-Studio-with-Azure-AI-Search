@@ -13,17 +13,8 @@ locals {
   secondary_azure_region = local.search_secondary_azure_region.pairedRegion[0].name
 
   # Resource group logic - use existing or create new
-  use_existing_resource_group = var.resource_group_name != null && var.resource_group_name != ""
+  use_existing_resource_group = var.resource_group_name != null && var.resource_group_name != "" && length(var.resource_group_name) > 0
   resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
-  #resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
-}
-
-# The Resource Group that will contain the resources managed by this module (only created if not using existing)
-resource "azurerm_resource_group" "this" {
-  count    = local.use_existing_resource_group ? 0 : 1
-  location = local.primary_azure_region
-  name     = "rg-${random_string.name.id}"
-  tags     = merge(var.tags, local.env_tags)
 }
 
 # Data source to validate existing resource group exists
@@ -49,6 +40,14 @@ resource "random_string" "name" {
   numeric = false
   special = false
   upper   = false
+}
+
+# The Resource Group that will contain the resources managed by this module (only created if not using existing)
+resource "azurerm_resource_group" "this" {
+  count    = local.use_existing_resource_group ? 0 : 1
+  location = local.primary_azure_region
+  name     = azurecaf_name.main_names.results["azurerm_resource_group"]
+  tags     = merge(var.tags, local.env_tags)
 }
 
 module "copilot_studio" {

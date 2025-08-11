@@ -61,7 +61,7 @@ terraform {
         
         if ($content -match $pattern) {
             $updatedContent = $content -replace $pattern, $newTerraformBlock
-            Set-Content -Path $script:providerTfPath -Value $updatedContent -Encoding UTF8
+            Set-Content -Path $script:providerTfPath -Value $updatedContent -Encoding UTF8 -NoNewline
             Write-Host "✓ provider.tf updated to use local backend"
         } else {
             Write-Host "⚠ Could not find terraform backend block in provider.tf"
