@@ -20,7 +20,7 @@ The following sections will review these options individually and provide a comp
 
 ## Option 1. Using Azure Deployment Scripts
 
-Azure Deployment Scripts are a powerful feature within Azure Resource Manager (ARM) templates that enable users to execute custom scripts such as PowerShell, Bash or Python code during the deployment of Azure resources. This can be utilized with Bicep or Terraform for basic configuration tasks, and it is also capable of running complex Python workloads if all dependencies are installed via pip.
+Azure Deployment Scripts are a powerful feature within Azure Resource Manager (ARM) templates that enable users to execute custom scripts written in PowerShell (on Windows) or Bash (on Linux) during the deployment of Azure resources. Python is also natively supported, as the environment comes with Python 3 pre-installed, allowing you to run Python code directly after installing any dependencies with pip. For other programming languages, you must use Bash or PowerShell scripts to install the required runtimes and dependencies before executing your code, as there is no native support for languages beyond PowerShell, Bash, and Python.
 
 Azure Deployment Scripts are built upon the Azure Container Instance service, enabling automated deployment of a service instance, execution of specified code, and subsequent deletion of the instance to ensure resource cleanup. For Virtual Networks (VNET), users can specify a subnet ID for the instance as well as a storage account needed by the deployment script to store its state. This configuration allows code execution within a VNET environment, providing access to all associated resources. Users are unable to specify a custom image when creating the ACI instance, which limits compatibility with some technologies. However, with Python, it is possible to run `pip install` before executing code, allowing all necessary dependencies to be installed for successful operation.
 
@@ -142,7 +142,9 @@ resource "azurerm_role_assignment" "file_data_privileged_contributor" {
 }
 ```
 
-One important consideration is how to obtain the required Python code within ACI if an image cannot be supplied. The most straightforward approach is to use a `git clone` command in your script to retrieve the necessary code; for private repositories, a personal access token can be securely provided as an environment variable. Alternatively, you may upload the code to a storage account during deployment and then utilize the Azure CLI within your script to download the files to the ACI instance for execution. The second approach is suitable for local execution when there is no commit, while the first approach is more appropriate when deployment is managed through CI/CD workflows.
+A key consideration is how to provide the required Python code to the Azure Container Instance (ACI) when you cannot supply a custom image. The simplest method is to use a `git clone` command within your deployment script to fetch the code from your repository. For secure access, use a GitHub App. Personal Access Token (PAT) can be used for initial testing, and it's not recommended approach. However, cloning directly from the repository during deployment can introduce inconsistencies—such as running code from the main branch instead of your feature branch, or missing local changes not yet pushed. This can lead to discrepancies between what is tested locally or in CI and what actually runs in the deployment script.
+
+A more reliable approach is to upload the exact scripts or artifacts needed (for example, by copying them to a storage account as part of your workflow) and then download them from storage within the deployment script. This ensures that the code executed in ACI matches precisely what was used in your workflow or local environment, eliminating version mismatches and branch-related issues. For this reason, uploading scripts to storage and retrieving them during deployment is generally preferred over cloning from the repository.
 
 **Advantages:** This approach is simple and allows testing from a local computer. It does not require GitHub private runners or a connection between GitHub and Azure VNET, making it compatible with most organizational policies.
 
@@ -264,9 +266,9 @@ Selecting an appropriate option depends on several factors, including repository
 
 | Conditions | Approach to start |
 | --- | --- |
-| PowerShell, Bash, or Python scripts are executed exclusively during the deployment process. The operationalization process enables repeated execution of the infrastructure deployment workflow if modifications occur. | Azure Deployment Script |
-| Current organizational policies neither mandate nor facilitate the activation of GitHub self-hosted runners, and script execution is restricted to PowerShell, Bash, or Python. | Azure Deployment Script |
-| The operationalization process involves executing code outside the infrastructure deployment workflow or running code that is not written in Python. | Azure Container Application |
+| The operationalization process enables repeated execution of the infrastructure deployment workflow if modifications occur. | Azure Deployment Script |
+| Current organizational policies neither mandate nor facilitate the activation of GitHub self-hosted runners. | Azure Deployment Script |
+| The operationalization process involves executing code outside the infrastructure deployment workflow. | Azure Container Application |
 | The GitHub self-hosted runner approach can be evaluated as an initial method for executing the required code directly on the host. | Virtual Machine as a self-hosted runner |
 | Some scripts should be executed during the infrastructure deployment and manual intervention to start/stop a VM is possible. Additional operationalization workflows are not required. | Virtual Machine Extension only |
 | You need a scalable solution that will allow us to execute code outside of the infrastructure deployment process. | Azure Container Application |
