@@ -18,6 +18,7 @@ This document explains the security controls implemented in the **Copilot Studio
 
 ✅ **Network Isolation**: Private endpoints for Azure AI Search with VNet segmentation  
 ✅ **Identity Security**: System-assigned managed identities for service-to-service authentication  
+✅ **Enhanced Authentication**: Optional service principal authentication for Azure AI Search (OAuth with RBAC)  
 ✅ **Infrastructure as Code**: Automated security scanning with Checkov, TFLint, and Gitleaks  
 ✅ **Multi-Region Support**: Primary and failover region deployment capability  
 ✅ **Secure Deployment**: GitHub Actions with OIDC federation support  
@@ -26,6 +27,7 @@ This document explains the security controls implemented in the **Copilot Studio
 
 The template provides a secure foundation, but users are responsible for:
 
+⚠️ **Authentication Enhancement**: Configuring service principal authentication for Azure AI Search (recommended for production)  
 ⚠️ **Enhanced Network Security**: Basic Network Security Groups are provided, but they should be updated for your organization's specific security requirements  
 ⚠️ **Secrets Management**: Implementing Azure Key Vault for centralized secret storage  
 ⚠️ **Advanced Monitoring**: Configuring security-focused logging and alerting  
@@ -41,11 +43,12 @@ The template establishes a **security baseline** suitable for development and te
 
 Before deploying to production:
 
-1. ✅ Review and implement network hardening recommendations
-2. ✅ Configure Azure Key Vault for secrets management  
-3. ✅ Set up enhanced monitoring and alerting
-4. ✅ Enable additional security scanning and compliance checks
-5. ✅ Establish incident response procedures
+1. ✅ Configure service principal authentication for Azure AI Search (recommended)
+2. ✅ Review and implement network hardening recommendations
+3. ✅ Configure Azure Key Vault for secrets management  
+4. ✅ Set up enhanced monitoring and alerting
+5. ✅ Enable additional security scanning and compliance checks
+6. ✅ Establish incident response procedures
 
 ## Template Security Architecture
 
@@ -162,7 +165,7 @@ The template addresses **infrastructure-level risks** effectively but requires u
 | **T2.1** | Platform Compromise | Environment isolation, network injection | ✅ Implemented | Configure governance policies |
 | **T2.2** | AI Model Abuse | [Copilot Studio Runtime Protection](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-agent-runtime-view) | ⚠️ Limited | Implement advanced filtering, AI red teaming |
 | **T3.1** | Supply Chain | Security scanning (GitHub Advanced security & Gitleaks), AVM usage, Dependabot | ✅ Implemented | Monitor dependency updates |
-| **T3.2** | Credential Exposure | OIDC support, managed identities | ⚠️ Limited | Migrate AI Search API keys to service principal (preferred) or implement key rotation for API keys |
+| **T3.2** | Credential Exposure | OIDC support, managed identities, optional service principal authentication for AI Search (recommended) | ✅ Partially | Implement key rotation for AI Search API keys if not using service principal |
 
 **Legend**: ✅ Fully Implemented | ⚠️ Basic Implementation | ❌ User Responsibility
 
@@ -189,7 +192,7 @@ graph LR
 | Trust Boundary | Authentication Method | Security Controls | What You Need to Know |
 |-----------------|----------------------|-------------------|----------------------|
 | **User to Copilot Studio Agent** | Channel-specific authentication (Teams, Web, etc.) | Channel security policies, user authentication | Users authenticate through their chosen channel (Teams, web chat, etc.) |
-| **Copilot Agent to AI Search** | API key authentication via AI Search Connector | DLP policies, private endpoints, network restrictions, query validation | Connection uses API keys stored securely in Power Platform. Opt for Service Principal to harden security |
+| **Copilot Agent to AI Search** | API key authentication (default) or Service Principal authentication (optional) | DLP policies, private endpoints, network restrictions, query validation, RBAC roles | Connection supports either API keys or service principal authentication. Service principal provides enhanced security with RBAC controls |
 | **AI Search to Azure OpenAI** | Managed identity authentication | Content filtering, token validation, private endpoints, VNet restrictions | AI Search uses its managed identity to access OpenAI models |
 | **AI Search to Storage Account** | Managed identity authentication | Private endpoints, blob permissions, audit logging | AI Search accesses documents using managed identity |
 
@@ -248,11 +251,47 @@ graph LR
 
 Both VNets provide network-level isolation with private endpoints, ensuring AI Search traffic never traverses the public internet.
 
+### Azure AI Search Authentication Options
+
+The template supports two authentication methods for Azure AI Search connections:
+
+#### Default: API Key Authentication
+
+- **Method**: Admin API keys stored in Power Platform connector
+- **Security Level**: Basic - relies on key-based authentication
+- **Configuration**: Automatically configured when no service principal is provided
+- **Local Authentication**: Enabled on AI Search service
+- **Failure Mode**: HTTP 403 errors for authentication failures
+
+#### Enhanced: Service Principal Authentication (Recommended)
+
+- **Method**: OAuth authentication using Azure AD service principal
+- **Security Level**: Enhanced - leverages Azure AD authentication and RBAC
+- **RBAC Roles**: Service principal receives `Search Index Data Reader` and `Reader` roles
+- **Local Authentication**: Disabled on AI Search service (AD-only authentication)
+- **Configuration**: Requires pre-created service principal with specified credentials
+- **Prerequisites**: Deployment principal must have `User Access Administrator` role
+
+**Security Recommendation**: Use service principal authentication for production deployments to eliminate long-lived API keys and leverage Azure AD security controls.
+
+When configured, the template automatically:
+
+- Disables local authentication on the AI Search service
+- Assigns necessary RBAC roles to the service principal
+- Configures Power Platform connection to use OAuth authentication
+
 ## Security Hardening Recommendations
 
 The template provides a secure foundation, but users must implement additional controls for production environments. These recommendations are organized by priority and impact.
 
 ### Critical Actions (Required for Production)
+
+**Authentication Enhancement**:
+
+- **Configure service principal authentication for Azure AI Search**: Replace default API key authentication with service principal OAuth authentication for enhanced security
+- Ensure deployment service principal has `User Access Administrator` role for role assignments
+- Create dedicated service principal for AI Search with minimal required permissions
+- Store service principal credentials securely (Azure Key Vault recommended)
 
 **Network Security**:
 
@@ -270,10 +309,11 @@ The template provides a secure foundation, but users must implement additional c
 
 **Secrets and Key Management**:
 
-- Implement automated rotation for Azure AI Search admin keys
+- **Enable service principal authentication for Azure AI Search** (preferred over API keys)
+- Implement automated rotation for Azure AI Search admin keys if still using API key authentication
 - Monitor and audit all API key usage patterns
-- Plan migration path from API keys to managed identities when platform supports it
 - Configure centralized secret management policies
+- Ensure service principal credentials are stored securely (e.g., Azure Key Vault)
 
 ### Important Actions (Recommended)
 
@@ -328,6 +368,7 @@ The template establishes a **secure foundation** with:
 
 - Network isolation through private endpoints and VNet segmentation
 - Identity security using system-assigned managed identities
+- Optional enhanced authentication for Azure AI Search using service principal (OAuth)
 - Automated security scanning in deployment pipelines
 - Multi-region deployment support for high availability
 
@@ -335,7 +376,8 @@ The template establishes a **secure foundation** with:
 
 For production deployments, users are responsible for:
 
-- **Network Security**: Adding Network Security Groups and expanding private endpoints
+- **Authentication Enhancement**: Configuring service principal authentication for Azure AI Search (recommended)
+- **Network Security**: Updating Network Security Groups and expanding private endpoints
 - **Secrets Management**: Implementing Azure Key Vault integration
 - **Enhanced Monitoring**: Configuring security-focused logging and alerting
 - **AI Security**: Adding prompt validation and advanced content filtering

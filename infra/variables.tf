@@ -436,6 +436,21 @@ variable "failover_pe_subnet_address_spaces" {
   default     = ["10.2.8.0/24"]
 }
 
+variable "azure_ai_search_service_principal" {
+  type = object({
+    enterprise_application_object_id = string
+    client_id                        = string
+    client_secret                    = string
+  })
+  description = "Service principal credentials for Azure AI Search service. Used to authenticate the AI Search service. If not provided, API Key will be used for authentication. The SPN will be assigned the 'Search Index Data Reader' Role to the AI Search service."
+  sensitive   = true
+  default = {
+    enterprise_application_object_id = null
+    client_id                        = null
+    client_secret                    = null
+  }
+}
+
 variable "github_runner_config" {
   type = object({
     image_name                 = string
