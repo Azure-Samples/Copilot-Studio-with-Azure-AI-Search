@@ -4,7 +4,7 @@ resource "azurerm_application_insights" "insights" {
   count = var.include_app_insights ? 1 : 0
 
   application_type    = "web"
-  location            = local.resource_group_location
+  location            = local.primary_azure_region
   name                = "${var.resource_prefix}-appinsights-${var.resource_suffix}"
   resource_group_name = local.resource_group_name
 }
@@ -138,7 +138,7 @@ resource "azurerm_application_insights_workbook" "workbook" {
     "$schema" : "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
   })
   display_name        = "Azure Monitor Workbook"
-  location            = local.resource_group_location
+  location            = local.primary_azure_region
   name                = random_uuid.uid.result
   resource_group_name = local.resource_group_name
 }

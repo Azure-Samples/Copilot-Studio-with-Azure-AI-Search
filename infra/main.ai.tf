@@ -5,7 +5,7 @@ module "azure_open_ai" {
   source                             = "Azure/avm-res-cognitiveservices-account/azurerm"
   version                            = "0.7.1"
   kind                               = "OpenAI"
-  location                           = var.location
+  location                           = local.primary_azure_region
   name                               = azurecaf_name.main_names.results["azurerm_cognitive_account"]
   resource_group_name                = local.resource_group_name
   enable_telemetry                   = true
@@ -40,6 +40,8 @@ module "azure_open_ai" {
     system_assigned = true
   }
   tags = var.tags
+
+  depends_on = [module.copilot_studio]
 }
 
 # Private DNS zone for Azure OpenAI private endpoint resolution

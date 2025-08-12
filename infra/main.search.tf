@@ -22,10 +22,10 @@ resource "azurerm_role_assignment" "search_service_index_data_reader" {
 }
 
 resource "azurerm_search_service" "ai_search" {
-  # checkov:skip=CKV_AZURE_209: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
   # checkov:skip=CKV_AZURE_208: Deploying with minimal infrastructure for evaluation. Update partition_count and replica_count for production scenarios.
+  # checkov:skip=CKV_AZURE_209: Ensure that Azure Cognitive Search maintains SLA for search index queries
   name                          = azurecaf_name.main_names.results["azurerm_search_service"]
-  location                      = var.primary_location
+  location                      = local.primary_azure_region
   resource_group_name           = local.resource_group_name
   sku                           = var.ai_search_config.sku
   partition_count               = var.ai_search_config.partition_count

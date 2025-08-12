@@ -39,6 +39,12 @@ variable "power_platform_environment" {
 DESCRIPTION
 }
 
+variable "power_platform_azure_region" {
+  type        = string
+  description = "The Azure region to use for the Power Platform environment. This is used to determine the primary Azure region for the Power Platform resources."
+  default     = null
+}
+
 variable "power_platform_managed_environment" {
   type = object({
     id                         = string # Optional. If provided, the module will attempt to use the existing managed environment. If left blank, a new environment will be created.

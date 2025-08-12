@@ -21,7 +21,7 @@ resource "azurerm_storage_account" "deployment_container" {
   # checkov:skip=CKV2_AZURE_1: Customer managed encryption not needed for temporary deployment container
   name                     = azurecaf_name.deployment_script_names.results["azurerm_storage_account"]
   resource_group_name      = local.resource_group_name
-  location                 = local.resource_group_location
+  location                 = local.primary_azure_region
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
@@ -88,7 +88,7 @@ resource "azapi_resource" "configure_search_index" {
 
   body = {
     kind     = "AzureCLI"
-    location = local.resource_group_location
+    location = local.primary_azure_region
     properties = {
       azCliVersion      = "2.45.0"
       retentionInterval = "P1D"          # Keep logs for 1 day for debugging
