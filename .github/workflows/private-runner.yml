@@ -31,18 +31,18 @@ jobs:
           ref: ${{ github.ref_name }}
 
       - name: Install Unzip
-        run: sudo apt-get update && sudo apt-get install unzip
+        run: sudo -S apt-get update && sudo -S apt-get install unzip
 
       - name: Install NodeJS
-        run: sudo apt update && sudo apt install -y nodejs
+        run: sudo -S apt update && sudo -S apt install -y nodejs
 
       - name: Install Azure CLI
         run: |
-          curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+          curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo -S tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
           AZ_REPO=$(lsb_release -cs)
-          echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-          sudo apt-get update
-          sudo apt-get install azure-cli
+          echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo -S tee /etc/apt/sources.list.d/azure-cli.list
+          sudo -S apt-get update
+          sudo -S apt-get install azure-cli
 
 
       - name: Install azd
