@@ -54,8 +54,8 @@ module "storage_account_and_container" {
   account_replication_type        = var.cps_storage_replication_type
   account_tier                    = "Standard"
   account_kind                    = "StorageV2"
-  location                        = var.location
-  name                            = replace("cps${random_string.name.id}", "/[^a-z0-9-]/", "")
+  location                        = local.primary_azure_region
+  name                            = azurecaf_name.main_names.results["azurerm_storage_account"]
   resource_group_name             = local.resource_group_name
   min_tls_version                 = "TLS1_2"
   shared_access_key_enabled       = false

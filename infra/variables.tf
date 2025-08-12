@@ -17,9 +17,26 @@ variable "resource_group_name" {
   description = "The name of an existing resource group to deploy resources into. If not provided, a new resource group will be created."
 
   validation {
-    condition     = var.resource_group_name == null || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
+    condition     = var.resource_group_name == null || var.resource_group_name == "" || can(regex("^[a-zA-Z0-9._\\(\\)-]+$", var.resource_group_name))
     error_message = "Resource group name must contain only alphanumeric characters, periods, underscores, hyphens, and parentheses."
   }
+}
+
+# Parameters to work with dynamic names for resources using azurecaf Terraform provider
+variable "org_naming" {
+  type = object({
+    workload_name   = string
+    org_prefix      = string
+    org_suffix      = string
+    org_environment = string
+  })
+  default = {
+    workload_name   = "cs"
+    org_prefix      = ""
+    org_suffix      = "v1"
+    org_environment = "dev"
+  }
+  description = "Organizational naming parameters for azurecaf_name resource: workload name, prefix, suffix, and environment."
 }
 
 variable "app_insights_sections" {
@@ -192,18 +209,6 @@ If it is set to false, then no telemetry will be collected.
 DESCRIPTION
 }
 
-# variable "failover_ai_search_subnet_address_spaces" {
-#   type        = list(string)
-#   default     = ["10.2.0.0/24"]
-#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-# }
-
-variable "failover_location" {
-  type        = string
-  default     = "westus"
-  description = "Failover region for deployment."
-}
-
 variable "failover_subnet_address_spaces" {
   type        = list(string)
   default     = ["10.2.1.0/24"]
@@ -230,9 +235,21 @@ variable "include_app_insights" {
 
 variable "location" {
   type        = string
-  default     = "eastus"
-  description = "Region where the resources should be deployed."
+  description = "Azure Region where the resources should be deployed. Must be azure region where Power Platform is available."
   nullable    = false
+  default     = "eastus"
+}
+
+locals {
+  power_platform_azure_mappings = flatten([
+    for location in data.powerplatform_locations.all_powerplatform_locations.locations : [
+      for azure_region in location.azure_regions : {
+        azure_region = azure_region
+        location     = location
+      }
+    ]
+  ])
+
 }
 
 variable "networking" {
@@ -302,15 +319,6 @@ variable "power_platform_environment" {
     environment_type  = string
     location          = string
   })
-  default = {
-    name              = "Copilot Studio + Azure AI"
-    id                = ""                                     # Optional. If provided, the module will attempt to use the existing environment. If left blank, a new environment will be created.
-    language_code     = 1033                                   # English
-    security_group_id = "00000000-0000-0000-0000-000000000000" # Optional. If provided, the module will attempt to expose the environment to the specified security group.
-    currency_code     = "USD"
-    environment_type  = "Sandbox"
-    location          = "unitedstates"
-  }
   description = <<DESCRIPTION
   - `name`: The name of the Power Platform environment to be managed.
   - `language_code`: The language code for the Power Platform environment.
@@ -345,18 +353,6 @@ variable "power_platform_managed_environment" {
     maker_onboarding_url       = ""
   }
   description = "Configuration for the Power Platform managed environment"
-}
-
-# variable "primary_ai_search_subnet_address_spaces" {
-#   type        = list(string)
-#   default     = ["10.1.7.0/24"]
-#   description = "AI Search subnet address spaces. Ensure there are no collisions with existing subnets."
-# }
-
-variable "primary_location" {
-  type        = string
-  default     = "eastus"
-  description = "Primary region for deployment."
 }
 
 variable "primary_subnet_address_spaces" {
@@ -438,6 +434,21 @@ variable "failover_pe_subnet_address_spaces" {
   description = "Address space for the failover private endpoint subnet"
   type        = list(string)
   default     = ["10.2.8.0/24"]
+}
+
+variable "azure_ai_search_service_principal" {
+  type = object({
+    enterprise_application_object_id = string
+    client_id                        = string
+    client_secret                    = string
+  })
+  description = "Service principal credentials for Azure AI Search service. Used to authenticate the AI Search service. If not provided, API Key will be used for authentication. The SPN will be assigned the 'Search Index Data Reader' Role to the AI Search service."
+  sensitive   = true
+  default = {
+    enterprise_application_object_id = null
+    client_id                        = null
+    client_secret                    = null
+  }
 }
 
 variable "github_runner_config" {
