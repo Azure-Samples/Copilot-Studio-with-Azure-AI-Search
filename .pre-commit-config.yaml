@@ -21,4 +21,10 @@ repos:
     rev: v1.84.0
     hooks:
       - id: terraform_fmt
+      - id: terraform_validate
         args: [infra]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
