@@ -1,8 +1,3 @@
-variable "failover_subnet_name" {
-  type        = string
-  description = "The name of the failover subnet. Used in the Power Platform Enterprise Policy network connection."
-}
-
 variable "failover_vnet_name" {
   type        = string
   description = "The name of the failover Virtual Network to be used in connecting Power Platform to Azure. Note that failover networks are required for Power Platform's enterprise policy connection."
@@ -44,6 +39,12 @@ variable "power_platform_environment" {
 DESCRIPTION
 }
 
+variable "power_platform_azure_region" {
+  type        = string
+  description = "The Azure region to use for the Power Platform environment. This is used to determine the primary Azure region for the Power Platform resources."
+  default     = null
+}
+
 variable "power_platform_managed_environment" {
   type = object({
     id                         = string # Optional. If provided, the module will attempt to use the existing managed environment. If left blank, a new environment will be created.
@@ -68,14 +69,19 @@ variable "power_platform_managed_environment" {
 DESCRIPTION
 }
 
-variable "primary_subnet_name" {
+variable "primary_subnet_id" {
   type        = string
-  description = "The name of the primary subnet. Used in the Power Platform Enterprise Policy network connection."
+  description = "The ID of the primary subnet. Used in the Power Platform Enterprise Policy network connection."
 }
 
 variable "primary_vnet_name" {
   type        = string
   description = "The name of the primary Virtual Network to be used in connecting Power Platform to Azure"
+}
+
+variable "failover_subnet_id" {
+  type        = string
+  description = "The ID of the failover subnet. Used in the Power Platform Enterprise Policy network connection."
 }
 
 # required for AVM interface
