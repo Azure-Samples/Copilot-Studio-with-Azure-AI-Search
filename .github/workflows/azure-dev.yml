@@ -76,7 +76,7 @@ jobs:
 
       - name: Install Power Platform Tools
         uses: microsoft/powerplatform-actions/actions-install@6c7b538671a040d11afd8ab94d77bfe3b3ed87e6 # v1.9.1
-      
+
       - name: Install Power Platform CLI
         run: |
           dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.44.2
@@ -111,13 +111,13 @@ jobs:
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          
+
           RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
-          
+
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
-      
+
           GITHUB_PAT: ${{ secrets.MCS_RUNNER }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO_NAME: ${{ github.event.repository.name }}
@@ -181,7 +181,7 @@ jobs:
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
-          
+
         shell: bash
         run: |
           azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"

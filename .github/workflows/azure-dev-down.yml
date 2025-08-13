@@ -66,7 +66,7 @@ jobs:
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
-          
+
         shell: bash
         run: |
           azd config set auth.useAzCliAuth "true"

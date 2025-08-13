@@ -116,4 +116,3 @@ module "storage_account_and_container" {
     azurerm_private_dns_zone_virtual_network_link.blob_storage_vnet_link
   ]
 }
-

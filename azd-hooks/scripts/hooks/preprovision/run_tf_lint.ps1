@@ -50,7 +50,7 @@ function Run-TFLint {
         # Remove ANSI escape sequences
         (Get-Content $filePath) -replace "\x1b\[[0-9;]*m", "" | Set-Content $filePath
         Get-Content $filePath | ForEach-Object { Write-Error $_ -Verbose }
-        
+
         Pop-Location
         exit $code
     }
@@ -60,4 +60,3 @@ Check-TFLint
 
 # Then, run Gitleaks scan
 Run-TFLint
-

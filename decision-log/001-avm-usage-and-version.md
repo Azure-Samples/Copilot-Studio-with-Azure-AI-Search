@@ -1,6 +1,6 @@
 # Decision Log 001: Usage of Azure Verified Modules and Version Management
 
-**Date:** 2025-05-22  
+**Date:** 2025-05-22
 **Status:** Approved
 
 ## Context
@@ -44,4 +44,3 @@ Our infrastructure-as-code (IaC) solution uses Terraform to provision Azure reso
 - [Checkov terraform resource scans](https://www.checkov.io/5.Policy%20Index/terraform.html)
 
 ---
-

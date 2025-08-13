@@ -56,5 +56,5 @@ beginDialog:
       conversationOutcome: Escalated
       activity: |-
         Escalating to a representative is not currently configured for this agent, however this is where the agent could provide information about how to get in touch with someone another way.
-        
+
         Is there anything else I can help you with?

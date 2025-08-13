@@ -15,7 +15,7 @@ locals {
     ]
   ])
 
-  # Find the first mapping that matches the provided environment location based on azure_region 
+  # Find the first mapping that matches the provided environment location based on azure_region
   search_power_platform_location = lookup(
     { for mapping in local.power_platform_azure_mappings : mapping.azure_region => mapping.location... },
     var.power_platform_azure_region,
@@ -74,4 +74,3 @@ resource "powerplatform_managed_environment" "this" {
   maker_onboarding_markdown  = var.power_platform_managed_environment.maker_onboarding_markdown
   maker_onboarding_url       = var.power_platform_managed_environment.maker_onboarding_url
 }
-

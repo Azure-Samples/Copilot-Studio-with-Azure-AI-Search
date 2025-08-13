@@ -19,7 +19,7 @@ have an existing storage account and container to use.
     LOCATION=<LOCATION>
     STORAGE_ACCOUNT_NAME=<ACCOUNT_NAME>
     CONTAINER_NAME=<CONTAINER_NAME>
-    
+
     # Get current user information for role assignment
     OBJECT_ID=$(az ad signed-in-user show --query id -o tsv)
     PRINCIPAL_TYPE="User"

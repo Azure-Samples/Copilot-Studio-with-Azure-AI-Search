@@ -51,7 +51,7 @@ resource "azapi_resource" "network_injection_policy" {
   parent_id                 = data.azurerm_resource_group.this.id
   schema_validation_enabled = false
 
-  # Since we reference the subnet IDs directly through variables, 
+  # Since we reference the subnet IDs directly through variables,
   # Terraform will automatically understand the dependency
 }
 

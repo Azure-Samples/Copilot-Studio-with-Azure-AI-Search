@@ -1,6 +1,6 @@
 # Decision Log 002: PowerShell as the Standard Scripting Language for AZD Hooks
 
-**Date:** 2025-07-17  
+**Date:** 2025-07-17
 **Status:** Approved
 
 ## Context

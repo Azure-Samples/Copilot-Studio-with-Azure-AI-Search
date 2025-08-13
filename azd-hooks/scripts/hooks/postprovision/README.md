@@ -7,7 +7,7 @@ This script provides a comprehensive workflow for deploying Copilot Studio solut
 The script automates the following steps:
 
 1. **Authentication** - Sets up PAC CLI authentication with support for GitHub federated identity
-2. **Solution Connection Setup** - Generates a settings file based on the solution package, then updates the settings file with provided connection IDs 
+2. **Solution Connection Setup** - Generates a settings file based on the solution package, then updates the settings file with provided connection IDs
 3. **Solution Import** - Imports the solution with properly configured connection references
 4. **Publish Customizations** - Activates all components after importing
 5. **Run Solution Checker** - Validates the solution against best practices (optional)

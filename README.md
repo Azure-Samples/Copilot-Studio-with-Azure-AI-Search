@@ -73,7 +73,7 @@ This architecture ensures that sensitive enterprise data never traverses public 
 - **Power Platform**. If you are new to Power Platform and Copilot Studio, you can [get 30-day trial for free](https://www.microsoft.com/en-us/power-platform/try-free)
 - **Power Platform settings**. To enable the required Copilot functionality, configure the following settings in your Power Platform tenant administration portal:
   - [**Copilot in Power Apps**](https://learn.microsoft.com/en-us/power-apps/maker/canvas-apps/ai-overview?WT.mc_id=ppac_inproduct_settings): Enable this setting to allow AI-powered assistance within Power Apps development
-  - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled  
+  - [**Publish Copilots with AI features**](https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance): Allow Copilot authors to publish from Copilot Studio when AI features are enabled
 - **Power Platform licenses**. The designated user must have the following Power Platform licenses assigned:
   - **Microsoft Power Apps**
   - **Power Automate**
@@ -182,7 +182,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
     This will create a new folder in the `.azure` folder, and set it as the active environment for any calls to `azd` going forward.
 
 1. Set you internative testing user.
-  
+
     ```shell
     azd env set RESOURCE_SHARE_USER '["entraid_user_object_id"]'
     ```

@@ -9,10 +9,10 @@ function Check-Checkov {
         exit 1
     } else {
         Write-Host "Checkov is installed at: $($checkovPath.Source)`n"
-        
+
         # Ensure /usr/local/bin is in PATH (for Linux/macOS)
         $env:PATH += ":/usr/local/bin"
-        
+
         # Check if Checkov is executable
         if (-not (Test-Path $checkovPath.Source)) {
             Write-Error "Checkov is not executable!`n"

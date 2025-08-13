@@ -35,35 +35,35 @@ will be created:
          - user_impersonation
 
       - **Microsoft Graph**
-         - Group.ReadWrite.All  
+         - Group.ReadWrite.All
          - User.ReadWrite.All
 
       - **Power Platform API**
-         - AIFlows.Ai.Execute  
-         - AIFlows.Ai.Read  
-         - AIFlows.Ai.Write  
-         - AIFlows.Connections.Read  
-         - AIFlows.Runs.Execute  
-         - AIFlows.Runs.Read  
-         - AIFlows.Runs.Write  
-         - AIFlows.Workflows.Execute  
-         - AIFlows.Workflows.Read  
-         - AIFlows.Workflows.Write  
-         - Analytics.AdvisorActions.Execute  
-         - Analytics.AdvisorRecommendations.Read  
-         - AppManagement.Application  
-         - AppManagement.Application.Read  
-         - CopilotStudio.Copilots.Invoke  
-         - CopilotStudio.Copilots.Read  
-         - EnvironmentManagement.Environments.Read  
-         - EnvironmentManagement.Groups.ReadWrite  
-         - EnvironmentManagement.Settings.Update  
-         - Licensing.Allocations.Read  
-         - Licensing.Allocations.ReadWrite  
-         - Licensing.BillingPolicies.Read  
-         - Licensing.BillingPolicies.ReadWrite  
-         - Licensing.ISVContracts.Read  
-         - Licensing.ISVContracts.ReadWrite  
+         - AIFlows.Ai.Execute
+         - AIFlows.Ai.Read
+         - AIFlows.Ai.Write
+         - AIFlows.Connections.Read
+         - AIFlows.Runs.Execute
+         - AIFlows.Runs.Read
+         - AIFlows.Runs.Write
+         - AIFlows.Workflows.Execute
+         - AIFlows.Workflows.Read
+         - AIFlows.Workflows.Write
+         - Analytics.AdvisorActions.Execute
+         - Analytics.AdvisorRecommendations.Read
+         - AppManagement.Application
+         - AppManagement.Application.Read
+         - CopilotStudio.Copilots.Invoke
+         - CopilotStudio.Copilots.Read
+         - EnvironmentManagement.Environments.Read
+         - EnvironmentManagement.Groups.ReadWrite
+         - EnvironmentManagement.Settings.Update
+         - Licensing.Allocations.Read
+         - Licensing.Allocations.ReadWrite
+         - Licensing.BillingPolicies.Read
+         - Licensing.BillingPolicies.ReadWrite
+         - Licensing.ISVContracts.Read
+         - Licensing.ISVContracts.ReadWrite
          - PowerApps.Apps.Play
       - **PowerApps Service**
          - User

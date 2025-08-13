@@ -16,23 +16,23 @@ This document explains the security controls implemented in the **Copilot Studio
 
 ### Built-in Security Controls
 
-✅ **Network Isolation**: Private endpoints for Azure AI Search with VNet segmentation  
-✅ **Identity Security**: System-assigned managed identities for service-to-service authentication  
-✅ **Enhanced Authentication**: Optional service principal authentication for Azure AI Search (OAuth with RBAC)  
-✅ **Infrastructure as Code**: Automated security scanning with Checkov, TFLint, and Gitleaks  
-✅ **Multi-Region Support**: Primary and failover region deployment capability  
-✅ **Secure Deployment**: GitHub Actions with OIDC federation support  
+✅ **Network Isolation**: Private endpoints for Azure AI Search with VNet segmentation
+✅ **Identity Security**: System-assigned managed identities for service-to-service authentication
+✅ **Enhanced Authentication**: Optional service principal authentication for Azure AI Search (OAuth with RBAC)
+✅ **Infrastructure as Code**: Automated security scanning with Checkov, TFLint, and Gitleaks
+✅ **Multi-Region Support**: Primary and failover region deployment capability
+✅ **Secure Deployment**: GitHub Actions with OIDC federation support
 
 ### User Responsibilities
 
 The template provides a secure foundation, but users are responsible for:
 
-⚠️ **Authentication Enhancement**: Configuring service principal authentication for Azure AI Search (recommended for production)  
-⚠️ **Enhanced Network Security**: Basic Network Security Groups are provided, but they should be updated for your organization's specific security requirements  
-⚠️ **Secrets Management**: Implementing Azure Key Vault for centralized secret storage  
-⚠️ **Advanced Monitoring**: Configuring security-focused logging and alerting  
-⚠️ **AI-Specific Protections**: Implementing prompt validation and content filtering  
-⚠️ **Compliance Configuration**: Adding controls for specific regulatory requirements  
+⚠️ **Authentication Enhancement**: Configuring service principal authentication for Azure AI Search (recommended for production)
+⚠️ **Enhanced Network Security**: Basic Network Security Groups are provided, but they should be updated for your organization's specific security requirements
+⚠️ **Secrets Management**: Implementing Azure Key Vault for centralized secret storage
+⚠️ **Advanced Monitoring**: Configuring security-focused logging and alerting
+⚠️ **AI-Specific Protections**: Implementing prompt validation and content filtering
+⚠️ **Compliance Configuration**: Adding controls for specific regulatory requirements
 ⚠️ **Storage Configuration**: The Azure Storage resources are configured for evaluation and should be carefully reviewed
 
 ### Security Baseline
@@ -45,7 +45,7 @@ Before deploying to production:
 
 1. ✅ Configure service principal authentication for Azure AI Search (recommended)
 2. ✅ Review and implement network hardening recommendations
-3. ✅ Configure Azure Key Vault for secrets management  
+3. ✅ Configure Azure Key Vault for secrets management
 4. ✅ Set up enhanced monitoring and alerting
 5. ✅ Enable additional security scanning and compliance checks
 6. ✅ Establish incident response procedures
@@ -73,7 +73,7 @@ flowchart TB
         BP[Billing Policy]
         PP_Env --> PPEP
         PP_Env --> BP
-        
+
     end
     subgraph AZS[Azure Subscription]
         subgraph RG[Resource Group]
@@ -112,7 +112,7 @@ flowchart TB
                     PE_NSG -.-> PE_ACR
                 end
             end
-            
+
             subgraph Resources[ ]
                 AOAI[Azure OpenAI]
                 AIS[Azure AI Search]
@@ -120,7 +120,7 @@ flowchart TB
                 DSStorage[Deployment Storage Account]
                 AppInsights[Application Insights<br/>*Optional*]
                 ACR[Container Registry<br/>*Optional*]
-                
+
                 Runner[ACA GitHub Runner<br/>*Optional*]
                 NAT[NAT Gateway]
                 NATIP[NAT Gateway Public IP]
@@ -132,7 +132,7 @@ flowchart TB
             NIP[Network Injection Policy]
         end
     end
-    
+
 
 
     PP ~~~ AZS
@@ -352,7 +352,7 @@ The template provides a secure foundation, but users must implement additional c
 The template assumes users have:
 
 - **Microsoft Entra ID**: Properly configured tenant with security baselines
-- **Power Platform Governance**: Tenant-level policies and controls enabled  
+- **Power Platform Governance**: Tenant-level policies and controls enabled
 - **Azure Subscription**: Appropriate compliance and security baselines applied
 - **Operational Readiness**: Teams trained on Azure and Power Platform security
 

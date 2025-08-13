@@ -780,4 +780,3 @@ resource "azurerm_subnet_network_security_group_association" "deployment_script_
   subnet_id                 = azurerm_subnet.deployment_script_container_subnet[0].id
   network_security_group_id = azurerm_network_security_group.deployment_script_nsg[0].id
 }
-

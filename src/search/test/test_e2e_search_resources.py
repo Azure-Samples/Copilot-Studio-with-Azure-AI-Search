@@ -103,13 +103,11 @@ class SearchResourceTester:
             details["validations"] = validations
             details["status"] = "PASSED" if success else "FAILED"
 
-            logger.info(
-                f"Index {index_name} test {'PASSED' if success else 'FAILED'}")
+            logger.info(f"Index {index_name} test {'PASSED' if success else 'FAILED'}")
             return success, details
 
         except ResourceNotFoundError:
-            details = {"status": "FAILED",
-                       "error": f"Index '{index_name}' not found"}
+            details = {"status": "FAILED", "error": f"Index '{index_name}' not found"}
             logger.error(f"Index {index_name} not found")
             return False, details
         except Exception as e:
@@ -130,8 +128,7 @@ class SearchResourceTester:
         logger.info(f"Testing datasource: {datasource_name}")
 
         try:
-            datasource = self.indexer_client.get_data_source_connection(
-                datasource_name)
+            datasource = self.indexer_client.get_data_source_connection(datasource_name)
 
             details = {
                 "name": datasource.name,
@@ -259,8 +256,7 @@ class SearchResourceTester:
                 status = self.indexer_client.get_indexer_status(indexer_name)
                 last_result = status.last_result
                 execution_history = (
-                    status.execution_history[:5] if status.execution_history else [
-                    ]
+                    status.execution_history[:5] if status.execution_history else []
                 )
             except Exception as e:
                 logger.warning(f"Could not get indexer status: {e}")
@@ -482,8 +478,7 @@ class TestSearchResourcesExistence:
 
     def test_index_exists(self, search_tester, resource_names):
         """Test that the search index exists and is properly configured."""
-        success, details = search_tester.test_index_exists(
-            resource_names["index_name"])
+        success, details = search_tester.test_index_exists(resource_names["index_name"])
 
         # Log details for debugging
         logger.info(f"Index test details: {details}")
@@ -574,12 +569,17 @@ class TestSearchIndexContent:
         # Additional assertions
         assert details["total_documents"] >= 0, "Total documents should be non-negative"
 
-    @pytest.mark.parametrize("test_sample_query,expected_count", [
-        ("*", 123),
-        ("benefits", 72),
-        ("supercalifragilisticexpialidocious", 0),
-    ])
-    def test_search_count(self, test_sample_query, expected_count, search_tester, resource_names):
+    @pytest.mark.parametrize(
+        "test_sample_query,expected_count",
+        [
+            ("*", 123),
+            ("benefits", 72),
+            ("supercalifragilisticexpialidocious", 0),
+        ],
+    )
+    def test_search_count(
+        self, test_sample_query, expected_count, search_tester, resource_names
+    ):
         """Test wildcard search returns expected count."""
         success, details = search_tester.test_index_content(
             resource_names["index_name"],
@@ -588,8 +588,7 @@ class TestSearchIndexContent:
         )
 
         # Log details for debugging
-        logger.info(
-            f"Search test details for '{test_sample_query}': {details}")
+        logger.info(f"Search test details for '{test_sample_query}': {details}")
 
         # This test might fail if the expected count doesn't match
         # We'll make it a soft assertion with clear messaging

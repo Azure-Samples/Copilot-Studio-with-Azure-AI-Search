@@ -11,7 +11,7 @@ updates:
         patterns:
           - "*"
   - package-ecosystem: "terraform"
-    directories: 
+    directories:
     - "/infra"
     - "/infra/modules/*"
     schedule:

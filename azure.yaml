@@ -31,7 +31,7 @@ hooks:
     - shell: pwsh
       continueOnError: false
       interactive: false
-      run: 
+      run:
         azd-hooks/scripts/hooks/postprovision/deploy_power_platform_solution.ps1 -SolutionPath "src/powerplatform/copilot_studio_gold_agent" -AISearchConnectionId $env:aisearch_connection_id -PowerPlatformEnvironmentId $env:power_platform_environment_id
   predeploy:
     - shell: pwsh

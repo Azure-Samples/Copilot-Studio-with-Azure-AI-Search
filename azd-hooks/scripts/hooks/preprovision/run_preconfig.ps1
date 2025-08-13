@@ -3,8 +3,8 @@
 Checks the existence of the RS_CONTAINER_NAME environment variable.
 
 .DESCRIPTION
-This script checks if the RS_CONTAINER_NAME environment variable is set. 
-The presence or absence of this variable is used to determine whether 
+This script checks if the RS_CONTAINER_NAME environment variable is set.
+The presence or absence of this variable is used to determine whether
 local storage should be used or not.
 
 #>
@@ -14,38 +14,38 @@ $script:providerTfPath = Join-Path $script:infraDir "provider.tf"
 
 function Initialize-LocalStorage {
     Write-Host "Function 'Initialize-LocalStorage' called - Local state is enabled"
-    
+
     try {
         # 1. Override the content of provider.conf.json with {}
         Write-Host "Setting up provider.conf.json for local storage..."
-        
+
         # Check if the infra directory exists
         if (-not (Test-Path -Path $script:infraDir)) {
             Write-Host "✗ Infra directory not found at path: $script:infraDir"
             throw "Infra directory does not exist"
         }
-        
+
         # Check if provider.conf.json exists, create if it doesn't
         if (-not (Test-Path -Path $script:providerConfPath)) {
             Write-Host "⚠ provider.conf.json not found, creating new file..."
         }
-        
+
         Set-Content -Path $script:providerConfPath -Value "{}" -Encoding UTF8
         Write-Host "✓ provider.conf.json updated successfully"
-        
+
         # 2. Update provider.tf to use local backend
         Write-Host "Configuring Terraform backend for local storage..."
-   
-        
+
+
         # Check if provider.tf exists
         if (-not (Test-Path -Path $script:providerTfPath)) {
             Write-Host "✗ provider.tf not found at path: $script:providerTfPath"
             throw "provider.tf file does not exist"
         }
-        
+
         # Read the current content
         $content = Get-Content -Path $script:providerTfPath -Raw
-        
+
         # Define the new terraform block with local backend
         $newTerraformBlock = @"
 terraform {
@@ -54,11 +54,11 @@ terraform {
   }
 }
 "@
-        
+
         # Use regex to replace the first terraform block (the one with backend configuration)
         # This pattern matches the terraform block that contains backend configuration
         $pattern = '(?s)terraform\s*\{[^}]*backend\s*"[^"]*"\s*\{[^}]*\}[^}]*\}'
-        
+
         if ($content -match $pattern) {
             # Check if the backend is already configured correctly
             if ($content -match 'backend\s+"local"\s*\{[^}]*path\s*=\s*"terraform\.tfstate"[^}]*\}') {
@@ -72,7 +72,7 @@ terraform {
         } else {
             Write-Host "⚠ Could not find terraform backend block in provider.tf"
         }
-        
+
     } catch {
         Write-Host "✗ Error configuring local storage: $($_.Exception.Message)"
         throw
@@ -90,12 +90,12 @@ function Initialize-RemoteStorage {
             Write-Host "✗ Infra directory not found at path: $script:infraDir"
             throw "Infra directory does not exist"
         }
-        
+
         # Check if provider.conf.json exists, create if it doesn't
         if (-not (Test-Path -Path $script:providerConfPath)) {
             Write-Host "⚠ provider.conf.json not found, creating new file..."
         }
-        
+
         $remoteStorageConfig = @"
 {
     "storage_account_name": "`${RS_STORAGE_ACCOUNT}`",
@@ -107,19 +107,19 @@ function Initialize-RemoteStorage {
 "@
         Set-Content -Path $script:providerConfPath -Value $remoteStorageConfig -Encoding UTF8
         Write-Host "✓ provider.conf.json updated successfully for remote storage"
-        
+
         # 2. Update provider.tf to use azurerm backend
         Write-Host "Configuring Terraform backend for remote storage..."
-        
+
         # Check if provider.tf exists
         if (-not (Test-Path -Path $script:providerTfPath)) {
             Write-Host "✗ provider.tf not found at path: $script:providerTfPath"
             throw "provider.tf file does not exist"
         }
-        
+
         # Read the current content
         $content = Get-Content -Path $script:providerTfPath -Raw
-        
+
         # Define the new terraform block with azurerm backend
         $newTerraformBlock = @"
 terraform {
@@ -127,11 +127,11 @@ terraform {
   }
 }
 "@
-        
+
         # Use regex to replace the first terraform block (the one with backend configuration)
         # This pattern matches the terraform block that contains backend configuration
         $pattern = '(?s)terraform\s*\{[^}]*backend\s*"[^"]*"\s*\{[^}]*\}[^}]*\}'
-        
+
         if ($content -match $pattern) {
             # Check if the backend is already configured correctly
             if ($content -match 'backend\s+"azurerm"\s*\{[^}]*\}') {
@@ -145,7 +145,7 @@ terraform {
         } else {
             Write-Host "⚠ Could not find terraform backend block in provider.tf"
         }
-        
+
     } catch {
         Write-Host "✗ Error configuring remote storage: $($_.Exception.Message)"
         throw
@@ -159,7 +159,7 @@ try {
     $rsContainerName = $env:RS_CONTAINER_NAME
     if ($rsContainerName) {
         Write-Host "✓ RS_CONTAINER_NAME environment variable exists with value: $rsContainerName"
-        
+
         # Check if the value is not empty or null
         if (-not [string]::IsNullOrWhiteSpace($rsContainerName)) {
             Write-Host "✓ RS_CONTAINER_NAME is set to a valid value"

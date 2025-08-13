@@ -8,4 +8,3 @@ output "resource_id" {
   description = "value"
   value       = null
 }
-
