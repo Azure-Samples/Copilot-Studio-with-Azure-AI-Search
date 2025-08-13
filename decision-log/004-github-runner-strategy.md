@@ -5,11 +5,12 @@
 
 ## Context
 
-Our project requires GitHub Actions automation for CI/CD workflows that need access to Azure VNET resources for testing, validation, and operational tasks beyond initial deployment. GitHub-hosted runners cannot access private VNET resources, requiring a self-hosted runner solution.
+Our project requires GitHub Actions automation for CI/CD workflows that need access to Azure VNET resources for testing, validation, and operational tasks beyond initial deployment. Additionally, it is important to keep Terraform state files secure by avoiding the use of public endpoints for state storage and access. Since GitHub-hosted runners cannot access private VNET resources, a self-hosted runner solution is required.
 
 Key requirements:
 
 - Execute GitHub workflows with access to VNET resources
+- Keep Terraform state files secure by restricting access to state files
 - Support multiple concurrent workflows for team collaboration
 - Minimize operational overhead and infrastructure costs
 - Provide flexibility for various programming languages and tools
@@ -17,7 +18,7 @@ Key requirements:
 
 ## Decision
 
-We will default to GitHub-hosted runners and Azure Deployment Script for standard operations while recommending self-hosted runners for scenarios requiring VNET access or specialized environments. When self-hosted runners are needed, we recommend Azure Container Applications (ACA) as the primary option.
+We will use GitHub-hosted runners and Azure Deployment Scripts as the default for standard operations, recognizing that not all users of the template can set up a self-hosted runner. However, we strongly recommend self-hosted runners as the preferred approach. Self-hosted runners are required for scenarios that need VNET access or specialized environments. When self-hosted runners are necessary, we recommend Azure Container Apps (ACA) as the primary option.
 
 ## Rationale
 

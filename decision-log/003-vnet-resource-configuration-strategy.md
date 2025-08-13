@@ -35,6 +35,7 @@ Azure Deployment Scripts provide the optimal balance of simplicity, security, an
 - No custom images are supported, but required components can be installed using bash scripts
 - Requires git clone for multi-file Python projects or access to a storage with pre-uploaded code
 - Less suitable for complex operational processes requiring persistent infrastructure
+- End-to-end testing leverages the Copilot Studio public endpoint; however, for scenarios requiring direct access to the data plane or private network, this approach can be complemented by using GitHub self-hosted runners within the VNET.
 
 **Alternatives Considered:**
 
