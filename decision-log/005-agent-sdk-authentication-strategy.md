@@ -1,4 +1,4 @@
-# Decision Log 003: Agent SDK Authentication Strategy for Testing
+# Decision Log 005: Agent SDK Authentication Strategy for Testing
 
 **Date:** 2025-07-30  
 **Status:** Approved
@@ -41,9 +41,9 @@ We will use **Agent SDK with User-Based Authentication** as our primary testing 
 ### Alternative Approaches Considered
 
 1. **Copilot Studio Built-in Evaluation Tools**
-   - **Status**: Currently in private preview
+   - **Status**: Currently in preview
    - **Benefits**: Lower effort setup, designed specifically for low-code users, integrated with Copilot Studio platform
-   - **Limitations**: Not publicly available, limited programmatic control, unclear CI/CD integration capabilities
+   - **Limitations**: Not generally available, limited programmatic control, unclear CI/CD integration capabilities
    - **Future Consideration**: This will be reevaluated when these tools reach general availability
 
 2. **Service Principal Authentication**
@@ -51,6 +51,16 @@ We will use **Agent SDK with User-Based Authentication** as our primary testing 
    - **Benefits**: Better security model, easier credential management, standard for enterprise automation
    - **Limitations**: Currently not available for our use case
    - **Future Consideration**: Will be adopted immediately when Agent SDK adds this capability
+
+3. **Test Channels**
+   - **Status**: Deprioritized in favor of preserving a secure base agent
+   - **Limitations**: Testing against a specific channel adds a layer of abstraction that could obscure issues in the Copilot itself. The go-to test channel (DirectLine) is unsecure, and the default agent should not include an unsecure channel by default.
+   - **Future Consideration**: Tests against channel-specific functionality may be added in the future if a particular channel proves to be heavily utilized.
+
+4. **Python-Based Tests**
+   - **Status**: Pending on SDK updates
+   - **Limitations**: At test creation time, the Python SDK did not include the full testing feature set and documentation that was available in the .NET tools.
+   - **Future Consideration**: The tests could be converted to Python-based tests when the Python SDK reaches feature parity.
 
 ## Implementation Requirements
 
