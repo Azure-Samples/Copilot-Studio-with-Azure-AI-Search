@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 # GitHub Actions Runner Installation Script
 # This script installs and configures a GitHub Actions self-hosted runner
@@ -132,6 +132,11 @@ usermod -aG docker azureuser
 log "Creating GitHub runner user..."
 useradd -m -d /home/github-runner -s /bin/bash github-runner
 usermod -aG docker github-runner
+
+# Create sudoers file for github-runner
+echo 'github-runner ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/github-runner
+chmod 440 /etc/sudoers.d/github-runner
+visudo -cf /etc/sudoers.d/github-runner
 
 # Create runner directory
 RUNNER_DIR="/home/github-runner/actions-runner"
