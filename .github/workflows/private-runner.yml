@@ -124,25 +124,11 @@ jobs:
             --name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
             --auth-mode login \
             --output table
-
-          az storage container show \
-            --account-name "privatelink" \
-            --name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
-            --auth-mode login \
-            --output table
           
           # Test blob operations - list blobs in container
           echo "Testing blob list operation..."
           az storage blob list \
             --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
-            --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
-            --auth-mode login \
-            --output table
-          
-          # Test blob operations - list blobs in container
-          echo "Testing blob list operation..."
-          az storage blob list \
-            --account-name "privatelink" \
             --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
             --auth-mode login \
             --output table
