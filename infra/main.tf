@@ -1,20 +1,37 @@
 # Basic usage of the Copilot Studio module. Assumes the usage of AVMs to initialize minimal prerequisite resources.
-
 locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
   env_tags            = { azd-env-name : var.azd_environment_name }
 
-  # Resource group logic - use existing or create new
-  use_existing_resource_group = var.resource_group_name != null && length(var.resource_group_name) > 0
-  resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
-  resource_group_location     = local.use_existing_resource_group ? data.azurerm_resource_group.existing[0].location : var.location
-}
+  primary_azure_region = var.location
+  search_secondary_azure_region = lookup(
+    { for azure_location in data.azapi_resource_list.all_azure_locations.output.value : azure_location.name => azure_location.metadata },
+    local.primary_azure_region,
+    null
+  )
+  # Secondary Azure region is picked based of primary found in Power Platform location
+  secondary_azure_region = local.search_secondary_azure_region.pairedRegion[0].name
 
+  # Resource group logic - use existing or create new
+  use_existing_resource_group = var.resource_group_name != null && var.resource_group_name != "" && length(var.resource_group_name) > 0
+  resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
+}
 
 # Data source to validate existing resource group exists
 data "azurerm_resource_group" "existing" {
   count = local.use_existing_resource_group ? 1 : 0
   name  = var.resource_group_name
+}
+
+data "powerplatform_locations" "all_powerplatform_locations" {
+}
+
+data "azapi_resource_list" "all_azure_locations" {
+  type      = "Microsoft.Resources/subscriptions/locations@2022-12-01"
+  parent_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+  query_parameters = {
+    "includeExtendedLocations" = ["true"]
+  }
 }
 
 # The unique ID that will be included in most resources managed by this module
@@ -28,7 +45,7 @@ resource "random_string" "name" {
 # The Resource Group that will contain the resources managed by this module (only created if not using existing)
 resource "azurerm_resource_group" "this" {
   count    = local.use_existing_resource_group ? 0 : 1
-  location = var.location
+  location = local.primary_azure_region
   name     = azurecaf_name.main_names.results["azurerm_resource_group"]
   tags     = merge(var.tags, local.env_tags)
 }
@@ -44,10 +61,10 @@ module "copilot_studio" {
   # Authentication inputs
   resource_share_user = var.resource_share_user
   # Network inputs
-  primary_vnet_name    = local.primary_virtual_network_name
-  primary_subnet_name  = local.primary_subnet_name
-  failover_vnet_name   = local.failover_virtual_network_name
-  failover_subnet_name = local.failover_subnet_name
+  primary_vnet_name  = local.primary_virtual_network_name
+  primary_subnet_id  = local.primary_subnet_id
+  failover_vnet_name = local.failover_virtual_network_name
+  failover_subnet_id = local.failover_subnet_id
 
   # Power Platform properties
   # Note: the Power Platform environment variables have default values that will
@@ -55,6 +72,7 @@ module "copilot_studio" {
   #  prefer to manage instead, specify the environment IDs in the variable objects
   #  and the module will attempt to manage the existing environment instead.
   power_platform_environment         = var.power_platform_environment
+  power_platform_azure_region        = local.primary_azure_region
   power_platform_managed_environment = var.power_platform_managed_environment
 
   # Power Platform billing policy configuration

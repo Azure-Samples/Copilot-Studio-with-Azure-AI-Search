@@ -60,9 +60,15 @@ terraform {
         $pattern = '(?s)terraform\s*\{[^}]*backend\s*"[^"]*"\s*\{[^}]*\}[^}]*\}'
         
         if ($content -match $pattern) {
-            $updatedContent = $content -replace $pattern, $newTerraformBlock
-            Set-Content -Path $script:providerTfPath -Value $updatedContent -Encoding UTF8
-            Write-Host "✓ provider.tf updated to use local backend"
+            # Check if the backend is already configured correctly
+            if ($content -match 'backend\s+"local"\s*\{[^}]*path\s*=\s*"terraform\.tfstate"[^}]*\}') {
+                Write-Host "✓ provider.tf already configured for local backend - no changes needed"
+            } else {
+                $updatedContent = $content -replace $pattern, $newTerraformBlock
+                # Use -NoNewline to prevent adding extra newlines
+                Set-Content -Path $script:providerTfPath -Value $updatedContent -Encoding UTF8 -NoNewline
+                Write-Host "✓ provider.tf updated to use local backend"
+            }
         } else {
             Write-Host "⚠ Could not find terraform backend block in provider.tf"
         }
@@ -127,9 +133,15 @@ terraform {
         $pattern = '(?s)terraform\s*\{[^}]*backend\s*"[^"]*"\s*\{[^}]*\}[^}]*\}'
         
         if ($content -match $pattern) {
-            $updatedContent = $content -replace $pattern, $newTerraformBlock
-            Set-Content -Path $script:providerTfPath -Value $updatedContent -Encoding UTF8
-            Write-Host "✓ provider.tf updated to use azurerm backend"
+            # Check if the backend is already configured correctly
+            if ($content -match 'backend\s+"azurerm"\s*\{[^}]*\}') {
+                Write-Host "✓ provider.tf already configured for azurerm backend - no changes needed"
+            } else {
+                $updatedContent = $content -replace $pattern, $newTerraformBlock
+                # Use -NoNewline to prevent adding extra newlines
+                Set-Content -Path $script:providerTfPath -Value $updatedContent -Encoding UTF8 -NoNewline
+                Write-Host "✓ provider.tf updated to use azurerm backend"
+            }
         } else {
             Write-Host "⚠ Could not find terraform backend block in provider.tf"
         }

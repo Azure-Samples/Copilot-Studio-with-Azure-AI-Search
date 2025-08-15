@@ -58,6 +58,16 @@ output "openai_endpoint" {
   value       = module.azure_open_ai.endpoint
 }
 
+output "primary_azure_region" {
+  description = "The primary Azure region for deployment"
+  value       = local.primary_azure_region
+}
+
+output "secondary_azure_region" {
+  description = "The secondary Azure region for deployment"
+  value       = local.secondary_azure_region
+}
+
 output "copilot_studio_endpoint" {
   description = "The endpoint URL for Copilot Studio API"
   value       = "https://api.copilotstudio.microsoft.com"
