@@ -20,10 +20,15 @@ network security.
   - [Clean up](#clean-up)
 - [Advanced scenarios](#advanced-scenarios)
   - [GitHub self-hosted runners](#github-self-hosted-runners)
-- [Resource Configuration Notes](#resource-configuration-notes)
+  - [Bring your own networking](#bring-your-own-networking)
+  - [Custom resource group](#custom-resource-group)
+- [Additional Considerations](#additional-considerations)
+  - [Security Considerations](#security-considerations)
+  - [Production Readiness](#production-readiness)
 - [Resources](#resources)
 - [Data Collection](#data-collection)
-  - [Getting help](#getting-help)
+- [Responsible AI](#responsible-ai)
+- [Getting help](#getting-help)
 
 ## Features
 
@@ -219,13 +224,31 @@ All the Azure and Power Platform resources will be deleted.
 
 ### GitHub self-hosted runners
 
-For organizations requiring deployment through CI/CD pipelines, this solution supports GitHub self-hosted runners. The self-hosted runner configuration provides enhanced control over the deployment environment and enables execution within corporate network boundaries.
+For organizations requiring deployment through CI/CD pipelines, this solution supports secure GitHub self-hosted runners and includes a turnkey bootstrap that provisions private Terraform remote state and a runner in Azure. The configuration emphasizes private networking (private endpoints, no public IP) and least‑privilege access for enterprise environments.
 
-For detailed configuration instructions and deployment procedures, refer to the [GitHub Self-Hosted Deployment Guide](/docs/advanced_scenarios.md).
+For step‑by‑step setup—including OIDC authentication, running the bootstrap workflow, capturing backend outputs, and targeting jobs to the runner—see the [CI/CD guide](/docs/cicd.md).
 
-## Resource Configuration Notes
+### Bring your own networking
 
-- To avoid cost issues when validating the architecture, the default setting of the AI Search resource
+If your organization needs to deploy into existing virtual networks and enforce corporate routing, egress, and inspection controls, this template supports bring‑your‑own networking. You can wire services to your VNet/subnets, use private endpoints and private DNS, and keep public exposure disabled while meeting enterprise policies.
+
+For supported topologies, prerequisites, and step‑by‑step wiring (subnet requirements, private endpoints for Azure AI Search and Storage, DNS zones, NAT/firewall egress), see the [Bring Your Own Networking guide](/docs/custom_networking.md).
+
+### Custom resource group
+
+If you need to deploy into a pre-created or centrally managed Azure resource group (to align with enterprise naming, policy, or billing), the template can target an existing resource group rather than creating a new one. This is especially useful when developers don’t have subscription-level permissions—allowing deployments to proceed with resource group–scoped access.
+
+For prerequisites and configuration flags, see the [Custom Resource Group guide](/docs/custom_resource_group.md).
+
+## Additional Considerations
+
+### Security Considerations
+
+See the [Security Considerations](./docs/security_considerations.md) guide for a concise overview of baseline controls, mitigated risks, and recommended hardening steps for production.
+
+### Production Readiness
+
+To avoid cost issues when validating the architecture, the default setting of the AI Search resource
 is to use one partition and one replica, which is not a production-caliber configuration. If you use
 this architecture in a production scenario, update the `ai_search_config` Terraform variable to configure
 at least 3 partitions and replicas.
