@@ -1,0 +1,6 @@
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+azure-search-documents>=11.4.0
+azure-identity>=1.14.0
+azure-core>=1.29.0
+python-dotenv>=1.0.0
