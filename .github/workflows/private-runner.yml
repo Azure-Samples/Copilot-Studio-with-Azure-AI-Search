@@ -65,6 +65,12 @@ jobs:
       - name: Hello
         run: echo "hello private runner"
 
+      - name: Check Terraform Version
+        run: terraform version
+
+      - name: Check AZD CLI Version
+        run: azd version
+
       # - name: Test Azure Blob Storage Connection
       #   env:
       #     AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
