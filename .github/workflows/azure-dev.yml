@@ -45,18 +45,18 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
         with:
-          version: '1.17.2'  # Specify your desired azd version here
+          version: '1.18.1'  # Specify your desired azd version here
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.12.2
 
 
       - name: Install TFLint
         uses: terraform-linters/setup-tflint@90f302c255ef959cbfb4bd10581afecdb7ece3e6 # v4.1.1
         with:
-          tflint_version: v0.49.0
+          tflint_version: v0.58.1
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate
 
       - name: Install GitLeaks
