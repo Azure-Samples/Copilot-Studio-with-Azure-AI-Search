@@ -37,8 +37,34 @@ resource "azurerm_network_security_group" "storage" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "443"
-    source_address_prefix      = "10.100.1.0/24"
-    destination_address_prefix = "10.100.1.0/24"
+    source_address_prefix      = azurerm_subnet.storage.address_prefixes[0]
+    destination_address_prefix = azurerm_subnet.storage.address_prefixes[0]
+  }
+
+  # Allow outbound HTTPS traffic
+  security_rule {
+    name                       = "AllowHTTPSOutbound"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = azurerm_subnet.storage.address_prefixes[0]
+    destination_address_prefix = "*"
+  }
+
+  # Allow inbound HTTPS traffic from GitHub runner subnet to storage subnet
+  security_rule {
+    name                       = "AllowHTTPSFromGitHubRunner"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = azurerm_subnet.storage.address_prefixes[0]
   }
 
   # Deny all other inbound traffic
@@ -53,20 +79,6 @@ resource "azurerm_network_security_group" "storage" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
-  # Allow outbound HTTPS traffic
-  security_rule {
-    name                       = "AllowHTTPSOutbound"
-    priority                   = 100
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "10.100.1.0/24"
-    destination_address_prefix = "*"
-  }
-
   # Deny all other outbound traffic
   security_rule {
     name                       = "DenyAllOutbound"
@@ -243,8 +255,8 @@ resource "azurerm_network_security_group" "github_runner" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "10.100.2.0/24"
-    destination_address_prefix = "10.100.2.0/24"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = azurerm_subnet.github_runner.address_prefixes[0]
   }
 
   # Allow outbound communication within the subnet
@@ -256,8 +268,21 @@ resource "azurerm_network_security_group" "github_runner" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "10.100.2.0/24"
-    destination_address_prefix = "10.100.2.0/24"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = azurerm_subnet.github_runner.address_prefixes[0]
+  }
+
+  # Allow outbound HTTPS traffic from GitHub runner subnet to storage subnet
+  security_rule {
+    name                       = "AllowHTTPSToStorageSubnet"
+    priority                   = 185
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = azurerm_subnet.storage.address_prefixes[0]
   }
 
   # Allow access to Azure Storage (for accessing terraform state)
@@ -295,7 +320,7 @@ resource "azurerm_network_security_group" "github_runner" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "10.100.2.0/24"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
     destination_address_prefix = "Internet"
   }
 

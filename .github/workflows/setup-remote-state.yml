@@ -8,7 +8,7 @@ on:
         required: true
         default: "westus2"
       runner_token:
-        description: The GitHub runner token for adding a new runner
+        description: The GitHub runner token for adding a new runner.  Get the token from repo settings > Actions > Runners > New self-hosted runner
         required: true
 
 permissions:

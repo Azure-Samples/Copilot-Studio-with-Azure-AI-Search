@@ -1,18 +1,3 @@
-# Network Security Group for GitHub Runner
-resource "azurerm_network_security_group" "github_runner" {
-  name                = "nsg-github-runner-${var.unique_id}"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-
-  tags = var.tags
-}
-
-# Network Security Group Association
-#resource "azurerm_subnet_network_security_group_association" "github_runner" {
-#  subnet_id                 = var.subnet_id
-#  network_security_group_id = azurerm_network_security_group.github_runner.id
-#}
-
 # Network Interface for GitHub Runner VM
 resource "azurerm_network_interface" "github_runner" {
   name                = "nic-github-runner-${var.unique_id}"
@@ -93,7 +78,7 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
   settings = jsonencode({
     script = base64encode(templatefile("${path.module}/install-github-runner.sh", {
-      runner_token = var.vm_github_runner_config.runner_token
+      runner_token        = var.vm_github_runner_config.runner_token
       runner_name         = "${var.vm_github_runner_config.runner_name}-${var.unique_id}"
       runner_work_folder  = "_work"
       runner_group        = var.vm_github_runner_config.runner_group
