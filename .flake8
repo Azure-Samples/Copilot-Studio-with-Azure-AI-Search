@@ -6,4 +6,3 @@ exclude =
     .azure,
     __pycache__,
     .venv
-    
