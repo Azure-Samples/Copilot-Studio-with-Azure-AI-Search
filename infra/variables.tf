@@ -424,6 +424,17 @@ variable "ai_search_config" {
   }
 }
 
+variable "ai_search_base_index_name" {
+  type        = string
+  default     = "default"
+  description = "Base name for AI Search resources. Will be used to generate index, datasource, skillset, and indexer names."
+
+  validation {
+    condition     = can(regex("^[a-z0-9-]{1,60}$", var.ai_search_base_index_name))
+    error_message = "The base index name must contain only lowercase letters, numbers, and hyphens, and be 1-60 characters long."
+  }
+}
+
 variable "primary_pe_subnet_address_spaces" {
   description = "Address space for the primary private endpoint subnet"
   type        = list(string)
