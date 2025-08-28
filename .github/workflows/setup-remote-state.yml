@@ -58,7 +58,7 @@ jobs:
           ref: ${{ github.ref_name }}
 
       - name: Mask GitHub runner registration token
-        run: echo "::add-mask::${{ github.event.inputs.github_runner_registration_token }}"
+        run: echo "::add-mask::$TF_VAR_github_runner_registration_token"
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
