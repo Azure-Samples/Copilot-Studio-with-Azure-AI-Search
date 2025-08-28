@@ -232,32 +232,6 @@ resource "azurerm_network_security_group" "github_runner" {
       destination_address_prefix = security_rule.value.destination_address_prefix
     }
   }
-
-  # Deny all other inbound traffic (explicit deny)
-  security_rule {
-    name                       = "DenyAllInbound"
-    priority                   = 4096
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  # Deny all other outbound traffic (explicit deny)
-  security_rule {
-    name                       = "DenyAllOtherOutbound"
-    priority                   = 4096
-    direction                  = "Outbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
 }
 
 # Associate NSG with GitHub Runner Subnet
