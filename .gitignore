@@ -498,3 +498,5 @@ power_platform_deployment_settings
 # Ignore environment files
 .env
 .env.*
+
+.external_modules/
