@@ -1,14 +1,22 @@
-name: "Deploy Terraform Remote State Infrastructure"
+name: "Deploy Terraform Remote State Infrastructure and GitHub runner"
 
 on:
   workflow_dispatch:
     inputs:
       location:
-        description: "Azure location for the infrastructure"
+        description: "Azure location for the tfstate and runner infrastructure"
         required: true
         default: "westus2"
-      runner_token:
-        description: The GitHub runner token for adding a new runner.  Get the token from repo settings > Actions > Runners > New self-hosted runner
+      github_runner_type:
+        description: "Type of GitHub runner to deploy"
+        required: true
+        type: choice
+        options:
+          - "vm"
+          - "aca"
+        default: "vm"
+      github_runner_registration_token:
+        description: The GitHub runner registration token for adding a new runner.  Get the token from repo settings > Actions > Runners > New self-hosted runner
         required: true
 
 permissions:
@@ -27,6 +35,7 @@ jobs:
       run:
         working-directory: ./cicd
     env:
+      TF_IN_AUTOMATION: "true"
       ARM_USE_AZUREAD: "true"
       ARM_STORAGE_USE_AZUREAD: "true"
       ARM_USE_OIDC: "true"
@@ -34,16 +43,19 @@ jobs:
       ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      TF_VAR_location: ${{ github.event.inputs.location || 'westus2' }}
-      TF_VAR_vm_github_runner_config: >
+      TF_VAR_location: ${{ github.event.inputs.location }}
+      TF_VAR_github_runner_type: ${{ github.event.inputs.github_runner_type }}
+      TF_VAR_github_runner_registration_token: ${{ github.event.inputs.github_runner_registration_token }}
+      TF_VAR_github_runner_config: >
         {
-          "runner_name": "azure-runner-1",
-          "runner_token": "${{ github.event.inputs.runner_token }}",
           "repo_owner": "${{ github.repository_owner }}",
           "repo_name": "${{ github.event.repository.name }}",
-          "runner_group": "default"
         }
     steps:
+      - name: Mask GitHub runner registration token
+        shell: bash
+        run: echo "::add-mask::${{ github.event.inputs.github_runner_registration_token }}"
+
       - name: Checkout the branch ${{ github.ref_name }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -60,36 +72,6 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-      # - name: Setup Terraform Environment Variables
-      #   env:
-      #     ARM_USE_AZUREAD: "true"
-      #     ARM_STORAGE_USE_AZUREAD: "true"
-      #     ARM_USE_OIDC: "true"
-      #     ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      #     ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      #     ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      #     TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      #     TF_VAR_location: ${{ github.event.inputs.location || 'westus2' }}
-      #     TF_VAR_vm_github_runner_config: >
-      #       {
-      #         "runner_name": "azure-runner-1",
-      #         "runner_token": "${{ github.event.inputs.runner_token }}",
-      #         "repo_owner": "${{ github.repository_owner }}",
-      #         "repo_name": "${{ github.event.repository.name }}",
-      #         "runner_group": "default"
-      #       }
-      #   run: |
-      #     # Export environment variables for subsequent steps
-      #     echo "ARM_USE_AZUREAD=true" >> $GITHUB_ENV
-      #     echo "ARM_STORAGE_USE_AZUREAD=true" >> $GITHUB_ENV
-      #     echo "ARM_USE_OIDC=true" >> $GITHUB_ENV
-      #     echo "ARM_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
-      #     echo "ARM_TENANT_ID=${{ vars.AZURE_TENANT_ID }}" >> $GITHUB_ENV
-      #     echo "ARM_SUBSCRIPTION_ID=${{ vars.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
-      #     echo "TF_VAR_subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
-      #     echo "TF_VAR_location=${{ github.event.inputs.location || 'westus2' }}" >> $GITHUB_ENV
-      #     echo "TF_VAR_vm_github_runner_config=$(echo $TF_VAR_vm_github_runner_config | tr -d '\n' | jq -c .)" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: terraform init

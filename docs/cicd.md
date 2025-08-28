@@ -29,6 +29,12 @@ All infrastructure for CI/CD lives under `cicd/` and can be customized to meet y
 
 You’ll register a self-hosted runner to your repository. Generate a short-lived registration token:
 
+```bash
+gh api -X POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" repos/:owner/:repo/actions/runners/registration-token --jq '.token'
+```
+
+Alternatively you can get it manually by:
+
 1. Go to your repo in GitHub
 2. Settings > Actions > Runners > New self-hosted runner
 3. Copy the runner “registration token” (you’ll pass it to the workflow below)

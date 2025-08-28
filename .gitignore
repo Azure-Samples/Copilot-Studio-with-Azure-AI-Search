@@ -493,3 +493,5 @@ power_platform_deployment_settings
 *_env/
 *_venv/
 *.venv/
+
+.specs/

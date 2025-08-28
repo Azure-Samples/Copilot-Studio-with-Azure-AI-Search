@@ -259,7 +259,7 @@ variable "networking" {
 
       primary_subnet_id                     = string
       pe_primary_subnet_id                  = string
-      github_runner_primary_subnet_id       = string
+      //github_runner_primary_subnet_id       = string
       deployment_script_container_subnet_id = string
     })
     failover_virtual_network = object({
@@ -267,7 +267,7 @@ variable "networking" {
 
       failover_subnet_id               = string
       pe_failover_subnet_id            = string
-      github_runner_failover_subnet_id = string
+      //github_runner_failover_subnet_id = string
     })
   })
   default = {
@@ -275,14 +275,14 @@ variable "networking" {
       id                                    = null
       primary_subnet_id                     = null
       pe_primary_subnet_id                  = null
-      github_runner_primary_subnet_id       = null
+      //github_runner_primary_subnet_id       = null
       deployment_script_container_subnet_id = null
     }
     failover_virtual_network = {
       id                               = null
       failover_subnet_id               = null
       pe_failover_subnet_id            = null
-      github_runner_failover_subnet_id = null
+      //github_runner_failover_subnet_id = null
     }
 
   }
@@ -450,8 +450,6 @@ variable "azure_ai_search_service_principal" {
     client_secret                    = null
   }
 }
-
-
 
 variable "deployment_script_subnet_address_spaces" {
   type        = list(string)

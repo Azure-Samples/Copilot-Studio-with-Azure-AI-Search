@@ -1,20 +1,17 @@
 variable "vm_github_runner_config" {
   type = object({
-    runner_token = string
     runner_name  = string
     repo_owner   = string
     repo_name    = string
     runner_group = string
   })
   default = {
-    runner_token = ""
     runner_name  = "azure-runner"
     repo_owner   = ""
     repo_name    = ""
     runner_group = "default"
   }
-  description = "Configuration object for GitHub runner VM deployment (sensitive data only)"
-  sensitive   = true
+  description = "Configuration object for GitHub runner VM deployment"
 }
 
 variable "github_runner_vm_size" {
@@ -31,6 +28,12 @@ variable "github_runner_os_type" {
     condition     = contains(["linux"], var.github_runner_os_type)
     error_message = "OS type must be 'linux'. Other OS types are not supported yet"
   }
+}
+
+variable "github_runner_registration_token" {
+  type        = string
+  sensitive   = true
+  description = "GitHub runner registration token"
 }
 
 variable "location" {

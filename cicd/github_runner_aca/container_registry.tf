@@ -92,9 +92,9 @@ resource "azurerm_container_registry_task" "github_runner_build" {
 
   docker_step {
     dockerfile_path = "Dockerfile"
-    # Note: Use "infra/containers/github-runner" for context_path when enabling source_trigger
-    context_path         = "https://github.com/${var.github_runner_config.github_repo_owner}/${var.github_runner_config.github_repo_name}#${var.github_runner_config.github_runner_image_branch}:infra/containers/github-runner"
-    context_access_token = var.github_runner_config.github_pat
+    # Note: Use "cicd/github_runner_aca" for context_path when enabling source_trigger
+    context_path         = "https://github.com/${var.github_runner_config.repo_owner}/${var.github_runner_config.repo_name}#${var.github_runner_config.image_branch}:cicd/github_runner_aca"
+    context_access_token = "" # Use var.github_pat for private repos, but should not be needed for public
     image_names          = ["${var.github_runner_config.image_name}:${var.github_runner_config.image_tag}"]
   }
 
@@ -111,7 +111,7 @@ resource "azurerm_container_registry_task" "github_runner_build" {
   #   events         = ["commit"]
 
   #   authentication {
-  #     token      = var.github_runner_config.github_pat
+  #     token      = var.github_pat
   #     token_type = "PAT"
   #   }
   # }

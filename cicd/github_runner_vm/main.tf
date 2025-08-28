@@ -78,7 +78,7 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
   settings = jsonencode({
     script = base64encode(templatefile("${path.module}/install-github-runner.sh", {
-      runner_token        = var.vm_github_runner_config.runner_token
+      runner_token        = var.github_runner_registration_token
       runner_name         = "${var.vm_github_runner_config.runner_name}-${var.unique_id}"
       runner_work_folder  = "_work"
       runner_group        = var.vm_github_runner_config.runner_group
@@ -93,45 +93,45 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
   depends_on = [azurerm_linux_virtual_machine.github_runner]
 }
 
-resource "null_resource" "deregister_runner" {
-  triggers = {
-    pat    = var.vm_github_runner_config.runner_token
-    owner  = var.vm_github_runner_config.repo_owner
-    repo   = var.vm_github_runner_config.repo_name
-    runner = "${var.vm_github_runner_config.runner_name}-${var.unique_id}"
-  }
+# resource "null_resource" "deregister_runner" {
+#   triggers = {
+#     pat    = var.vm_github_runner_config.runner_token
+#     owner  = var.vm_github_runner_config.repo_owner
+#     repo   = var.vm_github_runner_config.repo_name
+#     runner = "${var.vm_github_runner_config.runner_name}-${var.unique_id}"
+#   }
 
-  depends_on = [azurerm_linux_virtual_machine.github_runner]
+#   depends_on = [azurerm_linux_virtual_machine.github_runner]
 
-  provisioner "local-exec" {
-    when = destroy
+#   provisioner "local-exec" {
+#     when = destroy
 
-    environment = {
-      PAT    = self.triggers.pat
-      OWNER  = self.triggers.owner
-      REPO   = self.triggers.repo
-      RUNNER = self.triggers.runner
-    }
+#     environment = {
+#       PAT    = self.triggers.pat
+#       OWNER  = self.triggers.owner
+#       REPO   = self.triggers.repo
+#       RUNNER = self.triggers.runner
+#     }
 
-    command = <<-EOF
-      # grab the runner ID from GitHub
-      RUNNER_ID=$(
-        curl -s \
-          -H "Authorization: token $PAT" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/$OWNER/$REPO/actions/runners" \
-        | jq -r '.runners[] | select(.name=="'"$RUNNER"'") | .id'
-      )
+#     command = <<-EOF
+#       # grab the runner ID from GitHub
+#       RUNNER_ID=$(
+#         curl -s \
+#           -H "Authorization: token $PAT" \
+#           -H "Accept: application/vnd.github.v3+json" \
+#           "https://api.github.com/repos/$OWNER/$REPO/actions/runners" \
+#         | jq -r '.runners[] | select(.name=="'"$RUNNER"'") | .id'
+#       )
 
-      if [ -n "$RUNNER_ID" ]; then
-        curl -s -X DELETE \
-          -H "Authorization: token $PAT" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/$OWNER/$REPO/actions/runners/$RUNNER_ID"
-        echo "➜ Deregistered self-hosted runner ID $RUNNER_ID"
-      else
-        echo "➜ No runner named '$RUNNER' found; skipping"
-      fi
-    EOF
-  }
-}
+#       if [ -n "$RUNNER_ID" ]; then
+#         curl -s -X DELETE \
+#           -H "Authorization: token $PAT" \
+#           -H "Accept: application/vnd.github.v3+json" \
+#           "https://api.github.com/repos/$OWNER/$REPO/actions/runners/$RUNNER_ID"
+#         echo "➜ Deregistered self-hosted runner ID $RUNNER_ID"
+#       else
+#         echo "➜ No runner named '$RUNNER' found; skipping"
+#       fi
+#     EOF
+#   }
+# }
