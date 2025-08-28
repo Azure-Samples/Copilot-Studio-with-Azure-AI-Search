@@ -257,31 +257,31 @@ variable "networking" {
     primary_virtual_network = object({
       id = string
 
-      primary_subnet_id                     = string
-      pe_primary_subnet_id                  = string
+      primary_subnet_id    = string
+      pe_primary_subnet_id = string
       //github_runner_primary_subnet_id       = string
       deployment_script_container_subnet_id = string
     })
     failover_virtual_network = object({
       id = string
 
-      failover_subnet_id               = string
-      pe_failover_subnet_id            = string
+      failover_subnet_id    = string
+      pe_failover_subnet_id = string
       //github_runner_failover_subnet_id = string
     })
   })
   default = {
     primary_virtual_network = {
-      id                                    = null
-      primary_subnet_id                     = null
-      pe_primary_subnet_id                  = null
+      id                   = null
+      primary_subnet_id    = null
+      pe_primary_subnet_id = null
       //github_runner_primary_subnet_id       = null
       deployment_script_container_subnet_id = null
     }
     failover_virtual_network = {
-      id                               = null
-      failover_subnet_id               = null
-      pe_failover_subnet_id            = null
+      id                    = null
+      failover_subnet_id    = null
+      pe_failover_subnet_id = null
       //github_runner_failover_subnet_id = null
     }
 
