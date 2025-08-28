@@ -52,13 +52,13 @@ jobs:
           "repo_name": "${{ github.event.repository.name }}",
         }
     steps:
-      - name: Mask GitHub runner registration token
-        run: echo "::add-mask::${{ github.event.inputs.github_runner_registration_token }}"
-
       - name: Checkout the branch ${{ github.ref_name }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.ref_name }}
+
+      - name: Mask GitHub runner registration token
+        run: echo "::add-mask::${{ github.event.inputs.github_runner_registration_token }}"
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
