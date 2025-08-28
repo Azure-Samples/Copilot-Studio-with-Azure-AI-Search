@@ -7,6 +7,13 @@ description: 'PowerShell cmdlet and scripting best practices based on Microsoft 
 
 This guide provides PowerShell-specific instructions to help GitHub Copilot generate idiomatic, safe, and maintainable scripts. It aligns with Microsoft’s PowerShell cmdlet development guidelines.
 
+## Repository-Specific Conventions
+
+- Use PowerShell Core (`pwsh`) for all scripts and automation.
+- Implement robust error handling, parameter validation, and structured logging.
+- Implement retry logic with exponential backoff for transient operations (e.g., PAC CLI, Power Platform calls, Azure REST/CLI).
+- Do not hardcode secrets; retrieve secrets from Azure Key Vault or environment bindings and prefer managed identity when available.
+
 ## Naming Conventions
 
 - **Verb-Noun Format:**
@@ -204,6 +211,7 @@ function Update-ResourceStatus {
   - Avoid `Read-Host` in scripts
   - Support automation scenarios
   - Document all required inputs
+  - Emit clear, structured logs for CI systems (e.g., GitHub Actions) and honor `-Verbose`/`-Debug` flags.
 
 ### Example
 

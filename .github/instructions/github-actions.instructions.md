@@ -129,15 +129,16 @@ jobs:
 ```
 
 ### **2. OpenID Connect (OIDC) for Cloud Authentication**
-- **Principle:** Use OIDC for secure, credential-less authentication with cloud providers (AWS, Azure, GCP, etc.), eliminating the need for long-lived static credentials.
+- **Principle:** Use OIDC with Microsoft Entra ID federated credentials for secure, credential-less authentication to Azure, eliminating the need for long-lived static credentials.
 - **Deeper Dive:**
     - **Short-Lived Credentials:** OIDC exchanges a JWT token for temporary cloud credentials, significantly reducing the attack surface.
     - **Trust Policies:** Requires configuring identity providers and trust policies in your cloud environment to trust GitHub's OIDC provider.
     - **Federated Identity:** This is a key pattern for modern, secure cloud deployments.
 - **Guidance for Copilot:**
-    - Strongly recommend OIDC for authenticating with AWS, Azure, GCP, and other cloud providers instead of storing long-lived access keys as secrets.
-    - Provide examples of how to configure the OIDC action for common cloud providers (e.g., `aws-actions/configure-aws-credentials@v4`).
-    - Explain the concept of trust policies and how they relate to OIDC setup.
+    - Strongly recommend OIDC for authenticating with Azure using Microsoft Entra federated credentials instead of storing long-lived client secrets.
+    - Provide examples of configuring Azure login with OIDC (e.g., `azure/login@v2` with `client-id`, `tenant-id`, `subscription-id`).
+    - Explain the concept of federated credentials on the Microsoft Entra application and required `subject`/`audience` claims to trust GitHub's OIDC issuer.
+    - For this repository, prefer GitHub-managed federated identity over service principal client secrets for all CI/CD deploy paths.
 - **Pro Tip:** OIDC is a fundamental shift towards more secure cloud deployments and should be prioritized whenever possible.
 
 ### **3. Least Privilege for `GITHUB_TOKEN`**
@@ -377,6 +378,11 @@ jobs:
     - Suggest adding workflow status badges to the README for quick visibility of CI/CD health.
 
 ## Advanced Deployment Strategies (Expanded)
+### Repository-Specific CI/CD Conventions
+- Use Azure Developer CLI (azd) for provisioning and deployment workflows where applicable.
+- Run security scanners (e.g., Gitleaks, Checkov, TFLint) in pre-provision or validation jobs for PRs and protected branches.
+- Ensure Terraform state access uses remote backends and never exposes state in logs or artifacts.
+
 
 ### **1. Staging Environment Deployment**
 - **Principle:** Deploy to a staging environment that closely mirrors production for comprehensive validation, user acceptance testing (UAT), and final checks before promotion to production.
@@ -528,7 +534,7 @@ This section provides an expanded guide to diagnosing and resolving frequent pro
         - Ensure the workflow/job has access to the specific environment if environment secrets are used. Check if any manual approvals are pending for the environment.
         - Confirm the secret name matches exactly (`secrets.MY_API_KEY`).
     - **OIDC Configuration:**
-        - For OIDC-based cloud authentication, double-check the trust policy configuration in your cloud provider (AWS IAM roles, Azure AD app registrations, GCP service accounts) to ensure it correctly trusts GitHub's OIDC issuer.
+    - For OIDC-based cloud authentication, double-check the federated credential configuration on your Microsoft Entra ID app registration to ensure it correctly trusts GitHub's OIDC issuer and subject filters.
         - Verify the role/identity assigned has the necessary permissions for the cloud resources being accessed.
 
 ### **3. Caching Issues (`Cache not found`, `Cache miss`, `Cache creation failed`)**

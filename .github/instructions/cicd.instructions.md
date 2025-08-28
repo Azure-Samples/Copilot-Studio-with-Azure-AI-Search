@@ -1,5 +1,4 @@
----
-files: "cicd/**/*.tf"
+appliesTo: "cicd/**/*.tf"
 ---
 
 # CICD Terraform Instructions

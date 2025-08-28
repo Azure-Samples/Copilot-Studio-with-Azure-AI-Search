@@ -10,29 +10,60 @@ applyTo: '**/*.tf'
 - Use Terraform to provision and manage infrastructure.
 - Use version control for your Terraform configurations.
 
+## Repository-Specific Conventions
+
+- Naming and style
+  - Use snake_case for all variables, resources, modules, files, and locals.
+  - Use double quotes for strings.
+  - Use `#` for comments. For multi-line notes, prefer consecutive `#` lines.
+  - Place one argument per line for readability.
+  - Keep each resource block under 100 lines.
+  - Group related resources in logical files (e.g., `main.network.tf`, `main.search.tf`).
+- Structure
+  - Root module should contain: `main.tf` (entry), `variables.tf`, `outputs.tf`, `providers.tf`.
+  - Reusable modules live under `infra/modules/` with their own README and documented inputs/outputs.
+- Dependencies and iteration
+  - Prefer `for_each` over `count` when managing unique resources.
+  - Use `depends_on` only when the dependency is not implied.
+- Providers and versions
+  - Pin provider versions using `~>` or exact versions.
+  - Avoid legacy interpolation like "${var.foo}"; use `var.foo` directly.
+- State and backend
+  - Use Azure Storage remote backend for Terraform state. Never commit state or `.tfvars` files.
+- Tagging and governance
+  - Tag all Azure resources with `azd-env-name` and other cost/ownership metadata.
+- Security and networking
+  - Never hardcode secrets. Use Azure Key Vault references and mark variables/outputs containing secrets as `sensitive`.
+  - Prefer private endpoints for Azure services and deploy resources in private subnets where possible.
+  - Implement virtual network injection patterns and enterprise policies where applicable (e.g., for Power Platform connectivity).
+- Azure AI Search and Power Platform
+  - Use Azure AI Search with vector search and OpenAI embeddings as required by the solution architecture.
+  - Use the `powerplatform` Terraform provider for environment and connection management when automating Power Platform configuration.
+
 ## Security
 
 - Always use the latest stable version of Terraform and its providers.
   - Regularly update your Terraform configurations to incorporate security patches and improvements.
-- Store sensitive information in a secure manner, such as using AWS Secrets Manager or SSM Parameter Store.
+- Store sensitive information in a secure manner, such as using Azure Key Vault for secrets and Azure App Configuration for non-secret settings.
   - Regularly rotate credentials and secrets.
   - Automate the rotation of secrets, where possible.
-- Use AWS environment variables to reference values stored in AWS Secrets Manager or SSM Parameter Store.
-  - This keeps sensitive values out of your Terraform state files.
-- Never commit sensitive information such as AWS credentials, API keys, passwords, certificates, or Terraform state to version control.
+- Use Azure Key Vault for secrets (and Azure App Configuration for non-secret settings); prefer Key Vault references and managed identities instead of embedding secret values in Terraform variables.
+  - If a variable must be provided, pass it via TF_VAR_ environment variables and mark it sensitive; otherwise reference Key Vault secret IDs/URIs so values do not enter Terraform plan or state.
+- Never commit sensitive information such as Azure credentials (e.g., service principal secrets), API keys, passwords, certificates, or Terraform state to version control.
   - Use `.gitignore` to exclude files containing sensitive information from version control.
 - Always mark sensitive variables as `sensitive = true` in your Terraform configurations.
   - This prevents sensitive values from being displayed in the Terraform plan or apply output.
-- Use IAM roles and policies to control access to resources.
+- Use Azure RBAC roles and role assignments to control access to resources.
   - Follow the principle of least privilege when assigning permissions.
-- Use security groups and network ACLs to control network access to resources.
-- Deploy resources in private subnets whenever possible.
-  - Use public subnets only for resources that require direct internet access, such as load balancers or NAT gateways.
+- Use Network Security Groups (NSGs), Azure Firewall, and route tables to control network access to resources.
+- Deploy resources in private subnets within virtual networks whenever possible.
+  - Use public subnets only for resources that require inbound internet access (e.g., Application Gateway or Public Load Balancer) and prefer Azure NAT Gateway for outbound-only traffic.
 - Use encryption for sensitive data at rest and in transit.
-  - Enable encryption for EBS volumes, S3 buckets, and RDS instances.
+  - Enable encryption for managed disks, Azure Storage (Blob/Files), and Azure database services (e.g., Azure SQL, PostgreSQL, MySQL, Cosmos DB) as applicable.
   - Use TLS for communication between services.
 - Regularly review and audit your Terraform configurations for security vulnerabilities.
   - Use tools like `trivy`, `tfsec`, or `checkov` to scan your Terraform configurations for security issues.
+  - Integrate linting and policy checks (e.g., `tflint`, `checkov`) into CI and local pre-commit hooks.
 
 ## Modularity
 
@@ -52,6 +83,7 @@ applyTo: '**/*.tf'
 - Use `output` blocks to expose important information about your infrastructure.
   - Use outputs to provide information that is useful for other modules or for users of the configuration.
   - Avoid exposing sensitive information in outputs; mark outputs as `sensitive = true` if they contain sensitive data.
+  - Include descriptions for all variables and outputs.
 
 ## Maintainability
 
@@ -65,6 +97,7 @@ applyTo: '**/*.tf'
   - Avoid using data sources for resources that are created within the same configuration; use outputs instead.
   - Avoid, or remove, unnecessary data sources; they slow down `plan` and `apply` operations.
 - Use `locals` for values that are used multiple times to ensure consistency.
+  - Avoid null/default anti-patterns; set explicit defaults where appropriate.
 
 ## Style and Formatting
 
@@ -73,8 +106,9 @@ applyTo: '**/*.tf'
   - Use consistent naming conventions across all configurations.
 - Follow the **Terraform Style Guide** for formatting.
   - Use consistent indentation (2 spaces for each level).
+  - Run `terraform fmt` consistently as part of CI and local workflows.
 - Group related resources together in the same file.
-  - Use a consistent naming convention for resource groups (e.g., `providers.tf`, `variables.tf`, `network.tf`, `ecs.tf`, `mariadb.tf`).
+  - Use a consistent naming convention for resource groups (e.g., `providers.tf`, `variables.tf`, `network.tf`, `app_service.tf`, `postgresql.tf`).
 - Place `depends_on` blocks at the very beginning of resource definitions to make dependency relationships clear.
   - Use `depends_on` only when necessary to avoid circular dependencies.
 - Place `for_each` and `count` blocks at the beginning of resource definitions to clarify the resource's instantiation logic.
@@ -104,6 +138,7 @@ applyTo: '**/*.tf'
 - Include a `README.md` file in each project to provide an overview of the project and its structure.
   - Include instructions for setting up and using the configurations.
 - Use `terraform-docs` to generate documentation for your configurations automatically.
+  - Root and module READMEs should document required tags (including `azd-env-name`) and any network/security assumptions (private endpoints, VNet requirements).
 
 ## Testing
 
