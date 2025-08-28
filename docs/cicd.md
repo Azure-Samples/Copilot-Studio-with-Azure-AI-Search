@@ -16,13 +16,13 @@ All infrastructure for CI/CD lives under `cicd/` and can be customized to meet y
 - A fork or copy of this repo where you’ll enable CI/CD
 - An Azure subscription and permissions to create resource groups, VNet, Storage, and compute
 - GitHub OIDC (workload identity) configured to authenticate to Azure (recommended)
-	- Create or use an Azure Entra app registration
-	- Add a federated credential for your GitHub repository
-	- Expose the following repository variables so workflows can log in with OIDC:
-		- `AZURE_CLIENT_ID`
-		- `AZURE_TENANT_ID`
-		- `AZURE_SUBSCRIPTION_ID`
-	- See Microsoft docs: “Authenticate to Azure in GitHub Actions using OpenID Connect”
+  - Create or use an Azure Entra app registration
+  - Add a federated credential for your GitHub repository
+    - Expose the following repository variables so workflows can log in with OIDC:
+      - `AZURE_CLIENT_ID`
+      - `AZURE_TENANT_ID`
+      - `AZURE_SUBSCRIPTION_ID`
+    - See Microsoft docs: “Authenticate to Azure in GitHub Actions using OpenID Connect”
 - Optional: GitHub CLI (`gh`) to trigger the bootstrap workflow from your terminal
 
 ## Step 1 — Get a GitHub runner token
@@ -44,14 +44,12 @@ Alternatively you can get it manually by:
 This repo includes a workflow that provisions CI/CD infrastructure using Terraform in `cicd/`:
 
 - File: `.github/workflows/setup-remote-state.yml`
-- Inputs: `location` (Azure region, default `westus2`), `runner_token` (from Step 1)
+- Inputs: `location` (Azure region, default `westus2`), `github_runner_registration_token` (from Step 1)
 
 Trigger it with GitHub CLI (example uses the current repo):
 
 ```bash
-gh workflow run .github/workflows/setup-remote-state.yml \
-	-f location=westus2 \
-	-f runner_token=<YOUR_RUNNER_TOKEN>
+gh workflow run .github/workflows/setup-remote-state.yml -f github_runner_registration_token=<YOUR_RUNNER_TOKEN>
 ```
 
 What this workflow does:
@@ -84,9 +82,9 @@ Note: The runner VM registers with labels like `self-hosted,vm,<resource-group>,
 
 - In GitHub: Settings > Actions > Runners — verify the runner is “Online”
 - In Azure: Confirm the CI/CD resource group exists and contains:
-	- Storage account with public network access disabled and a private endpoint
-	- Virtual network, subnets, and NAT gateway for controlled egress
-	- Linux VM for the runner (no public IP)
+  - Storage account with public network access disabled and a private endpoint
+  - Virtual network, subnets, and NAT gateway for controlled egress
+  - Linux VM for the runner (no public IP)
 
 ## Step 5 — Use azd with your pipelines
 
@@ -98,14 +96,14 @@ You can plug the Terraform backend outputs into other modules. A generic example
 
 ```hcl
 terraform {
-	backend "azurerm" {
-		storage_account_name = "sttfstate<random>"
-		container_name       = "tfstate"
-		key                  = "terraform.tfstate"
-		resource_group_name  = "rg-tfstate-<random>"
-		subscription_id      = "<your-subscription-id>"
-		use_azuread_auth     = true
-	}
+ backend "azurerm" {
+  storage_account_name = "sttfstate<random>"
+  container_name       = "tfstate"
+  key                  = "terraform.tfstate"
+  resource_group_name  = "rg-tfstate-<random>"
+  subscription_id      = "<your-subscription-id>"
+  use_azuread_auth     = true
+ }
 }
 ```
 
