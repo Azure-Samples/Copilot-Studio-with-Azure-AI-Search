@@ -3,9 +3,6 @@ permissions:
   id-token: write
   contents: read
 on:
- push:
-   branches:
-     - mattdot/private-runner    
  workflow_dispatch:
    inputs:
      azd_environment_name:
