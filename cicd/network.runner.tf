@@ -21,70 +21,6 @@ resource "azurerm_subnet" "github_runner" {
   }
 }
 
-locals {
-  # Additional, ACA-specific egress rules split by port/use and using Azure service tags.
-  # Priorities are unique and outside the base NSG rules (which use 100-210).
-  aca_rules = var.github_runner_type == "aca" ? [
-    # Control plane and data-plane HTTPS
-    {
-      name     = "Allow-ARM-HTTPS"
-      priority = 220
-      dir      = "Outbound"
-      access   = "Allow"
-      proto    = "Tcp"
-      spr      = "*"
-      dprs     = ["443"]
-      sap      = azurerm_subnet.github_runner.address_prefixes[0]
-      dap      = "AzureResourceManager"
-    },
-    {
-      name     = "Allow-ACR-HTTPS"
-      priority = 221
-      dir      = "Outbound"
-      access   = "Allow"
-      proto    = "Tcp"
-      spr      = "*"
-      dprs     = ["443"]
-      sap      = azurerm_subnet.github_runner.address_prefixes[0]
-      dap      = "AzureContainerRegistry"
-    },
-    {
-      name     = "Allow-AzureMonitor-HTTPS"
-      priority = 222
-      dir      = "Outbound"
-      access   = "Allow"
-      proto    = "Tcp"
-      spr      = "*"
-      dprs     = ["443"]
-      sap      = azurerm_subnet.github_runner.address_prefixes[0]
-      dap      = "AzureMonitor"
-    },
-    # AMQP for control/scale signals
-    {
-      name     = "Allow-ServiceBus-AMQP"
-      priority = 223
-      dir      = "Outbound"
-      access   = "Allow"
-      proto    = "Tcp"
-      spr      = "*"
-      dprs     = ["5671-5672"]
-      sap      = azurerm_subnet.github_runner.address_prefixes[0]
-      dap      = "ServiceBus"
-    },
-    {
-      name     = "Allow-EventHub-AMQP"
-      priority = 224
-      dir      = "Outbound"
-      access   = "Allow"
-      proto    = "Tcp"
-      spr      = "*"
-      dprs     = ["5671-5672"]
-      sap      = azurerm_subnet.github_runner.address_prefixes[0]
-      dap      = "EventHub"
-    }
-  ] : []
-}
-
 # Create Network Security Group for GitHub Runners
 resource "azurerm_network_security_group" "github_runner" {
   name                = "nsg-github-runner-${random_id.suffix.hex}"
@@ -92,71 +28,47 @@ resource "azurerm_network_security_group" "github_runner" {
   resource_group_name = azurerm_resource_group.tfstate.name
   tags                = local.common_tags
 
-  # Allow SSH inbound for management
-  security_rule {
-    name                       = "AllowSSHInbound"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = "VirtualNetwork"
-    destination_address_prefix = "*"
+  # VM-specific rules (conditionally added when github_runner_type == "vm")
+  dynamic "security_rule" {
+    for_each = var.github_runner_type == "vm" ? [1] : []
+    content {
+      name                       = "AllowSSHInbound"
+      priority                   = 100
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = "22"
+      source_address_prefix      = "VirtualNetwork"
+      destination_address_prefix = "*"
+    }
   }
 
-  # Allow communication with GitHub (HTTPS)
+  # Allow DNS resolution (broad Internet) — replaced by AzurePlatformDNS below
   security_rule {
-    name                       = "AllowGitHubHTTPS"
-    priority                   = 110
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "*"
-    destination_address_prefix = "Internet"
-  }
-
-  # Allow communication with GitHub (HTTP for redirects)
-  security_rule {
-    name                       = "AllowGitHubHTTP"
-    priority                   = 120
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = "*"
-    destination_address_prefix = "Internet"
-  }
-
-  # Allow DNS resolution
-  # # Allow DNS resolution (broad Internet) — replaced by AzurePlatformDNS below
-  # security_rule {
-  #   name                       = "AllowDNS"
-  #   priority                   = 130
-  #   direction                  = "Outbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Udp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "53"
-  #   source_address_prefix      = "*"
-  #   destination_address_prefix = "Internet"
-  # }
-
-  # Allow DNS to Azure platform DNS
-  security_rule {
-    name                       = "AllowDNS-AzurePlatform"
+    name                       = "AllowDNS"
     priority                   = 130
     direction                  = "Outbound"
     access                     = "Allow"
     protocol                   = "Udp"
     source_port_range          = "*"
     destination_port_range     = "53"
-    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-    destination_address_prefix = "AzurePlatformDNS"
+    source_address_prefix      = "*"
+    destination_address_prefix = "Internet"
   }
+
+  # Allow DNS to Azure platform DNS
+  # security_rule {
+  #   name                       = "AllowDNS-AzurePlatform"
+  #   priority                   = 130
+  #   direction                  = "Outbound"
+  #   access                     = "Allow"
+  #   protocol                   = "Udp"
+  #   source_port_range          = "*"
+  #   destination_port_range     = "53"
+  #   source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+  #   destination_address_prefix = "AzurePlatformDNS"
+  # }
 
   # Allow NTP for time synchronization
   security_rule {
@@ -171,7 +83,7 @@ resource "azurerm_network_security_group" "github_runner" {
     destination_address_prefix = "Internet"
   }
 
-  # Allow communication with Azure services (for Azure CLI, Azure DevOps, etc.)
+  # Allow communication with Azure services (includes Storage, ARM, etc.)
   security_rule {
     name                       = "AllowAzureServices"
     priority                   = 150
@@ -182,32 +94,6 @@ resource "azurerm_network_security_group" "github_runner" {
     destination_port_ranges    = ["443", "80"]
     source_address_prefix      = "*"
     destination_address_prefix = "AzureCloud"
-  }
-
-  # Allow Microsoft Container Registry over HTTPS (more specific than broad Internet egress)
-  security_rule {
-    name                       = "AllowMCRHTTPS"
-    priority                   = 155
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-    destination_address_prefix = "MicrosoftContainerRegistry"
-  }
-
-  # Allow communication with Docker Hub and container registries
-  security_rule {
-    name                       = "AllowContainerRegistries"
-    priority                   = 160
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_ranges    = ["443", "80", "5000"]
-    source_address_prefix      = "*"
-    destination_address_prefix = "Internet"
   }
 
   # Allow communication within the subnet for multi-runner scenarios
@@ -236,7 +122,20 @@ resource "azurerm_network_security_group" "github_runner" {
     destination_address_prefix = azurerm_subnet.github_runner.address_prefixes[0]
   }
 
-  # Allow outbound HTTPS traffic from GitHub runner subnet to storage subnet
+  # Allow access to Instance Metadata Service for managed identity
+  security_rule {
+    name                       = "AllowIMDS"
+    priority                   = 160
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = "AzurePlatformIMDS"
+  }
+
+  # Allow outbound HTTPS traffic from GitHub runner subnet to storage subnet (for private endpoints)
   security_rule {
     name                       = "AllowHTTPSToStorageSubnet"
     priority                   = 185
@@ -249,49 +148,10 @@ resource "azurerm_network_security_group" "github_runner" {
     destination_address_prefix = azurerm_subnet.storage.address_prefixes[0]
   }
 
-  # Allow access to Azure Storage (for accessing terraform state)
-  security_rule {
-    name                       = "AllowStorageAccess"
-    priority                   = 190
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "*"
-    destination_address_prefix = "Storage"
-  }
-
-  # Allow access to Instance Metadata Service for managed identity
-  security_rule {
-    name                       = "AllowIMDS"
-    priority                   = 195
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-    destination_address_prefix = "AzurePlatformIMDS"
-  }
-
-  # Allow ephemeral outbound ports for general internet access
-  security_rule {
-    name                       = "AllowEphemeralOutbound"
-    priority                   = 200
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_ranges    = ["8080", "8443", "9000-9999", "32768-65535"]
-    source_address_prefix      = "*"
-    destination_address_prefix = "Internet"
-  }
-
   # Allow all outbound to internet (NAT Gateway will handle routing)
   security_rule {
     name                       = "AllowInternetOutbound"
-    priority                   = 210
+    priority                   = 200
     direction                  = "Outbound"
     access                     = "Allow"
     protocol                   = "*"
@@ -303,17 +163,73 @@ resource "azurerm_network_security_group" "github_runner" {
 
   # ACA-specific egress rules (conditionally added when github_runner_type == "aca")
   dynamic "security_rule" {
-    for_each = local.aca_rules
+    for_each = var.github_runner_type == "aca" ? [
+      {
+        name                       = "Allow-ARM-HTTPS"
+        priority                   = 220
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = ["443"]
+        source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+        destination_address_prefix = "AzureResourceManager"
+      },
+      {
+        name                       = "Allow-ACR-HTTPS"
+        priority                   = 221
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = ["443"]
+        source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+        destination_address_prefix = "AzureContainerRegistry"
+      },
+      {
+        name                       = "Allow-AzureMonitor-HTTPS"
+        priority                   = 222
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = ["443"]
+        source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+        destination_address_prefix = "AzureMonitor"
+      },
+      {
+        name                       = "Allow-ServiceBus-AMQP"
+        priority                   = 223
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = ["5671-5672"]
+        source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+        destination_address_prefix = "ServiceBus"
+      },
+      {
+        name                       = "Allow-EventHub-AMQP"
+        priority                   = 224
+        direction                  = "Outbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_ranges    = ["5671-5672"]
+        source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+        destination_address_prefix = "EventHub"
+      }
+    ] : []
     content {
       name                       = security_rule.value.name
       priority                   = security_rule.value.priority
-      direction                  = security_rule.value.dir
+      direction                  = security_rule.value.direction
       access                     = security_rule.value.access
-      protocol                   = security_rule.value.proto
-      source_port_range          = security_rule.value.spr
-      destination_port_ranges    = security_rule.value.dprs
-      source_address_prefix      = security_rule.value.sap
-      destination_address_prefix = security_rule.value.dap
+      protocol                   = security_rule.value.protocol
+      source_port_range          = security_rule.value.source_port_range
+      destination_port_ranges    = security_rule.value.destination_port_ranges
+      source_address_prefix      = security_rule.value.source_address_prefix
+      destination_address_prefix = security_rule.value.destination_address_prefix
     }
   }
 
