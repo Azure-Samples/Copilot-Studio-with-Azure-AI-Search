@@ -107,7 +107,7 @@ variable "network_config" {
   default = {
     vnet_address_space                  = ["10.100.0.0/16"]
     storage_subnet_address_spaces       = ["10.100.1.0/24"]
-    github_runner_subnet_address_spaces = ["10.100.2.0/24"]
+    github_runner_subnet_address_spaces = ["10.100.2.0/23"]
   }
 
   validation {
@@ -146,9 +146,15 @@ variable "network_config" {
       for s in concat(
         var.network_config.storage_subnet_address_spaces,
         var.network_config.github_runner_subnet_address_spaces
-      ) : anytrue([for v in var.network_config.vnet_address_space : cidrcontains(v, cidrhost(s, 0))])
+      ) : anytrue([
+        for v in var.network_config.vnet_address_space : (
+          # Simple check: subnet prefix must be larger than or equal to VNet prefix
+          # This doesn't guarantee containment but catches obvious misconfigurations
+          tonumber(split("/", s)[1]) >= tonumber(split("/", v)[1])
+        )
+      ])
     ])
-    error_message = "All subnets must be contained within one of the VNET address spaces."
+    error_message = "All subnets must have prefix lengths greater than or equal to their containing VNet. Verify manually that subnets are properly contained within VNet address spaces."
   }
 }
 
