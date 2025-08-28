@@ -102,7 +102,7 @@ resource "azurerm_subnet_nat_gateway_association" "primary_subnet_nat" {
 
 # Create failover subnets as first-class resources
 resource "azurerm_subnet" "failover_subnet" {
-  
+
   count = local.create_network_infrastructure ? 0 : 1
 
   name                 = var.failover_subnet_name
@@ -131,7 +131,7 @@ resource "azurerm_subnet_nat_gateway_association" "failover_subnet_nat" {
 resource "azurerm_subnet" "pe_primary_subnet" {
   count = local.create_network_infrastructure ? 0 : 1
 
-  
+
   name                 = azurecaf_name.main_pe_subnet_names.results["azurerm_subnet"]
   resource_group_name  = local.resource_group_name
   virtual_network_name = azurerm_virtual_network.primary_virtual_network[0].name
@@ -143,7 +143,7 @@ resource "azurerm_subnet" "pe_primary_subnet" {
 }
 
 resource "azurerm_subnet" "pe_failover_subnet" {
-  
+
   count = local.create_network_infrastructure ? 0 : 1
 
   name                 = azurecaf_name.failover_pe_subnet_names.results["azurerm_subnet"]
