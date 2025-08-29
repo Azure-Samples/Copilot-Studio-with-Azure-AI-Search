@@ -1,29 +1,4 @@
 # Output values
-output "storage_account_name" {
-  description = "Name of the storage account"
-  value       = azurerm_storage_account.tfstate.name
-}
-
-output "storage_account_id" {
-  description = "ID of the storage account"
-  value       = azurerm_storage_account.tfstate.id
-}
-
-output "resource_group_name" {
-  description = "Name of the resource group"
-  value       = azurerm_resource_group.tfstate.name
-}
-
-output "private_endpoint_ip" {
-  description = "Private IP address of the storage account"
-  value       = azurerm_private_endpoint.storage_blob.private_service_connection[0].private_ip_address
-}
-
-output "container_name" {
-  description = "Name of the storage container"
-  value       = azurerm_storage_container.tfstate.name
-}
-
 output "backend_config" {
   description = "Backend configuration for other Terraform projects"
   value = {
@@ -33,12 +8,6 @@ output "backend_config" {
     subscription_id      = var.subscription_id
   }
 }
-
-output "github_runner_subnet_id" {
-  description = "ID of the GitHub runner subnet"
-  value       = azurerm_subnet.github_runner.id
-}
-
 
 # output "container_app_environment_id" {
 #   description = "The ID of the Container Apps Environment"

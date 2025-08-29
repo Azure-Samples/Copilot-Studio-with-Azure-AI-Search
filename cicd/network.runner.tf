@@ -44,19 +44,6 @@ resource "azurerm_network_security_group" "github_runner" {
   #   }
   # }
 
-  # Allow DNS to Azure platform DNS only (no public DNS egress)
-  security_rule {
-    name                       = "AllowDNS-AzurePlatform"
-    priority                   = 130
-    direction                  = "Outbound"
-    access                     = "Allow"
-    protocol                   = "Udp"
-    source_port_range          = "*"
-    destination_port_range     = "53"
-    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-    destination_address_prefix = "AzurePlatformDNS"
-  }
-
   # Explicitly deny DNS to Internet to prevent leakage; allow above takes precedence for platform DNS
   security_rule {
     name                       = "DenyDNSToInternet"
@@ -70,19 +57,6 @@ resource "azurerm_network_security_group" "github_runner" {
     destination_address_prefix = "Internet"
   }
 
-  # Allow NTP for time synchronization
-  # security_rule {
-  #   name                       = "AllowNTP"
-  #   priority                   = 140
-  #   direction                  = "Outbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Udp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "123"
-  #   source_address_prefix      = "*"
-  #   destination_address_prefix = "Internet"
-  # }
-
   # Allow communication with Azure services (includes Storage, ARM, etc.)
   security_rule {
     name                       = "AllowAzureServices"
@@ -95,45 +69,6 @@ resource "azurerm_network_security_group" "github_runner" {
     source_address_prefix      = "*"
     destination_address_prefix = "AzureCloud"
   }
-
-  # Allow communication within the subnet for multi-runner scenarios
-  # security_rule {
-  #   name                       = "AllowIntraSubnet"
-  #   priority                   = 170
-  #   direction                  = "Inbound"
-  #   access                     = "Allow"
-  #   protocol                   = "*"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "*"
-  #   source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-  #   destination_address_prefix = azurerm_subnet.github_runner.address_prefixes[0]
-  # }
-
-  # Allow outbound communication within the subnet
-  # security_rule {
-  #   name                       = "AllowIntraSubnetOutbound"
-  #   priority                   = 180
-  #   direction                  = "Outbound"
-  #   access                     = "Allow"
-  #   protocol                   = "*"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "*"
-  #   source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-  #   destination_address_prefix = azurerm_subnet.github_runner.address_prefixes[0]
-  # }
-
-  # Allow access to Instance Metadata Service for managed identity
-  # security_rule {
-  #   name                       = "AllowIMDS"
-  #   priority                   = 160
-  #   direction                  = "Outbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Tcp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "80"
-  #   source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-  #   destination_address_prefix = "AzurePlatformIMDS"
-  # }
 
   # Allow outbound HTTPS traffic from GitHub runner subnet to storage subnet (for private endpoints)
   security_rule {

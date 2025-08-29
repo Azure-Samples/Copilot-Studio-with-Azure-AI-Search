@@ -33,15 +33,7 @@ run_network_diagnostics() {
     
     # Test DNS resolution
     log "Testing DNS resolution..."
-    nslookup google.com || log "DNS resolution failed"
-    
-    # Test internet connectivity
-    log "Testing internet connectivity..."
-    ping -c 3 8.8.8.8 || log "Ping to 8.8.8.8 failed"
-    
-    # Test HTTPS connectivity
-    log "Testing HTTPS connectivity..."
-    curl -I https://google.com --connect-timeout 10 || log "HTTPS test failed"
+    nslookup github.com || log "DNS resolution failed"
     
     # Test specific GitHub connectivity
     log "Testing GitHub connectivity..."
