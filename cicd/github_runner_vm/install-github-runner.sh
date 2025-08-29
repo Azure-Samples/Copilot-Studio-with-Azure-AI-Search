@@ -31,9 +31,6 @@ run_network_diagnostics() {
     log "Routing table:"
     ip route show
     
-    log "DNS configuration:"
-    cat /etc/resolv.conf
-    
     # Test DNS resolution
     log "Testing DNS resolution..."
     nslookup google.com || log "DNS resolution failed"
@@ -65,12 +62,6 @@ run_network_diagnostics
 # Wait for network to be fully ready
 log "Waiting for network to be ready..."
 sleep 30
-
-# Configure DNS to use reliable DNS servers
-log "Configuring DNS..."
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 
 # Update system packages with retries
 log "Updating system packages..."

@@ -44,31 +44,31 @@ resource "azurerm_network_security_group" "github_runner" {
   #   }
   # }
 
-  # Allow DNS resolution (broad Internet) — replaced by AzurePlatformDNS below
+  # Allow DNS to Azure platform DNS only (no public DNS egress)
   security_rule {
-    name                       = "AllowDNS"
+    name                       = "AllowDNS-AzurePlatform"
     priority                   = 130
     direction                  = "Outbound"
     access                     = "Allow"
     protocol                   = "Udp"
     source_port_range          = "*"
     destination_port_range     = "53"
-    source_address_prefix      = "*"
-    destination_address_prefix = "Internet"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = "AzurePlatformDNS"
   }
 
-  # Allow DNS to Azure platform DNS
-  # security_rule {
-  #   name                       = "AllowDNS-AzurePlatform"
-  #   priority                   = 130
-  #   direction                  = "Outbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Udp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "53"
-  #   source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
-  #   destination_address_prefix = "AzurePlatformDNS"
-  # }
+  # Explicitly deny DNS to Internet to prevent leakage; allow above takes precedence for platform DNS
+  security_rule {
+    name                       = "DenyDNSToInternet"
+    priority                   = 140
+    direction                  = "Outbound"
+    access                     = "Deny"
+    protocol                   = "Udp"
+    source_port_range          = "*"
+    destination_port_range     = "53"
+    source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
+    destination_address_prefix = "Internet"
+  }
 
   # Allow NTP for time synchronization
   # security_rule {
