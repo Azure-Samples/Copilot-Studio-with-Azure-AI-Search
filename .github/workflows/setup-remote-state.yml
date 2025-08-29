@@ -76,6 +76,8 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
+        env: 
+          TF_VAR_github_pat: ${{ github.event.inputs.github_pat }}
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
