@@ -106,8 +106,8 @@ variable "network_config" {
   })
   default = {
     vnet_address_space                  = ["10.100.0.0/16"]
-    storage_subnet_address_spaces       = ["10.100.1.0/24"]
-    github_runner_subnet_address_spaces = ["10.100.2.0/23"]
+    storage_subnet_address_spaces       = ["10.100.2.0/23"]
+    github_runner_subnet_address_spaces = ["10.100.4.0/23"]
   }
 
   validation {
