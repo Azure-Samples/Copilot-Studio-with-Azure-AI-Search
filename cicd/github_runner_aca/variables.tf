@@ -5,17 +5,17 @@ variable "environment_name" {
 
 variable "github_runner_config" {
   type = object({
-    image_name                 = string
-    image_tag                  = string
-    repo_owner    = string
-    repo_name     = string
-    runner_group  = string
-    image_branch  = string
-    min_replicas               = number
-    max_replicas               = number
-    cpu_requests               = string
-    memory_requests            = string
-    workload_profile_type      = string
+    image_name            = string
+    image_tag             = string
+    repo_owner            = string
+    repo_name             = string
+    runner_group          = string
+    image_branch          = string
+    min_replicas          = number
+    max_replicas          = number
+    cpu_requests          = string
+    memory_requests       = string
+    workload_profile_type = string
   })
   description = "Configuration for GitHub self-hosted runners"
   sensitive   = true
@@ -28,10 +28,10 @@ variable "github_runner_registration_token" {
 }
 
 variable "github_pat" {
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
   description = "GitHub Personal Access Token with repo and admin:repo_hook scopes. (DEPRECATED: moving to GitHub App credentials)"
-  default = ""
+  default     = ""
 }
 
 variable "runner_subnet_id" {

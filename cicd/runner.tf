@@ -20,6 +20,12 @@ module "github_runner_vm" {
 
   # Tags
   tags = local.common_tags
+
+  # Ensure NSG is associated to the subnet before provisioning the VM and its extension
+  depends_on = [
+    azurerm_subnet_network_security_group_association.github_runner,
+    azurerm_subnet_nat_gateway_association.github_runner
+  ]
 }
 
 #---- GitHub Actions Self-Hosted Runner Module - Primary Region ----

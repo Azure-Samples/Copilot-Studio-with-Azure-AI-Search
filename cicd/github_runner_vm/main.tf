@@ -37,7 +37,7 @@ resource "azurerm_linux_virtual_machine" "github_runner" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
-    disk_size_gb = 40
+    disk_size_gb         = 40
   }
 
   source_image_reference {
@@ -78,13 +78,13 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
   settings = jsonencode({
     script = base64encode(templatefile("${path.module}/install-github-runner.sh", {
-      runner_token        = var.github_runner_registration_token
-      runner_name         = "${var.vm_github_runner_config.runner_name}-${var.unique_id}"
-      runner_work_folder  = "_work"
-      runner_group        = var.vm_github_runner_config.runner_group
-      runner_labels       = "self-hosted,vm,${var.resource_group_name},${var.location},${var.unique_id}"
-      repo_name           = var.vm_github_runner_config.repo_name
-      repo_owner          = var.vm_github_runner_config.repo_owner
+      runner_token       = var.github_runner_registration_token
+      runner_name        = "${var.vm_github_runner_config.runner_name}-${var.unique_id}"
+      runner_work_folder = "_work"
+      runner_group       = var.vm_github_runner_config.runner_group
+      runner_labels      = "self-hosted,vm,${var.resource_group_name},${var.location},${var.unique_id}"
+      repo_name          = var.vm_github_runner_config.repo_name
+      repo_owner         = var.vm_github_runner_config.repo_owner
     }))
   })
 

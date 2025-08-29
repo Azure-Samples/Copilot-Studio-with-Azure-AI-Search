@@ -144,7 +144,7 @@ resource "azurerm_container_app" "github_runner" {
   }
 
   secret {
-    name  = "github-pat" 
+    name  = "github-pat"
     value = var.github_pat
   }
 
