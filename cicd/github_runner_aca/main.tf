@@ -50,7 +50,7 @@ resource "azurerm_container_app_environment" "github_runners" {
   tags                           = var.tags
 
   workload_profile {
-    name                  = "wp-general"
+    name                  = "Consumption"
     workload_profile_type = var.github_runner_config.workload_profile_type
     minimum_count         = var.github_runner_config.min_replicas
     maximum_count         = var.github_runner_config.max_replicas

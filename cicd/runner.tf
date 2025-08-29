@@ -48,4 +48,10 @@ module "github_runner_aca_primary" {
   # openai_endpoint            = module.azure_open_ai.endpoint
 
   tags = local.common_tags
+
+  # Ensure NSG is associated to the subnet before provisioning ACA
+  depends_on = [
+    azurerm_subnet_network_security_group_association.github_runner,
+    azurerm_subnet_nat_gateway_association.github_runner
+  ]
 }
