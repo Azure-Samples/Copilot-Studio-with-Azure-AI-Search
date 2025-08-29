@@ -77,7 +77,7 @@ jobs:
 
       - name: Terraform Plan
         env: 
-          TF_VAR_github_pat: ${{ github.event.inputs.github_pat }}
+          TF_VAR_github_pat: ${{ github.event.inputs.github_pat || secrets.GH_PAT }}
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
