@@ -45,13 +45,17 @@ jobs:
       TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       TF_VAR_location: ${{ github.event.inputs.location }}
       TF_VAR_github_runner_type: ${{ github.event.inputs.github_runner_type }}
-      TF_VAR_github_runner_registration_token: ${{ github.event.inputs.github_runner_registration_token || secrets.GH_RUNNER_REGISTRATION_TOKEN }}
       TF_VAR_github_runner_config: >
         {
           "repo_owner": "${{ github.repository_owner }}",
           "repo_name": "${{ github.event.repository.name }}",
         }
     steps:
+      - name: Mask Input
+        run: |
+          echo "::add-mask::${{ github.event.inputs.github_runner_registration_token }}"
+          echo "TF_VAR_github_runner_registration_token=${{ github.event.inputs.github_runner_registration_token }}" >> $GITHUB_ENV
+
       - name: Checkout the branch ${{ github.ref_name }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
