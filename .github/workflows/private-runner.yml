@@ -73,7 +73,7 @@ jobs:
           
           # Test DNS resolution for private endpoint
           echo "Testing DNS resolution for private endpoint..."
-          PRIVATE_ENDPOINT_FQDN="${{ vars.RS_STORAGE_ACCOUNT_TEST }}.blob.core.windows.net"
+          PRIVATE_ENDPOINT_FQDN="${{ vars.RS_STORAGE_ACCOUNT }}.blob.core.windows.net"
           echo "Resolving FQDN: $PRIVATE_ENDPOINT_FQDN"
 
           # Test DNS resolution using nslookup
@@ -99,33 +99,33 @@ jobs:
           az account set --subscription "$AZURE_SUBSCRIPTION_ID"
           
           # Test storage account access
-          echo "Checking storage account access: ${{ vars.RS_STORAGE_ACCOUNT_TEST }}"
+          echo "Checking storage account access: ${{ vars.RS_STORAGE_ACCOUNT }}"
           az storage account show \
-            --name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
-            --resource-group "${{ vars.RS_RESOURCE_GROUP_TEST }}" \
+            --name "${{ vars.RS_STORAGE_ACCOUNT }}" \
+            --resource-group "${{ vars.RS_RESOURCE_GROUP }}" \
             --output table
           
           # Test container access
-          echo "Checking container access: ${{ vars.RS_CONTAINER_NAME_TEST }}"
+          echo "Checking container access: ${{ vars.RS_CONTAINER_NAME }}"
           az storage container show \
-            --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
-            --name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --account-name "${{ vars.RS_STORAGE_ACCOUNT }}" \
+            --name "${{ vars.RS_CONTAINER_NAME }}" \
             --auth-mode login \
             --output table
           
           # Test blob operations - list blobs in container
           echo "Testing blob list operation..."
           az storage blob list \
-            --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
-            --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --account-name "${{ vars.RS_STORAGE_ACCOUNT }}" \
+            --container-name "${{ vars.RS_CONTAINER_NAME }}" \
             --auth-mode login \
             --output table
           
           # Test write permission by creating a test blob
           echo "Testing write permission with test blob..."
           echo "test-connection-$(date +%s)" | az storage blob upload \
-            --account-name "${{ vars.RS_STORAGE_ACCOUNT_TEST }}" \
-            --container-name "${{ vars.RS_CONTAINER_NAME_TEST }}" \
+            --account-name "${{ vars.RS_STORAGE_ACCOUNT }}" \
+            --container-name "${{ vars.RS_CONTAINER_NAME }}" \
             --name "connection-test-$(date +%s).txt" \
             --file /dev/stdin \
             --auth-mode login \
@@ -143,9 +143,9 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           
-          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT_TEST }}
-          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME_TEST }}
-          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP_TEST }}
+          RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
+          RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
+          RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
         shell: bash
