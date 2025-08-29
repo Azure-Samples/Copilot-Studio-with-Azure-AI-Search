@@ -81,6 +81,13 @@ variable "github_runner_registration_token" {
   description = "GitHub runner registration token"
 }
 
+variable "github_pat" {
+  type        = string
+  sensitive   = true
+  description = "GitHub Personal Access Token with repo and admin:repo_hook scopes. (DEPRECATED: moving to GitHub App credentials)"
+  default     = ""
+}
+
 # variable "github_runner_vm_size" {
 #   type        = string
 #   default     = "Standard_D2s_v3"

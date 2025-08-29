@@ -43,6 +43,8 @@ module "github_runner_aca_primary" {
   virtual_network_id               = azurerm_virtual_network.tfstate.id
   github_runner_config             = var.github_runner_config
   github_runner_registration_token = var.github_runner_registration_token
+  github_pat                       = var.github_pat
+
   # {
   #   runner_name  = var.github_runner_config.runner_name
   #   runner_token = var.github_runner_config.runner_token

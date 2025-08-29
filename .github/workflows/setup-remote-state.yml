@@ -57,13 +57,10 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
 
-      - name: Mask GitHub runner registration token
-        run: echo "::add-mask::$TF_VAR_github_runner_registration_token"
-
       - name: Install Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.12.2
 
       - name: Login to Azure with Federated Identity
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
