@@ -139,7 +139,7 @@ resource "azurerm_network_security_group" "github_runner" {
         access                     = "Allow"
         protocol                   = "Tcp"
         source_port_range          = "*"
-        destination_port_ranges    = ["5671-5672"]
+        destination_port_ranges    = ["5671", "5672"]
         source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
         destination_address_prefix = "ServiceBus"
       },
@@ -150,7 +150,7 @@ resource "azurerm_network_security_group" "github_runner" {
         access                     = "Allow"
         protocol                   = "Tcp"
         source_port_range          = "*"
-        destination_port_ranges    = ["5671-5672"]
+        destination_port_ranges    = ["5671", "5672"]
         source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
         destination_address_prefix = "EventHub"
       }
