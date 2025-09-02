@@ -32,8 +32,7 @@ resource "azurerm_resource_group" "tfstate" {
 
 # Create Storage Account with private access only
 resource "azurerm_storage_account" "tfstate" {
-  #checkov:skip=CKV2_AZURE_1:Customer Managed Key encryption not required for Terraform state storage
-  #checkov:skip=CKV_AZURE_33:Queue service not required for Terraform state storage
+  # checkov:skip=CKV_AZURE_33:Queue service not required for Terraform state storage
 
   # Note: Customer Managed Key (CMK) encryption not implemented
   # For Terraform state storage, Microsoft-managed keys provide adequate security
