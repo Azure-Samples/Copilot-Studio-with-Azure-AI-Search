@@ -3,6 +3,7 @@
 import argparse
 from urllib.parse import urlparse
 
+
 def absolute_url(value):
     """
     Validate that the input is an absolute URL with a valid scheme and netloc.
@@ -20,6 +21,7 @@ def absolute_url(value):
         raise argparse.ArgumentTypeError(f"'{value}' is not a valid absolute URL")
     return value
 
+
 def valid_name(value):
     """
     Validate that the input is a valid name that may include alphanumeric symbols, "-" or "_".
@@ -36,5 +38,7 @@ def valid_name(value):
         raise argparse.ArgumentTypeError(f"'{value}' is not a valid name")
     parsed_value = value.replace("-", "").replace("_", "")
     if not parsed_value.isalnum():
-        raise argparse.ArgumentTypeError(f"'{value}' contains invalid characters. Look at the documentation for naming conventions.")
+        raise argparse.ArgumentTypeError(
+            f"'{value}' contains invalid characters. Look at the documentation for naming conventions."
+        )
     return value
