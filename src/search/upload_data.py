@@ -28,8 +28,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.DEBUG)
 
 # Create a formatter and set it for the console handler
-formatter = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(formatter)
 
 # Add the console handler to the logger
@@ -41,11 +40,11 @@ STORAGE_ACCOUNT_URL = "https://{storage_account_name}.blob.core.windows.net"
 def matches_pattern(filename: str, file_patterns: List[str]) -> bool:
     """
     Check if filename matches any of the file patterns.
-    
+
     Args:
         filename: Name of file to check
         file_patterns: List of file patterns to match (e.g., ['*.pdf', '*.docx'])
-        
+
     Returns:
         True if file matches any pattern, False otherwise
     """
@@ -64,7 +63,7 @@ def upload_data_files(
 ):
     """
     Upload files from local folder to Azure Blob Storage.
-    
+
     Args:
         credential: Azure credential for authentication
         storage_account_name: Name of the Azure Storage account
@@ -73,17 +72,15 @@ def upload_data_files(
         file_patterns: List of file patterns to match (default: ['*'] for all files)
     """
     if file_patterns is None:
-        file_patterns = ['*']  # Default to all files
-    
+        file_patterns = ["*"]  # Default to all files
+
     logger.info(f"File patterns: {file_patterns}")
-    
-    account_url = STORAGE_ACCOUNT_URL.format(
-        storage_account_name=storage_account_name)
+
+    account_url = STORAGE_ACCOUNT_URL.format(storage_account_name=storage_account_name)
     blob_service_client = BlobServiceClient(
         account_url=account_url, credential=credential
     )
-    blob_container_client = blob_service_client.get_container_client(
-        storage_container)
+    blob_container_client = blob_service_client.get_container_client(storage_container)
 
     if not blob_container_client.exists():
         logger.info(f"Creating {storage_container} container.")
@@ -112,16 +109,18 @@ def upload_data_files(
                 upload_count += 1
             except Exception as e:
                 logger.error(f"Exception uploading file name {file_name}: {e}")
-    
-    logger.info(f"Successfully uploaded {upload_count} files matching patterns {file_patterns}.")
+
+    logger.info(
+        f"Successfully uploaded {upload_count} files matching patterns {file_patterns}."
+    )
 
 
 def main():
     """
     Upload files from local directory to Azure Blob Storage.
-    
-    This function reads the parameters from the command line, authenticates to Azure 
-    using default credentials, and uploads files from a local directory 
+
+    This function reads the parameters from the command line, authenticates to Azure
+    using default credentials, and uploads files from a local directory
     to a specified Azure Blob Storage container. File types can be filtered
     using the --file_pattern argument.
     """
@@ -171,20 +170,22 @@ def main():
         raise ValueError(f"Data path does not exist: {args.data_path}")
 
     # Parse file patterns
-    file_patterns = [pattern.strip() for pattern in args.file_pattern.split(',') if pattern.strip()]
+    file_patterns = [
+        pattern.strip() for pattern in args.file_pattern.split(",") if pattern.strip()
+    ]
     if not file_patterns:
-        file_patterns = ['*']
+        file_patterns = ["*"]
 
     # Check if we're running in a managed identity environment
     azure_client_id = os.environ.get("AZURE_CLIENT_ID")
 
     if azure_client_id:
         logger.info(
-            f"Using managed identity authentication with client ID: {azure_client_id}")
+            f"Using managed identity authentication with client ID: {azure_client_id}"
+        )
         credential = ManagedIdentityCredential(client_id=azure_client_id)
     else:
-        logger.info(
-            "Using default Azure credentials (fallback for local development).")
+        logger.info("Using default Azure credentials (fallback for local development).")
         credential = DefaultAzureCredential()
 
     # Upload the files
