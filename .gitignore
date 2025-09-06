@@ -500,3 +500,5 @@ power_platform_deployment_settings
 .env.*
 
 .external_modules/
+
+*.sln
