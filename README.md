@@ -9,29 +9,29 @@ network security.
 - [Features](#features)
 - [Architecture](#architecture)
   - [Key Architecture Components](#key-architecture-components)
-- [Account & licenses requirements](#account--licenses-requirements)
+- [Account & License Requirements](#account--license-requirements)
   - [User Configuration](#user-configuration)
 - [Getting Started](#getting-started)
   - [GitHub Codespaces](#github-codespaces)
   - [VS Code Dev Containers](#vs-code-dev-containers)
-  - [Local environment](#local-environment)
+  - [Local Environment](#local-environment)
   - [Deploying](#deploying)
-  - [Using the bot](#using-the-bot)
-  - [Clean up](#clean-up)
+  - [Using the Bot](#using-the-bot)
+  - [Clean Up](#clean-up)
 - [Testing](#testing)
-  - [Copilot Studio Agent Tests](#copilot-studio-agent-test)
-  - [AI Search Tests (Optional)](#ai-search-test-optional)
-- [Advanced scenarios](#advanced-scenarios)
-  - [GitHub self-hosted runners](#github-self-hosted-runners)
-  - [Bring your own networking](#bring-your-own-networking)
-  - [Custom resource group](#custom-resource-group)
+  - [Copilot Studio Agent Test](#copilot-studio-agent-test)
+  - [AI Search Test (Optional)](#ai-search-test-optional)
+- [Advanced Scenarios](#advanced-scenarios)
+  - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
+  - [Bring Your Own Networking](#bring-your-own-networking)
+  - [Custom Resource Group](#custom-resource-group)
 - [Additional Considerations](#additional-considerations)
   - [Security Considerations](#security-considerations)
   - [Production Readiness](#production-readiness)
 - [Resources](#resources)
 - [Data Collection](#data-collection)
 - [Responsible AI](#responsible-ai)
-- [Getting help](#getting-help)
+- [Getting Help](#getting-help)
 
 ## Features
 
@@ -71,7 +71,7 @@ This enterprise-ready architecture demonstrates how to securely connect Copilot 
 
 This architecture ensures that sensitive enterprise data never traverses public networks while enabling powerful AI-driven search capabilities through Copilot Studio. The network injection policy guarantees that Power Platform connectors respect corporate network boundaries, providing an additional layer of security for regulated industries.
 
-## Account & licenses requirements
+## Account & License Requirements
 
 **IMPORTANT:** In order to deploy and run this example, you'll need:
 
@@ -137,7 +137,7 @@ A related option is VS Code Dev Containers, which will open the project in your 
 
 3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
 
-### Local environment
+### Local Environment
 
 1. Install the required tools:
 
@@ -208,13 +208,13 @@ The steps below will provision Azure and Power Platform resources and will deplo
       - In Codespaces environments, ensure that the postCreateCommand in devcontainer.json has completed (including PAC CLI installation) before running `azd up` to avoid PAC-related errors.
       - If you encounter a 403 Unauthorized error when initializing the Terraform backend, verify that the storage account's network access settings allow traffic from your IP address. You may need to whitelist your IP or temporarily enable public access, depending on your organization's policy.
 
-### Using the bot
+### Using the Bot
 
 - Go to [Copilot Studio webpage](https://copilotstudio.microsoft.com/)
 - In the top right corner select environment with name starting `Copilot Studio + Azure AI`
 - Open the `AI Search Connection Example` agent.
 
-### Clean up
+### Clean Up
 
 To clean up all the resources created by this sample:
 
@@ -323,19 +323,21 @@ cd tests/AISearch
 
 The tests automatically discover configuration from your azd environment outputs.
 
-### GitHub self-hosted runners
+## Advanced Scenarios
+
+### GitHub Self-Hosted Runners
 
 For organizations requiring deployment through CI/CD pipelines, this solution supports secure GitHub self-hosted runners and includes a turnkey bootstrap that provisions private Terraform remote state and a runner in Azure. The configuration emphasizes private networking (private endpoints, no public IP) and least‑privilege access for enterprise environments.
 
 For step‑by‑step setup—including OIDC authentication, running the bootstrap workflow, capturing backend outputs, and targeting jobs to the runner—see the [CI/CD guide](/docs/cicd.md).
 
-### Bring your own networking
+### Bring Your Own Networking
 
 If your organization needs to deploy into existing virtual networks and enforce corporate routing, egress, and inspection controls, this template supports bring‑your‑own networking. You can wire services to your VNet/subnets, use private endpoints and private DNS, and keep public exposure disabled while meeting enterprise policies.
 
 For supported topologies, prerequisites, and step‑by‑step wiring (subnet requirements, private endpoints for Azure AI Search and Storage, DNS zones, NAT/firewall egress), see the [Bring Your Own Networking guide](/docs/custom_networking.md).
 
-### Custom resource group
+### Custom Resource Group
 
 If you need to deploy into a pre-created or centrally managed Azure resource group (to align with enterprise naming, policy, or billing), the template can target an existing resource group rather than creating a new one. This is especially useful when developers don’t have subscription-level permissions—allowing deployments to proceed with resource group–scoped access.
 
@@ -384,7 +386,7 @@ telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appende
 Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled
 systems to ensure ethical, safe, and inclusive AI practices. Learn more at <https://www.microsoft.com/en-us/ai/responsible-ai>.
 
-## Getting help
+## Getting Help
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
 For help with deploying this sample, please post in [GitHub Issues](/issues).

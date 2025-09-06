@@ -47,12 +47,6 @@ jobs:
         with:
           version: '1.18.1'  # Specify your desired azd version here
 
-      # - name: Install Terraform
-      #   uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-      #   with:
-      #     terraform_version: 1.12.2
-
-
       - name: Install TFLint
         uses: terraform-linters/setup-tflint@90f302c255ef959cbfb4bd10581afecdb7ece3e6 # v4.1.1
         with:
