@@ -59,9 +59,8 @@ def azure_credential(request):
     load_dotenv()
 
     # Get Azure Client ID from command line or environment variable
-    azure_client_id = (
-        request.config.getoption("--azure-client-id") or
-        os.environ.get("AZURE_CLIENT_ID")
+    azure_client_id = request.config.getoption("--azure-client-id") or os.environ.get(
+        "AZURE_CLIENT_ID"
     )
 
     if azure_client_id:
@@ -122,8 +121,7 @@ def resource_names(request):
     """
     names = {
         "index_name": (
-            request.config.getoption(
-                "--index-name") or os.environ.get("INDEX_NAME")
+            request.config.getoption("--index-name") or os.environ.get("INDEX_NAME")
         ),
         "datasource_name": (
             request.config.getoption("--datasource-name")
@@ -134,8 +132,7 @@ def resource_names(request):
             or os.environ.get("SKILLSET_NAME")
         ),
         "indexer_name": (
-            request.config.getoption(
-                "--indexer-name") or os.environ.get("INDEXER_NAME")
+            request.config.getoption("--indexer-name") or os.environ.get("INDEXER_NAME")
         ),
     }
 
@@ -156,8 +153,7 @@ def pytest_configure(config):
     Configure pytest with custom markers.
     """
     config.addinivalue_line("markers", "unit: mark test as a unit test")
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test")
+    config.addinivalue_line("markers", "integration: mark test as an integration test")
     config.addinivalue_line("markers", "e2e: mark test as an end-to-end test")
     config.addinivalue_line(
         "markers", "search_resource: mark test as testing search resources"

@@ -4,17 +4,17 @@ Utilities for managing AI Search service components.
 This module contains functions to create or update an index, indexer, skillset, and datasource.
 It serves as the primary endpoint for experiments with the AI Search service.
 """
+
 import os
 import argparse
 import logging
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import (
-    SearchIndex, 
-    SearchIndexerDataSourceConnection, 
-    SearchIndexer, 
-    SearchIndexerSkillset
+    SearchIndex,
+    SearchIndexerDataSourceConnection,
+    SearchIndexer,
+    SearchIndexerSkillset,
 )
 from common_utils import absolute_url, valid_name
 
@@ -71,13 +71,13 @@ def _prepare_json_schema(file_name: str, values_to_assign: dict) -> str:
 
 
 def create_or_update_skillset(
-        skillset_name: str,
-        index_name: str,
-        skillset_file: str,
-        ai_search_uri: str,
-        open_ai_uri: str,
-        credentials,
-):    
+    skillset_name: str,
+    index_name: str,
+    skillset_file: str,
+    ai_search_uri: str,
+    open_ai_uri: str,
+    credentials,
+):
     """
     Create or update the skillset in the AI Search service. If the skillset already exists, no change.
 
@@ -124,13 +124,13 @@ def create_or_update_skillset(
 
 
 def create_or_update_indexer(
-        indexer_name: str,
-        index_name: str,
-        skillset_name: str,
-        datasource_name: str,
-        indexer_file: str,
-        ai_search_uri: str,
-        credential,
+    indexer_name: str,
+    index_name: str,
+    skillset_name: str,
+    datasource_name: str,
+    indexer_file: str,
+    ai_search_uri: str,
+    credential,
 ):
     """
     Create or update the indexer in the AI Search service. If the indexer already exists, no change.
@@ -178,14 +178,14 @@ def create_or_update_indexer(
 
 
 def create_or_update_datasource(
-        datasource_name: str,
-        datasource_file: str,
-        ai_search_uri: str,
-        subscription_id: str,
-        resource_group_name: str,
-        storage_account_name: str,
-        container_name: str,
-        credential,
+    datasource_name: str,
+    datasource_file: str,
+    ai_search_uri: str,
+    subscription_id: str,
+    resource_group_name: str,
+    storage_account_name: str,
+    container_name: str,
+    credential,
 ):
     """
     Create or update the data source in the AI Search service. If the data source already exists, no change.
@@ -265,11 +265,11 @@ def _get_storage_conn_string(
 
 
 def create_or_update_index(
-        index_name: str,
-        index_file: str,
-        ai_search_uri: str,
-        open_ai_uri: str,
-        credential,
+    index_name: str,
+    index_file: str,
+    ai_search_uri: str,
+    open_ai_uri: str,
+    credential,
 ):
     """
     Create or update the index in the AI Search service. If the index already exists, then no change.
@@ -299,7 +299,9 @@ def create_or_update_index(
 
         # create an object of the index and initiate index creation process if it does not already exist
         index = SearchIndex.deserialize(definition, APPLICATION_JSON_CONTENT_TYPE)
-        logger.info(f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}")
+        logger.info(
+            f"Attempting to create/update index '{index_name}' on AI Search service at {ai_search_uri}"
+        )
         index_client.create_or_update_index(index=index)
         logger.info(f"Successfully created/updated index '{index_name}'")
     except Exception as e:
@@ -307,21 +309,21 @@ def create_or_update_index(
         logger.error(f"AI Search URI: {ai_search_uri}")
         logger.error(f"Credential type: {type(credential).__name__}")
         logger.error(f"Exception type: {type(e).__name__}")
-        
+
         # Try to extract additional error details
         try:
-            status_code = getattr(e, 'status_code', None)
+            status_code = getattr(e, "status_code", None)
             if status_code:
                 logger.error(f"HTTP Status Code: {status_code}")
-            response = getattr(e, 'response', None)
+            response = getattr(e, "response", None)
             if response:
                 logger.error(f"Response details: {response}")
-            error_detail = getattr(e, 'error', None)
+            error_detail = getattr(e, "error", None)
             if error_detail:
                 logger.error(f"Error details: {error_detail}")
         except Exception as inner_e:
             logger.error(f"Could not extract error details: {inner_e}")
-            
+
         raise
 
 
@@ -406,33 +408,45 @@ def main():
 
     # Choose authentication method with explicit user-assigned managed identity priority
     credential = None
-    
+
     # Check if a client ID was provided for user-assigned managed identity
     if args.client_id:
-        logger.info(f"Attempting user-assigned managed identity authentication with client ID: {args.client_id}")
+        logger.info(
+            f"Attempting user-assigned managed identity authentication with client ID: {args.client_id}"
+        )
         try:
             # Use user-assigned managed identity with provided client ID
             credential = ManagedIdentityCredential(client_id=args.client_id)
-            logger.info("Successfully created ManagedIdentityCredential (user-assigned) for AI Search")
+            logger.info(
+                "Successfully created ManagedIdentityCredential (user-assigned) for AI Search"
+            )
         except Exception as e:
-            logger.warning(f"Failed to create user-assigned managed identity credential: {e}")
+            logger.warning(
+                f"Failed to create user-assigned managed identity credential: {e}"
+            )
             credential = None
-    
+
     # Fall back to DefaultAzureCredential if user-assigned managed identity fails or no client ID provided
     if credential is None:
-        logger.info("Using DefaultAzureCredential for AI Search authentication (includes system-assigned managed identity, service principal, etc.)")
+        logger.info(
+            "Using DefaultAzureCredential for AI Search authentication (includes system-assigned managed identity, service principal, etc.)"
+        )
         credential = DefaultAzureCredential()
         logger.info("Successfully created DefaultAzureCredential for AI Search")
 
     # Log the final credential type for debugging
     logger.info(f"Final search credential type: {type(credential).__name__}")
-    
+
     # Log authentication method details for troubleshooting
-    logger.info(f"Authentication method details:")
+    logger.info("Authentication method details:")
     if args.client_id and isinstance(credential, ManagedIdentityCredential):
-        logger.info(f"  - Using user-assigned managed identity with client ID: {args.client_id}")
+        logger.info(
+            f"  - Using user-assigned managed identity with client ID: {args.client_id}"
+        )
     else:
-        logger.info(f"  - Using DefaultAzureCredential (system-assigned managed identity, service principal, etc.)")
+        logger.info(
+            "  - Using DefaultAzureCredential (system-assigned managed identity, service principal, etc.)"
+        )
 
     ai_search_uri = f"https://{args.aisearch_name}.search.windows.net"
 
