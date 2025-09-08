@@ -45,12 +45,12 @@ resource "azurerm_container_app_environment" "github_runners" {
   location                       = var.location
   resource_group_name            = var.resource_group_name
   log_analytics_workspace_id     = azurerm_log_analytics_workspace.github_runners.id
-  infrastructure_subnet_id       = var.infrastructure_subnet_id
+  infrastructure_subnet_id       = var.runner_subnet_id
   internal_load_balancer_enabled = true
   tags                           = var.tags
 
   workload_profile {
-    name                  = "wp-general"
+    name                  = "Consumption"
     workload_profile_type = var.github_runner_config.workload_profile_type
     minimum_count         = var.github_runner_config.min_replicas
     maximum_count         = var.github_runner_config.max_replicas
@@ -85,7 +85,7 @@ resource "azurerm_container_app" "github_runner" {
       }
       env {
         name  = "REPO_URL"
-        value = "https://github.com/${var.github_runner_config.github_repo_owner}/${var.github_runner_config.github_repo_name}"
+        value = "https://github.com/${var.github_runner_config.repo_owner}/${var.github_runner_config.repo_name}"
       }
       env {
         name        = "ACCESS_TOKEN"
@@ -93,7 +93,7 @@ resource "azurerm_container_app" "github_runner" {
       }
       env {
         name  = "RUNNER_GROUP"
-        value = var.github_runner_config.github_runner_group
+        value = var.github_runner_config.runner_group
       }
       env {
         name  = "LABELS"
@@ -112,10 +112,6 @@ resource "azurerm_container_app" "github_runner" {
         value = azurerm_user_assigned_identity.github_runner.client_id
       }
       env {
-        name  = "AZURE_OPENAI_ENDPOINT"
-        value = var.openai_endpoint
-      }
-      env {
         name  = "AZURE_SUBSCRIPTION_ID"
         value = local.subscription_id
       }
@@ -128,8 +124,8 @@ resource "azurerm_container_app" "github_runner" {
       # https://keda.sh/docs/2.17/scalers/github-runner/
       metadata = {
         githubApiURL              = "https://api.github.com"
-        owner                     = var.github_runner_config.github_repo_owner
-        repos                     = var.github_runner_config.github_repo_name
+        owner                     = var.github_runner_config.repo_owner
+        repos                     = var.github_runner_config.repo_name
         targetWorkflowQueueLength = "1"
         labels                    = local.labels
         runnerScope               = local.runner_scope
@@ -149,7 +145,7 @@ resource "azurerm_container_app" "github_runner" {
 
   secret {
     name  = "github-pat"
-    value = var.github_runner_config.github_pat
+    value = var.github_pat
   }
 
   ingress {
@@ -171,9 +167,9 @@ resource "azurerm_container_app" "github_runner" {
 
 resource "null_resource" "deregister_runner" {
   triggers = {
-    pat    = var.github_runner_config.github_pat
-    owner  = var.github_runner_config.github_repo_owner
-    repo   = var.github_runner_config.github_repo_name
+    pat    = var.github_pat
+    owner  = var.github_runner_config.repo_owner
+    repo   = var.github_runner_config.repo_name
     runner = azurerm_container_app.github_runner.name
   }
 

@@ -17,10 +17,9 @@ permissions:
   id-token: write
   contents: read
 
-
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJson(vars.ACTIONS_RUNNER_NAME || '["ubuntu-latest"]') }}
     env:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
@@ -34,12 +33,12 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
         with:
-          version: '1.17.2'  # Specify your desired azd version here
+          version: '1.18.1'  # Specify your desired azd version here
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          terraform_version: 1.9.0
+          terraform_version: 1.12.2
 
       - name: Login to Azure with Federated Identity
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0

@@ -494,6 +494,11 @@ power_platform_deployment_settings
 *_venv/
 *.venv/
 
+.specs/
 # Ignore environment files
 .env
 .env.*
+
+.external_modules/
+
+*.sln

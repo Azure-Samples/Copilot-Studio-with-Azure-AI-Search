@@ -257,32 +257,32 @@ variable "networking" {
     primary_virtual_network = object({
       id = string
 
-      primary_subnet_id                     = string
-      pe_primary_subnet_id                  = string
-      github_runner_primary_subnet_id       = string
+      primary_subnet_id    = string
+      pe_primary_subnet_id = string
+      //github_runner_primary_subnet_id       = string
       deployment_script_container_subnet_id = string
     })
     failover_virtual_network = object({
       id = string
 
-      failover_subnet_id               = string
-      pe_failover_subnet_id            = string
-      github_runner_failover_subnet_id = string
+      failover_subnet_id    = string
+      pe_failover_subnet_id = string
+      //github_runner_failover_subnet_id = string
     })
   })
   default = {
     primary_virtual_network = {
-      id                                    = null
-      primary_subnet_id                     = null
-      pe_primary_subnet_id                  = null
-      github_runner_primary_subnet_id       = null
+      id                   = null
+      primary_subnet_id    = null
+      pe_primary_subnet_id = null
+      //github_runner_primary_subnet_id       = null
       deployment_script_container_subnet_id = null
     }
     failover_virtual_network = {
-      id                               = null
-      failover_subnet_id               = null
-      pe_failover_subnet_id            = null
-      github_runner_failover_subnet_id = null
+      id                    = null
+      failover_subnet_id    = null
+      pe_failover_subnet_id = null
+      //github_runner_failover_subnet_id = null
     }
 
   }
@@ -460,49 +460,6 @@ variable "azure_ai_search_service_principal" {
     client_id                        = null
     client_secret                    = null
   }
-}
-
-variable "github_runner_config" {
-  type = object({
-    image_name                 = string
-    image_tag                  = string
-    github_pat                 = string
-    github_repo_owner          = string
-    github_repo_name           = string
-    github_runner_group        = string
-    github_runner_image_branch = string
-    min_replicas               = number
-    max_replicas               = number
-    cpu_requests               = string
-    memory_requests            = string
-    workload_profile_type      = string
-  })
-  description = "Configuration for GitHub self-hosted runners"
-  sensitive   = true
-}
-
-variable "primary_gh_runner_subnet_address_spaces" {
-  type        = list(string)
-  default     = ["10.1.10.0/23"]
-  description = "GitHub runner subnet address spaces in the primary VNET. Ensure there are no collisions with existing subnets. Must be /23 or larger for Container App Environment."
-}
-
-variable "failover_gh_runner_subnet_address_spaces" {
-  type        = list(string)
-  default     = ["10.2.10.0/23"]
-  description = "GitHub runner subnet address spaces in the failover VNET. Must be /23 or larger for Container App Environment."
-}
-
-variable "deploy_github_runner" {
-  type        = bool
-  default     = false
-  description = "Deploy GitHub Actions self-hosted runner infrastructure. Set to true to enable GitHub runner resources."
-}
-
-variable "enable_failover_github_runner" {
-  type        = bool
-  default     = false # Disabled to reduce runtime
-  description = "Enable the GitHub Actions self-hosted runner in the failover region. Set to true to deploy failover runner resources."
 }
 
 variable "deployment_script_subnet_address_spaces" {
