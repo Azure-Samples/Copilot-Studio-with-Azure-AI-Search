@@ -28,3 +28,4 @@ repos:
     rev: v8.18.2
     hooks:
       - id: gitleaks
+        args: ['git, --max-archive-depth=50', '--verbose']
