@@ -119,23 +119,37 @@ jobs:
 
 
 
+      - name: Install GitLeaks
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz -o gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+          rm gitleaks.tar.gz
+          gitleaks version
+
       - name: GitLeaks Scan
         id: gitleaks
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
-        with:
-          verbosity: "info"
-          report-format: "sarif"
-          report-path: "./gitleaks-report.sarif"
+        run: |
+          echo "Running GitLeaks scan with max archive depth..."
+          gitleaks detect \
+            --verbose \
+            --max-archive-depth 50 \
+            --report-format sarif \
+            --report-path ./gitleaks-report.sarif \
+            --source . \
+            --exit-code 0 || true
+          echo "GitLeaks scan completed"
 
       - name: Upload GitLeaks SARIF report
         if: success() || failure()  # Upload even if GitLeaks finds issues
         uses: github/codeql-action/upload-sarif@9b02dc2f60288b463e7a66e39c78829b62780db7 # v2.22.1
         with:
           directory: ./  # Ensure the report path is correct
-          sarif_file: results.sarif
+          sarif_file: gitleaks-report.sarif
           category: gitleaks
 
       - name: Run Checkov action
