@@ -13,24 +13,28 @@ All infrastructure for CI/CD lives under `cicd/` and can be customized to meet y
 
 ## Prerequisites
 
-- A fork or copy of this repo where you’ll enable CI/CD
-- An Azure subscription and permissions to create resource groups, VNet, Storage, and compute
-- GitHub OIDC (workload identity) configured to authenticate to Azure (recommended)
-  - Create or use an Azure Entra app registration
-  - Add a federated credential for your GitHub repository
-    - Expose the following repository variables so workflows can log in with OIDC:
-      - `AZURE_CLIENT_ID`
-      - `AZURE_TENANT_ID`
-      - `AZURE_SUBSCRIPTION_ID`
-    - See Microsoft docs: “Authenticate to Azure in GitHub Actions using OpenID Connect”
-- Optional: GitHub CLI (`gh`) to trigger the bootstrap workflow from your terminal
+- Working local environment of this template. If you do not have one, Follow the step by step instructions for setting up your [**Local Environment**](./../readme.md).
+- An Azure subscription with either User Access Administrator or Owner permissions to create workload identity resources like service principal, and OIDC to be used by the GitHub Actions.
+- GitHub CLI (`gh`) installed and authenticated to trigger the bootstrap workflow from your terminal.
 
-## Step 1 — Get a GitHub runner token
+## Step 1 — Create your GitHub repo
+
+This is the GihHub repo where your code will be hosted and actions executed. Use the following cmds to create a GitHub repo using gh cli.
+
+```shell
+# To create a public repo, You can set --private if you wish to make you repo private.
+gh repo create YOUR_REPO_OWNER/YOUR_REPO_NAME --public
+
+```
+
+Alternatively you can create the GitHub Repo manually by following [GH Documentation steps here]( https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+
+## Step 2 — Get a GitHub runner token
 
 You’ll register a self-hosted runner to your repository. Generate a short-lived registration token:
 
-```bash
-gh api -X POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" repos/:owner/:repo/actions/runners/registration-token --jq '.token'
+```shell
+gh api -X POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" repos/:YOUR_REPO_OWNER/:YOUR_REPO_NAME/actions/runners/registration-token --jq '.token'
 ```
 
 Alternatively you can get it manually by:
@@ -39,56 +43,47 @@ Alternatively you can get it manually by:
 2. Settings > Actions > Runners > New self-hosted runner
 3. Copy the runner “registration token” (you’ll pass it to the workflow below)
 
-## Step 2 — Run the bootstrap workflow
+## Step 3 — Create the Terraform backend configuration resources and GitHub private runner
 
-This repo includes a workflow that provisions CI/CD infrastructure using Terraform in `cicd/`:
+This repo includes Terraform code in `cicd/` to create the resources needed for remote state and a private runner for GitHub. [Follow the step by step instructions](.\..\cicd\README.md) to create and configure the needed resources.
 
-- File: `.github/workflows/setup-remote-state.yml`
+- Files at: `.\cicd`
 - Inputs: `location` (Azure region, default `westus2`), `github_runner_registration_token` (from Step 1)
 
-Trigger it with GitHub CLI (example uses the current repo):
+What this terraform code does:
 
-```bash
-gh workflow run .github/workflows/setup-remote-state.yml -f github_runner_registration_token=<YOUR_RUNNER_TOKEN>
-```
-
-What this workflow does:
-
-- Logs into Azure using OIDC and your repository variables
-- Runs `terraform init/plan/apply` in `cicd/`
 - Creates a resource group, a private Storage account, a private endpoint, and a `tfstate` container
 - Creates a dedicated subnet and NAT gateway for a self-hosted runner
 - Provisions a Linux VM and installs a GitHub Actions runner using your token
 - Registers the runner at repo scope with labels including `self-hosted`
 - Prints useful Terraform outputs (remote state details) at the end of the run
+  
+## Step 5 — Configure your GitHub repo
 
-## Step 3 — Capture Terraform outputs and set repo variables
+In this step your github repo gets updated with all the needed variables, configurations, workflows, and the code is pushed for you initial commit using azd.
 
-From the workflow’s “Terraform Output” step, note these values and save them as repository variables for your workflows:
+```shell
+azd pipeline config  --auth-type federated --provider github
+```
 
-- `RS_STORAGE_ACCOUNT`: Storage account name for Terraform state
-- `RS_RESOURCE_GROUP`: Name of the resource group that contains the Storage account
-- `RS_CONTAINER_NAME`: Name of the Storage container (defaults to `tfstate`)
+The command will walk you trough setup steps and prompt you for needed values as the following:
+  How would you like to configure your git remote to GitHub? 
+    Choose an existing GitHub repository, Select the newly created GitHub repo.
+  
+  Select how to authenticate the pipeline to Azure
+    Federated Service Principal (SP + OIDC)
 
-If your workflows are authored to use remote state variables, set them to the values that were just provisioned.
+## Step 6 — Validate the runner and networking
 
-To direct jobs to the new runner, set a repo variable used by your workflows for `runs-on` selection, for example:
-
-- `ACTIONS_RUNNER_NAME`: set to `['self-hosted']` (JSON array syntax) to target any self-hosted runner
-
-Note: The runner VM registers with labels like `self-hosted,vm,<resource-group>,<location>,<unique-id>`. You can narrow job placement further by including those additional labels in your `runs-on` matrix if desired.
-
-## Step 4 — Validate the runner and networking
-
-- In GitHub: Settings > Actions > Runners — verify the runner is “Online”
+- In GitHub:
+  - Settings > Actions > Runners — verify the runner is “Online”
+  - Settings > Secrets and variables > Actions — verify the variables section contains the following [ACTIONS_RUNNER_NAME, AZURE_CLIENT_ID, AZURE_SUBSCRIPTION_ID, AZURE_TENANT_ID, RESOURCE_SHARE_USER, RS_CONTAINER_NAME, RS_RESOURCE_GROUP, RS_STORAGE_ACCOUNT]
 - In Azure: Confirm the CI/CD resource group exists and contains:
   - Storage account with public network access disabled and a private endpoint
   - Virtual network, subnets, and NAT gateway for controlled egress
   - Linux VM for the runner (no public IP)
-
-## Step 5 — Use azd with your pipelines
-
-When your runner is online, you can configure application pipelines with Azure Developer CLI. For example, run `azd pipeline config` locally to scaffold pipeline settings for your repo and environment. Your workflows can then use your self-hosted runner by referencing the variable you set above for `runs-on`.
+  
+Now you have completed the needed steps for you own repo. Now start your collaboration and expand your repo.
 
 ## Backend configuration (reference)
 
