@@ -10,7 +10,7 @@ These service level objectives apply to [Issues](https://github.com/Azure-Sample
 
 | Issue Type                        | Triage Response Time |
 |-----------------------------------|----------------------|
-| Critical security vulnerabilities | 1 days               |
+| Critical security vulnerabilities | 1 day                |
 | Bugs affecting core functionality | 5 days               |
 | Feature requests and enhancements | 14 days              |
 | General questions                 | 14 days              |
