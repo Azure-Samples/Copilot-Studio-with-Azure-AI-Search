@@ -24,7 +24,11 @@ repos:
       - id: terraform_validate
         args: [infra]
 
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+  - repo: local
     hooks:
       - id: gitleaks
+        name: Detect hardcoded secrets in staged files
+        entry: gitleaks
+        args: ['detect', '--verbose', '--max-archive-depth=50', '--no-git']
+        language: system
+        pass_filenames: true

@@ -55,12 +55,25 @@ jobs:
 
       - name: Install GitLeaks
         run: |
-          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.17.0/gitleaks_8.17.0_linux_x64.tar.gz -o gitleaks.tar.gz
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.28.0/gitleaks_8.28.0_linux_x64.tar.gz -o gitleaks.tar.gz
           tar -xzf gitleaks.tar.gz
           chmod +x gitleaks
           sudo mv gitleaks /usr/local/bin/
           rm gitleaks.tar.gz
           gitleaks version
+
+      - name: Run GitLeaks Scan
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+        run: |
+          gitleaks detect \
+            --verbose \
+            --max-archive-depth 50 \
+            --report-format sarif \
+            --report-path ./gitleaks-report.sarif \
+            --source . \
+            --exit-code 0 || true
+          echo "GitLeaks scan completed"
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
