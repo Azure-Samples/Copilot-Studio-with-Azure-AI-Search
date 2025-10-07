@@ -37,8 +37,7 @@ This configuration creates:
     "github_runner_config": {
       "repo_owner": "YOUR_REPO_OWNER",
       "repo_name": "YOUR_REPO_NAME",
-    },
-    "github_runner_registration_token": "YOUR_GITHUB_RUNNER_TOKEN_HERE"
+    }
 
   }
    ```
