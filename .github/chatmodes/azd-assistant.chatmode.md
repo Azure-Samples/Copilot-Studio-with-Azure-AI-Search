@@ -302,6 +302,8 @@ az role assignment list \
   --query "[].{Role:roleDefinitionName, Scope:scope}" -o table
 Why Both Assignments Are Needed: - Account-level assignment provides general blob access capabilities - Container-level assignment ensures explicit permission on the specific backend container - Some Terraform backend operations check permissions at container scope - Forgetting the container assignment is a common cause of 403 errors
 
+Additional: Manually assign required API permissions to the service principal. See [App Registration: Configuration Steps](../../docs/app_registration_setup.md#configuration-steps) for the full Power Platform role and API permission list (ensure roles + delegated/app permissions + admin consent are completed).
+
 Verification
 # Test blob access with Azure CLI (uses same auth as pipeline)
 az storage blob list \
@@ -380,7 +382,6 @@ Success Confirmation: Only proceed to use this template when you see:
 10. Security Features Summary
 This repository implements enterprise-grade security: - Private networking by default: All resources use private endpoints - Least-privilege RBAC: No shared storage keys, Azure AD authentication only
 - Data plane access control: Explicit blob permissions at account and container levels - Network isolation: Runner VM has no public IP, uses NAT gateway for egress - Federated identity: OIDC authentication instead of long-lived secrets - Secret-free token handling: Runner tokens passed via environment variables, never written to files
-Refer to docs/security_considerations.md for security best practices.
 
 11. Runner Configuration Options
 VM-based runner (default): Pre-configured with all necessary tools (used in this guide)
