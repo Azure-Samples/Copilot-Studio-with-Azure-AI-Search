@@ -4,11 +4,5 @@
   "github_runner_config": {
     "repo_owner": "YOUR_REPO_OWNER",
     "repo_name": "YOUR_REPO_NAME",
-    "runner_type": "vm",
-    "runner_name": "azure-runner",
-    "runner_group": "default",
-    "vm_size": "Standard_D2s_v3",
-    "vm_os_type": "linux"
-  },
-  "github_runner_registration_token": "YOUR_GITHUB_RUNNER_TOKEN_HERE"
+  }
 }

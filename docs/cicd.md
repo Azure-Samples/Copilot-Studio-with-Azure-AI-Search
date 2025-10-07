@@ -34,7 +34,19 @@ Alternatively you can create the GitHub Repo manually by following [GH Documenta
 You’ll register a self-hosted runner to your repository. Generate a short-lived registration token:
 
 ```shell
-gh api -X POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" repos/:YOUR_REPO_OWNER/:YOUR_REPO_NAME/actions/runners/registration-token --jq '.token'
+# Capture short-lived registration token (expires in ~60 minutes)
+RUNNER_TOKEN=$(gh api -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  repos/:YOUR_REPO_OWNER/:YOUR_REPO_NAME/actions/runners/registration-token \
+  --jq '.token')
+
+# Optional: confirm you received a token (prints first 8 chars)
+echo "Token acquired: ${RUNNER_TOKEN:0:8}********"
+
+# Pass the token to Terraform via environment variable (preferred; never write to files)
+export TF_VAR_github_runner_registration_token="$RUNNER_TOKEN"
+
 ```
 
 Alternatively you can get it manually by:
@@ -67,7 +79,7 @@ azd pipeline config  --auth-type federated --provider github
 ```
 
 The command will walk you trough setup steps and prompt you for needed values as the following:
-  How would you like to configure your git remote to GitHub? 
+  How would you like to configure your git remote to GitHub?
     Choose an existing GitHub repository, Select the newly created GitHub repo.
   
   Select how to authenticate the pipeline to Azure
