@@ -19,7 +19,7 @@ All infrastructure for CI/CD lives under `cicd/` and can be customized to meet y
 
 ## Step 1 — Create your GitHub repo
 
-This is the GihHub repo where your code will be hosted and actions executed. Use the following cmds to create a GitHub repo using gh cli.
+This is the GitHub repo where your code will be hosted and actions executed. Use the following cmds to create a GitHub repo using gh cli.
 
 ```shell
 # To create a public repo, You can set --private if you wish to make you repo private.
@@ -45,7 +45,7 @@ Alternatively you can get it manually by:
 
 ## Step 3 — Create the Terraform backend configuration resources and GitHub private runner
 
-This repo includes Terraform code in `cicd/` to create the resources needed for remote state and a private runner for GitHub. [Follow the step by step instructions](.\..\cicd\README.md) to create and configure the needed resources.
+This repo includes Terraform code in `cicd/` to create the resources needed for remote state and a private runner for GitHub. [Follow the step by step instructions](../cicd/README.md) to create and configure the needed resources.
 
 - Files at: `.\cicd`
 - Inputs: `location` (Azure region, default `westus2`), `github_runner_registration_token` (from Step 1)
@@ -83,7 +83,7 @@ The command will walk you trough setup steps and prompt you for needed values as
   - Virtual network, subnets, and NAT gateway for controlled egress
   - Linux VM for the runner (no public IP)
   
-Now you have completed the needed steps for you own repo. Now start your collaboration and expand your repo.
+Now you have completed the needed steps for your own repo. Now start your collaboration and expand your repo.
 
 ## Backend configuration (reference)
 
@@ -123,7 +123,9 @@ Adjust variables and modules in `cicd/` to match your network, tagging, and scal
 The CI/CD Terraform state is not persisted for day-two operations on these bootstrap resources. To remove the environment:
 
 - Delete the CI/CD resource group in Azure that contains the runner, VNet, and Storage
-- In GitHub: Settings > Actions > Runners — remove the self-hosted runner entry
+- In GitHub:
+  - Settings > Actions > Runners — remove the self-hosted runner entry.
+  - Settings > Secrets and variables > Actions — Clear the value of ACTIONS_RUNNER_NAME variable to let runners use default runners.
 
 This returns your repo to using GitHub-hosted runners unless you keep other self-hosted runners configured.
 
