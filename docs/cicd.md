@@ -19,7 +19,7 @@ All infrastructure for CI/CD lives under `cicd/` and can be customized to meet y
 
 ## Step 1 — Create your GitHub repo
 
-This is the GitHub repo where your code will be hosted and actions executed. Use the following cmds to create a GitHub repo using gh cli.
+This is the GitHub repo where your code will be hosted and actions executed. Use the following commands to create a GitHub repo using gh cli.
 
 ```shell
 # To create a public repo, You can set --private if you wish to make you repo private.
