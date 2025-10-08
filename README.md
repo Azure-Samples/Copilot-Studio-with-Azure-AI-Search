@@ -6,32 +6,38 @@ network security.
 
 ## Table of Contents
 
-- [Features](#features)
-- [Architecture](#architecture)
-  - [Key Architecture Components](#key-architecture-components)
-- [Account & License Requirements](#account--license-requirements)
-  - [User Configuration](#user-configuration)
-- [Getting Started](#getting-started)
-  - [GitHub Codespaces](#github-codespaces)
-  - [VS Code Dev Containers](#vs-code-dev-containers)
-  - [Local Environment](#local-environment)
-  - [Deploying](#deploying)
-  - [Using the Bot](#using-the-bot)
-  - [Clean Up](#clean-up)
-- [Testing](#testing)
-  - [Copilot Studio Agent Test](#copilot-studio-agent-test)
-  - [AI Search Test (Optional)](#ai-search-test-optional)
-- [Advanced Scenarios](#advanced-scenarios)
-  - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
-  - [Bring Your Own Networking](#bring-your-own-networking)
-  - [Custom Resource Group](#custom-resource-group)
-- [Additional Considerations](#additional-considerations)
-  - [Security Considerations](#security-considerations)
-  - [Production Readiness](#production-readiness)
-- [Resources](#resources)
-- [Data Collection](#data-collection)
-- [Responsible AI](#responsible-ai)
-- [Getting Help](#getting-help)
+- [Copilot Studio with Azure AI Search](#copilot-studio-with-azure-ai-search)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Architecture](#architecture)
+    - [Key Architecture Components](#key-architecture-components)
+  - [Account \& License Requirements](#account--license-requirements)
+    - [User Configuration](#user-configuration)
+  - [Getting Started](#getting-started)
+    - [GitHub Codespaces](#github-codespaces)
+    - [VS Code Dev Containers](#vs-code-dev-containers)
+    - [Local Environment](#local-environment)
+    - [Deploying](#deploying)
+    - [Using the Bot](#using-the-bot)
+    - [Clean Up](#clean-up)
+  - [Testing](#testing)
+    - [Copilot Studio Agent Test](#copilot-studio-agent-test)
+      - [Running Tests After Local Deployment Execution](#running-tests-after-local-deployment-execution)
+      - [Running Tests with Manual Environment Variable Configuration](#running-tests-with-manual-environment-variable-configuration)
+    - [AI Search Test (Optional)](#ai-search-test-optional)
+      - [Prerequisites for AI Search Tests](#prerequisites-for-ai-search-tests)
+      - [Running AI Search Tests Locally](#running-ai-search-tests-locally)
+  - [Advanced Scenarios](#advanced-scenarios)
+    - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
+    - [Bring Your Own Networking](#bring-your-own-networking)
+    - [Custom Resource Group](#custom-resource-group)
+  - [Additional Considerations](#additional-considerations)
+    - [Security Considerations](#security-considerations)
+    - [Production Readiness](#production-readiness)
+  - [Resources](#resources)
+  - [Data Collection](#data-collection)
+  - [Responsible AI](#responsible-ai)
+  - [Getting Help](#getting-help)
 
 ## Features
 
@@ -161,6 +167,7 @@ A related option is VS Code Dev Containers, which will open the project in your 
     ```
 
     Note that this command will initialize a git repository, so you do not need to clone this repository.
+    This will also create a new folder with the environment name you entered though the cmd steps in the `.azure` folder. It will also set it as the default environment for any calls to `azd` going forward.
 
 ### Deploying
 
@@ -181,14 +188,6 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     *Note: the `pac auth create` command may return a warning about being unable to connect to a Dataverse organization. This is expected, and will not impact the deployment.*
 
-1. Create a new azd environment:
-
-    ```shell
-    azd env new
-    ```
-
-    This will create a new folder in the `.azure` folder, and set it as the active environment for any calls to `azd` going forward.
-
 1. Set you internative testing user.
   
     ```shell
@@ -197,7 +196,7 @@ The steps below will provision Azure and Power Platform resources and will deplo
 
     Set this value to the Azure Entra ID object ID of the primary administrator or developer who will manage and modify the deployed solution resources in the future. This user will be granted administrative access to the Power Platform resources (such as bot ownership and environment management) and will have visibility into the Azure resources provisioned by this deployment. Replace `entraid_user_object_id` with the actual object ID of the intended admin or developer.
 
-1. Deploy your infrastructure
+3. Deploy your infrastructure
 
     ```shell
     azd up

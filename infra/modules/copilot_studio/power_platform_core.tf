@@ -30,7 +30,7 @@ resource "powerplatform_billing_policy" "this" {
   count = var.power_platform_billing_policy.should_create && var.power_platform_environment.id == "" ? 1 : 0
 
   name     = "${var.power_platform_billing_policy.name}${var.unique_id}"
-  location = var.power_platform_environment.location
+  location = var.power_platform_environment.location != "" && var.power_platform_environment.location != null ? var.power_platform_environment.location : (local.search_power_platform_location != "no_value_found" ? local.search_power_platform_location[0].name : "")
   status   = "Enabled"
   billing_instrument = {
     resource_group  = var.resource_group_name

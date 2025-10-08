@@ -1,6 +1,8 @@
 {
   "subscription_id": "00000000-0000-0000-0000-000000000000",
-  "location": "East US",
-  "github_owner": "Azure-Samples",
-  "github_repository": "Copilot-Studio-with-Azure-AI-Search"
+  "location": "West US",
+  "github_runner_config": {
+    "repo_owner": "YOUR_REPO_OWNER",
+    "repo_name": "YOUR_REPO_NAME",
+  }
 }

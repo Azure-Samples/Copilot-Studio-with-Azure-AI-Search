@@ -32,12 +32,14 @@ This configuration creates:
 
    ```json
    {
-     "subscription_id": "your-subscription-id",
-     "location": "East US",
-     "github_token": "your-github-token",
-     "github_owner": "Azure-Samples",
-     "github_repository": "Copilot-Studio-with-Azure-AI-Search"
-   }
+    "subscription_id": "YOUR_SUBSCRIPTION_ID",
+    "location": "West US",
+    "github_runner_config": {
+      "repo_owner": "YOUR_REPO_OWNER",
+      "repo_name": "YOUR_REPO_NAME",
+    }
+
+  }
    ```
 
 3. Initialize and apply:
@@ -50,20 +52,33 @@ This configuration creates:
 
 ## Backend Configuration
 
-After deployment, use the output values to configure your Terraform backend in other projects:
+After deployment, use the output to set the remote state values for your template.
 
 ```hcl
-terraform {
-  backend "azurerm" {
-    storage_account_name = "sttfstate<random>"
-    container_name       = "tfstate"
-    key                  = "terraform.tfstate"
-    resource_group_name  = "rg-tfstate-<random>"
-    subscription_id      = "your-subscription-id"
-    use_azuread_auth     = true
-  }
+backend_config = {
+  "container_name" = "CONTAINER_NAME"
+  "resource_group_name" = "RESOURCE_GROUP_NAME"
+  "storage_account_name" = "STORAGE_ACCOUNT_NAME"
+  "subscription_id" = "SUBSCRIPTION_ID"
 }
 ```
+
+   ```shell
+    # Set the remote state variables
+    azd env set RS_STORAGE_ACCOUNT 'STORAGE_ACCOUNT_NAME'
+    azd env set RS_CONTAINER_NAME 'CONTAINER_NAME'
+    azd env set RS_RESOURCE_GROUP 'RESOURCE_GROUP_NAME'
+
+    # Direct  jobs to the new runner by setting a repo variable used by your workflows for `runs-on` selection
+    azd env set ACTIONS_RUNNER_NAME ['self-hosted']
+    
+    # Update the template to use remote backend
+    azd hooks run prepackage
+    ```
+
+  - `ACTIONS_RUNNER_NAME`: set to `['self-hosted']` (JSON array syntax) to target any self-hosted runner
+
+Note: The runner VM registers with labels like `self-hosted,vm,<resource-group>,<location>,<unique-id>`. You can narrow job placement further by including those additional labels in your `runs-on` matrix if desired.
 
 ## Security Features
 
@@ -81,16 +96,5 @@ This configuration automatically sets up GitHub repository variables for CI/CD p
 - `RS_RESOURCE_GROUP`: Name of the resource group containing the storage account
 - `RS_CONTAINER_NAME`: Name of the storage container for Terraform state
 
-These variables can be used in GitHub Actions workflows to configure Terraform backend settings.
+These variables will be used in GitHub Actions workflows to configure Terraform backend settings.
 
-## Environment Variables Alternative
-
-Instead of using `terraform.tfvars.json`, you can set environment variables:
-
-```bash
-export TF_VAR_subscription_id="your-subscription-id"
-export TF_VAR_location="East US"
-export TF_VAR_github_token="your-github-token"
-export TF_VAR_github_owner="Azure-Samples"
-export TF_VAR_github_repository="Copilot-Studio-with-Azure-AI-Search"
-```
