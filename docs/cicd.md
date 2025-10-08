@@ -78,7 +78,7 @@ In this step your github repo gets updated with all the needed variables, config
 azd pipeline config  --auth-type federated --provider github
 ```
 
-The command will walk you trough setup steps and prompt you for needed values as the following:
+The command will walk you through setup steps and prompt you for needed values, such as the following:
   How would you like to configure your git remote to GitHub?
     Choose an existing GitHub repository, Select the newly created GitHub repo.
   
