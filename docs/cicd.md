@@ -27,7 +27,7 @@ gh repo create YOUR_REPO_OWNER/YOUR_REPO_NAME --public
 
 ```
 
-Alternatively you can create the GitHub Repo manually by following [GH Documentation steps here]( https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+Alternatively you can create the GitHub Repo manually by following [Github Documentation steps here]( https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
 
 ## Step 2 — Get a GitHub runner token
 
