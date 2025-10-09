@@ -63,6 +63,9 @@ provider "azurerm" {
 }
 
 provider "azapi" {
+  # Use Azure CLI authentication (same as azurerm provider)
+  use_cli = true
+  
   # partner_id enables anonymous telemetry that helps us justify ongoing investment in maintaining and improving this template.
   # Keeping this line supports the project and future feature development. To opt out of telemetry, simply remove the line below.
   partner_id = "acce1e78-90a1-4306-89d1-a03ed6284007"

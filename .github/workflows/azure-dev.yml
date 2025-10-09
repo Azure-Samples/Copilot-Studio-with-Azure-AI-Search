@@ -45,7 +45,7 @@ jobs:
       - name: Install azd
         uses: Azure/setup-azd@ae0f8b5482eeac61e940f447327d84c73beb8b1e # v2.1.0
         with:
-          version: '1.19.0'  # Specify your desired azd version here
+          version: '1.20.0'  # Specify your desired azd version here
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -157,7 +157,7 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
 
-          azd provision --no-prompt --debug
+          azd provision --no-prompt
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: success() || failure()
