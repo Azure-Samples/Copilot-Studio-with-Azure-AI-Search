@@ -147,7 +147,7 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
 
-          azd provision --no-prompt
+          azd provision --no-prompt --debug
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: success() || failure()
