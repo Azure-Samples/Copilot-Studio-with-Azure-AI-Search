@@ -142,6 +142,10 @@ jobs:
           GITHUB_RUNNER_IMAGE_BRANCH: ${{ github.ref_name }}
         shell: bash
         run: |
+          echo "here are the environment variables"
+          printenv | sort
+
+
           azd config set auth.useAzCliAuth "true"
           azd env new "$AZURE_ENV_NAME" --location "$AZURE_LOCATION" --no-prompt
           azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
