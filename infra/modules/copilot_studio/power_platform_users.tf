@@ -41,5 +41,5 @@ resource "powerplatform_user" "new_non_dataverse_user" {
   environment_id = local.power_platform_environment_id
   security_roles = local.security_role_ids
   aad_id         = each.value
-  // disable_delete = false
+  disable_delete = false
 }
