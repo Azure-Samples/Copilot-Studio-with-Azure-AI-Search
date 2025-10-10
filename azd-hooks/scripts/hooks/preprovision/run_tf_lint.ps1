@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 function Check-TFLint {
     Write-Host "Checking if TFLint is installed...`n"
 

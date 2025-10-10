@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 function Check-Gitleaks {
     Write-Host "Checking if Gitleaks is installed...`n"
 

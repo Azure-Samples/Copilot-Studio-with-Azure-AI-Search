@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
 # Test runner script for AI Search integration tests
 # This script sets up the environment and runs AI Search tests using deployed azd resources

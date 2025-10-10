@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """
 Data Fetcher for Copilot Studio Azure AI Search Project
 

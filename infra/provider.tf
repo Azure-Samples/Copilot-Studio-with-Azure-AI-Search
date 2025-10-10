@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Configure desired versions of terraform, azurerm provider
 terraform {
   backend "local" {

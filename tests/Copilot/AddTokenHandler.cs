@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 // Based on sample code from https://github.com/microsoft/Agents-for-net
 
 using Microsoft.Agents.CopilotStudio.Client;

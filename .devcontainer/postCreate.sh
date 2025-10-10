@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 set -eux
 
 echo "Running post-create setup for interactive operations..."

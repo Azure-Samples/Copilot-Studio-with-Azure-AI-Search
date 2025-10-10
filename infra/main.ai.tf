@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 module "azure_open_ai" {
   # checkov:skip=CKV2_AZURE_22: Customer-managed keys should be added in production usage but are not included here for simplicity.
   # checkov:skip=CKV_AZURE_236: The Power Platform AI Search connector only supports service principal, API key, or interactive auth. 

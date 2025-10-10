@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 data "powerplatform_tenant" "current" {}
 
 data "powerplatform_data_records" "business_unit_root" {

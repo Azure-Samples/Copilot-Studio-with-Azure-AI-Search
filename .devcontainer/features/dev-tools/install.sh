@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 set -eux
 
 echo "Installing development tools for Copilot Studio with Azure AI Search..."
