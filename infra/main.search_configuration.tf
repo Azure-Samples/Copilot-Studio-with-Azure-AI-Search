@@ -74,7 +74,7 @@ resource "azapi_resource" "configure_search_index" {
     time_sleep.wait_for_search_permissions, # Wait for Search Service permissions
     azurerm_storage_account.deployment_container,
     module.storage_account_and_container,
-    module.azure_open_ai
+    time_sleep.wait_for_openai_account # Wait for OpenAI account to be fully provisioned
   ]
 
   type      = "Microsoft.Resources/deploymentScripts@2023-08-01"

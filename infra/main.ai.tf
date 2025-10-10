@@ -44,6 +44,21 @@ module "azure_open_ai" {
   depends_on = [module.copilot_studio]
 }
 
+# Wait for Azure OpenAI account to fully provision before creating dependent resources
+# The Cognitive Services account creation is asynchronous and returns "Accepted" immediately
+# but takes 60-120 seconds to reach "Succeeded" state. Without this wait, private endpoint
+# creation fails with "AccountProvisioningStateInvalid" error.
+resource "time_sleep" "wait_for_openai_account" {
+  depends_on = [module.azure_open_ai]
+
+  create_duration = "120s"
+
+  triggers = {
+    # Force recreation if account changes
+    account_id = module.azure_open_ai.resource_id
+  }
+}
+
 # Private DNS zone for Azure OpenAI private endpoint resolution
 resource "azurerm_private_dns_zone" "aoai_dns" {
   name                = "privatelink.openai.azure.com"
@@ -74,4 +89,10 @@ resource "azurerm_private_dns_a_record" "aoai_dns_record" {
   ttl                 = 10
   records             = [module.azure_open_ai.private_endpoints["pe_endpoint"].private_service_connection[0].private_ip_address]
   tags                = var.tags
+
+  depends_on = [
+    time_sleep.wait_for_openai_account,
+    azurerm_private_dns_zone.aoai_dns,
+    azurerm_private_dns_zone_virtual_network_link.aoai_dns_links
+  ]
 }
