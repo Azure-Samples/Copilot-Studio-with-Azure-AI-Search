@@ -28,17 +28,17 @@ locals {
 }
 
 # Add non-dataverse user to Power Platform environment
-resource "powerplatform_user" "new_non_dataverse_user" {
-  for_each       = length(var.resource_share_user) > 0 ? var.resource_share_user : []
-  environment_id = local.power_platform_environment_id
-  security_roles = local.security_role_ids
-  aad_id         = each.value
-  disable_delete = false
+# resource "powerplatform_user" "new_non_dataverse_user" {
+#   for_each       = length(var.resource_share_user) > 0 ? var.resource_share_user : []
+#   environment_id = local.power_platform_environment_id
+#   security_roles = local.security_role_ids
+#   aad_id         = each.value
+#   disable_delete = false
 
-  lifecycle {
-    precondition {
-      condition     = length(local.missing_roles) == 0
-      error_message = "The following security roles were requested but do not exist in the Power Platform environment: ${join(", ", local.missing_roles)}. Available roles are: ${join(", ", keys(local.security_role_id))}"
-    }
-  }
-}
+#   lifecycle {
+#     precondition {
+#       condition     = length(local.missing_roles) == 0
+#       error_message = "The following security roles were requested but do not exist in the Power Platform environment: ${join(", ", local.missing_roles)}. Available roles are: ${join(", ", keys(local.security_role_id))}"
+#     }
+#   }
+# }
