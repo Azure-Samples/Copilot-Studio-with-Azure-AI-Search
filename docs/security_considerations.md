@@ -95,21 +95,14 @@ flowchart TB
                     DS_Delegation[ACI Delegation]
                     DS_NSG -.-> DS_Delegation
                 end
-                subgraph GHR_Subnet[GitHub Runner Subnet<br/>*Optional*]
-                    GHR_NSG[GitHub Runner NSG<br/>*Optional*]
-                    GHR_Delegation[ACA Environment Delegatio]
-                    GHR_NSG -.-> GHR_Delegation
-                end
                 subgraph PE_Subnet[Private Endpoint<br/>Subnet]
                     PE_NSG[Private Endpoint NSG]
                     PE_AOAI[Private Endpoint<br/>Azure OpenAI]
                     PE_AIS[Private Endpoint<br/>AI Search]
                     PE_Storage[Private Endpoint<br/>Storage]
-                    PE_ACR[Private Endpoint<br/>Container Registry]
                     PE_NSG -.-> PE_AOAI
                     PE_NSG -.-> PE_AIS
                     PE_NSG -.-> PE_Storage
-                    PE_NSG -.-> PE_ACR
                 end
             end
             
@@ -119,15 +112,12 @@ flowchart TB
                 Storage[Main Storage Account]
                 DSStorage[Deployment Storage Account]
                 AppInsights[Application Insights<br/>*Optional*]
-                ACR[Container Registry<br/>*Optional*]
-                
-                Runner[ACA GitHub Runner<br/>*Optional*]
+
                 NAT[NAT Gateway]
                 NATIP[NAT Gateway Public IP]
                 DS[Deployment Scripts]
                 DSMI[Deployment Script Managed Identity]
                 AISMI[AI Search Managed Identity]
-                RunnerLog[GitHub Runner Log Analytics<br/>*Optional*]
             end
             NIP[Network Injection Policy]
         end
@@ -136,15 +126,13 @@ flowchart TB
 
 
     PP ~~~ AZS
-    PP_Subnet ~~~ PE_Subnet ~~~ GHR_Subnet ~~~ DS_Subnet
+    PP_Subnet ~~~ PE_Subnet ~~~ DS_Subnet
     NIP -.-> PVNET ~~~ Resources
     DNS ~~~ PVNET
     AIS --> AISMI
     AISMI --> Storage
     AISMI --> AOAI
     DS --> DSMI --> DSStorage
-    Runner --> ACR
-    Runner --> RunnerLog
     NAT --> NATIP
 
 ```
