@@ -28,7 +28,7 @@ resource "azurerm_storage_account" "deployment_container" {
   # Allow blob public access for script uploads
   allow_nested_items_to_be_public = false
   # Ensure public network access is enabled for deployment scripts
-  public_network_access_enabled = true
+  public_network_access_enabled = true #what is the point going private vnet if this is public?
   tags                          = var.tags
 
   # Explicit network rules with proper bypass for Azure services
