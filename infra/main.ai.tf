@@ -29,13 +29,8 @@ module "azure_open_ai" {
     ]
   }
 
-  private_endpoints = {
-    pe_endpoint = {
-      name                            = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
-      private_service_connection_name = "pe_endpoint_connection"
-      subnet_resource_id              = local.pe_primary_subnet_id
-    }
-  }
+  # Private endpoint removed from module and created separately below
+  # to allow proper wait time for account provisioning
   managed_identities = {
     system_assigned = true
   }
@@ -57,6 +52,24 @@ resource "time_sleep" "wait_for_openai_account" {
     # Force recreation if account changes
     account_id = module.azure_open_ai.resource_id
   }
+}
+
+# Private endpoint for Azure OpenAI - created separately to allow proper wait time
+resource "azurerm_private_endpoint" "aoai" {
+  name                = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
+  location            = local.primary_azure_region
+  resource_group_name = local.resource_group_name
+  subnet_id           = local.pe_primary_subnet_id
+  tags                = var.tags
+
+  private_service_connection {
+    name                           = "pe_endpoint_connection"
+    private_connection_resource_id = module.azure_open_ai.resource_id
+    is_manual_connection           = false
+    subresource_names              = ["account"]
+  }
+
+  depends_on = [time_sleep.wait_for_openai_account]
 }
 
 # Private DNS zone for Azure OpenAI private endpoint resolution
@@ -81,17 +94,16 @@ resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
 }
 
 # DNS A record for Azure OpenAI private endpoint
-# The module creates the private endpoint, so we reference it from the module outputs
 resource "azurerm_private_dns_a_record" "aoai_dns_record" {
   name                = module.azure_open_ai.resource.name
   zone_name           = azurerm_private_dns_zone.aoai_dns.name
   resource_group_name = local.resource_group_name
   ttl                 = 10
-  records             = [module.azure_open_ai.private_endpoints["pe_endpoint"].private_service_connection[0].private_ip_address]
+  records             = [azurerm_private_endpoint.aoai.private_service_connection[0].private_ip_address]
   tags                = var.tags
 
   depends_on = [
-    time_sleep.wait_for_openai_account,
+    azurerm_private_endpoint.aoai,
     azurerm_private_dns_zone.aoai_dns,
     azurerm_private_dns_zone_virtual_network_link.aoai_dns_links
   ]
