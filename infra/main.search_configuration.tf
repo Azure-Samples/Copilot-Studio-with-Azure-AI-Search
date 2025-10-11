@@ -90,10 +90,11 @@ resource "azapi_resource" "configure_search_index" {
     kind     = "AzureCLI"
     location = local.primary_azure_region
     properties = {
-      azCliVersion      = "2.45.0"
-      retentionInterval = "P1D"          # Keep logs for 1 day for debugging
-      cleanupPreference = "OnExpiration" # Keep container until retention expires
-      timeout           = "PT30M"        # Increase timeout for complex operations
+  azCliVersion      = "2.45.0"
+  forceUpdateTag    = local.deployment_timestamp
+  retentionInterval = "P7D"            # Retain script artifacts for 7 days for postmortem analysis
+  cleanupPreference = "OnExpiration"   # Keep artifacts for the retention window regardless of outcome
+  timeout           = "PT30M"        # Increase timeout for complex operations
       storageAccountSettings = {
         storageAccountName = azurerm_storage_account.deployment_container.name
       }
@@ -222,6 +223,26 @@ resource "azapi_resource" "configure_search_index" {
         {
           name  = "GITHUB_REPO_URL"
           value = var.data_source_url
+        }
+      ]
+    }
+  }
+}
+
+resource "azapi_resource" "configure_search_index_diagnostics" {
+  count = var.include_log_analytics ? 1 : 0
+
+  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
+  name      = "configure-search-index-logs"
+  parent_id = azapi_resource.configure_search_index.id
+
+  body = {
+    properties = {
+      workspaceId = azurerm_log_analytics_workspace.monitoring[0].id
+      logs = [
+        {
+          categoryGroup = "allLogs"
+          enabled       = true
         }
       ]
     }
