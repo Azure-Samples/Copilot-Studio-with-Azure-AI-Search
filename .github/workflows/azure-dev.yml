@@ -123,6 +123,7 @@ jobs:
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
+          RESOURCE_TAGS: ${{ vars.RESOURCE_TAGS }}
       
           GITHUB_PAT: ${{ secrets.MCS_RUNNER }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
@@ -135,6 +136,7 @@ jobs:
           azd config set auth.useAzCliAuth "true"
           azd env new "$AZURE_ENV_NAME" --location "$AZURE_LOCATION" --no-prompt
           azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
+          azd env set RESOURCE_TAGS "$RESOURCE_TAGS"
 
           azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
           azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
