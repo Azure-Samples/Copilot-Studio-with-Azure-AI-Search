@@ -479,6 +479,19 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
     destination_address_prefix = "Storage"
   }
 
+  # Allow Azure Files SMB access for script volume mounts
+  security_rule {
+    name                       = "Allow-Storage-SMB-Outbound"
+    priority                   = 112
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "445"
+    source_address_prefixes    = var.deployment_script_subnet_address_spaces
+    destination_address_prefix = "Storage"
+  }
+
   # Allow Azure AI Search access (via private endpoint)
   security_rule {
     name                         = "Allow-AISearch-Outbound"
