@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 output "ai_search_resource_name" {
   description = "The name of the AI Search resource"
   value       = azurerm_search_service.ai_search.name

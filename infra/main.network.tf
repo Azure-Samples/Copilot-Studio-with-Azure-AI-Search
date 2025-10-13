@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 locals {
   create_network_infrastructure = var.networking.primary_virtual_network.id != null && length(var.networking.primary_virtual_network.id) > 0 ? true : false
   primary_virtual_network_id    = coalesce(var.networking.primary_virtual_network.id, local.create_network_infrastructure ? null : azurerm_virtual_network.primary_virtual_network[0].id)

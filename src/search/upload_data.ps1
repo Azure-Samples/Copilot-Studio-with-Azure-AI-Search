@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 <#
 .SYNOPSIS
     Uploads all PDF files from the current directory to an Azure Blob Storage container.

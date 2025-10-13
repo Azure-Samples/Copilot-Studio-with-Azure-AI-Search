@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """
 Upload data files from local directory to Azure Blob Storage.
 

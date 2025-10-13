@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 function Check-Checkov {
     Write-Host "Checking if Checkov is installed...`n"
 
