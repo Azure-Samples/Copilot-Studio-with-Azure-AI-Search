@@ -13,7 +13,7 @@ All infrastructure for CI/CD lives under `cicd/` and can be customized to meet y
 
 ## Prerequisites
 
-- Working local environment of this template. If you do not have one, Follow the step by step instructions for setting up your [**Local Environment**](./../readme.md).
+- Working local environment of this template. If you do not have one, Follow the step by step instructions for setting up your [**Local Environment**](../README.md#local-environment)
 - An Azure subscription with either User Access Administrator or Owner permissions to create workload identity resources like service principal, and OIDC to be used by the GitHub Actions.
 - GitHub CLI (`gh`) installed and authenticated to trigger the bootstrap workflow from your terminal.
 

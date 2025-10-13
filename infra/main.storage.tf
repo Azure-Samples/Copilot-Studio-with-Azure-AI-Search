@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # ============================================================================
 # PRIVATE DNS CONFIGURATION FOR STORAGE PRIVATE ENDPOINTS
 # ============================================================================

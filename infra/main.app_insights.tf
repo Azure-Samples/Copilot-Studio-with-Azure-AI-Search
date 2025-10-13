@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 resource "random_uuid" "uid" {}
 
 resource "azurerm_application_insights" "insights" {

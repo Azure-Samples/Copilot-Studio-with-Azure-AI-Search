@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Basic usage of the Copilot Studio module. Assumes the usage of AVMs to initialize minimal prerequisite resources.
 locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"

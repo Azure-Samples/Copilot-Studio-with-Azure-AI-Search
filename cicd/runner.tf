@@ -19,7 +19,7 @@ module "github_runner_vm" {
   github_runner_registration_token = var.github_runner_registration_token
 
   # Tags
-  tags = local.common_tags
+  tags = var.tags
 
   # Ensure NSG is associated to the subnet before provisioning the VM and its extension
   depends_on = [
@@ -47,7 +47,7 @@ module "github_runner_aca_primary" {
 
   # openai_endpoint            = module.azure_open_ai.endpoint
 
-  tags = local.common_tags
+  tags = var.tags
 
   # Ensure NSG is associated to the subnet before provisioning ACA
   depends_on = [

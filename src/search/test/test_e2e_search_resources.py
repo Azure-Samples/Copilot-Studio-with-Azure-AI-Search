@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """
 Pytest version of end-to-end testing for Azure AI Search resources.
 
