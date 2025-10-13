@@ -196,7 +196,7 @@ if [ -f "$RUNNER_DIR/.runner" ]; then
 fi
 
 log "Configuring GitHub Actions runner..."
-sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh --url '$GITHUB_URL' --token '$RUNNER_TOKEN' --name '$RUNNER_NAME' --work '$RUNNER_WORK_FOLDER' --labels '$RUNNER_LABELS' --unattended --replace"
+sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh --url '$GITHUB_URL' --token '$RUNNER_TOKEN' --name '$RUNNER_NAME' --work '$RUNNER_WORK_FOLDER' --labels '$RUNNER_LABELS' --unattended --replace" || true
 
 # Install the runner as a service
 log "Installing runner as a service..."
