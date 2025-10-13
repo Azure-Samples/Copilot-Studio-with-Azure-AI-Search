@@ -9,7 +9,7 @@ resource "azurerm_subnet" "storage" {
   service_endpoints = []
 
   # Enable private endpoint network policies
-  private_endpoint_network_policies = "Disabled"
+  private_endpoint_network_policies = "Enabled"
 }
 
 # Create Network Security Group

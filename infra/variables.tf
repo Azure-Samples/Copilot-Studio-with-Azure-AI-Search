@@ -103,10 +103,10 @@ variable "cognitive_deployments" {
   }))
   default = {
     "gpt-4" = {
-      name = "text-embedding-3-small"
+      name = "text-embedding-3-large"
       model = {
         format  = "OpenAI"
-        name    = "text-embedding-3-small"
+        name    = "text-embedding-3-large"
         version = "1"
       }
       scale = {

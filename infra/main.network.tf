@@ -453,19 +453,6 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
   resource_group_name = local.resource_group_name
   tags                = var.tags
 
-
-  security_rule {
-    name                       = "Allow-Internet-Outbound"
-    priority                   = 110
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_ranges    = ["443", "80"]
-    source_address_prefixes    = var.deployment_script_subnet_address_spaces
-    destination_address_prefix = "*"
-  }
-
   # Allow outbound HTTPS for Azure services and package downloads
   security_rule {
     name                       = "Allow-Azure-Services-Outbound"
@@ -539,7 +526,7 @@ resource "azurerm_network_security_group" "deployment_script_nsg" {
     access                     = "Allow"
     protocol                   = "Udp"
     source_port_range          = "*"
-    destination_port_range     = "53" //so dns is public despite having 3 private DNSes?
+    destination_port_range     = "53"
     source_address_prefixes    = var.deployment_script_subnet_address_spaces
     destination_address_prefix = "*"
   }
@@ -655,4 +642,3 @@ resource "azurerm_subnet_network_security_group_association" "deployment_script_
   subnet_id                 = azurerm_subnet.deployment_script_container_subnet[0].id
   network_security_group_id = azurerm_network_security_group.deployment_script_nsg[0].id
 }
-
