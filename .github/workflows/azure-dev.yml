@@ -89,11 +89,14 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: '9.0.x'
+          # Use local installation directory for self-hosted runners to avoid permission issues
+          dotnet-install-dir: ${{ runner.temp }}/dotnet
 
       - name: Install Power Platform Tools
         uses: microsoft/powerplatform-actions/actions-install@6c7b538671a040d11afd8ab94d77bfe3b3ed87e6 # v1.9.1
         with:
           add-tools-to-path: true
+
 
       - name: Install Power Platform CLI
         run: |
