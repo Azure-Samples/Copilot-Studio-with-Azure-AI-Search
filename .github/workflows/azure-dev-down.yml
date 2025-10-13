@@ -79,6 +79,7 @@ jobs:
           azd env set RS_CONTAINER_NAME "$RS_CONTAINER_NAME"
           azd env set RS_RESOURCE_GROUP "$RS_RESOURCE_GROUP"
           azd env set RESOURCE_SHARE_USER "$RESOURCE_SHARE_USER"
+          azd env set RESOURCE_TAGS "$RESOURCE_TAGS"
 
           azd package # trigger prepackage hook to setup terraform provider
           azd provision --preview  # https://github.com/Azure/azure-dev/issues/4317
