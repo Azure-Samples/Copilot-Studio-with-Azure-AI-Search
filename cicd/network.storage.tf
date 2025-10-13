@@ -58,31 +58,6 @@ resource "azurerm_network_security_group" "storage" {
     source_address_prefix      = azurerm_subnet.github_runner.address_prefixes[0]
     destination_address_prefix = azurerm_subnet.storage.address_prefixes[0]
   }
-
-  # Deny all other inbound traffic
-  security_rule {
-    name                       = "DenyAllInbound"
-    priority                   = 4096
-    direction                  = "Inbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-  # Deny all other outbound traffic
-  security_rule {
-    name                       = "DenyAllOutbound"
-    priority                   = 4096
-    direction                  = "Outbound"
-    access                     = "Deny"
-    protocol                   = "*"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
 }
 
 # Associate NSG with Subnet
