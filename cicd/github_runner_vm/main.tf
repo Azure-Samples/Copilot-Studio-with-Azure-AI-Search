@@ -67,6 +67,27 @@ resource "local_file" "github_runner_private_key" {
   file_permission = "0600"
 }
 
+# Cleanup existing extension before creating new one
+resource "null_resource" "cleanup_extension" {
+  count = var.github_runner_os_type == "linux" ? 1 : 0
+
+  triggers = {
+    always = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      az vm extension delete \
+        --resource-group ${var.resource_group_name} \
+        --vm-name vm-github-runner-${var.unique_id} \
+        --name install-github-runner \
+        2>/dev/null || true
+    EOT
+  }
+
+  depends_on = [azurerm_linux_virtual_machine.github_runner]
+}
+
 # Custom Script Extension to install and configure GitHub Actions Runner
 resource "azurerm_virtual_machine_extension" "github_runner" {
   count                = var.github_runner_os_type == "linux" ? 1 : 0
@@ -90,6 +111,15 @@ resource "azurerm_virtual_machine_extension" "github_runner" {
 
   tags = var.tags
 
-  depends_on = [azurerm_linux_virtual_machine.github_runner]
+  lifecycle {
+    replace_triggered_by = [
+      null_resource.cleanup_extension[0]
+    ]
+  }
+
+  depends_on = [
+    azurerm_linux_virtual_machine.github_runner,
+    null_resource.cleanup_extension
+  ]
 }
 
