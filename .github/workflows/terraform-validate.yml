@@ -49,10 +49,15 @@ jobs:
         with:
           fetch-depth: 0  # Required for proper GitLeaks scanning
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+        
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          terraform_version: "1.12.2"  # Pinning specific version
+          terraform_version: "1.13.3"  # Pinning specific version
 
       - name: Terraform Init
         id: tf-init
