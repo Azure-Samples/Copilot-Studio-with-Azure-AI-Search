@@ -86,11 +86,21 @@ jobs:
           echo "GitLeaks scan completed"
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
-        with:
-          dotnet-version: '9.0.x'
-          # Use local installation directory for self-hosted runners to avoid permission issues
-          dotnet-install-dir: ${{ runner.temp }}/dotnet
+        shell: bash
+        run: |
+          # Install .NET SDK to temp directory for self-hosted runners to avoid permission issues
+          DOTNET_INSTALL_DIR="${{ runner.temp }}/dotnet"
+          mkdir -p "$DOTNET_INSTALL_DIR"
+          
+          # Download and run the dotnet-install script
+          curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 9.0 --install-dir "$DOTNET_INSTALL_DIR"
+          rm dotnet-install.sh
+          
+          # Add to PATH for subsequent steps
+          echo "$DOTNET_INSTALL_DIR" >> $GITHUB_PATH
+          echo "DOTNET_ROOT=$DOTNET_INSTALL_DIR" >> $GITHUB_ENV
 
       - name: Install Power Platform Tools
         uses: microsoft/powerplatform-actions/actions-install@6c7b538671a040d11afd8ab94d77bfe3b3ed87e6 # v1.9.1
