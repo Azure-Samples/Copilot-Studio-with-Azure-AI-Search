@@ -320,9 +320,7 @@ resource "azapi_resource" "deployment_script_nsg_diagnostics" {
   }
 }
 
-# ============================================================================
 # APPLICATION INSIGHTS DIAGNOSTIC SETTINGS
-# ============================================================================
 
 # Enable diagnostic logging for Application Insights
 resource "azapi_resource" "app_insights_diagnostics" {
