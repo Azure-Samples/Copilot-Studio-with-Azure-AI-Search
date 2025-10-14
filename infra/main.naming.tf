@@ -5,8 +5,8 @@
 
 locals {
   # Organization suffixes and prefixes are optional, and we need to form an array of non-empty values only
-  org_prefix = compact([var.org_naming.org_prefix])
-  org_suffix = compact([var.org_naming.org_environment, var.org_naming.org_suffix])
+  org_prefix   = compact([var.org_naming.org_prefix])
+  org_suffix   = compact([var.org_naming.org_environment, var.org_naming.org_suffix])
   azd_env_seed = parseint(substr(md5(var.azd_environment_name), 0, 8), 16)
 }
 
