@@ -171,7 +171,7 @@ resource "azapi_resource" "main_storage_blob_diagnostics" {
   }
 }
 
-# AI SEARCH SERVICE DIAGNOSTIC SETTINGS
+# Azure AI Search Service Diagnostic Settings
 
 # Enable diagnostic logging for Azure AI Search
 resource "azapi_resource" "ai_search_diagnostics" {
@@ -187,10 +187,6 @@ resource "azapi_resource" "ai_search_diagnostics" {
       logs = [
         {
           category = "OperationLogs"
-          enabled  = true
-        },
-        {
-          category = "SearchSlowLog"
           enabled  = true
         }
       ]
