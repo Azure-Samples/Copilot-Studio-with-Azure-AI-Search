@@ -193,7 +193,7 @@ jobs:
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
 
-      - name: Azd down
+      - name: Destroy Infrastructure
         if: ${{ github.event.inputs.run_azd_down == 'true' || github.event_name == 'pull_request' }}
         env:
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
