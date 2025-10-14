@@ -14,7 +14,7 @@ on:
         default: "eastus"
 
 permissions:
-  id-token: write
+  id-token: write # Needed for OIDC Authentication
   contents: read
 
 jobs:

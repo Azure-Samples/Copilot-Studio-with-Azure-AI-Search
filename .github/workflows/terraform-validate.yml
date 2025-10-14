@@ -13,6 +13,7 @@ permissions:
   contents: read
   security-events: write
   pull-requests: write  # Allow workflow to comment on PRs
+  id-token: write # Needed for OIDC Authentication
   
 # Global environment variables
 env:
