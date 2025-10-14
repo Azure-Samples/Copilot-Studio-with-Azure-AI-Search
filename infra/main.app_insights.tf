@@ -22,6 +22,8 @@ resource "azurerm_application_insights" "insights" {
   location            = local.primary_azure_region
   name                = "${var.resource_prefix}-appinsights-${var.resource_suffix}"
   resource_group_name = local.resource_group_name
+  workspace_id        = var.include_log_analytics ? azurerm_log_analytics_workspace.monitoring[0].id : null
+  tags                = var.tags
 }
 
 resource "azurerm_application_insights_workbook" "workbook" {
