@@ -50,9 +50,9 @@ module "azure_open_ai" {
 
 # Wait for Azure OpenAI service to be fully provisioned
 resource "time_sleep" "wait_for_openai_provisioning" {
-  depends_on = [module.azure_open_ai]
+  depends_on      = [module.azure_open_ai]
   create_duration = "60s"
-  
+
   # Ensure the OpenAI service is in a ready state before proceeding with private endpoint creation
   triggers = {
     openai_id = module.azure_open_ai.resource.id
@@ -64,14 +64,14 @@ resource "azurerm_private_endpoint" "openai_pe" {
   name                = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
   location            = local.primary_azure_region
   resource_group_name = local.resource_group_name
-  subnet_id          = local.pe_primary_subnet_id
-  tags               = var.tags
+  subnet_id           = local.pe_primary_subnet_id
+  tags                = var.tags
 
   private_service_connection {
     name                           = "pe_endpoint_connection"
     private_connection_resource_id = module.azure_open_ai.resource.id
-    subresource_names             = ["account"]
-    is_manual_connection          = false
+    subresource_names              = ["account"]
+    is_manual_connection           = false
   }
 
   depends_on = [time_sleep.wait_for_openai_provisioning]
