@@ -13,6 +13,7 @@ permissions:
   contents: read
   security-events: write
   pull-requests: write  # Allow workflow to comment on PRs
+  id-token: write # Needed for OIDC Authentication
   
 # Global environment variables
 env:
@@ -49,10 +50,15 @@ jobs:
         with:
           fetch-depth: 0  # Required for proper GitLeaks scanning
 
+      - name: Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: '18.x'
+        
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
-          terraform_version: "1.12.2"  # Pinning specific version
+          terraform_version: "1.13.3"  # Pinning specific version
 
       - name: Terraform Init
         id: tf-init
