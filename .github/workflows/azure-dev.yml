@@ -24,7 +24,13 @@ on:
     # Run when pull requests are opened or updated
     branches:
       - main
+
 # GitHub Actions workflow to deploy to Azure using azd
+# Ensure only one deployment runs at a time to prevent conflicts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 permissions:
   actions: read # Needed for uploading SARIF reports
   security-events: write  # Needed for uploading SARIF reports
