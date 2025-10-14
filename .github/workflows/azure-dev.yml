@@ -40,10 +40,8 @@ jobs:
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
       
     steps:
-      - name: Checkout the branch ${{ github.ref_name }}
+      - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          ref: ${{ github.ref_name }}
 
       - name: Install azd
         uses: Azure/setup-azd@cf638ffd167fc81e1851241a478a723c05fa9cb3 # v2.2.0
