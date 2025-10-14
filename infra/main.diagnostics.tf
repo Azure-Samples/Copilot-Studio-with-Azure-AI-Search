@@ -245,13 +245,13 @@ resource "azapi_resource" "openai_diagnostics" {
 # Note: VNets and Private Endpoints do not support diagnostic settings.
 # NSGs support diagnostic settings for security events and rule counters.
 
-# Enable diagnostic logging for primary NSG
-resource "azapi_resource" "primary_nsg_diagnostics" {
+# Enable diagnostic logging for Power Platform primary NSG
+resource "azapi_resource" "power_platform_primary_nsg_diagnostics" {
   count = var.include_log_analytics && !local.create_network_infrastructure ? 1 : 0
 
   type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
-  name      = "primary-nsg-diagnostics"
-  parent_id = azurerm_network_security_group.primary_nsg[0].id
+  name      = "power-platform-primary-nsg-diagnostics"
+  parent_id = azurerm_network_security_group.power_platform_primary_nsg[0].id
 
   body = {
     properties = {
@@ -270,13 +270,13 @@ resource "azapi_resource" "primary_nsg_diagnostics" {
   }
 }
 
-# Enable diagnostic logging for failover NSG
-resource "azapi_resource" "failover_nsg_diagnostics" {
+# Enable diagnostic logging for Power Platform failover NSG
+resource "azapi_resource" "power_platform_failover_nsg_diagnostics" {
   count = var.include_log_analytics && !local.create_network_infrastructure ? 1 : 0
 
   type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
-  name      = "failover-nsg-diagnostics"
-  parent_id = azurerm_network_security_group.failover_nsg[0].id
+  name      = "power-platform-failover-nsg-diagnostics"
+  parent_id = azurerm_network_security_group.power_platform_failover_nsg[0].id
 
   body = {
     properties = {
