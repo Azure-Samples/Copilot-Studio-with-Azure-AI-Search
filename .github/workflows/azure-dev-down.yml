@@ -14,7 +14,7 @@ on:
         default: "eastus"
 
 permissions:
-  id-token: write
+  id-token: write # Needed for OIDC Authentication
   contents: read
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
           version: '1.20.0'  # Specify your desired azd version here
         
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: '18.x'
 
