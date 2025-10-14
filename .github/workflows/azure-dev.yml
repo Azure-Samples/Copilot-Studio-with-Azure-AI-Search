@@ -42,7 +42,7 @@ jobs:
   build:
     runs-on: ${{ fromJson(vars.ACTIONS_RUNNER_NAME || '["ubuntu-latest"]') }}
     env:
-      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || 'CICD' }}
+      AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
       
     steps:
