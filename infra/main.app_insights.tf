@@ -3,6 +3,18 @@
 
 resource "random_uuid" "uid" {}
 
+resource "azurerm_log_analytics_workspace" "monitoring" {
+  count = var.include_log_analytics ? 1 : 0
+
+  daily_quota_gb      = -1
+  location            = local.primary_azure_region
+  name                = azurecaf_name.main_names.results["azurerm_log_analytics_workspace"]
+  resource_group_name = local.resource_group_name
+  retention_in_days   = var.log_analytics_retention_in_days
+  sku                 = "PerGB2018"
+  tags                = var.tags
+}
+
 resource "azurerm_application_insights" "insights" {
   count = var.include_app_insights ? 1 : 0
 
