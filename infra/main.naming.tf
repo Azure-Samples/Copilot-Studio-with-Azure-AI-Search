@@ -7,6 +7,7 @@ locals {
   # Organization suffixes and prefixes are optional, and we need to form an array of non-empty values only
   org_prefix = compact([var.org_naming.org_prefix])
   org_suffix = compact([var.org_naming.org_environment, var.org_naming.org_suffix])
+  azd_env_seed = parseint(substr(md5(var.azd_environment_name), 0, 8), 16)
 }
 
 # Generate unique names for primary resources
@@ -25,6 +26,7 @@ resource "azurecaf_name" "main_names" {
   prefixes      = local.org_prefix
   suffixes      = local.org_suffix
   random_length = 4
+  random_seed   = local.azd_env_seed
   # use_slug = false
   clean_input = true
 }
