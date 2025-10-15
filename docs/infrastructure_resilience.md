@@ -1,20 +1,12 @@
-# Business Continuity and Disaster Recovery Considerations
+# Infrastructure Resilience Considerations
 
-This document explains the disaster recovery (DR) and regional resilience capabilities provided by this template, and highlights areas where additional user action is required for full business continuity.
+This guide defines three resilience tiers for the Copilot Studio and Azure AI Search integration: **Basic** – single‑region, low-cost experimentation with no redundancy; **Zone‑redundant** – production within one region, surviving an availability zone loss via multi‑replica/service settings; **Regional failover ready** – adds cross‑region networking and geo-capable platform features so you can manually fail over (you still provision secondary resources, replicate data, and script orchestration). The template ships Basic defaults plus the networking/identity foundation to grow without redesign and intentionally leaves sizing, secondary region build-out, and failover automation to you. Regular DR rehearsal is strongly recommended for zone‑redundant and regional tiers.
 
-## Overview
-
-This template is designed to deploy an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search, following Azure Well-Architected Framework best practices for security and reliability. It provisions a complete primary-region footprint and—where the selected Power Platform geography is backed by two Azure regions—provisions required dual-region networking scaffolding (virtual networks, subnets, private DNS integration) in both regions. This dual-networking is a compliance prerequisite for Enterprise Policy virtual network delegation in multi-region geographies and is **not optional**, even if you have not yet implemented active regional failover. The template does **not** stand up duplicate workload resources or automate failover; those tasks remain with the adopter.
-
-## Scenarios
-
-This document discusses the considerations for deploying the template in three resilience scenarios: **Basic**, **Zone-redundant**, and **Regional failover ready**.
-
-### Basic (default)
+## Basic (default)
 
 **Basic** targets the lowest-cost setup for non-critical experimentation where downtime and data loss are acceptable. Deploys Azure AI Search, Azure Storage, Azure OpenAI, Networking and supporting resources in a single primary region using Terraform. Often suitable for development and test environments, this scenario intentionally uses single-instance resources and therefore does **not** satisfy production SLA commitments for Azure AI Search or other services.
 
-#### Basic Recommendations
+### Basic Recommendations
 
 **Azure Storage:**
 
@@ -43,11 +35,11 @@ This document discusses the considerations for deploying the template in three r
 - Consider enabling via `include_app_insights = true` for debugging and telemetry during active development.
 - Can be disabled if not needed or if costs are a concern.
 
-### Zone-redundant
+## Zone-redundant
 
 **Zone-redundant** is suitable for production workloads that must stay available during a single datacenter or availability-zone outage inside one Azure region. This scenario keeps the primary-region footprint from the Basic tier while adding zone-aware configuration so the workload remains healthy during intraregional failures and meets Azure AI Search SLA minimums and higher performance expectations typical of production environments.
 
-#### Zone-redundant Recommendations
+### Zone-redundant Recommendations
 
 **Azure Storage:**
 
@@ -82,14 +74,14 @@ This document discusses the considerations for deploying the template in three r
 
 - Enable Application Insights via `include_app_insights = true` for production monitoring and telemetry (zone redundancy is automatic by default in supported regions).
 
-### Regional failover ready
+## Regional failover ready
 
-**Regional failover ready** is for mission-critical workloads that need a backup environment in a paired Azure region to recover from regional incidents. This scenario builds on the Zone-redundant tier by adding cross-region data replication and networking scaffolding to support manual failover to a secondary region.  
+**Regional failover ready** is for mission-critical workloads that need a backup environment in a paired Azure region to recover from regional incidents. This scenario builds on the Zone-redundant tier by adding manual failover to a secondary region.
 
 > [!IMPORTANT]
-> The template does NOT implement automated cross‑region failover (secondary AI Search/OpenAI/Storage resources, data replication, DNS or traffic management, or orchestration). Use the provided dual-region networking plus the guidance below as the foundation for your own secondary provisioning, replication, runbooks, and traffic failover automation.
+> This template intentionally stops short of full cross‑region automation. It does not create secondary AI Search, OpenAI, or Storage resources, replicate data, configure DNS / traffic failover, or orchestrate runbooks. Instead, it gives you the dual‑region networking and identity baseline so you can add those pieces when they’re truly needed. GAP items below call out the manual steps; future automation will be guided by your feedback.
 
-#### Regional Failover Ready Recommendations
+### Regional Failover Ready Recommendations
 
 **Azure Storage:**
 
@@ -130,40 +122,7 @@ This document discusses the considerations for deploying the template in three r
 - Enable Application Insights via `include_app_insights = true` for production monitoring and telemetry.
 - **GAP:** For multi-region monitoring, manually deploy additional Application Insights instances in the secondary region or configure cross-region telemetry collection.
 
-## Disaster Recovery Testing and Rehearsal
-
-This template does not provide automated disaster recovery testing or failover orchestration. For production environments implementing zone-redundant or regional failover configurations, we strongly recommend establishing a regular DR testing practice.
-
-### Recommended Testing Practices
-
-**Failover Planning and Documentation:**
-
-- Document complete failover runbooks with step-by-step procedures for declaring a disaster, activating secondary resources, and switching traffic.
-- Identify roles and responsibilities for executing failover, including on-call contacts and escalation paths.
-- Define clear success criteria and rollback procedures for each failover scenario.
-
-**Infrastructure Preparation:**
-
-- Pre-build Infrastructure-as-Code overlays, Terraform modules, or deployment scripts that can quickly instantiate secondary-region workload resources (AI Search, Storage, OpenAI) when failover is declared.
-- Automate data replication and synchronization processes to ensure secondary resources have current data.
-- Configure DNS failover automation using Azure Traffic Manager, Front Door, or scripted DNS updates.
-
-**Regular Failover Drills:**
-
-- Schedule and execute regular failover drills (quarterly or semi-annually for production environments) to validate your disaster recovery plan.
-- Test the complete failover workflow: flip traffic, rehydrate data, validate application functionality, and verify monitoring/alerting.
-- Validate connectivity, data freshness, authentication flows, and end-to-end application behavior during simulated regional or zone-level outages.
-- Document lessons learned and update runbooks based on drill findings.
-
-**Post-Failover Validation:**
-
-- Develop automated smoke tests that verify critical functionality after failover (AI Search queries, Power Platform agent responses, data retrieval).
-- Configure monitoring and alerting in both primary and secondary regions to detect performance degradation or service unavailability.
-- Establish metrics for Recovery Time Objective (RTO) and Recovery Point Objective (RPO) and measure actual performance during drills.
-
-**Note:** Disaster recovery testing is a critical operational practice that extends beyond infrastructure provisioning. Organizations should invest in regular rehearsal to ensure confidence in their ability to recover from incidents.
-
-## CI/CD Infrastructure Considerations
+## CI/CD Infrastructure Resilience
 
 The CI/CD infrastructure (GitHub runners and supporting resources) deployed by the `cicd/` Terraform configuration is independent of the main workload infrastructure and can be deployed in any Azure region.
 
@@ -188,23 +147,6 @@ The CI/CD infrastructure (GitHub runners and supporting resources) deployed by t
 - You can deploy CI/CD infrastructure once in a preferred region and use it to provision workloads across multiple primary and secondary regions.
 
 **Recommendation:** For simplicity, deploy CI/CD runners in a single, cost-effective region unless you have specific requirements for multi-region build infrastructure. The runner region does not impact disaster recovery capabilities of the workload itself.
-
-## Known Issues
-
-### Regional Failover Requires Manual Resource Provisioning
-
-**Impact:** The template provisions only the primary-region resources and secondary networking scaffolding. Users implementing regional failover must manually provision and configure multiple critical components.
-
-**Current Behavior:** The following items require manual action for regional failover:
-
-- **Secondary workload resources**: You must manually provision Azure AI Search, Storage, and Azure OpenAI resources in the secondary region when executing a failover plan.
-- **Data replication**: AI Search data, Storage blobs (beyond GZRS), and custom indexes must be manually re-ingested or replicated.
-- **DNS and traffic management**: Automated failover requires manual configuration of Traffic Manager, Front Door, or DNS automation scripts.
-- **Monitoring and validation**: Post-failover smoke tests, monitoring configuration, and runbook maintenance are entirely user-owned.
-
-**Workaround:** Pre-build Infrastructure-as-Code overlays or scripts that instantiate secondary-region workload resources, configure data replication, and automate DNS failover when needed.
-
-**Status:** Work towards full regional failover support depends on user feedback and customer needs.
 
 ## References
 
