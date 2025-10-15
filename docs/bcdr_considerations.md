@@ -4,7 +4,7 @@ This document explains the disaster recovery (DR) and regional resilience capabi
 
 ## Overview
 
-This template is designed to deploy an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search, following Azure Well-Architected Framework best practices for security and reliability. It provisions a complete primary-region footprint and—where the selected Power Platform geography is backed by two Azure regions—provisions required dual-region networking scaffolding (virtual networks, subnets, private DNS integration) in both regions. This dual-networking is a compliance prerequisite for Enterprise Policy / virtual network delegation in multi-region geographies and is **not optional**, even if you have not yet implemented active regional failover. The template does **not** stand up duplicate workload resources or automate failover; those tasks remain with the adopter.
+This template is designed to deploy an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search, following Azure Well-Architected Framework best practices for security and reliability. It provisions a complete primary-region footprint and—where the selected Power Platform geography is backed by two Azure regions—provisions required dual-region networking scaffolding (virtual networks, subnets, private DNS integration) in both regions. This dual-networking is a compliance prerequisite for Enterprise Policy virtual network delegation in multi-region geographies and is **not optional**, even if you have not yet implemented active regional failover. The template does **not** stand up duplicate workload resources or automate failover; those tasks remain with the adopter.
 
 ## Scenarios
 
