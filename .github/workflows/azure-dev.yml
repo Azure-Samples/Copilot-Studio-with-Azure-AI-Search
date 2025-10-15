@@ -24,11 +24,17 @@ on:
     # Run when pull requests are opened or updated
     branches:
       - main
+
 # GitHub Actions workflow to deploy to Azure using azd
+# Ensure only one deployment runs at a time to prevent conflicts
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
 permissions:
   actions: read # Needed for uploading SARIF reports
   security-events: write  # Needed for uploading SARIF reports
-  id-token: write
+  id-token: write # Needed for OIDC Authentication
   contents: read
 
 
@@ -42,6 +48,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
 
       - name: Install azd
         uses: Azure/setup-azd@cf638ffd167fc81e1851241a478a723c05fa9cb3 # v2.2.0
@@ -193,7 +201,7 @@ jobs:
         with:
           sarif_file: ./checkov-results.sarif/results_sarif.sarif
 
-      - name: Azd down
+      - name: Destroy Infrastructure
         if: ${{ github.event.inputs.run_azd_down == 'true' || github.event_name == 'pull_request' }}
         env:
           POWER_PLATFORM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
