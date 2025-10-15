@@ -76,7 +76,7 @@ This document discusses the considerations for deploying the template in three r
 - Expect near-zero data loss (RPO) and sub-5-minute failover (RTO) for intra-region zone failures with production environments.
 - Defer enabling Power Platform self-service disaster recovery to the Regional failover ready tier (it is a cross-region capability, not zone-level).
 
-- In multi-region Power Platform geographies (for example: United States, Europe, Canada, Australia) dual-region virtual networks are **required** to create the Enterprise Policy virtual network delegation; even if secondary region is not needed. Do not remove secondary-region networking in these geographies. In a geography that is truly single-region (verify with [current Microsoft documentation](https://learn.microsoft.com/power-platform/admin/vnet-support-setup-configure)), a single VNet footprint would be sufficient;
+- In multi-region Power Platform geographies (for example: United States, Europe, Canada, Australia) dual-region virtual networks are **required** to create the Enterprise Policy virtual network delegation, even if the secondary region is not needed. Do not remove secondary-region networking in these geographies. In a geography that is truly single-region (verify with [current Microsoft documentation](https://learn.microsoft.com/power-platform/admin/vnet-support-setup-configure)), a single VNet footprint would be sufficient.
 
 **Application Insights:**
 
