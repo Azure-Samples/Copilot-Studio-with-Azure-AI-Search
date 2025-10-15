@@ -1,6 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+# Wait for network infrastructure to be ready
+resource "time_sleep" "wait_for_network_ready" {
+  depends_on = [
+    module.copilot_studio
+  ]
+  create_duration = "30s"
+}
+
 module "azure_open_ai" {
   # checkov:skip=CKV2_AZURE_22: Customer-managed keys should be added in production usage but are not included here for simplicity.
   # checkov:skip=CKV_AZURE_236: The Power Platform AI Search connector only supports service principal, API key, or interactive auth. 
@@ -32,19 +40,41 @@ module "azure_open_ai" {
     ]
   }
 
-  private_endpoints = {
-    pe_endpoint = {
-      name                            = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
-      private_service_connection_name = "pe_endpoint_connection"
-      subnet_resource_id              = local.pe_primary_subnet_id
-    }
-  }
   managed_identities = {
     system_assigned = true
   }
   tags = var.tags
 
-  depends_on = [module.copilot_studio]
+  depends_on = [time_sleep.wait_for_network_ready]
+}
+
+# Wait for Azure OpenAI service to be fully provisioned
+resource "time_sleep" "wait_for_openai_provisioning" {
+  depends_on      = [module.azure_open_ai]
+  create_duration = "60s"
+
+  # Ensure the OpenAI service is in a ready state before proceeding with private endpoint creation
+  triggers = {
+    openai_id = module.azure_open_ai.resource.id
+  }
+}
+
+# Create private endpoint separately to ensure OpenAI service is fully ready
+resource "azurerm_private_endpoint" "openai_pe" {
+  name                = "pe-${azurecaf_name.main_names.results["azurerm_cognitive_account"]}"
+  location            = local.primary_azure_region
+  resource_group_name = local.resource_group_name
+  subnet_id           = local.pe_primary_subnet_id
+  tags                = var.tags
+
+  private_service_connection {
+    name                           = "pe_endpoint_connection"
+    private_connection_resource_id = module.azure_open_ai.resource.id
+    subresource_names              = ["account"]
+    is_manual_connection           = false
+  }
+
+  depends_on = [time_sleep.wait_for_openai_provisioning]
 }
 
 # Private DNS zone for Azure OpenAI private endpoint resolution
@@ -69,12 +99,12 @@ resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
 }
 
 # DNS A record for Azure OpenAI private endpoint
-# The module creates the private endpoint, so we reference it from the module outputs
+# Reference the separately created private endpoint
 resource "azurerm_private_dns_a_record" "aoai_dns_record" {
   name                = module.azure_open_ai.resource.name
   zone_name           = azurerm_private_dns_zone.aoai_dns.name
   resource_group_name = local.resource_group_name
   ttl                 = 10
-  records             = [module.azure_open_ai.private_endpoints["pe_endpoint"].private_service_connection[0].private_ip_address]
+  records             = [azurerm_private_endpoint.openai_pe.private_service_connection[0].private_ip_address]
   tags                = var.tags
 }
