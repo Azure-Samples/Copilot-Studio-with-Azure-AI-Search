@@ -4,7 +4,7 @@ This document explains the disaster recovery (DR) and regional resilience capabi
 
 ## Overview
 
-This template is designed to deploy an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search, following Azure Well-Architected Framework best practices for security and reliability. It provisions a complete primary-region footprint and lays down optional networking scaffolding for a secondary (failover) region. However, the template does **not** stand up duplicate workload resources or automate failover; those tasks remain with the adopter.
+This template is designed to deploy an enterprise-grade integration between Microsoft Copilot Studio and Azure AI Search, following Azure Well-Architected Framework best practices for security and reliability. It provisions a complete primary-region footprint and—where the selected Power Platform geography is backed by two Azure regions—provisions required dual-region networking scaffolding (virtual networks, subnets, private DNS integration) in both regions. This dual-networking is a compliance prerequisite for Enterprise Policy / virtual network delegation in multi-region geographies and is **not optional**, even if you have not yet implemented active regional failover. The template does **not** stand up duplicate workload resources or automate failover; those tasks remain with the adopter.
 
 ## Scenarios
 
@@ -35,7 +35,7 @@ This document discusses the considerations for deploying the template in three r
 
 **Networking:**
 
-- Manually disable secondary-region networking scaffolding to minimize cost and complexity. **GAP**: No template parameter currently toggles this scaffolding off.
+- In multi-region Power Platform geographies (for example: United States, Europe, Canada, Australia) dual-region virtual networks are **required** to create the Enterprise Policy virtual network delegation; even if secondary region is not needed. Do not remove secondary-region networking in these geographies. In a geography that is truly single-region (verify with [current Microsoft documentation](https://learn.microsoft.com/power-platform/admin/vnet-support-setup-configure)), a single VNet footprint would be sufficient;
 
 **Application Insights (optional):**
 
@@ -76,9 +76,7 @@ This document discusses the considerations for deploying the template in three r
 - Expect near-zero data loss (RPO) and sub-5-minute failover (RTO) for intra-region zone failures with production environments.
 - Defer enabling Power Platform self-service disaster recovery to the Regional failover ready tier (it is a cross-region capability, not zone-level).
 
-**Networking:**
-- Deploy VNets, subnets, NAT Gateways, and private endpoints in Azure regions that support availability zones (zone redundancy is enabled by default).
-- Manually disable secondary-network scaffolding to minimize cost and complexity. **GAP**: No template parameter currently toggles this scaffolding off
+- In multi-region Power Platform geographies (for example: United States, Europe, Canada, Australia) dual-region virtual networks are **required** to create the Enterprise Policy virtual network delegation; even if secondary region is not needed. Do not remove secondary-region networking in these geographies. In a geography that is truly single-region (verify with [current Microsoft documentation](https://learn.microsoft.com/power-platform/admin/vnet-support-setup-configure)), a single VNet footprint would be sufficient;
 
 **Application Insights:**
 
@@ -86,7 +84,10 @@ This document discusses the considerations for deploying the template in three r
 
 ### Regional failover ready
 
-**Regional failover ready** is for mission-critical workloads that need a backup environment in a paired Azure region to recover from regional incidents. This scenario builds on the Zone-redundant tier by adding cross-region data replication and networking scaffolding to support manual failover to a secondary region.
+**Regional failover ready** is for mission-critical workloads that need a backup environment in a paired Azure region to recover from regional incidents. This scenario builds on the Zone-redundant tier by adding cross-region data replication and networking scaffolding to support manual failover to a secondary region.  
+
+> [!IMPORTANT]
+> The template does NOT implement automated cross‑region failover (secondary AI Search/OpenAI/Storage resources, data replication, DNS or traffic management, or orchestration). Use the provided dual-region networking plus the guidance below as the foundation for your own secondary provisioning, replication, runbooks, and traffic failover automation.
 
 #### Regional Failover Ready Recommendations
 
@@ -203,24 +204,16 @@ The CI/CD infrastructure (GitHub runners and supporting resources) deployed by t
 
 **Workaround:** Pre-build Infrastructure-as-Code overlays or scripts that instantiate secondary-region workload resources, configure data replication, and automate DNS failover when needed.
 
-**Status:** This is by design. The template provides the networking foundation for regional failover but does not automate the full disaster recovery workflow.
-
-### Secondary Region Networking Scaffolding Cannot Be Disabled
-
-**Impact:** Users deploying Basic (development) scenarios who want to minimize costs cannot disable the secondary-region networking scaffolding through template configuration.
-
-**Current Behavior:** The template always provisions secondary-region networking resources (VNets, subnets, NAT gateways, private-endpoint subnets) regardless of the desired resilience tier.
-
-**Workaround:** Manually delete the secondary-region networking resources after deployment, or modify the Terraform code to comment out the secondary region network modules.
-
-**Status:** No template parameter currently exists to toggle this scaffolding on/off. This is a known limitation that requires manual intervention for cost optimization in development scenarios.
+**Status:** Work towards full regional failover support depends on user feedback and customer needs.
 
 ## References
 
 - [Azure Well-Architected Framework: Reliability](https://learn.microsoft.com/azure/architecture/framework/resiliency/overview)
 - [Power Platform Disaster Recovery](https://learn.microsoft.com/power-platform/admin/business-continuity-disaster-recovery)
+- [Power Platform Virtual Network Setup (Enterprise Policy dual-VNet requirement)](https://learn.microsoft.com/power-platform/admin/vnet-support-setup-configure)
+- [Power Platform Virtual Network Overview & FAQ (Failover requires delegation in both regions)](https://learn.microsoft.com/power-platform/admin/vnet-support-overview#frequently-asked-questions)
 - [Azure AI Search Geo-Redundancy](https://learn.microsoft.com/azure/reliability/reliability-ai-search)
 
 ---
 
-**Last updated:** October 3, 2025
+**Last updated:** October 15, 2025
