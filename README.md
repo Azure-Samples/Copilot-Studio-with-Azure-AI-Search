@@ -20,20 +20,13 @@ network security.
     - [Deploying](#deploying)
     - [Using the Bot](#using-the-bot)
     - [Clean Up](#clean-up)
-  - [Testing](#testing)
-    - [Copilot Studio Agent Test](#copilot-studio-agent-test)
-      - [Running Tests After Local Deployment Execution](#running-tests-after-local-deployment-execution)
-      - [Running Tests with Manual Environment Variable Configuration](#running-tests-with-manual-environment-variable-configuration)
-    - [AI Search Test (Optional)](#ai-search-test-optional)
-      - [Prerequisites for AI Search Tests](#prerequisites-for-ai-search-tests)
-      - [Running AI Search Tests Locally](#running-ai-search-tests-locally)
   - [Advanced Scenarios](#advanced-scenarios)
+    - [Security Considerations](#security-considerations)
+    - [Infrastructure Resilience Considerations](#infrastructure-resilience-considerations)
     - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
+    - [Testing](#testing)
     - [Bring Your Own Networking](#bring-your-own-networking)
     - [Custom Resource Group](#custom-resource-group)
-  - [Additional Considerations](#additional-considerations)
-    - [Security Considerations](#security-considerations)
-    - [Production Readiness](#production-readiness)
   - [Resources](#resources)
   - [Data Collection](#data-collection)
   - [Responsible AI](#responsible-ai)
@@ -222,6 +215,13 @@ To clean up all the resources created by this sample:
 
 All the Azure and Power Platform resources will be deleted.
 
+> [!NOTE] 
+> Azure OpenAI resources are soft-deleted by default and remain in a "recently deleted" state for 48 hours. If you need to redeploy with the same resource names before the retention period expires, you can manually purge the soft-deleted resource using:
+> ```bash
+> az cognitiveservices account purge --location <region> --resource-group <rg-name> --name <openai-name>
+> ```
+> In CI/CD workflows, this purge step is automated to prevent deployment conflicts.
+
 ## Advanced Scenarios
 
 ### Security Considerations
@@ -288,3 +288,7 @@ systems to ensure ethical, safe, and inclusive AI practices. Learn more at <http
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
 For help with deploying this sample, please post in [GitHub Issues](/issues).
+
+
+
+
