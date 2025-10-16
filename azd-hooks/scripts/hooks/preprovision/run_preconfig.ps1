@@ -181,3 +181,20 @@ try {
     Write-Host "ℹ Make sure you're in an azd environment directory"
     exit 1
 }
+
+# Set default RESOURCE_TAGS if not already set
+Write-Host "Checking RESOURCE_TAGS environment variable..."
+try {
+    $resourceTags = $env:RESOURCE_TAGS
+    if ([string]::IsNullOrWhiteSpace($resourceTags)) {
+        Write-Host "RESOURCE_TAGS not set, using default value"
+        $defaultTags = '{"name":"AZD-MCS-AZAI"}'
+        azd env set RESOURCE_TAGS $defaultTags
+        Write-Host "RESOURCE_TAGS set to default: $defaultTags"
+    } else {
+        Write-Host "RESOURCE_TAGS already set to: $resourceTags"
+    }
+} catch {
+    Write-Host "Error checking RESOURCE_TAGS: $($_.Exception.Message)"
+    # Non-fatal - Terraform will use its variable default if this fails
+}
