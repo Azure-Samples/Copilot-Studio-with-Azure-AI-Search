@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 locals {
   search_name           = replace("ais${random_string.name.id}", "/[^a-z0-9-]/", "")
   use_service_principal = var.azure_ai_search_service_principal != null && length(var.azure_ai_search_service_principal.client_id) > 0 && length(var.azure_ai_search_service_principal.client_secret) > 0

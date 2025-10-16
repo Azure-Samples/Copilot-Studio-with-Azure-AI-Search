@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Unique naming for Azure resources using Azure CAF naming conventions
 
 locals {

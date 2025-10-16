@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 set -eux
 
 echo "Running post-create setup for interactive operations..."
@@ -13,6 +16,7 @@ echo "Installing PowerApps CLI..."
 dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.49.3
 
 # Restore .NET packages including Microsoft.Agents.CopilotStudio.Client
+echo "Restoring .NET packages..."
 if [ -f "tests/Copilot/CopilotTests.csproj" ]; then
     dotnet restore tests/Copilot/CopilotTests.csproj
     echo "Copilot project packages restored successfully!"

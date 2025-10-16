@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Automate the steps documented at https://learn.microsoft.com/en-us/power-platform/admin/vnet-support-setup-configure
 
 #---- 1 - Add Enterprise Policy ----

@@ -113,7 +113,12 @@ usermod -aG docker azureuser
 
 # Create a dedicated user for the runner
 log "Creating GitHub runner user..."
-useradd -m -d /home/github-runner -s /bin/bash github-runner
+if id "github-runner" &>/dev/null; then
+    log "User github-runner already exists, skipping creation"
+else
+    useradd -m -d /home/github-runner -s /bin/bash github-runner
+    log "User github-runner created successfully"
+fi
 usermod -aG docker github-runner
 
 # Create sudoers file for github-runner
@@ -178,8 +183,20 @@ rm "$${RUNNER_TARBALL}"
 # Set ownership
 chown -R github-runner:github-runner "$RUNNER_DIR"
 
+# Remove existing runner configuration if it exists
+log "Checking for existing runner configuration..."
+if [ -f "$RUNNER_DIR/.runner" ]; then
+    log "Existing runner configuration found, removing..."
+    # Stop and uninstall the service first
+    cd "$RUNNER_DIR"
+    ./svc.sh stop 2>/dev/null || log "Service was not running"
+    ./svc.sh uninstall 2>/dev/null || log "Service was not installed"
+    # Now remove the configuration
+    sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh remove --token '$RUNNER_TOKEN'" || log "Failed to remove existing configuration, continuing anyway"
+fi
+
 log "Configuring GitHub Actions runner..."
-sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh --url '$GITHUB_URL' --token '$RUNNER_TOKEN' --name '$RUNNER_NAME' --work '$RUNNER_WORK_FOLDER' --labels '$RUNNER_LABELS' --unattended --replace"
+sudo -u github-runner bash -c "cd '$RUNNER_DIR' && ./config.sh --url '$GITHUB_URL' --token '$RUNNER_TOKEN' --name '$RUNNER_NAME' --work '$RUNNER_WORK_FOLDER' --labels '$RUNNER_LABELS' --unattended --replace" || true
 
 # Install the runner as a service
 log "Installing runner as a service..."

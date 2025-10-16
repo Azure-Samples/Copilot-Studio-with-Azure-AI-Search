@@ -22,6 +22,16 @@ variable "github_runner_type" {
   }
 }
 
+variable "tags" {
+  description = "A map of tags to assign to resources"
+  type        = map(string)
+  default     = {
+    Environment = "Production"
+    Purpose     = "TerraformState"
+    CreatedBy   = "Terraform"
+  }
+}
+
 # Variables for GitHub Runner VM
 variable "github_runner_config" {
   type = object({

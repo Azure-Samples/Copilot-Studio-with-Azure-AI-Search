@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 <#
 .SYNOPSIS
 Checks the existence of the RS_CONTAINER_NAME environment variable.

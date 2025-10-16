@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 output "ai_search_resource_name" {
   description = "The name of the AI Search resource"
   value       = azurerm_search_service.ai_search.name
@@ -38,6 +41,11 @@ output "resource_group_name" {
 output "openai_endpoint" {
   description = "The endpoint URL for the Azure OpenAI service"
   value       = module.azure_open_ai.endpoint
+}
+
+output "openai_resource_name" {
+  description = "The name of the Azure OpenAI resource"
+  value       = module.azure_open_ai.resource.name
 }
 
 output "primary_azure_region" {

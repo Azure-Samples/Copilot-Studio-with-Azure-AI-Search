@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # APP INSIGHTS VARIABLES
 
 variable "resource_share_user" {

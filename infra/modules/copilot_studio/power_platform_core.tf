@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 #---- 1 - Power Platform environment ----
 
 # Dynamically set the local variables based on whether the environment is being created or not.

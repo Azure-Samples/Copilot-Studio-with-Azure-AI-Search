@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 locals {
   # Force recreation of Python scripts on each deployment
   # This ensures the latest versions are always uploaded

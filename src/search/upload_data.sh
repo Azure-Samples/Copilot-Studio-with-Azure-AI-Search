@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
 # Description:
 # This script uploads all PDF files from the current directory to an Azure Blob Storage container.

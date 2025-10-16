@@ -222,6 +222,12 @@ To clean up all the resources created by this sample:
 
 All the Azure and Power Platform resources will be deleted.
 
+> **Note on Azure OpenAI Soft-Delete**: Azure OpenAI resources are soft-deleted by default and remain in a "recently deleted" state for 48 hours. If you need to redeploy with the same resource names before the retention period expires, you can manually purge the soft-deleted resource using:
+> ```bash
+> az cognitiveservices account purge --location <region> --resource-group <rg-name> --name <openai-name>
+> ```
+> In CI/CD workflows, this purge step is automated to prevent deployment conflicts.
+
 ## Testing
 
 This solution includes tests that validate both Copilot Studio and Azure AI Search components after deployment.

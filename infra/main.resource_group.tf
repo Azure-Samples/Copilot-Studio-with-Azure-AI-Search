@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Resource Group Configuration and Management
 # This file contains resource group resources and related diagnostic settings
 
