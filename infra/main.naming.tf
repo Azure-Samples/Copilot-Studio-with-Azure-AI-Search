@@ -18,6 +18,7 @@ resource "azurecaf_name" "main_names" {
     "azurerm_storage_account",
     "azurerm_search_service",
     "azurerm_cognitive_account",
+    "azurerm_log_analytics_workspace",
     "azurerm_virtual_network",
     "azurerm_network_security_group",
     "azurerm_virtual_network_gateway",
