@@ -230,7 +230,7 @@ See the [Security Considerations](./docs/security_considerations.md) guide for a
 
 ### Infrastructure Resilience Considerations
 
-This guide provides three options for deploying this template: **Basic** (dev/test), **Zone‑redundant** (single‑region production), and Regional failover ready (manual cross‑region recovery). [Infrastructure Resilience Considerations](./docs/infrastructure_resilience.md) provides prescriptive guidance on identity, networking, resiliency, scaling, and cost trade‑offs.  The template defaults to Basic which ensures you have full control of and responsibility for choosing the cost, sizing, and resilience for your production environments.
+This guide provides three options for deploying this template: **Basic** (dev/test), **Zone‑redundant** (single‑region production), and **Regional failover ready** (manual cross‑region recovery). [Infrastructure Resilience Considerations](./docs/infrastructure_resilience.md) provides prescriptive guidance on identity, networking, resiliency, scaling, and cost trade‑offs.  The template defaults to Basic which ensures you have full control of and responsibility for choosing the cost, sizing, and resilience for your production environments.
 
 ### GitHub Self-Hosted Runners
 
