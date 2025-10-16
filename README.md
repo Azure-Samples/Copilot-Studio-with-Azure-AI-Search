@@ -20,20 +20,13 @@ network security.
     - [Deploying](#deploying)
     - [Using the Bot](#using-the-bot)
     - [Clean Up](#clean-up)
-  - [Testing](#testing)
-    - [Copilot Studio Agent Test](#copilot-studio-agent-test)
-      - [Running Tests After Local Deployment Execution](#running-tests-after-local-deployment-execution)
-      - [Running Tests with Manual Environment Variable Configuration](#running-tests-with-manual-environment-variable-configuration)
-    - [AI Search Test (Optional)](#ai-search-test-optional)
-      - [Prerequisites for AI Search Tests](#prerequisites-for-ai-search-tests)
-      - [Running AI Search Tests Locally](#running-ai-search-tests-locally)
   - [Advanced Scenarios](#advanced-scenarios)
+    - [Security Considerations](#security-considerations)
+    - [Infrastructure Resilience Considerations](#infrastructure-resilience-considerations)
     - [GitHub Self-Hosted Runners](#github-self-hosted-runners)
+    - [Testing](#testing)
     - [Bring Your Own Networking](#bring-your-own-networking)
     - [Custom Resource Group](#custom-resource-group)
-  - [Additional Considerations](#additional-considerations)
-    - [Security Considerations](#security-considerations)
-    - [Production Readiness](#production-readiness)
   - [Resources](#resources)
   - [Data Collection](#data-collection)
   - [Responsible AI](#responsible-ai)
@@ -222,144 +215,44 @@ To clean up all the resources created by this sample:
 
 All the Azure and Power Platform resources will be deleted.
 
-> **Note on Azure OpenAI Soft-Delete**: Azure OpenAI resources are soft-deleted by default and remain in a "recently deleted" state for 48 hours. If you need to redeploy with the same resource names before the retention period expires, you can manually purge the soft-deleted resource using:
+> [!NOTE] 
+> Azure OpenAI resources are soft-deleted by default and remain in a "recently deleted" state for 48 hours. If you need to redeploy with the same resource names before the retention period expires, you can manually purge the soft-deleted resource using:
 > ```bash
 > az cognitiveservices account purge --location <region> --resource-group <rg-name> --name <openai-name>
 > ```
 > In CI/CD workflows, this purge step is automated to prevent deployment conflicts.
 
-## Testing
-
-This solution includes tests that validate both Copilot Studio and Azure AI Search components after deployment.
-
-### Copilot Studio Agent Test
-
-Located in `tests/Copilot/`, this test validates:
-
-- **Conversation Flow**: End-to-end conversation test with the deployed agent
-- **Integration**: Validation that Copilot Studio can successfully query Azure AI Search
-
-Currently, [the Copilot Studio Client in the Agent SDK does not support the use of Service Principals for authentication](https://github.com/microsoft/Agents/blob/main/samples/basic/copilotstudio-client/dotnet/README.md#create-an-application-registration-in-entra-id---service-principal-login), and testing requires a cloud-native app registration as well as a test account with MFA turned off. The test user account must have access to the Power Platform environment containing the agent as well as access to the agent itself.
-
-#### Running Tests After Local Deployment Execution
-
-After a successful local deployment execution, the local .env file contains most of the information needed to run the end-to-end Copilot Studio test. Alternatively, any test input can be set directly through environment variables.
-
-Run the commands below to execute the test after a deployment.
-
-```bash
-# Navigate to the test directory
-cd tests/Copilot
-
-export POWER_PLATFORM_USERNAME="test@username.here"
-export POWER_PLATFORM_PASSWORD="passhere"
-export TEST_CLIENT_ID="native-app-guid-here"
-
-# Run tests using azd environment outputs (recommended)
-dotnet test --logger "console;verbosity=detailed"
-```
-
-#### Running Tests with Manual Environment Variable Configuration
-
-If you prefer to set environment variables manually or need to override specific values, you can configure all required variables explicitly:
-
-```bash
-# Navigate to the test directory
-cd tests/Copilot
-
-# Power Platform authentication
-export POWER_PLATFORM_USERNAME="your-test-user@domain.com"
-export POWER_PLATFORM_PASSWORD="your-test-password"
-export POWER_PLATFORM_TENANT_ID="your-tenant-id"
-export POWER_PLATFORM_ENVIRONMENT_ID="your-environment-id"
-
-# Native client application ID
-export TEST_CLIENT_ID="your-native-app-client-id"
-
-# Copilot Studio configuration
-export COPILOT_STUDIO_ENDPOINT="https://api.copilotstudio.microsoft.com"
-export COPILOT_STUDIO_AGENT_ID="crfXX_agentName"
-
-# Run the test
-dotnet test --logger "console;verbosity=detailed"
-```
-
-**Important Notes:**
-- The test account must have **MFA disabled** for automated authentication
-- The user must have access to the Power Platform environment and the Copilot Studio agent
-- Environment variables take precedence over values from azd .env files
-
-### AI Search Test (Optional)
-
-Located in `tests/AISearch/`, this test validates:
-
-- **Resource Existence**: Verify all search resources (index, datasource, skillset, indexer) exist
-- **Configuration Validation**: Check resource configurations match expected settings
-- **Content Verification**: Validate index contains expected documents and supports search
-- **Pipeline Integration**: End-to-end validation of the complete search pipeline
-
-Because the Copilot agent end-to-end test includes indirect validation of the AI Search functionality, this test does not need to be run unless direct validation and troubleshooting of the AI Search resources is required.
-
-#### Prerequisites for AI Search Tests
-
-Before running AI Search tests, you must complete the following configuration:
-
-1. **Make AI Search Endpoint Public**: Unless the test is run on the same virtual network as the AI Search resource, the AI Search service must be updated to be accessible to the test script. Configure network access in the Azure portal:
-   - Navigate to your AI Search service
-   - Go to **Networking** → **Firewalls and virtual networks**
-   - Select **All networks** or add the test runner's IP to **Selected IP addresses**
-
-2. **Assign RBAC Roles**: The user or service principal running the tests must have the following roles:
-  - Navigate to your AI Search service in the Azure portal
-  - Go to **Access control (IAM)** → **Add role assignment**
-  - Select **Search Index Data Contributor** role and assign to the user or service principal that will execute the tests
-  - Add another role assignment for **Search Service Contributor** role to the same user or service principal
-
-#### Running AI Search Tests Locally
-
-```bash
-# Ensure you're authenticated and have an azd environment deployed
-az login
-
-# Run the test script
-cd tests/AISearch
-./run-tests.sh
-```
-
-The tests automatically discover configuration from your azd environment outputs.
-
 ## Advanced Scenarios
-
-### GitHub Self-Hosted Runners
-
-For organizations requiring deployment through CI/CD pipelines, this solution supports secure GitHub self-hosted runners and includes a turnkey bootstrap that provisions private Terraform remote state and a runner in Azure. The configuration emphasizes private networking (private endpoints, no public IP) and least‑privilege access for enterprise environments.
-
-For step‑by‑step setup—including OIDC authentication, running the bootstrap workflow, capturing backend outputs, and targeting jobs to the runner—see the [CI/CD guide](/docs/cicd.md).
-
-### Bring Your Own Networking
-
-If your organization needs to deploy into existing virtual networks and enforce corporate routing, egress, and inspection controls, this template supports bring‑your‑own networking. You can wire services to your VNet/subnets, use private endpoints and private DNS, and keep public exposure disabled while meeting enterprise policies.
-
-For supported topologies, prerequisites, and step‑by‑step wiring (subnet requirements, private endpoints for Azure AI Search and Storage, DNS zones, NAT/firewall egress), see the [Bring Your Own Networking guide](/docs/custom_networking.md).
-
-### Custom Resource Group
-
-If you need to deploy into a pre-created or centrally managed Azure resource group (to align with enterprise naming, policy, or billing), the template can target an existing resource group rather than creating a new one. This is especially useful when developers don’t have subscription-level permissions—allowing deployments to proceed with resource group–scoped access.
-
-For prerequisites and configuration flags, see the [Custom Resource Group guide](/docs/custom_resource_group.md).
-
-## Additional Considerations
 
 ### Security Considerations
 
 See the [Security Considerations](./docs/security_considerations.md) guide for a concise overview of baseline controls, mitigated risks, and recommended hardening steps for production.
 
-### Production Readiness
+### Infrastructure Resilience Considerations
 
-To avoid cost issues when validating the architecture, the default setting of the AI Search resource
-is to use one partition and one replica, which is not a production-caliber configuration. If you use
-this architecture in a production scenario, update the `ai_search_config` Terraform variable to configure
-at least 3 partitions and replicas.
+This guide provides three options for deploying this template: **Basic** (dev/test), **Zone‑redundant** (single‑region production), and **Regional failover ready** (manual cross‑region recovery). [Infrastructure Resilience Considerations](./docs/infrastructure_resilience.md) provides prescriptive guidance on identity, networking, resiliency, scaling, and cost trade‑offs.  The template defaults to Basic which ensures you have full control of and responsibility for choosing the cost, sizing, and resilience for your production environments.
+
+### GitHub Self-Hosted Runners
+
+For organizations requiring deployment through CI/CD pipelines, this solution supports secure GitHub self-hosted runners and includes a turnkey bootstrap that provisions private Terraform remote state and a runner in Azure. The configuration emphasizes private networking (private endpoints, no public IP) and least‑privilege access for enterprise environments.
+
+For step‑by‑step setup—including OIDC authentication, running the bootstrap workflow, capturing backend outputs, and targeting jobs to the runner—see the [CI/CD guide](./docs/cicd.md).
+
+### Testing
+
+Refer to the [Testing Guide](./docs/testing.md) for end-to-end instructions covering Copilot Studio agent functional tests and optional Azure AI Search integration tests. It explains required environment variables, two execution paths (auto-populated after azd up or manual configuration), and commands for validating search connectivity, index population, and bot responses before production hardening.
+
+### Bring Your Own Networking
+
+If your organization needs to deploy into existing virtual networks and enforce corporate routing, egress, and inspection controls, this template supports bring‑your‑own networking. You can wire services to your VNet/subnets, use private endpoints and private DNS, and keep public exposure disabled while meeting enterprise policies.
+
+For supported topologies, prerequisites, and step‑by‑step wiring (subnet requirements, private endpoints for Azure AI Search and Storage, DNS zones, NAT/firewall egress), see the [Bring Your Own Networking guide](./docs/custom_networking.md).
+
+### Custom Resource Group
+
+If you need to deploy into a pre-created or centrally managed Azure resource group (to align with enterprise naming, policy, or billing), the template can target an existing resource group rather than creating a new one. This is especially useful when developers don’t have subscription-level permissions—allowing deployments to proceed with resource group–scoped access.
+
+For prerequisites and configuration flags, see the [Custom Resource Group guide](./docs/custom_resource_group.md).
 
 ## Resources
 
@@ -395,3 +288,7 @@ systems to ensure ethical, safe, and inclusive AI practices. Learn more at <http
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
 For help with deploying this sample, please post in [GitHub Issues](/issues).
+
+
+
+
