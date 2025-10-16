@@ -43,6 +43,11 @@ output "openai_endpoint" {
   value       = module.azure_open_ai.endpoint
 }
 
+output "openai_resource_name" {
+  description = "The name of the Azure OpenAI resource"
+  value       = module.azure_open_ai.resource.name
+}
+
 output "primary_azure_region" {
   description = "The primary Azure region for deployment"
   value       = local.primary_azure_region
