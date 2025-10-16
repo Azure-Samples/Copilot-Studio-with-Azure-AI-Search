@@ -44,7 +44,7 @@ output "openai_endpoint" {
 }
 
 output "openai_resource_name" {
-  description = "The name of the Azure OpenAI resource (for purging soft-deleted resources)"
+  description = "The name of the Azure OpenAI resource"
   value       = module.azure_open_ai.resource.name
 }
 
