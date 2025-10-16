@@ -240,7 +240,7 @@ For step‑by‑step setup—including OIDC authentication, running the bootstra
 
 ### Testing
 
-Refer to the [Testing Guide](./docs/testing.md) in docs/testing.md for end-to-end instructions covering Copilot Studio agent functional tests and optional Azure AI Search integration tests. It explains required environment variables, two execution paths (auto-populated after azd up or manual configuration), and commands for validating search connectivity, index population, and bot responses before production hardening.
+Refer to the [Testing Guide](./docs/testing.md) for end-to-end instructions covering Copilot Studio agent functional tests and optional Azure AI Search integration tests. It explains required environment variables, two execution paths (auto-populated after azd up or manual configuration), and commands for validating search connectivity, index population, and bot responses before production hardening.
 
 ### Bring Your Own Networking
 
