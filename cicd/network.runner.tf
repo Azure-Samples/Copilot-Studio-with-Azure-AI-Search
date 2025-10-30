@@ -8,6 +8,8 @@ resource "azurerm_subnet" "github_runner" {
   # GitHub runners don't need private endpoint policies
   private_endpoint_network_policies = "Disabled"
 
+  default_outbound_access_enabled = "false"
+
   dynamic "delegation" {
     for_each = var.github_runner_type == "aca" ? [1] : []
     content {
@@ -26,7 +28,7 @@ resource "azurerm_network_security_group" "github_runner" {
   name                = "nsg-github-runner-${random_id.suffix.hex}"
   location            = azurerm_resource_group.tfstate.location
   resource_group_name = azurerm_resource_group.tfstate.name
-  tags                = local.common_tags
+  tags                = var.tags
 
   # VM-specific rules (conditionally added when github_runner_type == "vm")
   # dynamic "security_rule" {
@@ -182,7 +184,7 @@ resource "azurerm_public_ip" "github_runner_nat_ip" {
   resource_group_name = azurerm_resource_group.tfstate.name
   allocation_method   = "Static"
   sku                 = "Standard"
-  tags                = local.common_tags
+  tags                = var.tags
 }
 
 # Create NAT Gateway
@@ -191,7 +193,7 @@ resource "azurerm_nat_gateway" "github_runner" {
   location            = azurerm_resource_group.tfstate.location
   resource_group_name = azurerm_resource_group.tfstate.name
   sku_name            = "Standard"
-  tags                = local.common_tags
+  tags                = var.tags
 }
 
 # Associate Public IP with NAT Gateway

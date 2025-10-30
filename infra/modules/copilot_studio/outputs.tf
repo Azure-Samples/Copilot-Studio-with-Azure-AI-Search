@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 output "power_platform_environment_id" {
   description = "The ID of the Power Platform environment."
   value       = local.power_platform_environment_id

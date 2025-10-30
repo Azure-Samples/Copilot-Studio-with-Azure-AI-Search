@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 set -eux
 
 echo "Running post-create setup for interactive operations..."
@@ -10,21 +13,15 @@ tflint --init
 
 # Install PowerApps CLI (Microsoft.PowerApps.CLI.Tool)
 echo "Installing PowerApps CLI..."
-dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.43.6
+dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.49.3
 
 # Restore .NET packages including Microsoft.Agents.CopilotStudio.Client
 echo "Restoring .NET packages..."
-if [ -f "Directory.Build.props" ]; then
-    dotnet restore
-    echo ".NET packages restored successfully!"
+if [ -f "tests/Copilot/CopilotTests.csproj" ]; then
+    dotnet restore tests/Copilot/CopilotTests.csproj
+    echo "Copilot project packages restored successfully!"
 else
-    # Fallback to individual project restore
-    if [ -f "tests/Copilot/CopilotTests.csproj" ]; then
-        dotnet restore tests/Copilot/CopilotTests.csproj
-        echo "Copilot project packages restored successfully!"
-    else
-        echo "No .NET projects found, skipping package restore"
-    fi
+    echo "No .NET projects found, skipping package restore"
 fi
 
 echo "Post-create setup completed successfully!"

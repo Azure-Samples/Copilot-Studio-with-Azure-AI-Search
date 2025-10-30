@@ -7,7 +7,7 @@ To enable secure automation and integration with Azure and Power Platform, you n
 1. Login to your Power Platform:
 
       ```shell
-      pac auth create
+      pac auth create --deviceCode
       ```
 
 1. Create new **App Registration**:

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # APP INSIGHTS VARIABLES
 
 variable "resource_share_user" {
@@ -110,7 +113,10 @@ variable "cognitive_deployments" {
         version = "1"
       }
       scale = {
-        capacity = 100
+        # Reduced default capacity to 50 (50 = 50k TPM) to avoid exceeding typical subscription quotas.
+        # If you need higher throughput, request a quota increase in the Azure Portal or set this value
+        # via tfvars for the environment after quota approval.
+        capacity = 50
         type     = "Standard"
       }
       rai_policy_name            = "Microsoft.DefaultV2"
@@ -231,6 +237,22 @@ variable "include_app_insights" {
   type        = bool
   default     = false
   description = "Include Application Insights in the deployment."
+}
+
+variable "include_log_analytics" {
+  type        = bool
+  default     = true
+  description = "Include a Log Analytics workspace for centralized diagnostics."
+}
+
+variable "log_analytics_retention_in_days" {
+  type        = number
+  default     = 30
+  description = "Retention period (in days) for Log Analytics workspace data."
+  validation {
+    condition     = var.log_analytics_retention_in_days >= 30 && var.log_analytics_retention_in_days <= 730
+    error_message = "Log Analytics retention must be between 30 and 730 days."
+  }
 }
 
 variable "location" {

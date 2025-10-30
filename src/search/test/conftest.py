@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """
 Pytest configuration and fixtures for Azure AI Search E2E tests.
 """

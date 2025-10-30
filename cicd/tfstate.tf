@@ -15,19 +15,13 @@ locals {
   subnet_name         = "snet-storage-${random_id.suffix.hex}"
   nsg_name            = "nsg-storage-${random_id.suffix.hex}"
   pe_name             = "pe-storage-${random_id.suffix.hex}"
-
-  common_tags = {
-    Environment = "Production"
-    Purpose     = "TerraformState"
-    CreatedBy   = "Terraform"
-  }
 }
 
 # Create Resource Group
 resource "azurerm_resource_group" "tfstate" {
   name     = local.resource_group_name
   location = local.location
-  tags     = local.common_tags
+  tags     = var.tags
 }
 
 # Create Storage Account with private access only
@@ -72,7 +66,7 @@ resource "azurerm_storage_account" "tfstate" {
     }
   }
 
-  tags = local.common_tags
+  tags = var.tags
 }
 
 # Assign Storage Blob Data Contributor role to current user/service principal
@@ -96,7 +90,7 @@ resource "azurerm_log_analytics_workspace" "storage" {
   resource_group_name = azurerm_resource_group.tfstate.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
-  tags                = local.common_tags
+  tags                = var.tags
 }
 
 # Configure diagnostic settings for storage account blob service

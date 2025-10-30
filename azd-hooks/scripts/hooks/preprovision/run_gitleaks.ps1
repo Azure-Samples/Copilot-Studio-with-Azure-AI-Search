@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 function Check-Gitleaks {
     Write-Host "Checking if Gitleaks is installed...`n"
 
@@ -35,8 +38,10 @@ function Run-Gitleaks {
 
     $SourcePath = (Get-Location)
 
-    # Get current git branch
+    # Get current git branch and check if repository has commits
     $currentBranch = $null
+    $hasCommits = $false
+    
     try {
         Write-Host "Getting current git branch..."
         $currentBranch = git branch --show-current
@@ -45,6 +50,19 @@ function Run-Gitleaks {
             $currentBranch = "unknown"
         } else {
             Write-Host "Current git branch: $currentBranch"
+            
+            # Check if the repository has any commits
+            try {
+                git rev-parse HEAD 2>$null | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    $hasCommits = $true
+                    Write-Host "Repository has commits, will use branch reference in log options."
+                } else {
+                    Write-Host "Repository has no commits yet, will skip branch reference in log options."
+                }
+            } catch {
+                Write-Host "Cannot determine commit history, will skip branch reference in log options."
+            }
         }
     } catch {
         Write-Warning "Error getting git branch: $_"
@@ -61,8 +79,8 @@ function Run-Gitleaks {
         "--log-level", "$LogLevel"
     )
 
-    # Only add log-opts if we have a valid branch name.
-    if ($currentBranch -ne "unknown") {
+    # Only add log-opts if we have a valid branch name and the repository has commits.
+    if ($currentBranch -ne "unknown" -and $hasCommits) {
         $cmdOptions += "--log-opts"
         $cmdOptions += "$currentBranch"
     }

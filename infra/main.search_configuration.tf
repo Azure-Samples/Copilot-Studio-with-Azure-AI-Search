@@ -1,31 +1,28 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 locals {
   # Force recreation of Python scripts on each deployment
   # This ensures the latest versions are always uploaded
   deployment_timestamp = timestamp()
 }
 
-
-
 resource "azurerm_storage_account" "deployment_container" {
-  # checkov:skip=CKV_AZURE_59: Required for deployment scripts to function with Azure Deployment Scripts service
-  # checkov:skip=CKV_AZURE_44: Using TLS 1.2 minimum, newer versions not yet supported by Deployment Scripts
-  # checkov:skip=CKV_AZURE_206: LRS sufficient for temporary deployment container storage
-  # checkov:skip=CKV_AZURE_190: Required for deployment scripts to access files
-  # checkov:skip=CKV_AZURE_35: Allow action required for Deployment Scripts service access
-  # checkov:skip=CKV_AZURE_33: Queue logging not needed for deployment container storage
-  # checkov:skip=CKV2_AZURE_41: SAS policy not needed for deployment container with managed identity
-  # checkov:skip=CKV2_AZURE_40: Shared key required for Azure Deployment Scripts service
-  # checkov:skip=CKV2_AZURE_33: Private endpoint not compatible with Deployment Scripts requirements
-  # checkov:skip=CKV2_AZURE_38: Enabling soft delete for deployment container protection
-  # checkov:skip=CKV2_AZURE_47: Blob anonymous access required for deployment scripts
-  # checkov:skip=CKV2_AZURE_1: Customer managed encryption not needed for temporary deployment container
+  # checkov:skip=CKV_AZURE_59: Public network access required - Deployment Scripts service accesses storage over public endpoint with managed identity auth
+  # checkov:skip=CKV_AZURE_206: LRS sufficient for temporary deployment artifacts - data has 24-hour retention and is not business-critical
+  # checkov:skip=CKV_AZURE_35: Network default action 'Allow' required - Deployment Scripts service does not support storage firewall restrictions per Azure docs
+  # checkov:skip=CKV_AZURE_33: Queue service logging not applicable - deployment container only uses Blob and File storage services
+  # checkov:skip=CKV2_AZURE_41: SAS expiration policy not applicable - using managed identity RBAC authentication instead of SAS tokens
+  # checkov:skip=CKV2_AZURE_40: Shared key access required - Azure Container Instances can only mount file shares via storage account keys per platform limitation
+  # checkov:skip=CKV2_AZURE_33: Private endpoint not required - public network access with managed identity auth is deployment scripts architecture pattern
+  # checkov:skip=CKV2_AZURE_1: Customer-managed key encryption not required - temporary deployment artifacts with 24-hour retention, platform-managed keys sufficient
   name                     = azurecaf_name.deployment_script_names.results["azurerm_storage_account"]
   resource_group_name      = local.resource_group_name
   location                 = local.primary_azure_region
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
-  # Allow blob public access for script uploads
+  # Disable anonymous blob access - deployment scripts authenticate via managed identity
   allow_nested_items_to_be_public = false
   # Ensure public network access is enabled for deployment scripts
   public_network_access_enabled = true
@@ -91,8 +88,9 @@ resource "azapi_resource" "configure_search_index" {
     location = local.primary_azure_region
     properties = {
       azCliVersion      = "2.45.0"
-      retentionInterval = "P1D"          # Keep logs for 1 day for debugging
-      cleanupPreference = "OnExpiration" # Keep container until retention expires
+      forceUpdateTag    = local.deployment_timestamp
+      retentionInterval = "PT24H"        # Retain script artifacts for 24 hours (max supported)
+      cleanupPreference = "OnExpiration" # Keep artifacts for the retention window regardless of outcome
       timeout           = "PT30M"        # Increase timeout for complex operations
       storageAccountSettings = {
         storageAccountName = azurerm_storage_account.deployment_container.name
@@ -104,88 +102,7 @@ resource "azapi_resource" "configure_search_index" {
           }
         ]
       }
-      scriptContent = <<EOF
-        set -euo pipefail
-        
-        echo "=== Search Index Configuration Script Start ==="
-        echo "Storage account: $MAIN_STORAGE_ACCOUNT_NAME"
-        echo "Search service: ${azurerm_search_service.ai_search.name}"
-        echo "Repository URL: $GITHUB_REPO_URL"
-        
-        # Wait for RBAC permissions to fully propagate (Azure can take time to propagate permissions)
-        echo "=== Waiting for RBAC permissions to propagate ==="
-        sleep 30
-        
-        # Verify main storage account exists
-        az storage account show --name $MAIN_STORAGE_ACCOUNT_NAME --resource-group ${local.resource_group_name} --output table
-        
-        # Setup Python environment
-        python3 -m venv /tmp/venv && source /tmp/venv/bin/activate
-        pip install --upgrade pip
-        
-        # Download only the necessary scripts
-        mkdir -p /tmp/scripts && cd /tmp/scripts
-        az storage blob download-batch --destination . --source scripts --account-name $SCRIPT_STORAGE_ACCOUNT_NAME --auth-mode login
-        
-        # Step 1: Fetch data files from source to local directory
-        echo "=== Step 1: Fetching data files from $DATA_SOURCE_TYPE source ==="
-        
-        # First install requirements from the src/search directory where fetch_data.py is located
-        cd /tmp/scripts/src/search
-        pip install -r requirements.txt
-        
-        # Create local data directory
-        mkdir -p /tmp/local_data
-        
-        # Fetch data using fetch_data.py
-        python fetch_data.py \
-          --source_type "$DATA_SOURCE_TYPE" \
-          --source_url "$DATA_SOURCE_URL" \
-          --source_path "$DATA_SOURCE_PATH" \
-          --output_dir "/tmp/local_data" \
-          --file_pattern "$DATA_FILE_PATTERN"
-        
-        # Step 2: Upload fetched data files to main storage account
-        echo "=== Step 2: Uploading data files to main storage account ==="
-        echo "Debug: MAIN_STORAGE_ACCOUNT_NAME = $MAIN_STORAGE_ACCOUNT_NAME"
-        echo "Debug: DATA_CONTAINER_NAME = $DATA_CONTAINER_NAME"
-        echo "Debug: AZURE_CLIENT_ID = $AZURE_CLIENT_ID"
-        
-        # Verify managed identity authentication works
-        echo "=== Testing Azure authentication ==="
-        az account show
-        echo "=== Testing storage account access ==="
-        az storage account show --name "$MAIN_STORAGE_ACCOUNT_NAME" --resource-group ${local.resource_group_name} --output table
-        echo "=== Testing storage container list access ==="
-        az storage container list --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login --output table || echo "Container list failed"
-        echo "=== Testing specific container exists ==="
-        az storage container exists --name "$DATA_CONTAINER_NAME" --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login || echo "Container exists check failed"
-        
-        # Test creating container if it doesn't exist using Azure CLI (this should work if RBAC is correct)
-        echo "=== Testing container creation with Azure CLI ==="
-        az storage container create --name "$DATA_CONTAINER_NAME" --account-name "$MAIN_STORAGE_ACCOUNT_NAME" --auth-mode login || echo "Container creation failed"
-        
-        # Run upload_data.py from the correct directory  
-        python upload_data.py \
-          --storage_account_name "$MAIN_STORAGE_ACCOUNT_NAME" \
-          --container_name "$DATA_CONTAINER_NAME" \
-          --data_path "/tmp/local_data" \
-          --file_pattern "$DATA_FILE_PATTERN"
-        
-        # Step 3: Configure search index
-        echo "=== Step 3: Configuring search index ==="
-        python index_utils.py \
-          --aisearch_name ${azurerm_search_service.ai_search.name} \
-          --base_index_name "${var.ai_search_base_index_name}" \
-          --openai_api_base ${module.azure_open_ai.endpoint} \
-          --subscription_id ${data.azurerm_client_config.current.subscription_id} \
-          --resource_group_name ${local.resource_group_name} \
-          --storage_name "$MAIN_STORAGE_ACCOUNT_NAME" \
-          --container_name $DATA_CONTAINER_NAME \
-          --client_id "$AZURE_CLIENT_ID"
-          
-        echo "=== Search index configuration completed successfully ==="
-      EOF
+      scriptContent = file("${path.module}/scripts/configure-search-index.sh")
       environmentVariables = [
         {
           name  = "SCRIPT_STORAGE_ACCOUNT_NAME"
@@ -222,6 +139,26 @@ resource "azapi_resource" "configure_search_index" {
         {
           name  = "GITHUB_REPO_URL"
           value = var.data_source_url
+        },
+        {
+          name  = "SEARCH_SERVICE_NAME"
+          value = "${azurerm_search_service.ai_search.name}"
+        },
+        {
+          name  = "RESOURCE_GROUP_NAME"
+          value = "${local.resource_group_name}"
+        },
+        {
+          name  = "BASE_INDEX_NAME"
+          value = "${var.ai_search_base_index_name}"
+        },
+        {
+          name  = "OPENAI_ENDPOINT"
+          value = "${module.azure_open_ai.endpoint}"
+        },
+        {
+          name  = "SUBSCRIPTION_ID"
+          value = "${data.azurerm_client_config.current.subscription_id}"
         }
       ]
     }

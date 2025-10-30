@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 # Basic usage of the Copilot Studio module. Assumes the usage of AVMs to initialize minimal prerequisite resources.
 locals {
   search_endpoint_url = "https://${azurerm_search_service.ai_search.name}.search.windows.net"
@@ -11,16 +14,6 @@ locals {
   )
   # Secondary Azure region is picked based of primary found in Power Platform location
   secondary_azure_region = local.search_secondary_azure_region.pairedRegion[0].name
-
-  # Resource group logic - use existing or create new
-  use_existing_resource_group = var.resource_group_name != null && var.resource_group_name != "" && length(var.resource_group_name) > 0
-  resource_group_name         = local.use_existing_resource_group ? var.resource_group_name : azurerm_resource_group.this[0].name
-}
-
-# Data source to validate existing resource group exists
-data "azurerm_resource_group" "existing" {
-  count = local.use_existing_resource_group ? 1 : 0
-  name  = var.resource_group_name
 }
 
 data "powerplatform_locations" "all_powerplatform_locations" {
@@ -40,14 +33,6 @@ resource "random_string" "name" {
   numeric = false
   special = false
   upper   = false
-}
-
-# The Resource Group that will contain the resources managed by this module (only created if not using existing)
-resource "azurerm_resource_group" "this" {
-  count    = local.use_existing_resource_group ? 0 : 1
-  location = local.primary_azure_region
-  name     = azurecaf_name.main_names.results["azurerm_resource_group"]
-  tags     = merge(var.tags, local.env_tags)
 }
 
 module "copilot_studio" {
