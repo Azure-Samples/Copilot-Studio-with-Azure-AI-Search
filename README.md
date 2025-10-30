@@ -30,6 +30,7 @@ network security.
   - [Resources](#resources)
   - [Data Collection](#data-collection)
   - [Responsible AI](#responsible-ai)
+  - [Disclaimer](#disclaimer)
   - [Getting Help](#getting-help)
 
 ## Features
@@ -284,11 +285,11 @@ telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appende
 Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled
 systems to ensure ethical, safe, and inclusive AI practices. Learn more at <https://www.microsoft.com/en-us/ai/responsible-ai>.
 
+## Disclaimer
+
+This repo is provided as a sample starting point, and as such, should be validated before any usage in production. This solution also utilizes AI, which occasionally makes mistakes and misunderstands intent. Please validate all outputs before usage.
+
 ## Getting Help
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
 For help with deploying this sample, please post in [GitHub Issues](/issues).
-
-
-
-
