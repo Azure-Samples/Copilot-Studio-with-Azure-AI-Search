@@ -14,6 +14,7 @@ network security.
   - [Account \& License Requirements](#account--license-requirements)
     - [User Configuration](#user-configuration)
   - [Getting Started](#getting-started)
+    - [New to AZD, or Terraform?](#new-to-azd-or-terraform)
     - [GitHub Codespaces](#github-codespaces)
     - [VS Code Dev Containers](#vs-code-dev-containers)
     - [Local Environment](#local-environment)
@@ -118,6 +119,15 @@ Upon deployment, the configured user will be granted:
 You have a few options for setting up this project.
 The easiest way to get started is GitHub Codespaces, since it will setup all the tools for you,
 but you can also [set it up locally](#local-environment) if desired.
+
+### New to AZD, or Terraform?
+
+Try the 🤖 [AZD Assistant chat mode](.github/chatmodes/README.md) for guided deployment assistance! After cloning the repo and starting the devcontainer, simply select "azd-assistant" chatmode in copilot and start chatting.
+
+![AZD Assistant](./docs/images/azd-assistant-cicd.gif)
+![AZD Assistant -new](./docs/images/azd-assistant.gif)
+
+The CAIRA assistant will walk you through the entire deployment experience of all four reference architectures, validate any necessary prerequisite resources, and even help verify resources post-deployment.
 
 ### GitHub Codespaces
 
