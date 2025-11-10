@@ -124,9 +124,9 @@ but you can also [set it up locally](#local-environment) if desired.
 
 Try the 🤖 [AZD Assistant chat mode](.github/chatmodes/README.md) for guided deployment assistance! After cloning the repo and starting the devcontainer, simply select "azd-assistant" chatmode in copilot and start chatting.
 
-![AZD Assistant -new](./docs/images/azd-assistant.gif)
+![AZD Assistant](./docs/images/azd-assistant.gif)
 
-The CAIRA assistant will walk you through the entire deployment experience of all four reference architectures, validate any necessary prerequisite resources, and even help verify resources post-deployment.
+The AZD assistant will walk you through the entire deployment steps, validates prerequisite resources, helps configure deployment settings, and assists with post-deployment verification to ensure successful integration of Copilot Studio with Azure AI services.
 
 ### GitHub Codespaces
 
