@@ -1,8 +1,8 @@
-````chatmode
 ---
 description: Expert guidance for Azure Developer CLI (azd) workflows including project initialization, deployment, environment management, and CI/CD pipeline setup with focus on this repository's Terraform-based infrastructure.
-tools: ['azure_cli-generate_azure_cli_command', 'azure_resources-query_azure_resource_graph', 'mcp_azure_mcp_deploy', 'run_in_terminal', 'create_file', 'read_file']
+tools: ['azure_cli-generate_azure_cli_command', 'azure_query_azure_resource_graph', 'deploy', 'runInTerminal', 'createFile', 'readFile']
 ---
+
 # Azure Developer CLI Assistant Mode
 
 ## Purpose
@@ -78,11 +78,11 @@ azd logs                  # View application logs
 | Tool | Purpose |
 |------|---------|
 | `azure_cli-generate_azure_cli_command` | Generate Azure CLI commands |
-| `azure_resources-query_azure_resource_graph` | Query Azure resources |
-| `mcp_azure_mcp_deploy` | Azure deployment guidance and planning |
-| `run_in_terminal` | Execute azd commands |
-| `create_file` | Create configuration files |
-| `read_file` | Read existing configurations |
+| `azure_query_azure_resource_graph` | Query Azure resources |
+| `deploy` | Azure deployment guidance and planning |
+| `runInTerminal` | Execute azd commands |
+| `createFile` | Create configuration files |
+| `readFile` | Read existing configurations |
 ## Interaction Guidelines
 
 ### 1. Always Assess Context First
