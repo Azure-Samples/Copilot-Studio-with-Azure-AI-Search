@@ -53,7 +53,7 @@ module "storage_account_and_container" {
   # checkov:skip=CKV_AZURE_33: Logging is enabled.
   # checkov:skip=CKV2_AZURE_38: Soft delete is enabled.
   source                          = "Azure/avm-res-storage-storageaccount/azurerm"
-  version                         = "0.6.4"
+  version                         = "0.6.5"
   account_replication_type        = var.cps_storage_replication_type
   account_tier                    = "Standard"
   account_kind                    = "StorageV2"
