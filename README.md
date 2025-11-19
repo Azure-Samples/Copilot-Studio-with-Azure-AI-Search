@@ -14,6 +14,7 @@ network security.
   - [Account \& License Requirements](#account--license-requirements)
     - [User Configuration](#user-configuration)
   - [Getting Started](#getting-started)
+    - [New to AZD, or Terraform?](#new-to-azd-or-terraform)
     - [GitHub Codespaces](#github-codespaces)
     - [VS Code Dev Containers](#vs-code-dev-containers)
     - [Local Environment](#local-environment)
@@ -30,6 +31,7 @@ network security.
   - [Resources](#resources)
   - [Data Collection](#data-collection)
   - [Responsible AI](#responsible-ai)
+  - [Disclaimer](#disclaimer)
   - [Getting Help](#getting-help)
 
 ## Features
@@ -117,6 +119,14 @@ Upon deployment, the configured user will be granted:
 You have a few options for setting up this project.
 The easiest way to get started is GitHub Codespaces, since it will setup all the tools for you,
 but you can also [set it up locally](#local-environment) if desired.
+
+### New to AZD, or Terraform?
+
+Try the 🤖 [AZD Assistant chat mode](.github/chatmodes/README.md) for guided deployment assistance! After cloning the repo and starting the devcontainer, simply select "azd-assistant" chatmode in copilot and start chatting.
+
+![AZD Assistant](./docs/images/azd-assistant.gif)
+
+The AZD assistant will walk you through the entire deployment steps, validates prerequisite resources, helps configure deployment settings, and assists with post-deployment verification to ensure successful integration of Copilot Studio with Azure AI services.
 
 ### GitHub Codespaces
 
@@ -284,11 +294,11 @@ telemetry, simply remove `partner_id`. When enabled, the `partner_id` is appende
 Microsoft encourages customers to review its Responsible AI Standard when developing AI-enabled
 systems to ensure ethical, safe, and inclusive AI practices. Learn more at <https://www.microsoft.com/en-us/ai/responsible-ai>.
 
+## Disclaimer
+
+This repo is provided as a sample starting point, and as such, should be validated before any usage in production. This solution also utilizes AI, which occasionally makes mistakes and misunderstands intent. Please validate all outputs before usage.
+
 ## Getting Help
 
 This is a sample built to demonstrate the capabilities of modern Generative AI apps and how they can be built in Azure.
 For help with deploying this sample, please post in [GitHub Issues](/issues).
-
-
-
-
