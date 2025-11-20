@@ -24,7 +24,7 @@ permissions:
   security-events: write
   pull-requests: write  # Allow workflow to comment on PRs
   id-token: write # Needed for OIDC Authentication
-  
+
 # Global environment variables
 env:
   ERROR_HANDLING: true # Enable enhanced error handling
@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 60
     needs: check-dependabot
     # Run for all PRs but handle Dependabot PRs specially
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -64,7 +64,7 @@ jobs:
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: '18.x'
-        
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
@@ -85,28 +85,28 @@ jobs:
         id: tf-fmt
         run: |
           echo "Checking Terraform formatting..."
-          
+
           # Capture files that need formatting
           FMT_OUTPUT=$(terraform fmt -check -recursive -diff 2>&1) || FMT_EXIT=$?
-          
+
           if [ "${FMT_EXIT:-0}" -ne 0 ]; then
             echo "::error::Terraform format check failed! Run 'terraform fmt -recursive' locally to fix formatting issues."
-            
+
             # Always show which files need formatting
             echo ""
             echo "Files that need formatting:"
             terraform fmt -check -recursive 2>&1 | grep -v "^$" || true
-            
+
             # Show diff in debug mode or if requested
             if [ "${{ github.event.inputs.debug }}" == "true" ] || [ "${{ env.ERROR_HANDLING }}" == "true" ]; then
               echo ""
               echo "Formatting differences:"
               echo "$FMT_OUTPUT"
             fi
-            
+
             exit 1
           fi
-          
+
           echo "All Terraform files are properly formatted."
         working-directory: ./infra
 
@@ -114,28 +114,28 @@ jobs:
         id: tf-validate
         run: |
           echo "Validating Terraform configuration..."
-          
+
           # Run validation and capture both JSON and exit code
           terraform validate -json > validation_result.json 2>&1 || VALIDATE_EXIT=$?
-          
+
           if [ "${VALIDATE_EXIT:-0}" -ne 0 ]; then
             echo "::error::Terraform validation failed! Check your Terraform files for errors."
-            
+
             # Always show validation errors in a readable format
             echo ""
             echo "Validation errors:"
             cat validation_result.json | jq -r '.diagnostics[]? | "- [\(.severity | ascii_upcase)] \(.summary): \(.detail)"' 2>/dev/null || cat validation_result.json
-            
+
             # Show full JSON output in debug mode
             if [ "${{ github.event.inputs.debug }}" == "true" ]; then
               echo ""
               echo "Full validation output:"
               cat validation_result.json | jq '.' 2>/dev/null || cat validation_result.json
             fi
-            
+
             exit 1
           fi
-          
+
           echo "Terraform configuration is valid."
         working-directory: ./infra
 
@@ -160,35 +160,33 @@ jobs:
         id: tflint-run
         run: |
           echo "Running TFLint..."
-          
+
           # Run TFLint and capture output
           tflint --format=json --force > tflint_result.json 2>&1 || TFLINT_EXIT=$?
-          
+
           if [ "${TFLINT_EXIT:-0}" -ne 0 ]; then
             echo "::error::TFLint found issues in your Terraform configuration!"
-            
+
             # Always show formatted errors
             echo ""
             echo "TFLint issues found:"
             cat tflint_result.json | jq -r '.issues[]? | "- [\(.severity | ascii_upcase)] \(.rule.name) in \(.range.filename):\(.range.start.line): \(.message)"' 2>/dev/null || echo "Failed to parse TFLint output"
-            
+
             # Show full JSON output in debug mode
             if [ "${{ github.event.inputs.debug }}" == "true" ]; then
               echo ""
               echo "Full TFLint output:"
               cat tflint_result.json | jq '.' 2>/dev/null || cat tflint_result.json
             fi
-            
+
             # Also create GitHub annotations for issues
             cat tflint_result.json | jq -r '.issues[]? | "::error file=\(.range.filename),line=\(.range.start.line),col=\(.range.start.column)::\(.message)"' 2>/dev/null || true
-            
+
             exit 1
           fi
-          
+
           echo "TFLint completed successfully with no issues."
         working-directory: ./infra
-
-
 
       - name: Install GitLeaks
         run: |
@@ -226,7 +224,7 @@ jobs:
       - name: Run Checkov action
         id: checkov
         uses: bridgecrewio/checkov-action@de3c276ef8118f7ce6bcb2e51d8dd3d65ac0ae36 # v12.1347.0
-        with: 
+        with:
           framework: terraform
           download_external_modules: true
           directory: ./infra
@@ -244,27 +242,27 @@ jobs:
           category: checkov
           wait-for-processing: true  # Wait for processing to complete before proceeding
 
-     
-          
+
+
       - name: Summary
         if: always()  # Always run this step
         run: |
           echo "## Terraform Validation Results :clipboard:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Show debug mode status if enabled
           if [ "${{ github.event.inputs.debug }}" == "true" ]; then
             echo "🔍 **Debug Mode**: Enabled (verbose output shown)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check Terraform Init
           if [ "${{ steps.tf-init.outcome }}" == "success" ]; then
             echo "✅ **Terraform Init**: Passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Terraform Init**: Failed" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check Terraform Format
           if [ "${{ steps.tf-fmt.outcome }}" == "success" ]; then
             echo "✅ **Terraform Format**: Passed" >> $GITHUB_STEP_SUMMARY
@@ -272,7 +270,7 @@ jobs:
             echo "❌ **Terraform Format**: Failed - Run 'terraform fmt -recursive' locally" >> $GITHUB_STEP_SUMMARY
             echo "   - Check step logs for list of files that need formatting" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check Terraform Validate
           if [ "${{ steps.tf-validate.outcome }}" == "success" ]; then
             echo "✅ **Terraform Validate**: Passed" >> $GITHUB_STEP_SUMMARY
@@ -280,7 +278,7 @@ jobs:
             echo "❌ **Terraform Validate**: Failed - Check configuration files" >> $GITHUB_STEP_SUMMARY
             echo "   - Check step logs for detailed validation errors" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check TFLint
           if [ "${{ steps.tflint-run.outcome }}" == "success" ]; then
             echo "✅ **TFLint**: Passed" >> $GITHUB_STEP_SUMMARY
@@ -288,21 +286,21 @@ jobs:
             echo "❌ **TFLint**: Failed - Review linting errors" >> $GITHUB_STEP_SUMMARY
             echo "   - Check step logs for detailed linting issues" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check Checkov
           if [ "${{ steps.checkov.outcome }}" == "success" ]; then
             echo "✅ **Checkov Security Check**: Passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **Checkov Security Check**: Failed - Security issues found" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Check GitLeaks
           if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
             echo "✅ **GitLeaks Scan**: Passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ **GitLeaks Scan**: Failed - Sensitive information detected" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Add help message if any checks failed
           if [ "${{ steps.tf-fmt.outcome }}" != "success" ] || \
              [ "${{ steps.tf-validate.outcome }}" != "success" ] || \
@@ -326,23 +324,23 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = context.issue.number;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
               body: `## Terraform Validation Passed ✅
-              
+
               The Terraform provider update has been validated with:
               - ✅ Terraform Init
               - ✅ Terraform Format Check
               - ✅ Terraform Validation
               - ✅ TFLint Check
               - ✅ Security Scanning
-              
+
               This PR can pass all the checks to be tested and then merged.`
             });
-            
+
             // Add 'terraform-validated' label to the PR
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
@@ -363,18 +361,18 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = context.issue.number;
-            
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
               body: `## ❌ Terraform Validation Failed
-              
+
               The Terraform provider update has failed validation. Please check the workflow logs for details.
-              
+
               This may indicate that the provider update is not compatible with the current configuration.`
             });
-            
+
             // Add 'terraform-validation-failed' label to the PR
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
