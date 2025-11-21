@@ -47,12 +47,12 @@ jobs:
       
     steps:
       - name: Checkout code
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
 
       - name: Install azd
-        uses: Azure/setup-azd@cf638ffd167fc81e1851241a478a723c05fa9cb3 # v2.2.0
+        uses: Azure/setup-azd@c495e71ba59e44bfaaac10a32c8ee90d191ca4a3 # v2.2.1
         with:
           version: '1.20.0'  # Specify your desired azd version here
 
