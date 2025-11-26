@@ -46,7 +46,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
         with:
           fetch-depth: 0  # Required for proper GitLeaks scanning
 
@@ -95,7 +95,7 @@ jobs:
         working-directory: ./infra
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@acd1575d3c037258ce5b2dd01379dc49ce24c6b7 # v6.2.0
+        uses: terraform-linters/setup-tflint@4cb9feea73331a35b422df102992a03a44a3bb33 # v6.2.1
         with:
           tflint_version: v0.58.1  # Specify a version (recommended)
           github_token: ${{ secrets.GITHUB_TOKEN }}  # Used to avoid rate limiting
@@ -160,7 +160,7 @@ jobs:
 
       - name: Run Checkov action
         id: checkov
-        uses: bridgecrewio/checkov-action@09ed8b33f7afd51d924ce371b2a0f17227afdce4 # v12.1347.0
+        uses: bridgecrewio/checkov-action@de3c276ef8118f7ce6bcb2e51d8dd3d65ac0ae36 # v12.1347.0
         with: 
           framework: terraform
           download_external_modules: true
