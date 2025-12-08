@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Checkout the branch ${{ github.ref_name }}
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ github.ref_name }}
 
@@ -120,7 +120,7 @@ jobs:
           retention-days: 30
 
       - name: Publish pytest test results
-        uses: dorny/test-reporter@7b7927aa7da8b82e81e755810cb51f39941a2cc7 # v2.2.0
+        uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
         if: (!cancelled()) # Run even if tests fail
         with:
           name: Azure AI Search E2E Tests
