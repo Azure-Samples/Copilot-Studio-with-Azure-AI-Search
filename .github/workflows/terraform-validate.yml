@@ -7,16 +7,6 @@ on:
     paths:
       - 'infra/**'
       - '.github/workflows/terraform_validate.yml'
-  workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Enable debug mode with verbose output'
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
 
 permissions:
   actions: read # Needed for uploading SARIF reports
@@ -86,6 +76,12 @@ jobs:
         run: |
           echo "Checking Terraform formatting..."
 
+          # Detect if debug logging is enabled
+          DEBUG_ENABLED=false
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            DEBUG_ENABLED=true
+          fi
+
           # Capture files that need formatting
           FMT_OUTPUT=$(terraform fmt -check -recursive -diff 2>&1) || FMT_EXIT=$?
 
@@ -97,8 +93,8 @@ jobs:
             echo "Files that need formatting:"
             terraform fmt -check -recursive 2>&1 | grep -v "^$" || true
 
-            # Show diff in debug mode or if requested
-            if [ "${{ github.event.inputs.debug }}" == "true" ] || [ "${{ env.ERROR_HANDLING }}" == "true" ]; then
+            # Show diff in debug mode
+            if [ "$DEBUG_ENABLED" = "true" ]; then
               echo ""
               echo "Formatting differences:"
               echo "$FMT_OUTPUT"
@@ -115,6 +111,12 @@ jobs:
         run: |
           echo "Validating Terraform configuration..."
 
+          # Detect if debug logging is enabled
+          DEBUG_ENABLED=false
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            DEBUG_ENABLED=true
+          fi
+
           # Run validation and capture both JSON and exit code
           terraform validate -json > validation_result.json 2>&1 || VALIDATE_EXIT=$?
 
@@ -127,7 +129,7 @@ jobs:
             cat validation_result.json | jq -r '.diagnostics[]? | "- [\(.severity | ascii_upcase)] \(.summary): \(.detail)"' 2>/dev/null || cat validation_result.json
 
             # Show full JSON output in debug mode
-            if [ "${{ github.event.inputs.debug }}" == "true" ]; then
+            if [ "$DEBUG_ENABLED" = "true" ]; then
               echo ""
               echo "Full validation output:"
               cat validation_result.json | jq '.' 2>/dev/null || cat validation_result.json
@@ -161,6 +163,12 @@ jobs:
         run: |
           echo "Running TFLint..."
 
+          # Detect if debug logging is enabled
+          DEBUG_ENABLED=false
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            DEBUG_ENABLED=true
+          fi
+
           # Run TFLint and capture output
           tflint --format=json --force > tflint_result.json 2>&1 || TFLINT_EXIT=$?
 
@@ -173,7 +181,7 @@ jobs:
             cat tflint_result.json | jq -r '.issues[]? | "- [\(.severity | ascii_upcase)] \(.rule.name) in \(.range.filename):\(.range.start.line): \(.message)"' 2>/dev/null || echo "Failed to parse TFLint output"
 
             # Show full JSON output in debug mode
-            if [ "${{ github.event.inputs.debug }}" == "true" ]; then
+            if [ "$DEBUG_ENABLED" = "true" ]; then
               echo ""
               echo "Full TFLint output:"
               cat tflint_result.json | jq '.' 2>/dev/null || cat tflint_result.json
@@ -187,6 +195,8 @@ jobs:
 
           echo "TFLint completed successfully with no issues."
         working-directory: ./infra
+
+
 
       - name: Install GitLeaks
         run: |
@@ -251,7 +261,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Show debug mode status if enabled
-          if [ "${{ github.event.inputs.debug }}" == "true" ]; then
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
             echo "🔍 **Debug Mode**: Enabled (verbose output shown)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
@@ -308,8 +318,8 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "---" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "💡 **Tip**: Re-run this workflow with debug mode enabled for more verbose output:" >> $GITHUB_STEP_SUMMARY
-            echo "   - Go to Actions → Select this workflow → Run workflow → Enable 'debug mode'" >> $GITHUB_STEP_SUMMARY
+            echo "💡 **Tip**: Re-run this workflow with debug logging enabled for more verbose output:" >> $GITHUB_STEP_SUMMARY
+            echo "   - Click 'Re-run jobs' → Check 'Enable debug logging' → Click 'Re-run jobs'" >> $GITHUB_STEP_SUMMARY
           fi
 
   update-dependabot-pr:
