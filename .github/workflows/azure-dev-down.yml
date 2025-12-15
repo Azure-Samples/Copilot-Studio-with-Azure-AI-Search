@@ -34,7 +34,7 @@ jobs:
         uses: Azure/setup-azd@cf638ffd167fc81e1851241a478a723c05fa9cb3 # v2.2.0
         with:
           version: '1.20.0'  # Specify your desired azd version here
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
@@ -71,7 +71,7 @@ jobs:
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
           RESOURCE_TAGS: ${{ vars.RESOURCE_TAGS }}
-          
+
         shell: bash
         run: |
           azd config set auth.useAzCliAuth "true"
@@ -83,8 +83,15 @@ jobs:
           azd env set RESOURCE_TAGS "$RESOURCE_TAGS"
 
           azd package # trigger prepackage hook to setup terraform provider
-          azd provision --preview  # https://github.com/Azure/azure-dev/issues/4317
-          azd down --no-prompt --force --purge
+
+          # Detect if debug logging is enabled
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            azd provision --preview --debug  # https://github.com/Azure/azure-dev/issues/4317
+            azd down --no-prompt --force --purge --debug
+          else
+            azd provision --preview  # https://github.com/Azure/azure-dev/issues/4317
+            azd down --no-prompt --force --purge
+          fi
 
       - name: Purge Soft-Deleted Azure OpenAI Resources
         shell: bash
@@ -97,7 +104,7 @@ jobs:
           # Only attempt to purge if we have the required information
           if [[ -n "$OPENAI_RESOURCE_NAME" && -n "$AZURE_REGION" ]]; then
             echo "Attempting to purge soft-deleted Azure OpenAI resource: $OPENAI_RESOURCE_NAME in $AZURE_REGION"
-            
+
             # Purge the soft-deleted Cognitive Services account (continue on error if resource not found)
             az cognitiveservices account purge \
               --location "$AZURE_REGION" \

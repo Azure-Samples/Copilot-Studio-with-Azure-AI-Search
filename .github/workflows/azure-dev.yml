@@ -44,7 +44,7 @@ jobs:
     env:
       AZURE_ENV_NAME: ${{ github.event.inputs.azd_environment_name || (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) || 'CICD' }}
       AZURE_LOCATION: ${{ github.event.inputs.azure_location || 'eastus' }}
-      
+
     steps:
       - name: Checkout code
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -100,13 +100,13 @@ jobs:
           # Install .NET SDK to temp directory for self-hosted runners to avoid permission issues
           DOTNET_INSTALL_DIR="${{ runner.temp }}/dotnet"
           mkdir -p "$DOTNET_INSTALL_DIR"
-          
+
           # Download and run the dotnet-install script
           curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
           chmod +x dotnet-install.sh
           ./dotnet-install.sh --channel 9.0 --install-dir "$DOTNET_INSTALL_DIR"
           rm dotnet-install.sh
-          
+
           # Add to PATH for subsequent steps
           echo "$DOTNET_INSTALL_DIR" >> $GITHUB_PATH
           echo "DOTNET_ROOT=$DOTNET_INSTALL_DIR" >> $GITHUB_ENV
@@ -148,14 +148,14 @@ jobs:
           ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-          
+
           RS_STORAGE_ACCOUNT: ${{ vars.RS_STORAGE_ACCOUNT }}
           RS_CONTAINER_NAME: ${{ vars.RS_CONTAINER_NAME }}
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
-          
+
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
           RESOURCE_TAGS: ${{ vars.RESOURCE_TAGS }}
-      
+
           GITHUB_PAT: ${{ secrets.MCS_RUNNER }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO_NAME: ${{ github.event.repository.name }}
@@ -180,7 +180,12 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
 
-          azd provision --no-prompt
+          # Detect if debug logging is enabled
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            azd provision --no-prompt --debug
+          else
+            azd provision --no-prompt
+          fi
 
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: success() || failure()
@@ -221,7 +226,7 @@ jobs:
           RS_RESOURCE_GROUP: ${{ vars.RS_RESOURCE_GROUP }}
           RESOURCE_SHARE_USER: ${{ vars.RESOURCE_SHARE_USER }}
           RESOURCE_TAGS: ${{ vars.RESOURCE_TAGS }}
-          
+
         shell: bash
         run: |
           azd env set RS_STORAGE_ACCOUNT "$RS_STORAGE_ACCOUNT"
@@ -231,7 +236,13 @@ jobs:
           azd env set RESOURCE_TAGS "$RESOURCE_TAGS"
 
           azd env select "$AZURE_ENV_NAME"
-          azd down --no-prompt --force --purge
+
+          # Detect if debug logging is enabled
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            azd down --no-prompt --force --purge --debug
+          else
+            azd down --no-prompt --force --purge
+          fi
 
       - name: Purge Soft-Deleted Azure OpenAI Resources
         if: ${{ github.event.inputs.run_azd_down == 'true' || github.event_name == 'pull_request' }}
@@ -245,7 +256,7 @@ jobs:
           # Only attempt to purge if we have the required information
           if [[ -n "$OPENAI_RESOURCE_NAME" && -n "$AZURE_REGION" ]]; then
             echo "Attempting to purge soft-deleted Azure OpenAI resource: $OPENAI_RESOURCE_NAME in $AZURE_REGION"
-            
+
             # Purge the soft-deleted Cognitive Services account (continue on error if resource not found)
             az cognitiveservices account purge \
               --location "$AZURE_REGION" \
