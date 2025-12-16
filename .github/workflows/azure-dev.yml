@@ -180,7 +180,12 @@ jobs:
           azd env set GITHUB_RUNNER_IMAGE_TAG "$GITHUB_RUNNER_IMAGE_TAG"
           azd env set GITHUB_RUNNER_IMAGE_BRANCH "$GITHUB_RUNNER_IMAGE_BRANCH"
 
-          pwsh .github/scripts/Invoke-AzdWithDebug.ps1 -Command "provision" -Arguments "--no-prompt"
+          # Detect if debug logging is enabled and set DEBUG_FLAG accordingly
+          DEBUG_FLAG=""
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            DEBUG_FLAG="--debug"
+          fi
+          azd provision --no-prompt $DEBUG_FLAG
 
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: success() || failure()
@@ -232,7 +237,12 @@ jobs:
 
           azd env select "$AZURE_ENV_NAME"
 
-          pwsh .github/scripts/Invoke-AzdWithDebug.ps1 -Command "down" -Arguments "--no-prompt --force --purge"
+          # Detect if debug logging is enabled and set DEBUG_FLAG accordingly
+          DEBUG_FLAG=""
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            DEBUG_FLAG="--debug"
+          fi
+          azd down --no-prompt --force --purge $DEBUG_FLAG
 
       - name: Purge Soft-Deleted Azure OpenAI Resources
         if: ${{ github.event.inputs.run_azd_down == 'true' || github.event_name == 'pull_request' }}

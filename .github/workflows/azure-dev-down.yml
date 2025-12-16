@@ -84,9 +84,13 @@ jobs:
 
           azd package # trigger prepackage hook to setup terraform provider
 
-          # https://github.com/Azure/azure-dev/issues/4317
-          pwsh .github/scripts/Invoke-AzdWithDebug.ps1 -Command "provision" -Arguments "--preview"
-          pwsh .github/scripts/Invoke-AzdWithDebug.ps1 -Command "down" -Arguments "--no-prompt --force --purge"
+          # Detect if debug logging is enabled and set DEBUG_FLAG accordingly
+          DEBUG_FLAG=""
+          if [ "$ACTIONS_STEP_DEBUG" = "true" ] || [ "$ACTIONS_RUNNER_DEBUG" = "true" ] || [ "$RUNNER_DEBUG" = "1" ]; then
+            DEBUG_FLAG="--debug"
+          fi
+          azd provision --preview $DEBUG_FLAG  # https://github.com/Azure/azure-dev/issues/4317
+          azd down --no-prompt --force --purge $DEBUG_FLAG
 
       - name: Purge Soft-Deleted Azure OpenAI Resources
         shell: bash
