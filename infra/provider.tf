@@ -20,7 +20,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.55.0"
+      version = "4.56.0"
     }
     modtm = {
       source  = "Azure/modtm"
@@ -28,7 +28,7 @@ terraform {
     }
     powerplatform = {
       source  = "microsoft/power-platform"
-      version = "3.9.1"
+      version = "4.0.0"
     }
     random = {
       source  = "hashicorp/random"
