@@ -65,6 +65,7 @@ variable "power_platform_managed_environment" {
   - `max_limit_user_sharing`: The maximum limit for user sharing in the Power Platform managed environment.
   - `solution_checker_mode`: The solution checker mode for the Power Platform managed environment.
   - `suppress_validation_emails`: Whether validation emails are suppressed for the Power Platform managed environment.
+  DESCRIPTION
 }
 
 variable "primary_subnet_id" {
