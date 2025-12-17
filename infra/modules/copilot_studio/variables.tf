@@ -57,8 +57,6 @@ variable "power_platform_managed_environment" {
     max_limit_user_sharing     = number
     solution_checker_mode      = string
     suppress_validation_emails = bool
-    maker_onboarding_markdown  = string
-    maker_onboarding_url       = string
   })
   description = <<DESCRIPTION
   - `is_usage_insights_disabled`: Whether usage insights are disabled for the Power Platform managed environment.
@@ -67,9 +65,6 @@ variable "power_platform_managed_environment" {
   - `max_limit_user_sharing`: The maximum limit for user sharing in the Power Platform managed environment.
   - `solution_checker_mode`: The solution checker mode for the Power Platform managed environment.
   - `suppress_validation_emails`: Whether validation emails are suppressed for the Power Platform managed environment.
-  - `maker_onboarding_markdown`: The onboarding markdown for makers in the Power Platform managed environment.
-  - `maker_onboarding_url`: The onboarding URL for makers in the Power Platform managed environment.
-DESCRIPTION
 }
 
 variable "primary_subnet_id" {

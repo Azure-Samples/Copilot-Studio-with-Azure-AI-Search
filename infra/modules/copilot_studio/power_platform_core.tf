@@ -74,7 +74,5 @@ resource "powerplatform_managed_environment" "this" {
   max_limit_user_sharing     = var.power_platform_managed_environment.max_limit_user_sharing
   solution_checker_mode      = var.power_platform_managed_environment.solution_checker_mode
   suppress_validation_emails = var.power_platform_managed_environment.suppress_validation_emails
-  maker_onboarding_markdown  = var.power_platform_managed_environment.maker_onboarding_markdown
-  maker_onboarding_url       = var.power_platform_managed_environment.maker_onboarding_url
 }
 
