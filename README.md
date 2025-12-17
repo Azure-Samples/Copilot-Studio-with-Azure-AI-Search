@@ -47,6 +47,14 @@ network security.
 - Pre-configured backend setup for remote state storage.
 - Documentation and examples for quick onboarding and usage.
 
+## CAIRA Assets
+This is one of several acceleration assets within the CAIRA (Composable AI Reference Architectures) suite.
+
+| Asset | Purpose | What it offers | Link |
+|-------|---------------|----------------|------------|
+| **AI Foundry Acceleration** | For organizations building modern AI solutions in the cloud | • Faster time to value: Deploy enterprise AI solutions with minimal upfront investment using reliable accelerator components<br>• Enterprise-grade security and observability acceleration: Baseline configurations with private networking, security controls, and compliance patterns<br>• Infrastructure as Code: Repeatable, version-controlled deployments with composable Terraform modules for Azure AI Foundry and supporting infrastructure<br>• Agentic acceleration: Deploy and configure through natural language, with seamless agent communication | [aka.ms/CAIRA](https://github.com/microsoft/CAIRA) |
+| **Copilot Studio + Azure AI Search Acceleration** | For customers building enterprise solutions involving the low-code platform Copilot Studio (Power Platform) | • Rapid provisioning: Deploy a full Copilot Studio + Azure AI Search environment<br>• Enterprise-ready baseline: Preconfigured networking (VNets, private endpoints) and secure authentication patterns<br>• CI/CD friendly: Modular Terraform templates for repeatable, automated deployments<br>• Faster time-to-value: Move from proof-of-concept to production quickly and confidently<br>• Extensible architecture: Supports bring-your-own networking and ALM patterns for dev/test/prod environments | This repository |
+
 ## Architecture
 
 This enterprise-ready architecture demonstrates how to securely connect Copilot Studio with Azure AI Search through a private virtual network infrastructure. The solution focuses on data security, network isolation, and compliance with enterprise governance policies.
