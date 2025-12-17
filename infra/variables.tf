@@ -360,8 +360,6 @@ variable "power_platform_managed_environment" {
     max_limit_user_sharing     = number
     solution_checker_mode      = string
     suppress_validation_emails = bool
-    maker_onboarding_markdown  = string
-    maker_onboarding_url       = string
   })
   default = {
     id                         = "" # Optional. If provided, the module will attempt to use the existing managed environment. If left blank, a new environment will be created.
@@ -371,8 +369,6 @@ variable "power_platform_managed_environment" {
     max_limit_user_sharing     = 0
     solution_checker_mode      = "None"
     suppress_validation_emails = false
-    maker_onboarding_markdown  = ""
-    maker_onboarding_url       = ""
   }
   description = "Configuration for the Power Platform managed environment"
 }
