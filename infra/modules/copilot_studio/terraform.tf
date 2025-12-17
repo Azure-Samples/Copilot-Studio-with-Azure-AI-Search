@@ -6,11 +6,11 @@ terraform {
   required_providers {
     azapi = {
       source  = "Azure/azapi"
-      version = "2.7.0"
+      version = "2.8.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.54.0"
+      version = "4.56.0"
     }
     modtm = {
       source  = "Azure/modtm"
@@ -18,7 +18,7 @@ terraform {
     }
     powerplatform = {
       source  = "microsoft/power-platform"
-      version = "3.9.1"
+      version = "4.0.0"
     }
     random = {
       source  = "hashicorp/random"
