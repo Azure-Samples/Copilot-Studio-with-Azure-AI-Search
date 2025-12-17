@@ -20,10 +20,20 @@ on:
     # Set this to the mainline branch you are using
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - 'decision-log/**'
+      - 'cicd/**'
+      - '*.md'
   pull_request:
     # Run when pull requests are opened or updated
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - 'decision-log/**'
+      - 'cicd/**'
+      - '*.md'
 
 # GitHub Actions workflow to deploy to Azure using azd
 # Ensure only one deployment runs at a time to prevent conflicts
