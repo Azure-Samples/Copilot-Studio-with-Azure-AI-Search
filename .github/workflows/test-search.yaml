@@ -110,7 +110,7 @@ jobs:
         continue-on-error: true # Continue even if tests fail to ensure artifacts are uploaded
 
       - name: Upload test results as workflow artifact
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: (!cancelled()) # Upload artifacts even if tests fail
         with:
           name: pytest-test-results
@@ -120,7 +120,7 @@ jobs:
           retention-days: 30
 
       - name: Publish pytest test results
-        uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
+        uses: dorny/test-reporter@e17be7e0078fc00f61965f3b4032f1e1fdc7fcfb # v2.4.0
         if: (!cancelled()) # Run even if tests fail
         with:
           name: Azure AI Search E2E Tests
