@@ -18,7 +18,7 @@ module "azure_open_ai" {
   kind                               = "OpenAI"
   location                           = local.primary_azure_region
   name                               = azurecaf_name.main_names.results["azurerm_cognitive_account"]
-  resource_group_name                = local.resource_group_name
+  parent_id                          = local.resource_group_id
   enable_telemetry                   = true
   sku_name                           = "S0"
   local_auth_enabled                 = true
