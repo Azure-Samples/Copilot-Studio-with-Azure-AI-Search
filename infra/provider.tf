@@ -20,7 +20,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.57.0"
+      version = "4.58.0"
     }
     modtm = {
       source  = "Azure/modtm"
