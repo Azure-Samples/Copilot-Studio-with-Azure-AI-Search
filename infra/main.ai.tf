@@ -14,11 +14,11 @@ module "azure_open_ai" {
   # checkov:skip=CKV_AZURE_236: The Power Platform AI Search connector only supports service principal, API key, or interactive auth. 
   # checkov:skip=CKV_TF_1: Using published module version for maintainability. See decision-log/001-avm-usage-and-version.md for details.
   source                             = "Azure/avm-res-cognitiveservices-account/azurerm"
-  version                            = "0.10.1"
+  version                            = "0.10.2"
   kind                               = "OpenAI"
   location                           = local.primary_azure_region
   name                               = azurecaf_name.main_names.results["azurerm_cognitive_account"]
-  resource_group_name                = local.resource_group_name
+  parent_id                          = local.resource_group_id
   enable_telemetry                   = true
   sku_name                           = "S0"
   local_auth_enabled                 = true
