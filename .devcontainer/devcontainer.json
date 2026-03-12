@@ -57,7 +57,7 @@
         "DOTNET_CLI_TELEMETRY_OPTOUT": "1"
     },
     "remoteEnv": {
-        "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+        "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin:/home/vscode/.dotnet/tools"
     },
     "postCreateCommand": "sh .devcontainer/postCreate.sh",
     "remoteUser": "vscode",
