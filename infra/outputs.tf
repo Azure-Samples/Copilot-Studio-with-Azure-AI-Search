@@ -45,7 +45,7 @@ output "openai_endpoint" {
 
 output "openai_resource_name" {
   description = "The name of the Azure OpenAI resource"
-  value       = module.azure_open_ai.resource.name
+  value       = azurecaf_name.main_names.results["azurerm_cognitive_account"]
 }
 
 output "primary_azure_region" {

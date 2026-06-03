@@ -18,7 +18,7 @@ module "azure_open_ai" {
   kind                               = "OpenAI"
   location                           = local.primary_azure_region
   name                               = azurecaf_name.main_names.results["azurerm_cognitive_account"]
-  resource_group_name                = local.resource_group_name
+  parent_id                          = local.resource_group_id
   enable_telemetry                   = true
   sku_name                           = "S0"
   local_auth_enabled                 = true
@@ -55,7 +55,7 @@ resource "time_sleep" "wait_for_openai_provisioning" {
 
   # Ensure the OpenAI service is in a ready state before proceeding with private endpoint creation
   triggers = {
-    openai_id = module.azure_open_ai.resource.id
+    openai_id = module.azure_open_ai.resource_id
   }
 }
 
@@ -69,7 +69,7 @@ resource "azurerm_private_endpoint" "openai_pe" {
 
   private_service_connection {
     name                           = "pe_endpoint_connection"
-    private_connection_resource_id = module.azure_open_ai.resource.id
+    private_connection_resource_id = module.azure_open_ai.resource_id
     subresource_names              = ["account"]
     is_manual_connection           = false
   }
@@ -101,7 +101,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "aoai_dns_links" {
 # DNS A record for Azure OpenAI private endpoint
 # Reference the separately created private endpoint
 resource "azurerm_private_dns_a_record" "aoai_dns_record" {
-  name                = module.azure_open_ai.resource.name
+  name                = azurecaf_name.main_names.results["azurerm_cognitive_account"]
   zone_name           = azurerm_private_dns_zone.aoai_dns.name
   resource_group_name = local.resource_group_name
   ttl                 = 10
