@@ -14,6 +14,7 @@ tflint --init
 # Install PowerApps CLI (Microsoft.PowerApps.CLI.Tool)
 echo "Installing PowerApps CLI..."
 dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.49.3
+export PATH="$PATH:/home/vscode/.dotnet/tools"
 
 # Restore .NET packages including Microsoft.Agents.CopilotStudio.Client
 echo "Restoring .NET packages..."
