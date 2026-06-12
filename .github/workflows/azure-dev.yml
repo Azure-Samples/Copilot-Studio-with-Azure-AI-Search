@@ -122,7 +122,7 @@ jobs:
           echo "DOTNET_ROOT=$DOTNET_INSTALL_DIR" >> $GITHUB_ENV
 
       - name: Install Power Platform Tools
-        uses: microsoft/powerplatform-actions/actions-install@6c7b538671a040d11afd8ab94d77bfe3b3ed87e6 # v1.9.1
+        uses: microsoft/powerplatform-actions/actions-install@59c0b2abadc26618ca914c689ab9dc399da4d6bb # v1.9.2
         with:
           add-tools-to-path: true
 
