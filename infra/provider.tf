@@ -16,11 +16,11 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "3.8.0"
+      version = "3.9.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.77.0"
+      version = "4.79.0"
     }
     modtm = {
       source  = "Azure/modtm"
@@ -79,7 +79,6 @@ provider "powerplatform" {
   # PowerPlatform provider will use the same credentials as Azure provider by default
   use_cli = true
 }
-
 
 
 
