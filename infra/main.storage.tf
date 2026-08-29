@@ -59,7 +59,7 @@ module "storage_account_and_container" {
   account_kind                    = "StorageV2"
   location                        = local.primary_azure_region
   name                            = azurecaf_name.main_names.results["azurerm_storage_account"]
-  resource_group_name             = local.resource_group_name
+  parent_id                       = local.resource_group_id
   min_tls_version                 = "TLS1_2"
   shared_access_key_enabled       = false
   public_network_access_enabled   = false
@@ -119,4 +119,3 @@ module "storage_account_and_container" {
     azurerm_private_dns_zone_virtual_network_link.blob_storage_vnet_link
   ]
 }
-

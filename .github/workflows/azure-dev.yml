@@ -121,12 +121,13 @@ jobs:
           echo "$DOTNET_INSTALL_DIR" >> $GITHUB_PATH
           echo "DOTNET_ROOT=$DOTNET_INSTALL_DIR" >> $GITHUB_ENV
 
-      - name: Install Power Platform Tools
-        uses: microsoft/powerplatform-actions/actions-install@0e44beb5424af932af47250a2568eba4c259e3d8 # v1.10.0
-        with:
-          add-tools-to-path: true
-
       - name: Install Power Platform CLI
+        shell: bash
+        run: |
+          dotnet tool install Microsoft.PowerApps.CLI.Tool --version 1.49.3 --tool-path "$RUNNER_TEMP/powerplatform-tools"
+          echo "$RUNNER_TEMP/powerplatform-tools" >> "$GITHUB_PATH"
+
+      - name: Verify Power Platform CLI
         run: |
           pac help
 
