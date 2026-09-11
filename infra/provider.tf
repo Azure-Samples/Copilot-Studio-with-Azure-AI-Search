@@ -12,7 +12,7 @@ terraform {
   required_providers {
     azapi = {
       source  = "Azure/azapi"
-      version = "2.10.0"
+      version = "2.12.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
@@ -20,7 +20,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.79.0"
+      version = "5.4.0"
     }
     modtm = {
       source  = "Azure/modtm"
@@ -28,7 +28,7 @@ terraform {
     }
     powerplatform = {
       source  = "microsoft/power-platform"
-      version = "4.1.0"
+      version = "4.2.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -36,7 +36,7 @@ terraform {
     }
     time = {
       source  = "hashicorp/time"
-      version = "0.14.0"
+      version = "0.14.1"
     }
     azurecaf = {
       source  = "aztfmod/azurecaf"
